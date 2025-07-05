@@ -34,7 +34,7 @@ export default function Sidebar() {
   const menuItems = menus[activeMenu];
 
   return (
-    <aside className="w-[183px] h-screen bg-[#F8F8F8] border-r-[2px] border-[#E7E7E7] flex flex-col py-[4px] px-[2px]">
+    <aside className="w-[183px] h-full bg-[#F8F8F8] border-r-[2px] border-[#E7E7E7] flex flex-col py-[4px] px-[2px]">
       <nav className="flex flex-col text-[18px]">
         {menuItems.map((item) => (
           <Link
