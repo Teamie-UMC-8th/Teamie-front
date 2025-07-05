@@ -14,13 +14,13 @@ export default function TeamCalendarPage() {
           placeholder="일정명을 입력해주세요"
         />
         {/* 일자, 시작시간, 장소 한 줄 배치 */}
-        <div className="flex gap-8 w-full">
+        <div className="flex gap-40 w-full">
           {/* 일자 */}
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <span className="font-medium bg-[#DAF3F3] px-2 py-1 rounded">일자</span>
+          <div className="flex items-center gap-1 min-w-0">
+            <span className="font-medium bg-[#DAF3F3] flex justify-center items-center text-center w-[100px] h-10 rounded px-1 py-0.5">일자</span>
             <button
               type="button"
-              className="p-2 rounded hover:bg-gray-100"
+              className="p-1 rounded hover:bg-gray-100"
               onClick={() =>
                 dateInputRef.current &&
                 dateInputRef.current.showPicker &&
@@ -36,26 +36,23 @@ export default function TeamCalendarPage() {
             />
           </div>
           {/* 시작시간 */}
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <button type="button" className="p-2 rounded hover:bg-gray-100">
-              <Image src="/icons/arrow-down.svg" alt="시작시간" width={24} height={24} />
-            </button>
-            <span className="font-medium bg-[#DAF3F3] px-2 py-1 rounded">시작시간</span>
-            <button>
+          <div className="flex items-center gap-1 min-w-0">
+            <span className="font-medium bg-[#DAF3F3] flex justify-center items-center text-center w-[100px] h-10 rounded px-1 py-0.5">시작시간</span>
+            <button className="p-1">
               <Image src="/icons/timePicker.svg" alt="일자" width={24} height={24} />
             </button>
           </div>
           {/* 장소 */}
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <span className="font-medium bg-[#DAF3F3] px-2 py-1 rounded">장소</span>
+          <div className="flex items-center gap-1 min-w-0">
+            <span className="font-medium bg-[#DAF3F3] flex justify-center items-center text-center w-[100px] h-10 rounded px-1 py-0.5">장소</span>
             <input
               type="text"
-              className="flex-1 border border-transparent rounded px-2 py-2 focus:outline-none focus:ring text-sm"
+              className="border border-transparent rounded px-1 py-1 focus:outline-none focus:ring text-sm"
               placeholder="장소 입력"
             />
             <button
               type="button"
-              className="ml-2 px-3 py-2 bg-blue-100 text-blue-700 rounded font-medium hover:bg-blue-200 transition"
+              className="ml-1 px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium hover:bg-blue-200 transition"
             >
               리마인드 메세지
             </button>
@@ -63,23 +60,24 @@ export default function TeamCalendarPage() {
         </div>
         {/* 참석자 */}
         <div className="flex items-center gap-3 w-full">
-          <span className="font-medium bg-[#DAF3F3] px-2 py-1 rounded">참석자</span>
-            <button type="button" className="p-2 rounded hover:bg-gray-100">
+          <span className="font-medium bg-[#DAF3F3] flex justify-center items-center text-center w-[100px] h-10 rounded">참석자</span>
+          <button type="button" className="p-2 rounded hover:bg-gray-100">
             <Image src="/icons/addPerson.svg" alt="참석자" width={24} height={24} />
-            </button>
+          </button>
         </div>
         {/* 비고 */}
         <div className="flex items-start gap-3 w-full">
-          <span className="font-medium w-20 mt-2 bg-[#DAF3F3] px-2 py-1 rounded">비고</span>
+          <span className="font-medium w-[100px] h-10 flex justify-center items-center text-center mt-2 bg-[#DAF3F3] rounded">비고</span>
           <textarea
-            className="w-2/5 border border-[#BBBBBB] rounded px-3 py-2 focus:outline-none focus:ring resize-none"
+            className="border border-[#BBBBBB] rounded px-3 py-2 focus:outline-none focus:ring resize-none"
+            style={{ width: '500px' }}
             rows={3}
             placeholder="비고를 입력하세요"
           />
         </div>
         {/* 회의록 */}
         <div className="w-full">
-          <span className="font-medium w-20 mt-2 block mb-2">회의록</span>
+          <span className="font-medium w-[100px] h-10 flex justify-center items-center text-center mt-2 block mb-2 bg-[#DAF3F3] rounded">회의록</span>
           <textarea
             className="w-full border border-[#BBBBBB] rounded px-3 py-2 focus:outline-none focus:ring resize-none"
             rows={5}
