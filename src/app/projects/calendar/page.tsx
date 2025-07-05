@@ -1,8 +1,92 @@
+"use client";
+import Image from "next/image";
+import { useRef } from "react";
+
 export default function TeamCalendarPage() {
+  const dateInputRef = useRef<HTMLInputElement>(null);
   return (
-    <div className="flex flex-col items-center h-screen py-20">
-      <h1 className="text-2xl font-bold mb-4">팀 캘린더</h1>
-      <p className="text-gray-600">이런 식으로 페이지를 작성하시면 됩니다!</p>
+    <div className="flex flex-col items-center h-screen py-20 bg-gray-50">
+      <form className="w-full bg-white rounded-lg shadow p-12 space-y-8">
+        {/* 일정명 입력 */}
+        <input
+          type="text"
+          className="w-full text-2xl font-bold mb-8 border-b-2 border-gray-200 focus:border-blue-500 outline-none bg-transparent placeholder-gray-400"
+          placeholder="일정명을 입력해주세요"
+        />
+        {/* 일자, 시작시간, 장소 한 줄 배치 */}
+        <div className="flex gap-8 w-full">
+          {/* 일자 */}
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <span className="font-medium bg-[#DAF3F3] px-2 py-1 rounded">일자</span>
+            <button
+              type="button"
+              className="p-2 rounded hover:bg-gray-100"
+              onClick={() =>
+                dateInputRef.current &&
+                dateInputRef.current.showPicker &&
+                dateInputRef.current.showPicker()
+              }
+            >
+              <Image src="/icons/calendar.svg" alt="일자" width={24} height={24} />
+            </button>
+            <input
+              type="date"
+              ref={dateInputRef}
+              className="hidden"
+            />
+          </div>
+          {/* 시작시간 */}
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <button type="button" className="p-2 rounded hover:bg-gray-100">
+              <Image src="/icons/arrow-down.svg" alt="시작시간" width={24} height={24} />
+            </button>
+            <span className="font-medium bg-[#DAF3F3] px-2 py-1 rounded">시작시간</span>
+            <span className="text-gray-400 ml-2 text-sm truncate bg-[#DAF3F3] px-2 py-1 rounded">시간 선택</span>
+          </div>
+          {/* 장소 */}
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <span className="font-medium bg-[#DAF3F3] px-2 py-1 rounded">장소</span>
+            <input
+              type="text"
+              className="flex-1 border border-transparent rounded px-2 py-2 focus:outline-none focus:ring text-sm"
+              placeholder="장소 입력"
+            />
+            <button
+              type="button"
+              className="ml-2 px-3 py-2 bg-blue-100 text-blue-700 rounded font-medium hover:bg-blue-200 transition"
+            >
+              리마인드 메세지
+            </button>
+          </div>
+        </div>
+        {/* 참석자 */}
+        <div className="flex items-center gap-3 w-full">
+          <span className="font-medium bg-[#DAF3F3] px-2 py-1 rounded">참석자</span>
+            <button type="button" className="p-2 rounded hover:bg-gray-100">
+            <Image src="/icons/profile.svg" alt="참석자" width={24} height={24} />
+            </button>
+          <span className="text-gray-400 ml-auto bg-[#DAF3F3] px-2 py-1 rounded">참석자 선택</span>
+        </div>
+        {/* 비고 */}
+        <div className="flex items-start gap-3 w-full">
+          <span className="font-medium w-20 mt-2 bg-[#DAF3F3] px-2 py-1 rounded">비고</span>
+          <textarea
+            className="w-2/5 border border-[#BBBBBB] rounded px-3 py-2 focus:outline-none focus:ring resize-none"
+            rows={3}
+            placeholder="비고를 입력하세요"
+          />
+        </div>
+        {/* 회의록 */}
+        <div className="w-full">
+          <span className="font-medium w-20 mt-2 block mb-2">회의록</span>
+          <textarea
+            className="w-full border border-[#BBBBBB] rounded px-3 py-2 focus:outline-none focus:ring resize-none"
+            rows={5}
+            placeholder="회의록을 입력하거나 저장하세요"
+          />
+        </div>
+
+      </form>
     </div>
   );
 }
