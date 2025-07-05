@@ -1,10 +1,14 @@
 'use client';
 
+import { useState } from 'react';
 import { Searchbar } from '@/components/Searchbar';
 import ToggleButton from '@/components/ToggleButton';
-import StepsBoard from '@/features/steps/StepsBoard';
+import StepsBoard from '@/features/boards/StepsBoard';
+import StatusBoard from '@/features/boards/StatusBoard';
 
 export default function DashboardPage() {
+  const [isStepView, setIsStepView] = useState(true);
+
   return (
     <div className="min-h-screen w-full bg-white flex flex-col">
       <header className="flex items-center justify-between pb-[16px] px-[8px] border-b-[2px] border-[#E7E7E7]">
@@ -19,13 +23,11 @@ export default function DashboardPage() {
       <ToggleButton
         leftLabel="STEP 별로 보기"
         rightLabel="진행 상태별로 보기"
-        onToggle={(isLeftSelected) => {
-          console.log(isLeftSelected ? 'STEP' : '진행 상태');
-        }}
+        onToggle={(isLeftSelected) => setIsStepView(isLeftSelected)}
       />
 
       <main className="flex-1 overflow-x-auto">
-        <StepsBoard />
+        {isStepView ? <StepsBoard /> : <StatusBoard />}
       </main>
     </div>
   );

@@ -7,7 +7,7 @@ export default function StepsBoard() {
   const { steps, openStepIds, toggleStep, addStep } = useSteps();
 
   return (
-    <div className="grid grid-cols-4 gap-x-[36px] gap-y-[60px] mt-[40px] px-[35px]">
+    <div className="grid grid-cols-4 gap-x-[36px] gap-y-[60px] mt-[60px] px-[35px]">
       {steps.map((step) => (
         <div key={step.id} className="flex flex-col">
           <StepHeader

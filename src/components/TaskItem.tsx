@@ -6,7 +6,7 @@ interface TaskItemProps {
   title: string;
   status: '시작 전' | '진행 중' | '완료';
   deadline: string;
-  assignee?: string;
+  assignee?: string[];
 }
 
 export default function TaskItem({ title, status, deadline, assignee }: TaskItemProps) {
@@ -52,15 +52,18 @@ export default function TaskItem({ title, status, deadline, assignee }: TaskItem
           </div>
         </div>
 
-        {assignee && (
-          <div className="mt-auto">
-            <div
-              className="inline-flex items-center gap-[4px] rounded-[30px] p-[3px] pr-[9px]"
-              style={{ boxShadow: '1px 1px 4px 0 rgba(0,0,0,0.25)' }}
-            >
-              <img src="/icons/assignee.svg" alt="참석자 아이콘" className="w-[16px] h-[16px]" />
-              <span className="text-[12px]">{assignee}</span>
-            </div>
+        {assignee && assignee.length > 0 && (
+          <div className="mt-auto flex flex-wrap gap-2">
+            {assignee.map((name, index) => (
+              <div
+                key={index}
+                className="inline-flex items-center gap-[4px] rounded-[30px] p-[3px] pr-[9px]"
+                style={{ boxShadow: '1px 1px 4px 0 rgba(0,0,0,0.25)' }}
+              >
+                <img src="/icons/assignee.svg" alt="참석자 아이콘" className="w-[16px] h-[16px]" />
+                <span className="text-[12px]">{name}</span>
+              </div>
+            ))}
           </div>
         )}
       </div>
