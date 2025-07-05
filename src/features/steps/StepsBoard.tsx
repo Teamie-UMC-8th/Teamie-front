@@ -18,7 +18,6 @@ export default function StepsBoard() {
 
           {openStepIds.includes(step.id) && (
             <div className="flex flex-col gap-3 mt-6">
-              {step.items.length === 0 && <div></div>}
               {step.items.map((item) => (
                 <TaskItem
                   key={item.id}
@@ -28,7 +27,10 @@ export default function StepsBoard() {
                   assignee={item.assignee}
                 />
               ))}
-              <AddTaskButton stepName={step.name} />
+              <AddTaskButton
+                stepName={step.name}
+                className={step.items.length > 0 ? 'mt-[8px]' : ''}
+              />
             </div>
           )}
         </div>
