@@ -27,7 +27,7 @@ export default function TeamCalendarPage() {
                 dateInputRef.current.showPicker()
               }
             >
-              <Image src="/icons/calendar.svg" alt="일자" width={24} height={24} />
+              <Image src="/icons/dayPicker.svg" alt="일자" width={24} height={24} />
             </button>
             <input
               type="date"
@@ -41,7 +41,9 @@ export default function TeamCalendarPage() {
               <Image src="/icons/arrow-down.svg" alt="시작시간" width={24} height={24} />
             </button>
             <span className="font-medium bg-[#DAF3F3] px-2 py-1 rounded">시작시간</span>
-            <span className="text-gray-400 ml-2 text-sm truncate bg-[#DAF3F3] px-2 py-1 rounded">시간 선택</span>
+            <button>
+              <Image src="/icons/timePicker.svg" alt="일자" width={24} height={24} />
+            </button>
           </div>
           {/* 장소 */}
           <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -63,9 +65,8 @@ export default function TeamCalendarPage() {
         <div className="flex items-center gap-3 w-full">
           <span className="font-medium bg-[#DAF3F3] px-2 py-1 rounded">참석자</span>
             <button type="button" className="p-2 rounded hover:bg-gray-100">
-            <Image src="/icons/profile.svg" alt="참석자" width={24} height={24} />
+            <Image src="/icons/addPerson.svg" alt="참석자" width={24} height={24} />
             </button>
-          <span className="text-gray-400 ml-auto bg-[#DAF3F3] px-2 py-1 rounded">참석자 선택</span>
         </div>
         {/* 비고 */}
         <div className="flex items-start gap-3 w-full">
