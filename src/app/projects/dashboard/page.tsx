@@ -1,5 +1,6 @@
 'use client';
 
+import { Searchbar } from '@/components/Searchbar';
 import { useState } from 'react';
 
 interface StepItem {
@@ -82,19 +83,11 @@ export default function DashboardPage() {
     <div className="min-h-screen w-full bg-white flex flex-col">
       <header className="flex items-center justify-between mb-[16px] px-[8px]">
         <h1 className="text-[24px] font-bold">업무 대시보드</h1>
-        <div className="flex items-center gap-3">
-          <div className="w-[332px] h-[39px] flex items-center px-[10px] py-[6px] justify-between bg-[#E7E7E7] rounded-[4px]">
-            <input
-              type="text"
-              placeholder="검색어를 입력하세요."
-              className="rounded text-[18px] pl-[2px] text-[#898989]"
-            />
-            <img src="/icons/search.svg" className="w-[28px] h-[28px]" />
-          </div>
-          <button>
-            <img src="/icons/filter.svg" className="w-[32px] h-[32px]" />
-          </button>
-        </div>
+        <Searchbar
+          placeholder="검색어를 입력하세요."
+          onChange={(e) => console.log(e.target.value)}
+          onFilterClick={() => console.log('필터 버튼 클릭')}
+        />
       </header>
       <div className="border-t-[2px] px-[8px] py-[20px] border-[#E7E7E7]">
         <div className="inline-flex items-center p-[4px] bg-[#F8F8F8] border border-[#E7E7E7] rounded-[4px]">
