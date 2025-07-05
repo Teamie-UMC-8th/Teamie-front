@@ -1,5 +1,7 @@
 'use client';
 
+import { formatDate } from '@/utils/formatDate';
+
 interface TaskItemProps {
   title: string;
   status: '시작 전' | '진행 중' | '완료';
@@ -8,15 +10,6 @@ interface TaskItemProps {
 }
 
 export default function TaskItem({ title, status, deadline, assignee }: TaskItemProps) {
-  const formatDate = (date: string | undefined) => {
-    if (!date) return '마감일 없음';
-    const d = new Date(date);
-    if (isNaN(d.getTime())) return '마감일 없음';
-    const month = d.getMonth() + 1;
-    const day = d.getDate();
-    return `${month}월 ${day}일`;
-  };
-
   return (
     <div className="bg-white w-[325px] h-[122px] rounded-[8px] border border-[#BBBBBB] p-4 flex items-start gap-3">
       <label className="inline-flex items-center flex-shrink-0 mt-1">
