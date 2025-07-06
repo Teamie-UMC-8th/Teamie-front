@@ -1,9 +1,9 @@
 import TaskItem from '@/components/TaskItem';
-import { mockSteps } from '../../constants/mockData';
-import { STATUS_ORDER } from '../../constants/constants';
+import { STATUS_ORDER } from '@/constants/constants';
+import { BoardProps } from '@/types/board';
 
-export default function StatusBoard() {
-  const allTasks = mockSteps.flatMap((step) => step.items);
+export default function StatusBoard({ steps, projectId }: BoardProps) {
+  const allTasks = steps.flatMap((step) => step.items);
 
   return (
     <div className="flex gap-[80px] mt-[60px] ml-[35px]">
@@ -21,8 +21,11 @@ export default function StatusBoard() {
 
             <div className="mt-4">
               {tasksByStatus.map((task) => (
+                // Task 목록 렌더링
                 <TaskItem
                   key={task.id}
+                  projectId={projectId}
+                  id={task.id}
                   title={task.title}
                   status={task.status}
                   deadline={task.deadline}
