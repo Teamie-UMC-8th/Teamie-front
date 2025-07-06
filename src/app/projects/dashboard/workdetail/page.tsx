@@ -1,7 +1,7 @@
 export default function workDetailPage() {
   return (
     <div>
-      <header className="flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <div className="flex items-center">
           <img
             src="/icons/arrow-left.svg"
@@ -13,12 +13,12 @@ export default function workDetailPage() {
           </h1>
         </div>
         <img src="/icons/delete.svg" alt="삭제" className="mt-[28px]" />
-      </header>
+      </div>
 
       {/* Divider line */}
       <div className="mt-[10px] ml-[88px] border-[#E7E7E7] border-[1px] " />
 
-      <body>
+      <div>
         <div className="flex flex-row mt-[60px] ml-[128px] items-center">
           <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px]">
             마감 기한
@@ -69,7 +69,7 @@ export default function workDetailPage() {
           <p className="ml-[20px] text-[18px] ">활동 기록 보기</p>
           <img className="pl-[40px]" src="/icons/toggledesign.svg" alt="활동기록" />
         </div>
-      </body>
+      </div>
     </div>
   );
 }

@@ -1,13 +1,34 @@
-import Link from 'next/link';
+'use client';
 
-export default function CalendarPage() {
+import { useState } from 'react';
+import { Searchbar } from '@/components/Searchbar';
+import ToggleButton from '@/components/ToggleButton';
+import StepsBoard from '@/features/boards/StepsBoard';
+import StatusBoard from '@/features/boards/StatusBoard';
+
+export default function DashboardPage() {
+  const [isStepView, setIsStepView] = useState(true);
+
   return (
-    <div className="flex flex-col items-center h-screen py-20">
-      <h1 className="text-2xl font-bold mb-4">업무 상세 페이지</h1>
-      <p className="text-gray-600">이런 식으로 페이지를 작성하시면 됩니다!</p>
-      <Link href="/projects/dashboard/workdetail">
-        <button className="mt-10  border border-[#BBBBBB]">업무 상세페이지</button>
-      </Link>
+    <div className="min-h-screen w-full bg-white flex flex-col">
+      <header className="flex items-center justify-between pb-[16px] px-[8px] border-b-[2px] border-[#E7E7E7]">
+        <h1 className="text-[24px] font-bold">업무 대시보드</h1>
+        <Searchbar
+          placeholder="검색어를 입력하세요."
+          onChange={() => {}}
+          onFilterClick={() => {}}
+        />
+      </header>
+
+      <ToggleButton
+        leftLabel="STEP 별로 보기"
+        rightLabel="진행 상태별로 보기"
+        onToggle={(isLeftSelected) => setIsStepView(isLeftSelected)}
+      />
+
+      <main className="flex-1 overflow-x-auto">
+        {isStepView ? <StepsBoard /> : <StatusBoard />}
+      </main>
     </div>
   );
 }

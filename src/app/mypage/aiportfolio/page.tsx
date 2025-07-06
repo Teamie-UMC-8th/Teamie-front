@@ -3,17 +3,17 @@
 export default function aiportfolio() {
   return (
     <div>
-      <header className="flex items-center">
+      <div className="flex items-center">
         <img src="/icons/arrow-left.svg" alt="뒤로가기" className="mt-[29px] ml-[97px]" />
         <h1 className="text-[24px] text-[#898989] font-semibold mt-[28px] ml-[20px]">
           제출처를 입력해주세요.
         </h1>
-      </header>
+      </div>
 
       {/* Divider line */}
       <div className="mt-[10px] ml-[128px] border-[#E7E7E7] border-[1px] " />
 
-      <body>
+      <div>
         <div className="flex flex-row mt-[60px] ml-[168px] items-center">
           <div className="w-[100px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px]">
             생성 일자
@@ -64,7 +64,7 @@ export default function aiportfolio() {
         <button className="mt-[60px] ml-[770.5px] cursor-pointer ">
           <img src="/icons/AiPortfolioCreate.svg" alt="포트폴리오생성" />
         </button>
-      </body>
+      </div>
     </div>
   );
 }

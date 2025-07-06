@@ -11,7 +11,7 @@ export default function AddTaskButton({ stepName, className = '' }: AddTaskButto
 
   return (
     <button
-      className={`flex bg-[#FFFFFF] text-[#898989] w-[325px] h-[44px] items-center justify-center rounded-[8px] text-[16px] cursor-pointer border border-[#BBBBBB] border-[1.5px] ${className}`}
+      className={`flex bg-[#FFFFFF] text-[#898989] w-[325px] h-[44px] items-center justify-center rounded-[8px] text-[16px] border border-[#BBBBBB] border-[1.5px] ${className}`}
       onClick={handleClick}
     >
       + 업무 추가

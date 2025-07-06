@@ -2321,6 +2321,17 @@ packages:
       }
     hasBin: true
 
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+  lucide-react@0.525.0:
+    resolution: {integrity: sha512-Tm1txJ2OkymCGkvwoHt33Y2JpN5xucVq1slHcgE6Lk0WjDfjgKWor5CdVER8U6DvcfMwh4M8XxmpTiyzfmfDYQ==}
+    peerDependencies:
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+=======
+>>>>>>> dev
+>>>>>>> Stashed changes
   magic-string@0.30.17:
     resolution:
       {
@@ -4624,6 +4635,16 @@ snapshots:
     dependencies:
       js-tokens: 4.0.0
 
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+  lucide-react@0.525.0(react@19.1.0):
+    dependencies:
+      react: 19.1.0
+
+=======
+>>>>>>> dev
+>>>>>>> Stashed changes
   magic-string@0.30.17:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.4
