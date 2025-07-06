@@ -21,9 +21,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ko" className={pretendard.className}>
       <body className="bg-white">
         <Navbar />
-        <div className="flex">
-          {!hideSidebar && <Sidebar />}
-          <main className="flex-1 min-h-screen p-8">{children}</main>
+        <div className="flex min-h-screen">
+          <div className="w-[185px] min-h-screen flex-none">
+            <Sidebar />
+          </div>
+          <main className="flex-1 px-[120px] py-[60px]">{children}</main>
         </div>
       </body>
     </html>
