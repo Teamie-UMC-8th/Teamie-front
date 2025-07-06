@@ -84,7 +84,9 @@ export default function Navbar() {
             pro로 업그레이드
           </button>
           <div className="w-[32px] h-[32px] rounded-full overflow-hidden">
-            <img src="/icons/profile.svg" alt="프로필" className="w-full h-full" />
+            <Link href="/mypage">
+              <img src="/icons/profile.svg" alt="프로필" className="w-full h-full" />
+            </Link>
           </div>
         </div>
       </div>

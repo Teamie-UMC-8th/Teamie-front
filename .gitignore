@@ -35,6 +35,8 @@ yarn-error.log*
 pnpm-debug.log*
 *.log
 
+
+
 # Certificates
 *.pem
 
@@ -55,3 +57,6 @@ __MACOSX/
 
 # Vercel
 .vercel
+
+# pnpm workspace
+.pnpm-store
