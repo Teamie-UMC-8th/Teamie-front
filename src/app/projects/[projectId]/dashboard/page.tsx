@@ -1,13 +1,22 @@
 'use client';
 
+import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { Searchbar } from '@/components/Searchbar';
 import ToggleButton from '@/components/ToggleButton';
 import StepsBoard from '@/features/boards/StepsBoard';
 import StatusBoard from '@/features/boards/StatusBoard';
+import { mockProjects } from '@/constants/mockData';
 
 export default function DashboardPage() {
+  // 상태 관리: STEP 별로 보기 / 진행 상태별로 보기
   const [isStepView, setIsStepView] = useState(true);
+  // 프로젝트 ID 파라미터 가져오기
+  const { projectId } = useParams() as { projectId: string };
+
+  // TODO: 목데이터가 아닌 실제 데이터로 대체
+  const project = mockProjects.find((p) => p.id === projectId);
+  const steps = project?.steps ?? [];
 
   return (
     <div className="min-h-screen w-full bg-white flex flex-col">
@@ -27,7 +36,11 @@ export default function DashboardPage() {
       />
 
       <main className="flex-1 overflow-x-auto">
-        {isStepView ? <StepsBoard /> : <StatusBoard />}
+        {isStepView ? (
+          <StepsBoard steps={steps} projectId={projectId} />
+        ) : (
+          <StatusBoard steps={steps} projectId={projectId} />
+        )}
       </main>
     </div>
   );
