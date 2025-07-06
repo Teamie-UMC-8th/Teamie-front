@@ -41,7 +41,7 @@ export default function StepsBoard({ steps, projectId }: BoardProps) {
       ))}
       <button
         onClick={addStep}
-        className="flex bg-[#F8F8F8] text-[#898989] w-[325px] h-[68px] items-center justify-center rounded-[8px] font-medium text-[18px]"
+        className="flex bg-[#F8F8F8] text-[#898989] w-[325px] h-[68px] items-center justify-center rounded-[8px] font-medium text-[18px] cursor-pointer"
       >
         + STEP 추가
       </button>
