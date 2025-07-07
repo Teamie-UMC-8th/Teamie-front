@@ -1,12 +1,12 @@
 'use client';
 
 import localFont from 'next/font/local';
-import '../styles/globals.css';
+import '../../styles/globals.css';
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
 
 const pretendard = localFont({
-  src: './fonts/PretendardVariable.woff2',
+  src: '../fonts/PretendardVariable.woff2',
   display: 'swap',
   weight: '45 920',
   variable: '--font-pretendard',
