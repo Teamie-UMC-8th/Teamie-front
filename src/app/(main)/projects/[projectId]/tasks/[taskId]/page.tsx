@@ -1,3 +1,5 @@
+import CommentToggle from '@/features/boards/components/CommentToggle';
+
 export default function taskDetailPage() {
   return (
     <div>
@@ -67,7 +69,7 @@ export default function taskDetailPage() {
             />
           </div>
           <p className="ml-[20px] text-[18px] ">활동 기록 보기</p>
-          <img className="pl-[8px]" src="/icons/toggledesign.svg" alt="활동기록" />
+          <CommentToggle />
         </div>
       </div>
     </div>
