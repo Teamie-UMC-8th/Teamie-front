@@ -1,4 +1,5 @@
 import CommentToggle from '@/features/boards/components/CommentToggle';
+import TaskDropdown from '@/features/boards/components/TaskDropdown';
 
 export default function taskDetailPage() {
   return (
@@ -33,10 +34,7 @@ export default function taskDetailPage() {
           <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[160px]">
             진행상태
           </div>
-          <div className="w-[80px] h-[34px] bg-[#E7E7E7] grid place-items-center rounded-[4px] gap-[10px] ml-[28px]">
-            시작전
-          </div>
-          <img src="/icons/drop-down.svg" alt="진행상태" className="ml-[4px]" />
+          <TaskDropdown />
         </div>
 
         <div className="flex flex-row mt-[40px] ml-[128px]">
