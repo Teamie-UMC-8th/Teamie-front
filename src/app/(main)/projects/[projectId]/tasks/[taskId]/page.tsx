@@ -1,3 +1,5 @@
+'use client';
+import AddComment from '@/features/boards/components/AddComment';
 import CommentToggle from '@/features/boards/components/CommentToggle';
 import TaskDropdown from '@/features/boards/components/TaskDropdown';
 
@@ -53,22 +55,7 @@ export default function taskDetailPage() {
           <div className="w-[1109px] h-[84px] border-[2px] rounded-[6px] border-[#BBBBBB] grid place-items-center ml-[28px] "></div>
         </div>
 
-        <div className="flex flex-row mt-[83px] ml-[183px] items-center">
-          <img className="mr-[20px]" src="/icons/comment-profile.svg" alt="댓글프로필" />
-          <div className="relative">
-            <input
-              className="p-[20px] w-[1109px] h-[50px]  bg-white rounded-[8px] border-[2px] border-[#BBBBBB] "
-              placeholder="댓글을 작성하세요"
-            />
-            <img
-              className="absolute right-[7px] top-1/2 -translate-y-1/2 w-[36px] h-[36px] cursor-pointer"
-              src="/icons/comment-enter.svg"
-              alt="전송"
-            />
-          </div>
-          <p className="ml-[20px] text-[18px] ">활동 기록 보기</p>
-          <CommentToggle />
-        </div>
+        <AddComment />
       </div>
     </div>
   );
