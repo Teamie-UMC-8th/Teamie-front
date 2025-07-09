@@ -9,7 +9,7 @@ const STATUS_OPTIONS = [
 ];
 
 export default function TaskDropdown() {
-  const [selected, setSelected] = useState(STATUS_OPTIONS[1]); // '진행 중' 초기값
+  const [selected, setSelected] = useState(STATUS_OPTIONS[0]); // '시작 전' 초기값
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
@@ -48,7 +48,7 @@ export default function TaskDropdown() {
             <button
               key={option.label}
               onClick={() => handleSelect(option)}
-              className={`w-[80px] h-[34px] ${option.color} rounded-[4px] mb-[8px] last:mb-0`}
+              className={`w-[80px] h-[34px] ${option.color} rounded-[4px] mb-[8px] last:mb-0 cursor-pointer`}
             >
               {option.label}
             </button>
