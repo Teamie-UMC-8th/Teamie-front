@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import useToggle from '../hooks/useToggle';
+import CommentMenuDropdown from './CommentDropdown';
 
 export default function AddComment() {
   // 버튼을 눌렀을 때 댓글 추가
@@ -58,9 +59,7 @@ export default function AddComment() {
                 <div className="bg-[#F8F8F8] rounded-[8px] w-[1288px] h-[46px] pl-[12px] py-[10px]">
                   {cmt}
                 </div>
-                <button className="absolute right-[8px] top-1/2 -translate-y-1/2 cursor-pointer">
-                  <img src="/icons/comment-dropdown.svg" alt="댓글 드롭다운" />
-                </button>
+                <CommentMenuDropdown onSelect={(action) => console.log(action)} />
               </div>
               <div className="text-[#898989] text-[12px] ml-[12px]">
                 {new Date().toLocaleString('ko-KR', {
