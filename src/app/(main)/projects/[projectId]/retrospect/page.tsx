@@ -3,6 +3,7 @@
 import { useState } from "react";
 import PersonalSection from "@/features/retrospects/components/PersonalSection";
 
+
 export default function PersonalRetroPage() {
   const [selectedTab, setSelectedTab] = useState<"team" | "personal">("personal");
 
@@ -16,8 +17,8 @@ export default function PersonalRetroPage() {
       {/* 구분선 */}
       <hr className="w-[1495px] border-t-[2px] border-[#E7E7E7] rotate-180 mb-[20px]" />
 
-      {/* 버튼 */}
-      <div className="w-fit h-[42px] bg-[#F8F8F8] border border-[#E7E7E7] rounded-[4px] flex items-center px-[4px] py-[4px] gap-[10px] mb-[40px]"> {/*버튼이랑 회색박스 간격 조정*/}
+      {/* 탭 버튼 */}
+      <div className="w-fit h-[42px] bg-[#F8F8F8] border border-[#E7E7E7] rounded-[4px] flex items-center px-[4px] py-[4px] gap-[10px] mb-[40px]">
         <button
           onClick={() => setSelectedTab("team")}
           className={`px-[12px] py-[4px] rounded-[4px]
@@ -47,7 +48,7 @@ export default function PersonalRetroPage() {
         </button>
       </div>
 
-      {/* 개인 회고 섹션 렌더링 */}
+      {/* 개인 회고 섹션 */}
       {selectedTab === "personal" && <PersonalSection />}
     </div>
   );
