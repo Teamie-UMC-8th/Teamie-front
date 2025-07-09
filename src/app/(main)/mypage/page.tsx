@@ -10,6 +10,9 @@ export default function CalendarPage() {
       <Link href="/mypage/tailoredportfolio">
         <button className="mt-10  border border-[#BBBBBB]">AI포트폴리오</button>
       </Link>
+      <Link href="/mypage/aimasterportfolio">
+        <button className="mt-10  border border-[#BBBBBB]">AI포트폴리오</button>
+      </Link>
     </div>
   );
 }
