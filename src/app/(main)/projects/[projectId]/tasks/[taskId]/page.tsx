@@ -1,7 +1,7 @@
 'use client';
-import AddComment from '@/features/boards/components/AddComment';
-import CommentToggle from '@/features/boards/components/CommentToggle';
-import TaskDropdown from '@/features/boards/components/TaskDropdown';
+import AddComment from '@/features/tasks/components/AddComment';
+import CommentToggle from '@/features/tasks/components/CommentToggle';
+import TaskDropdown from '@/features/tasks/components/TaskDropdown';
 
 export default function taskDetailPage() {
   return (
