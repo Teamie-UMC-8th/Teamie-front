@@ -1,6 +1,8 @@
 'use client';
 
-export default function aiportfolio() {
+import TailoredDropdown from '@/features/tailored/components/tailoredDropdown';
+
+export default function tailoredPortfolio() {
   return (
     <div>
       <div className="flex items-center">
@@ -22,12 +24,8 @@ export default function aiportfolio() {
           <div className="w-[100px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[160px]">
             분류
           </div>
-          <div className="w-[75px] h-[34px] bg-[#BED9FB] grid place-items-center rounded-[4px] gap-[10px] ml-[28px]">
-            진행상태
-          </div>
-          <div className="w-[36px] h-[36px] grid place-items-center">
-            <img src="/icons/drop-down.svg" alt="진행상태" />
-          </div>
+
+          <TailoredDropdown />
           <div className="w-[100px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[160px] ">
             직무명
           </div>
