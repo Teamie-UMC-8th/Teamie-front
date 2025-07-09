@@ -1,4 +1,5 @@
 'use client';
+import AddProfileButton from '@/components/AddProfileButton';
 import AddComment from '@/features/tasks/components/AddComment';
 import CommentToggle from '@/features/tasks/components/CommentToggle';
 import TaskDropdown from '@/features/tasks/components/TaskDropdown';
@@ -31,10 +32,10 @@ export default function taskDetailPage() {
             마감 기한
           </div>
           <img src="/icons/deadline-calendar.svg" alt="마감기한" className="ml-[28px]" />
-          <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[160px]">
+          <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[160px] mr-[28px]">
             담당자
           </div>
-          <img src="/icons/plus-circle.svg" alt="담당자" className="ml-[28px]" />
+          <AddProfileButton />
           <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[160px]">
             진행상태
           </div>
