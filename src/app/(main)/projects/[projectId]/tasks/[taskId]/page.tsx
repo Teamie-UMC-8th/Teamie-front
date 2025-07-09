@@ -17,7 +17,9 @@ export default function taskDetailPage() {
             업무명을 입력해주세요.
           </h1>
         </div>
-        <img src="/icons/delete.svg" alt="삭제" className="mt-[28px]" />
+        <button className="mt-[28px] cursor-pointer">
+          <img src="/icons/delete.svg" alt="삭제" />
+        </button>
       </div>
 
       {/* Divider line */}
