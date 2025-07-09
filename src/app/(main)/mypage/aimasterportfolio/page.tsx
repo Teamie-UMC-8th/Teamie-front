@@ -1,7 +1,6 @@
 "use client";
 
 import { SetStateAction, useState } from "react";
-import { ChevronLeft } from "lucide-react";
 
 export default function ProjectMasterPortfolioPage() {
   const options = [
@@ -59,7 +58,11 @@ const toggleHistory = (index: number) => {
   return (
     <div className="relative w-full min-h-screen pb-[1000px]">
       {/* ← 아이콘 */}
-      <ChevronLeft className="absolute top-[121px] left-[120px] w-[28px] h-[28px] text-[#000000]" />
+      <img
+  src="/icons/arrow-left.svg"
+  alt="뒤로가기"
+  className="absolute top-[121px] left-[120px] w-[28px] h-[28px]"
+/>
 
       {/* 텍스트 */}
       <h2 className="absolute top-[120px] left-[168px] w-[111px] h-[29px] font-[Pretendard] font-bold text-[24px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap">
