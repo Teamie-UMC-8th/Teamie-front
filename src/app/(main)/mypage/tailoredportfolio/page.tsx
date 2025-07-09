@@ -1,6 +1,6 @@
 'use client';
 
-import TailoredDropdown from '@/features/tailored/components/TailoredDropdown';
+import TailoredDropdown from '@/features/tailored/components/tailoredDropdown';
 
 export default function tailoredPortfolio() {
   return (
