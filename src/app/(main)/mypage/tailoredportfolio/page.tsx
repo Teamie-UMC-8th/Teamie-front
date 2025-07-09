@@ -1,6 +1,6 @@
 'use client';
 
-import TailoredDropdown from '@/features/tailored/components/tailoredDropdown';
+import TailoredDropdown from '@/features/tailored/components/TailoredDropdown';
 
 export default function tailoredPortfolio() {
   return (
@@ -46,7 +46,9 @@ export default function tailoredPortfolio() {
 
         <div className="flex flex-row mt-[80px] ml-[168px]">
           <div className="text-[22px] mr-[4px]">기업 분석 정보</div>
-          <img src="/icons/mi_circle-information.svg" alt="분석 아이콘" />
+          <button className="cursor-pointer">
+            <img src="/icons/mi_circle-information.svg" alt="분석 아이콘" />
+          </button>
         </div>
         <input className="flex flex-row mt-[19px] ml-[168px] place-items-center border border-[#BBBBBB] w-[1520px] h-[200px] rounded-[8px]" />
 
