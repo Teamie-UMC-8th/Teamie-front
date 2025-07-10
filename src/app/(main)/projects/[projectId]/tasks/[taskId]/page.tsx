@@ -1,5 +1,6 @@
 'use client';
 import AddProfileButton from '@/components/AddProfileButton';
+import DeleteButton from '@/components/DeleteButton';
 import AddComment from '@/features/tasks/components/AddComment';
 import CommentToggle from '@/features/tasks/components/CommentToggle';
 import TaskDropdown from '@/features/tasks/components/TaskDropdown';
@@ -18,9 +19,7 @@ export default function taskDetailPage() {
             업무명을 입력해주세요.
           </h1>
         </div>
-        <button className="mt-[28px] cursor-pointer">
-          <img src="/icons/delete.svg" alt="삭제" />
-        </button>
+        <DeleteButton onDelete={() => {}} />
       </div>
 
       {/* Divider line */}
