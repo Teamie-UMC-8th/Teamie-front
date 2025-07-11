@@ -24,23 +24,20 @@ export default function DeleteButtonModal({ title, onConfirm, onCancel }: Delete
         {/* 버튼 그룹 */}
         <div className="flex justify-center gap-[20px]">
           <button
-            onClick={onConfirm} // 
-            className="w-[134px] h-[46px] px-[10px] py-[8px]
-                       bg-[#FFFFFF] rounded-[8px]
-                       text-[24px] leading-[30px] font-[Pretendard] font-medium
-                       text-[#000000] whitespace-nowrap cursor-pointer"
-            style={{ border: "1.5px solid #BBBBBB" }}
+
+            onClick={onConfirm}
+            className="w-[103px] h-[34px] bg-[#FFFFFF] border border-[#000000] rounded-[4px] 
+                     text-[18px] leading-[26px] font-[Pretendard] font-normal text-[#000000] whitespace-nowrap cursor-pointer"
+
           >
             예
           </button>
 
           <button
             onClick={onCancel}
-            className="w-[134px] h-[46px] px-[10px] py-[8px]
-                       bg-[#FFFFFF] rounded-[8px]
-                       text-[24px] leading-[30px] font-[Pretendard] font-medium
-                       text-[#000000] whitespace-nowrap cursor-pointer"
-            style={{ border: "1.5px solid #BBBBBB" }}
+
+            className="w-[103px] h-[34px] bg-[#FFFFFF] border border-[#000000] rounded-[4px]
+                     text-[18px] leading-[26px] font-[Pretendard] font-normal text-[#000000] whitespace-nowrap cursor-pointer"
           >
             아니오
           </button>
