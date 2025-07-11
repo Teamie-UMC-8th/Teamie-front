@@ -1,3 +1,9 @@
+'use client';
+import AddProfileButton from '@/components/AddProfileButton';
+import AddComment from '@/features/tasks/components/AddComment';
+import CommentToggle from '@/features/tasks/components/CommentToggle';
+import TaskDropdown from '@/features/tasks/components/TaskDropdown';
+
 export default function taskDetailPage() {
   return (
     <div>
@@ -12,7 +18,9 @@ export default function taskDetailPage() {
             업무명을 입력해주세요.
           </h1>
         </div>
-        <img src="/icons/delete.svg" alt="삭제" className="mt-[28px]" />
+        <button className="mt-[28px] cursor-pointer">
+          <img src="/icons/delete.svg" alt="삭제" />
+        </button>
       </div>
 
       {/* Divider line */}
@@ -24,17 +32,14 @@ export default function taskDetailPage() {
             마감 기한
           </div>
           <img src="/icons/deadline-calendar.svg" alt="마감기한" className="ml-[28px]" />
-          <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[160px]">
+          <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[160px] mr-[28px]">
             담당자
           </div>
-          <img src="/icons/plus-circle.svg" alt="담당자" className="ml-[28px]" />
+          <AddProfileButton />
           <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[160px]">
             진행상태
           </div>
-          <div className="w-[80px] h-[34px] bg-[#E7E7E7] grid place-items-center rounded-[4px] gap-[10px] ml-[28px]">
-            시작전
-          </div>
-          <img src="/icons/drop-down.svg" alt="진행상태" className="ml-[4px]" />
+          <TaskDropdown />
         </div>
 
         <div className="flex flex-row mt-[40px] ml-[128px]">
@@ -53,22 +58,7 @@ export default function taskDetailPage() {
           <div className="w-[1109px] h-[84px] border-[2px] rounded-[6px] border-[#BBBBBB] grid place-items-center ml-[28px] "></div>
         </div>
 
-        <div className="flex flex-row mt-[83px] ml-[183px] items-center">
-          <img className="mr-[20px]" src="/icons/comment-profile.svg" alt="댓글프로필" />
-          <div className="relative">
-            <input
-              className="p-[20px] w-[1109px] h-[50px]  bg-white rounded-[8px] border-[2px] border-[#BBBBBB] "
-              placeholder="댓글을 작성하세요"
-            />
-            <img
-              className="absolute right-[7px] top-1/2 -translate-y-1/2 w-[36px] h-[36px] cursor-pointer"
-              src="/icons/comment-enter.svg"
-              alt="전송"
-            />
-          </div>
-          <p className="ml-[20px] text-[18px] ">활동 기록 보기</p>
-          <img className="pl-[8px]" src="/icons/toggledesign.svg" alt="활동기록" />
-        </div>
+        <AddComment />
       </div>
     </div>
   );

@@ -1,6 +1,8 @@
 'use client';
 
-export default function aiportfolio() {
+import TailoredDropdown from '@/features/tailored/components/tailoredDropdown';
+
+export default function tailoredPortfolio() {
   return (
     <div>
       <div className="flex items-center">
@@ -22,12 +24,8 @@ export default function aiportfolio() {
           <div className="w-[100px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[160px]">
             분류
           </div>
-          <div className="w-[75px] h-[34px] bg-[#BED9FB] grid place-items-center rounded-[4px] gap-[10px] ml-[28px]">
-            진행상태
-          </div>
-          <div className="w-[36px] h-[36px] grid place-items-center">
-            <img src="/icons/drop-down.svg" alt="진행상태" />
-          </div>
+
+          <TailoredDropdown />
           <div className="w-[100px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[160px] ">
             직무명
           </div>
@@ -48,7 +46,9 @@ export default function aiportfolio() {
 
         <div className="flex flex-row mt-[80px] ml-[168px]">
           <div className="text-[22px] mr-[4px]">기업 분석 정보</div>
-          <img src="/icons/mi_circle-information.svg" alt="분석 아이콘" />
+          <button className="cursor-pointer">
+            <img src="/icons/mi_circle-information.svg" alt="분석 아이콘" />
+          </button>
         </div>
         <input className="flex flex-row mt-[19px] ml-[168px] place-items-center border border-[#BBBBBB] w-[1520px] h-[200px] rounded-[8px]" />
 
