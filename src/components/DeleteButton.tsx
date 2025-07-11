@@ -9,7 +9,7 @@ type DeleteButtonProps = {
 
 export default function DeleteButton({
   onDelete,
-  modalTitle = "이 일정을 정말 삭제하시겠습니까?",
+  modalTitle = "이 업무를 정말 삭제하시겠습니까?",
   className = "",
 }: DeleteButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -21,7 +21,7 @@ export default function DeleteButton({
 
   return (
     <>
-      <button onClick={() => setIsModalOpen(true)} className={className}>
+      <button onClick={() => setIsModalOpen(true)} className={`${className} cursor-pointer`}>
         <img src="/icons/delete.svg" alt="삭제" className="w-[36px] h-[36px]" />
       </button>
 

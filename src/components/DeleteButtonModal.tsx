@@ -10,7 +10,7 @@ export default function DeleteButtonModal({ title, onConfirm, onCancel }: Delete
       <div className="relative w-[460px] bg-[#F8F8F8] shadow-[0_0_15px_rgba(0,0,0,0.2)] rounded-[12px] px-[32px] pt-[40px] pb-[40px]">
         {/* 닫기 버튼 */}
         <button
-          className="absolute top-[8px] right-[8px] w-[24px] h-[24px]"
+          className="absolute top-[8px] right-[8px] w-[24px] h-[24px] cursor-pointer"
           onClick={onCancel}
         >
           <img src="/icons/곱하기.svg" alt="닫기" className="w-[24px] h-[24px]" />
@@ -26,14 +26,14 @@ export default function DeleteButtonModal({ title, onConfirm, onCancel }: Delete
           <button
             onClick={onConfirm}
             className="w-[103px] h-[34px] bg-[#FFFFFF] border border-[#000000] rounded-[4px] 
-                     text-[18px] leading-[26px] font-[Pretendard] font-normal text-[#000000] whitespace-nowrap"
+                     text-[18px] leading-[26px] font-[Pretendard] font-normal text-[#000000] whitespace-nowrap cursor-pointer"
           >
             예
           </button>
           <button
             onClick={onCancel}
             className="w-[103px] h-[34px] bg-[#FFFFFF] border border-[#000000] rounded-[4px]
-                     text-[18px] leading-[26px] font-[Pretendard] font-normal text-[#000000] whitespace-nowrap"
+                     text-[18px] leading-[26px] font-[Pretendard] font-normal text-[#000000] whitespace-nowrap cursor-pointer"
           >
             아니오
           </button>
