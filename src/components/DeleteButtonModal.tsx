@@ -17,21 +17,25 @@ export default function DeleteButtonModal({ title, onConfirm, onCancel }: Delete
         </button>
 
         {/* 질문 문구 */}
-        <h3 className="text-[20px] leading-[28px] font-semibold text-center text-black mb-[32px]">
+        <h3 className="text-[24px] leading-[30px] font-[Pretendard] font-bold text-center text-[#000000] mb-[32px]">
           {title}
         </h3>
 
         {/* 버튼 그룹 */}
-        <div className="flex justify-center gap-[28px]">
+        <div className="flex justify-center gap-[20px]">
           <button
+
             onClick={onConfirm}
             className="w-[103px] h-[34px] bg-[#FFFFFF] border border-[#000000] rounded-[4px] 
                      text-[18px] leading-[26px] font-[Pretendard] font-normal text-[#000000] whitespace-nowrap cursor-pointer"
+
           >
             예
           </button>
+
           <button
             onClick={onCancel}
+
             className="w-[103px] h-[34px] bg-[#FFFFFF] border border-[#000000] rounded-[4px]
                      text-[18px] leading-[26px] font-[Pretendard] font-normal text-[#000000] whitespace-nowrap cursor-pointer"
           >
