@@ -4,15 +4,9 @@ import Link from 'next/link';
 
 export default function CalendarPage() {
   return (
-    <div className="flex flex-col items-center h-screen py-20">
-      <h1 className="text-2xl font-bold mb-4">마이페이지</h1>
-      <p className="text-gray-600">이런 식으로 페이지를 작성하시면 됩니다!</p>
-      <Link href="/mypage/tailoredportfolio">
-        <button className="mt-10  border border-[#BBBBBB]">AI포트폴리오</button>
-      </Link>
-      <Link href="/mypage/aimasterportfolio">
-        <button className="mt-10  border border-[#BBBBBB]">AI포트폴리오</button>
-      </Link>
+    <div className="flex flex-col">
+      <h1 className="text-black text-[24px]">마이페이지</h1>
+      <hr className="border-[#E7E7E7] border-[1px] w-[1600px]" />
     </div>
   );
 }
