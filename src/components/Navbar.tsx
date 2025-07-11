@@ -6,6 +6,7 @@ import { menus } from '@/constants/menus';
 import { getHomeUrl, getNewUrl } from '@/utils/url';
 import { mockProjects } from '@/constants/mockData';
 import { SidebarMenus } from '@/types/sidebar';
+import ProfileDropdown from './ProfileDropdown';
 
 export default function Navbar() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -94,16 +95,12 @@ export default function Navbar() {
           ))}
         </div>
 
-        <div className="flex items-center ml-auto mr-[30px]">
+        <div className="flex items-center ml-auto">
           <button className="w-[143px] h-[32px] bg-[#81D7D4] text-white rounded-[4px] text-sm font-bold text-[16px] mr-[36px]">
             pro로 업그레이드
           </button>
-          <Link href="/mypage">
-            <div className="w-[32px] h-[32px] rounded-full overflow-hidden">
-              <img src="/icons/profile.svg" alt="프로필" className="w-full h-full" />
-            </div>
-          </Link>
         </div>
+        <ProfileDropdown />
       </div>
     </nav>
   );
