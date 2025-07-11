@@ -82,7 +82,7 @@ export default function ProjectMasterPortfolioPage() {
         </div>
 
         {/* 분류 */}
-        <div className="flex items-center gap-[16px] w-[246px]">
+        <div className="flex items-center gap-[16px] w-[246px] ml-[20px]">
           <div className="w-[99px] h-[37px] bg-[#DAF3F3] rounded-[4px] px-[18px] py-[6px] flex items-center justify-center font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-[#000000] whitespace-nowrap">
             분류
           </div>
@@ -118,7 +118,7 @@ export default function ProjectMasterPortfolioPage() {
         </div>
 
         {/* 기여도 */}
-        <div className="flex items-center gap-[16px] w-[489px]">
+        <div className="flex items-center gap-[16px] w-[489px] ml-[20px]">
           <div className="w-[99px] h-[37px] bg-[#DAF3F3] rounded-[4px] px-[18px] py-[6px] flex items-center justify-center font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-[#000000] text-center whitespace-nowrap">
             기여도
           </div>
