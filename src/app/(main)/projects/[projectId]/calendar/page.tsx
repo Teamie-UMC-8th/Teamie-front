@@ -12,6 +12,8 @@ import {
 import enUS from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useState } from "react";
+import Daypicker from "@/components/DayPicker";
+
 
 const locales = { "en-US": enUS };
 
@@ -90,6 +92,10 @@ export default function TeamCalendarPage() {
           }}
         />
       </div>
+      {/* Daypicker 컴포넌트 호출 */}
+              <div className="w-full flex justify-center">
+                <Daypicker />
+              </div>
     </div>
   );
 }
