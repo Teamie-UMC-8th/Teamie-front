@@ -69,7 +69,14 @@ export default function CalendarPage() {
         <div className="flex flex-col ml-[143px]">
           <div className="flex justify-between">
             <h2 className="text-[22px] mb-[40px]">포트폴리오</h2>
-            <ProjectToggle selected={selected} setSelected={setSelected} />
+            <div className="flex">
+              <img
+                src="icons/AddProject.svg"
+                alt="프로젝트 추가"
+                className="w-[38px] h-[38px] mt-[3px] mr-[10px] cursor-pointer"
+              />
+              <ProjectToggle selected={selected} setSelected={setSelected} />
+            </div>
           </div>
 
           {selected === 'project' && <Project />}
