@@ -12,7 +12,7 @@ export default function ProjectToggle({ selected, setSelected }: ProjectTogglePr
     <div className="flex bg-[#F8F8F8] w-[207px] h-[42px] rounded-[4px] items-center justify-center border border-[#E7E7E7]">
       <button
         onClick={() => setSelected('project')}
-        className={`w-[87px] h-[34px] text-[18px] rounded-[4px] transition-colors  ${
+        className={`w-[87px] h-[34px] text-[18px] rounded-[4px] transition-colors cursor-pointer ${
           selected === 'project' ? 'bg-[#84D9D4] text-white' : 'text-[#B2B2B2]'
         }`}
       >
@@ -20,7 +20,7 @@ export default function ProjectToggle({ selected, setSelected }: ProjectTogglePr
       </button>
       <button
         onClick={() => setSelected('ai')}
-        className={`w-[112px] h-[34px] text-[18px] rounded-[4px] transition-colors  ${
+        className={`w-[112px] h-[34px] text-[18px] rounded-[4px] transition-colors cursor-pointer ${
           selected === 'ai' ? 'bg-[#84D9D4] text-white' : 'text-[#B2B2B2]'
         }`}
       >
