@@ -1,1 +1,70 @@
 @import 'tailwindcss';
+
+/* 요일 헤더 간 눈금선 제거 */
+.rbc-month-view .rbc-month-header .rbc-header {
+  border-right: none !important;
+  border-left: none !important;
+}
+
+/* 마지막 요일(SAT)의 오른쪽 선도 제거 */
+.rbc-month-view .rbc-month-header .rbc-header:last-child {
+  border-right: none !important;
+}
+
+/* 아래쪽 선은 그대로 두기 */
+.rbc-month-header {
+  border-bottom: 1px solid #d1d5db !important; /* gray-300 */
+}
+
+/* 요일 헤더(요일명)과 캘린더 본문 사이만 구분선 유지, 나머지 셀 구분선 제거 */
+.rbc-month-row + .rbc-month-row .rbc-row-bg > * {
+  border-top: none !important;
+}
+.rbc-month-row .rbc-date-cell {
+  border-right: none !important;
+  border-left: none !important;
+}
+.rbc-month-row .rbc-date-cell:last-child {
+  border-right: none !important;
+}
+.rbc-month-row .rbc-date-cell:first-child {
+  border-left: none !important;
+}
+
+/* 캘린더 전체 border 제거 */
+.rbc-calendar, .rbc-month-view, .rbc-month-row, .rbc-row-bg, .rbc-header, .rbc-date-cell, .rbc-day-bg, .rbc-month-header {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* 각 주간(week row)마다 가로줄 구분선 추가 */
+.rbc-month-row {
+  border-bottom: 1px solid #d1d5db !important; /* gray-300 */
+}
+
+/* 마지막 주간의 아래쪽 선은 제거 */
+.rbc-month-view .rbc-month-row:last-child {
+  border-bottom: none !important;
+}
+
+/* 요일 헤더 글자 크기 및 weight 조정 */
+.rbc-month-header .rbc-header {
+  font-size: 1.6rem !important;
+}
+.rbc-month-header .rbc-header,
+.rbc-month-header .rbc-header strong {
+  font-weight: 100 !important;
+}
+/* 날짜 숫자 왼쪽 정렬 */
+.rbc-month-view .rbc-date-cell {
+  text-align: left !important;
+  padding-left: 0.25rem; /* Tailwind 기준 pl-1 정도 */
+}
+
+/* 날짜 셀 내부의 숫자 위치 조정 및 여백 */
+.rbc-month-view .rbc-date-cell {
+  text-align: left !important;
+  padding-left: 0.9rem !important; /* Tailwind 기준 pl-2 */
+  padding-top: 0.6rem; /* 상단 여백 살짝 */
+  font-weight: 500; /* 숫자 가독성 강화 (선택) */
+}
