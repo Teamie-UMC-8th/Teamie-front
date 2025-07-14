@@ -24,13 +24,13 @@ export default function Step2() {
       </div>
       <div className="w-fit flex flex-col justify-center items-center border-[2px] border-[#81D7D4] bg-[#DAF3F3] rounded-[100px] py-[16px] px-[36px]">
         <h3 className="text-[#000000] text-[20px] leading-[28px] font-normal tracking-[0.8px]">
-          생성 시 최대 <strong>0 Credit</strong>이 사용됩니다
+          생성 시 최대 <strong>N Credit</strong>이 사용됩니다
         </h3>
         <p className="text-[#898989] text-[14px] leading-[22px]">
           {length}개의 회의록이 선택되었습니다.
         </p>
       </div>
-      {Number(length) === 0 ? (
+      {Number(length) === 0 ? ( //0이면 회의록 없음 안내
         <div className="bg-[#F8F8F8] rounded-[8px] shadow-[0_0_4px_rgba(0,0,0,0.20)] px-[16px] py-[24px] text-[#505050] text-center min-w-[660px] mt-8">
           OOO님이 참석한 일정에 작성된 회의록이 없어요.
           <br /> 회의록 없이 마스터 포트폴리오를 생성할게요.
@@ -50,7 +50,7 @@ export default function Step2() {
                       일자
                     </div>
                     <div className="flex-9 w-fulltext-[#000000] text-[14px] leading-[22px] font-normal tracking-[0.56px]">
-                      2025.01.01
+                      2025.05.25
                     </div>
                   </div>
 

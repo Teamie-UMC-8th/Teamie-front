@@ -37,7 +37,7 @@ export default function Step3() {
         </p>
       </div>
 
-      <div className="space-y-8 border rounded-[12px] bg-[#F8F8F8] shadow-[0_0_4px_rgba(0,0,0,0.20)] p-[24px]">
+      <div className="space-y-8  rounded-[12px] bg-[#F8F8F8] shadow-[0_0_4px_rgba(0,0,0,0.20)] p-[24px]">
         <div className="flex items-center justify-between mb-4">
           <p className="text-gray-800 font-medium flex-1">
             1. 이 프로젝트의 핵심 목표는 &quot;언어교육을 통한 실질적 관계 형성 및 학습 환경
