@@ -1,91 +1,101 @@
 "use client";
-import Image from "next/image";
-import { useRef } from "react";
+
+import { Calendar, dateFnsLocalizer } from "react-big-calendar";
+import {
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  addMonths,
+  subMonths,
+} from "date-fns";
+import enUS from "date-fns/locale/en-US";
+import "react-big-calendar/lib/css/react-big-calendar.css";
+import { useState } from "react";
+import Daypicker from "@/components/DayPicker";
+
+
+const locales = { "en-US": enUS };
+
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek: () => startOfWeek(new Date(), { weekStartsOn: 0 }),
+  getDay,
+  locales,
+});
 
 export default function TeamCalendarPage() {
-  const dateInputRef = useRef<HTMLInputElement>(null);
-  return (
-    <div className="flex flex-col items-center h-screen py-20 bg-gray-50">
-      <form className="w-full bg-white rounded-lg shadow p-12 space-y-8">
-        {/* 일정명 입력 */}
-        <input
-          type="text"
-          className="w-full text-2xl font-bold mb-8 border-b-2 border-gray-200 focus:border-blue-500 outline-none bg-transparent placeholder-gray-400"
-          placeholder="일정명을 입력해주세요"
-        />
-        {/* 일자, 시작시간, 장소 한 줄 배치 */}
-        <div className="flex gap-40 w-full">
-          {/* 일자 */}
-          <div className="flex items-center gap-1 min-w-0">
-            <span className="font-medium bg-[#DAF3F3] flex justify-center items-center text-center w-[100px] h-10 rounded px-1 py-0.5">일자</span>
-            <button
-              type="button"
-              className="p-1 rounded hover:bg-gray-100"
-              onClick={() =>
-                dateInputRef.current &&
-                dateInputRef.current.showPicker &&
-                dateInputRef.current.showPicker()
-              }
-            >
-              <Image src="/icons/dayPicker.svg" alt="일자" width={24} height={24} />
-            </button>
-            <input
-              type="date"
-              ref={dateInputRef}
-              className="hidden"
-            />
-          </div>
-          {/* 시작시간 */}
-          <div className="flex items-center gap-1 min-w-0">
-            <span className="font-medium bg-[#DAF3F3] flex justify-center items-center text-center w-[100px] h-10 rounded px-1 py-0.5">시작시간</span>
-            <button className="p-1">
-              <Image src="/icons/timePicker.svg" alt="일자" width={24} height={24} />
-            </button>
-          </div>
-          {/* 장소 */}
-          <div className="flex items-center gap-1 min-w-0">
-            <span className="font-medium bg-[#DAF3F3] flex justify-center items-center text-center w-[100px] h-10 rounded px-1 py-0.5">장소</span>
-            <input
-              type="text"
-              className="border border-transparent rounded px-1 py-1 focus:outline-none focus:ring text-sm"
-              placeholder="장소 입력"
-            />
-            <button
-              type="button"
-              className="ml-1 px-2 py-1 bg-blue-100 text-blue-700 rounded font-medium hover:bg-blue-200 transition"
-            >
-              리마인드 메세지
-            </button>
-          </div>
-        </div>
-        {/* 참석자 */}
-        <div className="flex items-center gap-3 w-full">
-          <span className="font-medium bg-[#DAF3F3] flex justify-center items-center text-center w-[100px] h-10 rounded">참석자</span>
-          <button type="button" className="p-2 rounded hover:bg-gray-100">
-            <Image src="/icons/addPerson.svg" alt="참석자" width={24} height={24} />
-          </button>
-        </div>
-        {/* 비고 */}
-        <div className="flex items-start gap-3 w-full">
-          <span className="font-medium w-[100px] h-10 flex justify-center items-center text-center mt-2 bg-[#DAF3F3] rounded">비고</span>
-          <textarea
-            className="border border-[#BBBBBB] rounded px-3 py-2 focus:outline-none focus:ring resize-none"
-            style={{ width: '500px' }}
-            rows={3}
-            placeholder="비고를 입력하세요"
-          />
-        </div>
-        {/* 회의록 */}
-        <div className="w-full">
-          <span className="font-medium w-[100px] h-10 flex justify-center items-center text-center mt-2 block mb-2 bg-[#DAF3F3] rounded">회의록</span>
-          <textarea
-            className="w-full border border-[#BBBBBB] rounded px-3 py-2 focus:outline-none focus:ring resize-none"
-            rows={5}
-            placeholder="회의록을 입력하거나 저장하세요"
-          />
-        </div>
+  const [currentDate, setCurrentDate] = useState(new Date());
 
-      </form>
+  return (
+    <div className="flex flex-col items-center min-h-screen py-10 bg-gray-50">
+      {/* 화살표 + 월 표시 */}
+      <div className="flex items-center justify-center gap-4 mb-4">
+        <button
+          onClick={() => setCurrentDate(subMonths(currentDate, 1))}
+          className="text-xl px-2 hover:text-blue-600"
+        >
+          ◀
+        </button>
+        <h2 className="text-2xl font-bold">
+          {format(currentDate, "yyyy MMMM", { locale: enUS })}
+        </h2>
+        <button
+          onClick={() => setCurrentDate(addMonths(currentDate, 1))}
+          className="text-xl px-2 hover:text-blue-600"
+        >
+          ▶
+        </button>
+      </div>
+
+      {/* 캘린더 */}
+      <div className="w-full max-w-7xl bg-white rounded-lg shadow p-4">
+        <Calendar
+          localizer={localizer}
+          events={[]}
+          startAccessor="start"
+          endAccessor="end"
+          date={currentDate}
+          onNavigate={(date) => setCurrentDate(date)}
+          toolbar={false}
+          culture="en-US"
+          views={["month"]}
+          style={{ height: "60vh" }}
+          components={{
+            header: (props) => {
+              const dayName = format(props.date, "eee", { locale: enUS });
+              const isSunday = props.label === "Sun";
+              return (
+                <div
+                  className={`text-center font-semibold ${
+                    isSunday ? "text-red-500" : ""
+                  }`}
+                >
+                  {dayName}
+                </div>
+              );
+            },
+            dateCellWrapper: (props) => {
+              return (
+                <div
+                  className={
+                    (props.value.getMonth() !== currentDate.getMonth()
+                      ? "bg-white "
+                      : "") + " text-left"
+                  }
+                >
+                  {props.children}
+                </div>
+              );
+            },
+          }}
+        />
+      </div>
+      {/* Daypicker 컴포넌트 호출 */}
+              <div className="w-full flex justify-center">
+                <Daypicker />
+              </div>
     </div>
   );
 }
