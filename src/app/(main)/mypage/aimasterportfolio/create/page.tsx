@@ -16,7 +16,7 @@ const AI_CREATE_STEPS = [
     title: '개인 회고 작성',
     buttons: {
       sub: '개인 회고로 이동',
-      main: '다음으로 →',
+      main: <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">다음으로 →</span>,
     },
   },
   {
@@ -24,7 +24,7 @@ const AI_CREATE_STEPS = [
     title: '회의록 선택',
     buttons: {
       sub: '← 이전으로',
-      main: '다음으로 →',
+      main: <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">다음으로 →</span>,
     },
   },
   {
@@ -32,7 +32,7 @@ const AI_CREATE_STEPS = [
     title: '추가 질문',
     buttons: {
       sub: '임시저장',
-      main: 'AI 마스터 포트폴리오 생성하기',
+      main: <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">AI 마스터 포트폴리오 생성하기</span>,
     },
   },
 ];
@@ -101,10 +101,10 @@ export default function AIMasterPortfolioCreatePage() {
               <div className="relative w-fit h-[100%]">
                 <div className="w-fit h-[100%] bg-white border-none rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.10)] px-[34px] py-[24px] flex gap-[16px]">
                   <button
-                    className="rounded-[6px] border-[1px] border-[#898989] bg-[#FFF] p-[6px] px-[32px] cursor-pointer"
+                    className="rounded-[6px] border-[1.5px] border-[#898989] bg-[#FFF] p-[6px] px-[32px] cursor-pointer"
                     onClick={() => {
                       if (currentStep === 0) {
-                        router.push('/mypage/aimasterportfolio');
+                        router.push('/mypage/`/projects/${projectId}/retrospect`');
                       } else {
                         goToStep(currentStep - 1);
                       }
