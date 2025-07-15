@@ -1,21 +1,13 @@
-"use client";
+'use client';
 
-import { Calendar, dateFnsLocalizer } from "react-big-calendar";
-import {
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  addMonths,
-  subMonths,
-} from "date-fns";
-import enUS from "date-fns/locale/en-US";
-import "react-big-calendar/lib/css/react-big-calendar.css";
-import { useState } from "react";
-import Daypicker from "@/components/DayPicker";
+import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
+import { format, parse, startOfWeek, getDay, addMonths, subMonths } from 'date-fns';
+import { enUS } from 'date-fns/locale/en-US';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
+import { useState } from 'react';
+import Daypicker from '@/components/DayPicker';
 
-
-const locales = { "en-US": enUS };
+const locales = { 'en-US': enUS };
 
 const localizer = dateFnsLocalizer({
   format,
@@ -38,9 +30,7 @@ export default function TeamCalendarPage() {
         >
           ◀
         </button>
-        <h2 className="text-2xl font-bold">
-          {format(currentDate, "yyyy MMMM", { locale: enUS })}
-        </h2>
+        <h2 className="text-2xl font-bold">{format(currentDate, 'yyyy MMMM', { locale: enUS })}</h2>
         <button
           onClick={() => setCurrentDate(addMonths(currentDate, 1))}
           className="text-xl px-2 hover:text-blue-600"
@@ -60,18 +50,14 @@ export default function TeamCalendarPage() {
           onNavigate={(date) => setCurrentDate(date)}
           toolbar={false}
           culture="en-US"
-          views={["month"]}
-          style={{ height: "60vh" }}
+          views={['month']}
+          style={{ height: '60vh' }}
           components={{
             header: (props) => {
-              const dayName = format(props.date, "eee", { locale: enUS });
-              const isSunday = props.label === "Sun";
+              const dayName = format(props.date, 'eee', { locale: enUS });
+              const isSunday = props.label === 'Sun';
               return (
-                <div
-                  className={`text-center font-semibold ${
-                    isSunday ? "text-red-500" : ""
-                  }`}
-                >
+                <div className={`text-center font-semibold ${isSunday ? 'text-red-500' : ''}`}>
                   {dayName}
                 </div>
               );
@@ -80,9 +66,8 @@ export default function TeamCalendarPage() {
               return (
                 <div
                   className={
-                    (props.value.getMonth() !== currentDate.getMonth()
-                      ? "bg-white "
-                      : "") + " text-left"
+                    (props.value.getMonth() !== currentDate.getMonth() ? 'bg-white ' : '') +
+                    ' text-left'
                   }
                 >
                   {props.children}
@@ -93,9 +78,9 @@ export default function TeamCalendarPage() {
         />
       </div>
       {/* Daypicker 컴포넌트 호출 */}
-              <div className="w-full flex justify-center">
-                <Daypicker />
-              </div>
+      <div className="w-full flex justify-center">
+        <Daypicker />
+      </div>
     </div>
   );
 }
