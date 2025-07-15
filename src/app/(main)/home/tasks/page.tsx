@@ -1,8 +1,17 @@
+'use client';
+
+import MyTaskBoard from '@/features/boards/MyTaskBoard';
+
 export default function TaskPage() {
   return (
-    <div className="flex flex-col items-center h-screen py-20">
-      <h1 className="text-2xl font-bold mb-4">나의 업무</h1>
-      <p className="text-gray-600">이런 식으로 페이지를 작성하시면 됩니다!</p>
+    <div className="min-h-screen w-full bg-white flex flex-col">
+      <header className="flex items-center justify-between pb-[16px] px-[8px] border-b-[2px] border-[#E7E7E7]">
+        <h1 className="text-[24px] font-bold">나의 업무</h1>
+      </header>
+
+      <main className="flex-1 overflow-x-auto">
+        <MyTaskBoard />
+      </main>
     </div>
   );
 }
