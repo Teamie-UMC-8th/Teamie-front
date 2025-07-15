@@ -15,12 +15,18 @@ export default function StepsSidebar({ steps, currentStep, goToStep }: StepSideb
   const handleStepClick = (stepId: number) => {
     goToStep(stepId - 1);
   };
-
+  
   return (
     <div className="w-[280px] h-full bg-white border-r border-gray-200 flex flex-col p-6">
       <div
         className="flex items-center gap-2 justify-end mb-8 cursor-pointer hover:bg-gray-50 p-2 rounded"
-        onClick={() => router.push('/mypage/aimasterportfolio')}
+        onClick={() => {
+          if (currentStep === 0) {
+            router.push('/mypage/aimasterportfolio');
+          } else {
+            goToStep(currentStep - 1);
+          }
+        }}
       >
         <Image src="/icons/arrow-left.svg" alt="뒤로가기" width={24} height={24} />
         <p className="font-normal text-lg text-gray-700">돌아가기</p>
