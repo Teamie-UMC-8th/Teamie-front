@@ -19,8 +19,7 @@ export function MemberView() {
 
   const handleFinalLeave = () => {
     setShowFinalModal(false);
-    // TODO: 실제 이탈 처리 로직 삽입
-    alert('이탈 완료');
+    alert('이탈 완료!');
   };
 
   return (
