@@ -2,19 +2,19 @@
 
 export default function PersonalRetroPage() {
   return (
-    <div className="pt-[125px] pl-[313px]">
+    <div>
       {/* 제목 */}
       <h2 className="mb-[16px] font-[Pretendard] font-bold text-[24px] leading-[29px] tracking-[0.04em] text-black whitespace-nowrap">
         회고
       </h2>
 
       {/* 구분선 */}
-      <hr className="w-[1495px] border-t-[2px] border-[#E7E7E7] mb-[40px]" />
+      <hr className="w-[1495px] border-t-[2px] border-[#E7E7E7] mb-[140px]" />
 
       {/* 카드 두 개 나란히 */}
-      <div className="flex gap-[100px]">
+      <div className="flex gap-[100px] pl-[100px] pr-[100px]">
         {/* 팀장 카드 */}
-        <div className="w-[562px] h-[310px] bg-white rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.2)] flex flex-col items-center text-center p-[24px] gap-[53px]">
+        <div className="w-[562px] h-[310px] bg-white rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.2)] flex flex-col items-center text-center p-[24px] gap-[20px] pt-[53px]">
           <strong className="text-[16px] font-bold leading-[26px] mb-[8px]">
             팀장만 종료 가능합니다.
           </strong>
