@@ -9,13 +9,37 @@ interface FinalLeaveModalProps {
 
 export default function FinalLeaveModal({ onConfirm, onCancel }: FinalLeaveModalProps) {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-      <div className="bg-white rounded-[12px] p-[32px] shadow-md text-center relative w-[360px] border-[2px] border-[#3286FF]">
-        <button onClick={onCancel} className="absolute top-[16px] right-[16px] text-gray-400 text-xl">×</button>
-        <p className="text-[18px] font-bold mb-[32px]">정말 이탈하시겠습니까?</p>
-        <div className="flex justify-center gap-[20px]">
-          <button onClick={onConfirm} className="border px-[24px] py-[8px] rounded-[6px] font-bold">예</button>
-          <button onClick={onCancel} className="border px-[24px] py-[8px] rounded-[6px] font-bold">아니오</button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="relative w-[460px] bg-[#F8F8F8] shadow-[0_0_15px_rgba(0,0,0,0.2)] rounded-[12px] px-[32px] pt-[40px] pb-[40px]">
+        {/* 닫기 버튼 */}
+        <button
+          className="absolute top-[8px] right-[8px] w-[24px] h-[24px] cursor-pointer"
+          onClick={onCancel}
+        >
+          <img src="/icons/곱하기.svg" alt="닫기" className="w-[24px] h-[24px]" />
+        </button>
+
+        {/* 질문 문구 */}
+        <h3 className="text-[20px] leading-[28px] font-semibold text-center text-black mb-[32px]">
+          정말 이탈하시겠습니까?
+        </h3>
+
+        {/* 버튼 그룹 */}
+        <div className="flex justify-center gap-[28px]">
+          <button
+            onClick={onConfirm}
+            className="w-[103px] h-[34px] bg-[#FFFFFF] border border-[#000000] rounded-[4px] 
+                     text-[18px] leading-[26px] font-[Pretendard] font-normal text-[#000000] whitespace-nowrap cursor-pointer"
+          >
+            예
+          </button>
+          <button
+            onClick={onCancel}
+            className="w-[103px] h-[34px] bg-[#FFFFFF] border border-[#000000] rounded-[4px]
+                     text-[18px] leading-[26px] font-[Pretendard] font-normal text-[#000000] whitespace-nowrap cursor-pointer"
+          >
+            아니오
+          </button>
         </div>
       </div>
     </div>
