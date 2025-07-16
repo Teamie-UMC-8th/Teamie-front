@@ -7,6 +7,11 @@ import { BoardProps } from '@/types/board';
 export default function StepsBoard({ steps, projectId }: BoardProps) {
   const { steps: localSteps, openStepIds, toggleStep, addStep } = useSteps(steps);
 
+  // TODO: 실제로는 step 삭제 로직을 구현해야 함
+  const handleDeleteStep = (stepId: number) => {
+    alert(`STEP ${stepId} 삭제!`);
+  };
+
   return (
     <div className="grid grid-cols-4 gap-x-[36px] gap-y-[60px] mt-[60px] px-[35px]">
       {localSteps.map((step) => (
@@ -15,6 +20,8 @@ export default function StepsBoard({ steps, projectId }: BoardProps) {
             stepName={step.name}
             isOpen={openStepIds.includes(step.id)}
             onToggle={() => toggleStep(step.id)}
+            showDelete={step.items.length === 0}
+            onDelete={() => handleDeleteStep(step.id)}
           />
           {openStepIds.includes(step.id) && (
             <div className="flex flex-col gap-3 mt-6">
