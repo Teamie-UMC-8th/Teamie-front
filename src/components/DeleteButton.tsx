@@ -9,7 +9,7 @@ type DeleteButtonProps = {
 
 export default function DeleteButton({
   onDelete,
-  modalTitle = "이 업무를 정말 삭제하시겠습니까?",
+  modalTitle = "이 일정을 정말 삭제하시겠습니까?",
   className = "",
 }: DeleteButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
