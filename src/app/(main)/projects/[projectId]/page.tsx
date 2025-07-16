@@ -1,34 +1,70 @@
 import DayPicker from '@/components/DayPicker';
+import MemberCard from '@/components/MemberCard';
 
 export default function ProjectHomePage() {
   return (
-    <div className="flex flex-col items-center h-screen py-20">
-      <h1 className="text-2xl font-bold mb-4">프로젝트 홈</h1>
-
-      <div className="flex flex-row gap-8 mb-4">
-        <h2 className="text-xl font-bold">게시판</h2>
-        <h2 className="text-xl font-bold">업데이트</h2>
+    <div className="flex flex-col h-screen py-20 px-8">
+      <h1 className="text-[24px] font-bold mb-4">프로젝트 홈</h1>
+      <hr className="w-full border-t mb-8" style={{ borderColor: '#E7E7E7' }} />
+      <div className="flex flex-row gap-[29px] mb-4">
+        <div className="flex flex-col">
+          <h2 className="text-xl font-bold mb-2">게시판</h2>
+          <div className="w-[920px] h-[344px] p-4 border border-[#BBBBBB] rounded-lg bg-white flex flex-col">
+            <div className="flex flex-row gap-4 mb-6">
+              {[...Array(5)].map((_, idx) => (
+                <img
+                  key={`postit-row1-${idx}`}
+                  src="/icons/post-it.svg"
+                  alt="Post-it Icon"
+                  className="w-[120px] h-[120px]"
+                />
+              ))}
+            </div>
+            <div className="flex flex-row gap-4 mt-6" style={{ marginTop: '24px' }}>
+              {[...Array(5)].map((_, idx) => (
+                <img
+                  key={`postit-row2-${idx}`}
+                  src="/icons/post-it.svg"
+                  alt="Post-it Icon"
+                  className="w-[120px] h-[120px]"
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col">
+          <h2 className="text-xl font-bold mb-2">업데이트</h2>
+          <div className="w-[466px] h-[344px] p-4 border border-[#BBBBBB] rounded-lg bg-white">
+            <p className="text-gray-600">업데이트 내용을 여기에 작성하세요.</p>
+          </div>
+        </div>
       </div>
-      <div className="flex flex-row gap-8 mb-4">
+      <div style={{ height: '132px' }} />
+      <div className="flex flex-row gap-[42px] mb-4">
         <div className="flex flex-col">
           <h2 className="text-xl font-bold mb-2">우리 팀의 목표</h2>
           <textarea
-            className="w-160 h-40 p-3 border border-gray-300 rounded-lg resize-none"
+            className="w-[688px] h-[232px] p-3 border border-[#BBBBBB] rounded-lg resize-none"
             placeholder="우리팀의 목표를 작성해주세요..."
           />
         </div>
         <div className="flex flex-col">
           <h2 className="text-xl font-bold mb-2">우리팀의 규칙</h2>
           <textarea
-            className="w-160 h-40 p-3 border border-gray-300 rounded-lg resize-none"
+            className="w-[688px] h-[232px] p-3 border border-[#BBBBBB] rounded-lg resize-none"
             placeholder="우리팀의 규칙을 작성해주세요..."
           />
         </div>
-      </div>ㅇ
+      </div>
 
-        <h2 className="text-xl font-bold mb-2">팀원 프로필</h2>
+      <h2 className="text-xl font-bold mb-2">팀원 프로필</h2>
+      <div className="flex flex-row gap-8 mb-8">
+        <MemberCard />
+        <MemberCard />
+        <MemberCard />
+        <MemberCard />
+      </div>
 
-      <p className="text-gray-600">이런 식으로 페이지를 작성하시면 됩니다!</p>
 
       <div className="mt-8">
         <DayPicker />
