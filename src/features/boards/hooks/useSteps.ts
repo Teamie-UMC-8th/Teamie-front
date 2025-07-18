@@ -48,6 +48,23 @@ export function useSteps(initialSteps: Step[]) {
       // Step을 찾지 못했으면 기존 상태 그대로 반환
       if (!sourceStep || !destStep) return prevSteps;
 
+      // 같은 Step 내에서 이동
+      if (sourceStepId === destStepId) {
+        const taskList = [...sourceStep.items];
+        const [movedTask] = taskList.splice(sourceIndex, 1);
+        if (!movedTask) return prevSteps;
+
+        // slice로 새 배열을 만들어 정확한 위치에 삽입
+        const newTaskList = [
+          ...taskList.slice(0, destIndex),
+          movedTask,
+          ...taskList.slice(destIndex),
+        ];
+
+        const newStep = { ...sourceStep, items: newTaskList };
+        return prevSteps.map((step) => (step.id === sourceStepId ? newStep : step));
+      }
+
       // Task가 있던 Step에서 Task를 제거
       const taskList = [...sourceStep.items];
       const [movedTask] = taskList.splice(sourceIndex, 1);
