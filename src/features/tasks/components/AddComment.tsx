@@ -3,22 +3,26 @@ import useToggle from '../hooks/useToggle';
 import CommentMenuDropdown from './CommentDropdown';
 
 export default function AddComment() {
-  // 버튼을 눌렀을 때 댓글 추가
-  const [comment, setComment] = useState('');
+  // 댓글 작성 입력 필드 상태 관리
+  const [newComment, setNewComment] = useState('');
   const [comments, setComments] = useState<string[]>([]);
   const [replyToIndex, setReplyToIndex] = useState<number | null>(null);
   const [replyComments, setReplyComments] = useState<{ [key: number]: string }>({});
+  const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [editComment, setEditComment] = useState('');
 
-  // 토글 on일 때만 댓글 목록이 보임
+  // 토글 제어
   const { isOn, toggle } = useToggle();
 
+  // 댓글 등록 함수
   const handleComment = () => {
-    if (comment.trim() === '') return;
+    if (newComment.trim() === '') return;
 
-    setComments((prev) => [comment, ...prev]); // 기존 댓글 앞에 추가: 최신 댓글이 위에 오도록 함
-    setComment(''); // 입력창 초기화
+    setComments((prev) => [newComment, ...prev]); // 기존 댓글 앞에 추가: 최신 댓글이 위에 오도록 함
+    setNewComment(''); // 입력창 초기화
   };
 
+  // 대댓글 작성 핸들러
   const handleReplyChange = (idx: number, value: string) => {
     setReplyComments((prev) => ({
       ...prev,
@@ -26,6 +30,7 @@ export default function AddComment() {
     }));
   };
 
+  // 대댓글 제출 함수
   const handleReplySubmit = (idx: number) => {
     if (!replyComments[idx] || replyComments[idx].trim() === '') return;
     // 대댓글 전송 후 입력 필드 초기화 및 replyToIndex 초기화
@@ -36,15 +41,26 @@ export default function AddComment() {
     setReplyToIndex(null);
   };
 
+  // 날짜 포맷
+  const formatDate = () =>
+    new Date().toLocaleString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+
   return (
     <>
-      {/* 댓글 입력 필드 */}
+      {/* 댓글 작성 입력 필드 */}
       <div className="flex flex-row mt-[83px] ml-[135px] items-center">
         <img className="mr-[20px]" src="/icons/comment-profile.svg" alt="댓글프로필" />
         <div className="relative">
           <input
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
             className="p-[20px] w-[1109px] h-[50px]  bg-white rounded-[8px] border-[2px] border-[#BBBBBB] "
             placeholder="댓글을 작성하세요"
           />
@@ -65,7 +81,7 @@ export default function AddComment() {
         </button>
       </div>
 
-      {/* 댓글 목록 */}
+      {/* 댓글 목록 출력 및 수정/삭제/대댓글 기능 */}
       {isOn &&
         comments.map((cmt, idx) => (
           <div key={idx} className="mt-[40px] ml-[135px]">
@@ -76,30 +92,64 @@ export default function AddComment() {
               </div>
               <div className="flex flex-col">
                 <div className="relative">
-                  <div className="bg-[#F8F8F8] rounded-[8px] w-[1288px] min-h-[46px] pl-[12px] py-[10px]">
-                    {cmt}
-                  </div>
-                  <CommentMenuDropdown
-                    onSelect={(action) => {
-                      if (action === 'reply') {
-                        setReplyToIndex(idx);
-                      } else {
-                        console.log(action);
-                        setReplyToIndex(null);
-                      }
-                    }}
-                  />
+                  {/* 댓글 수정 입력 필드 (수정 중일 때만 렌더링) */}
+                  {editIndex === idx ? (
+                    <div className="relative w-[1288px]">
+                      <input
+                        value={editComment}
+                        onChange={(e) => setEditComment(e.target.value)}
+                        className="p-[20px] w-full h-[50px] bg-white rounded-[8px] border-[2px] border-[#BBBBBB]"
+                        placeholder="댓글을 수정하세요"
+                      />
+                      <button
+                        onClick={() => {
+                          if (editComment.trim() === '') return;
+                          const updated = [...comments];
+                          updated[idx] = editComment.trim();
+                          setComments(updated);
+                          setEditComment('');
+                          setEditIndex(null);
+                        }}
+                        className="absolute right-[8px] top-1/2 -translate-y-1/2 w-[36px] h-[36px] cursor-pointer"
+                      >
+                        <img src="/icons/comment-enter.svg" alt="수정완료" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="bg-[#F8F8F8] rounded-[8px] w-[1288px] min-h-[46px] pl-[12px] py-[10px]">
+                      {cmt}
+                    </div>
+                  )}
+                  {/* 댓글 드롭다운 메뉴 */}
+                  {editIndex !== idx && (
+                    <CommentMenuDropdown
+                      onSelect={(action) => {
+                        if (action === 'reply') {
+                          setReplyToIndex(idx);
+                          setEditIndex(null);
+                        } else if (action === 'edit') {
+                          setEditComment(comments[idx]);
+                          setEditIndex(idx);
+                          setReplyToIndex(null);
+                        } else if (action === 'delete') {
+                          // 댓글 및 해당 대댓글 삭제
+                          setComments((prev) => prev.filter((_, i) => i !== idx));
+                          setReplyComments((prev) => {
+                            const updated = { ...prev };
+                            delete updated[idx];
+                            return updated;
+                          });
+                          setReplyToIndex(null);
+                          setEditIndex(null);
+                        } else {
+                          setReplyToIndex(null);
+                          setEditIndex(null);
+                        }
+                      }}
+                    />
+                  )}
                 </div>
-                <div className="text-[#898989] text-[12px] ml-[12px] mt-[4px]">
-                  {new Date().toLocaleString('ko-KR', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    hour12: true,
-                  })}
-                </div>
+                <div className="text-[#898989] text-[12px] ml-[12px] mt-[4px]">{formatDate()}</div>
               </div>
             </div>
             {/* 대댓글 입력 필드 */}
@@ -148,14 +198,7 @@ export default function AddComment() {
                     {replyComments[idx]}
                   </div>
                   <div className="text-[#898989] text-[12px] ml-[24px] mt-[4px]">
-                    {new Date().toLocaleString('ko-KR', {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit',
-                      hour: 'numeric',
-                      minute: '2-digit',
-                      hour12: true,
-                    })}
+                    {formatDate()}
                   </div>
                 </div>
               </div>
