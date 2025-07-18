@@ -17,8 +17,8 @@ export default function TaskItem({
   assignee,
 }: TaskItemComponentProps) {
   return (
-    <Link href={`/projects/${projectId}/tasks/${taskId}`}>
-      <div className="bg-white w-[325px] h-[122px] rounded-[8px] border border-[#BBBBBB] p-4 flex items-start gap-3">
+    <Link href={`/projects/${projectId}/tasks/${taskId}`} className="block w-[325px] h-[122px]">
+      <div className="bg-white w-full h-full rounded-[8px] border border-[#BBBBBB] p-4 flex items-start gap-3">
         <label className="inline-flex items-center flex-shrink-0 mt-1">
           <input
             type="checkbox"
