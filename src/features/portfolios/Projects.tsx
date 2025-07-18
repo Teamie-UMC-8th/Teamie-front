@@ -34,6 +34,7 @@ export default function Projects() {
           </div>
         </button>
       </Link>
+
       <Link href="/mypage/aimasterportfolio">
         <div
           className="bg-[#F8F8F8] w-[465px] h-[192px] rounded-[8px] grid justify-center cursor-pointer"
