@@ -15,7 +15,14 @@ export default function taskDetailPage() {
           <h1 className="text-[24px] text-black font-semibold mt-[28px]">빈 업무</h1>
         </div>
         <div className="ml-[1375px] translate-y-[18px]">
-          <DeleteButton onDelete={() => {}} />
+          <DeleteButton
+            onDelete={() => {
+              // 삭제 로직 작성
+            }}
+            modalTitle="이 업무를 정말 삭제하시겠습니까?"
+            confirmText="삭제"
+            cancelText="취소"
+          />
         </div>
       </div>
 
