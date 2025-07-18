@@ -115,7 +115,7 @@ export default function AIMasterPortfolioCreatePage() {
                   <button
                     className="rounded-[6px] border-[1px] border-[#81D7D4] bg-[#81D7D4] p-[6px] px-[32px] text-[#FFF] cursor-pointer"
                     onClick={() => {
-                      // 지금 내 위치가 마지막 스탭일때, 라우터로 이동을 시킬래.
+                    
                       if (currentStep === 2) {
                         router.push('/mypage/aimasterportfolio/final');
                       } else {
