@@ -18,7 +18,8 @@ export default function PersonalSection() {
         <textarea
           className="w-full h-[344px] bg-[#FFFFFF] border border-[#BBBBBB] rounded-[12px]
                      text-[18px] leading-[26px] text-[#000000] font-[Pretendard] font-normal
-                     pt-[16px] pl-[20px] pr-[24px] pb-[24px] resize-none"
+                     pt-[16px] pl-[20px] pr-[24px] pb-[24px] resize-none
+                     maxLength={5000}"
         />
       </div>
 
@@ -38,7 +39,8 @@ export default function PersonalSection() {
         <textarea
           className="w-full h-[344px] bg-[#FFFFFF] border border-[#BBBBBB] rounded-[12px]
                      text-[18px] leading-[26px] text-[#000000] font-[Pretendard] font-normal
-                     pt-[16px] pl-[20px] pr-[24px] pb-[24px] resize-none"
+                     pt-[16px] pl-[20px] pr-[24px] pb-[24px] resize-none
+                     maxLength={5000}"
         />
       </div>
 
@@ -58,7 +60,8 @@ export default function PersonalSection() {
         <textarea
           className="w-full h-[344px] bg-[#FFFFFF] border border-[#BBBBBB] rounded-[12px]
                      text-[18px] leading-[26px] text-[#000000] font-[Pretendard] font-normal
-                     pt-[16px] pl-[20px] pr-[24px] pb-[24px] resize-none"
+                     pt-[16px] pl-[20px] pr-[24px] pb-[24px] resize-none
+                     maxLength={5000}"
         />
       </div>
     </div>
