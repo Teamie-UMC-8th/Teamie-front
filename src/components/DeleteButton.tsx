@@ -4,12 +4,16 @@ import DeleteButtonModal from "./DeleteButtonModal";
 type DeleteButtonProps = {
   onDelete: () => void;
   modalTitle?: string;
+  confirmText?: string;
+  cancelText?: string;
   className?: string;
 };
 
 export default function DeleteButton({
   onDelete,
   modalTitle = "이 일정을 정말 삭제하시겠습니까?",
+  confirmText = "예",
+  cancelText = "아니오",
   className = "",
 }: DeleteButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,6 +32,8 @@ export default function DeleteButton({
       {isModalOpen && (
         <DeleteButtonModal
           title={modalTitle}
+          confirmText={confirmText}
+          cancelText={cancelText}
           onConfirm={handleDelete}
           onCancel={() => setIsModalOpen(false)}
         />
