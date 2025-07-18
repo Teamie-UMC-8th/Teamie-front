@@ -15,9 +15,7 @@ export default function taskDetailPage() {
             alt="뒤로가기"
             className="mt-[29px] ml-[48px] mr-[20px]"
           />
-          <h1 className="text-[24px] text-[#898989] font-semibold mt-[28px]">
-            업무명을 입력해주세요.
-          </h1>
+          <h1 className="text-[24px] text-black font-semibold mt-[28px]">빈 업무</h1>
         </div>
         <DeleteButton onDelete={() => {}} />
       </div>
