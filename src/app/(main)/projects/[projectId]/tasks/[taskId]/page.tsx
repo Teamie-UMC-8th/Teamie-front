@@ -3,6 +3,7 @@ import AddProfileButton from '@/components/AddProfileButton';
 import DeleteButton from '@/components/DeleteButton';
 import AddComment from '@/features/tasks/components/AddComment';
 import CommentToggle from '@/features/tasks/components/CommentToggle';
+import FileUploader from '@/features/tasks/components/FileUploader';
 import TaskDropdown from '@/features/tasks/components/TaskDropdown';
 
 export default function taskDetailPage() {
@@ -42,9 +43,7 @@ export default function taskDetailPage() {
           <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px]">
             첨부파일
           </div>
-          <div className="w-[207px] h-[160px] border-[2px] rounded-[6px] border-[#BBBBBB] grid place-items-center ml-[28px] ">
-            <img src="/icons/file-upload.svg" alt="파일 업로드" />
-          </div>
+          <FileUploader />
         </div>
 
         <div className="flex flex-row mt-[40px] ml-[80px]">
