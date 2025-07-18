@@ -227,7 +227,7 @@ function MasterPortfolioSection({
 }
 
 export default function AIMasterPortfolioPage() {
-  const [generationMethod, setGenerationMethod] = useState<GenerationMethod>('manual');
+  const [generationMethod, setGenerationMethod] = useState<GenerationMethod>('ai');
   const [selectedCategory, setSelectedCategory] = useState<Category>(CATEGORIES[0]);
 
   const projectData = {

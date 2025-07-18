@@ -12,7 +12,7 @@ export default function AIGenerationSection() {
         Teamie의 AI, 티미와 함께 마스터 포트폴리오를 생성해보세요!
       </p>
       <button
-        onClick={() => router.push('/mypage/aimasterportfolio/create')}
+        onClick={() => router.push('/mypage/aimasterportfolio/create/ai')}
         className="flex items-center justify-center gap-[10px] px-[40px] cursor-pointer py-[10px] border border-[#81D7D4] rounded-[6px] font-[Pretendard] font-bold text-[18px] leading-[26px] text-white bg-[#81D7D4]"
       >
         시작하기
