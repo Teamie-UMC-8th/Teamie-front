@@ -20,7 +20,7 @@ export default function AddComment() {
   return (
     <>
       {/* 댓글 입력 필드 */}
-      <div className="flex flex-row mt-[83px] ml-[183px] items-center">
+      <div className="flex flex-row mt-[83px] ml-[135px] items-center">
         <img className="mr-[20px]" src="/icons/comment-profile.svg" alt="댓글프로필" />
         <div className="relative">
           <input
@@ -49,7 +49,7 @@ export default function AddComment() {
       {/* 댓글 목록 */}
       {isOn &&
         comments.map((cmt, idx) => (
-          <div key={idx} className="flex mt-[40px] ml-[183px] items-center">
+          <div key={idx} className="flex mt-[40px] ml-[135px] items-center">
             <div className="flex flex-col items-center mr-[20px]">
               <img src="/icons/comment-profile.svg" alt="댓글프로필" />
               <div className="text-[12px] text-black mt-[2px]">Teamie</div>
