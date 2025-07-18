@@ -1,10 +1,10 @@
 'use client';
 
-import ProjectToggle from '@/features/portfolios/components/ProjectToggle';
 import Link from 'next/link';
 import useToggle from '@/features/portfolios/hooks/useToggle';
 import Project from '@/features/portfolios/Projects';
 import Tailored from '@/features/portfolios/Tailored';
+import ToggleButton from '@/components/ToggleButton';
 
 export default function CalendarPage() {
   const { selected, setSelected } = useToggle();
@@ -67,15 +67,17 @@ export default function CalendarPage() {
 
         {/* 포트폴리오 */}
         <div className="flex flex-col ml-[143px]">
-          <div className="flex justify-between">
+          <div className="flex justify-between items-center ">
             <h2 className="text-[22px] mb-[40px]">포트폴리오</h2>
-            <div className="flex">
+            <div className="flex items-center">
               <img
                 src="icons/AddProject.svg"
                 alt="프로젝트 추가"
-                className="w-[38px] h-[38px] mt-[3px] mr-[10px] cursor-pointer"
+                className="w-[38px] h-[38px] mt-[3px] mr-[10px] cursor-pointer translate-y-[-18px]"
               />
-              <ProjectToggle selected={selected} setSelected={setSelected} />
+              <div className="translate-y-[-26px] ">
+                <ToggleButton leftLabel="프로젝트" rightLabel="AI 첨삭" />
+              </div>
             </div>
           </div>
 
