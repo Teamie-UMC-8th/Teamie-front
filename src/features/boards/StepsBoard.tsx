@@ -52,7 +52,7 @@ export default function StepsBoard({ steps, projectId }: BoardProps) {
               // 각 Step은 드롭 가능한 영역 (Droppable)
               // droppableId: 각 Step을 구분하는 고유 ID
               <Droppable droppableId={step.id.toString()}>
-                {(provided, snapshot) => (
+                {(provided) => (
                   // 드롭 가능한 영역의 실제 div
                   // ref: DnD 라이브러리가 이 div를 드롭 영역으로 인식하게 함
                   // ...provided.droppableProps: 드롭 관련 이벤트 핸들러들
@@ -70,7 +70,7 @@ export default function StepsBoard({ steps, projectId }: BoardProps) {
                         draggableId={task.id.toString()}
                         index={idx}
                       >
-                        {(provided) => (
+                        {(provided, snapshot) => (
                           // 드래그 가능한 아이템의 실제 div
                           // ref: DnD 라이브러리가 이 div를 드래그 아이템으로 인식하게 함
                           // ...provided.draggableProps: 드래그 관련 스타일 (transform, transition 등)
@@ -78,49 +78,32 @@ export default function StepsBoard({ steps, projectId }: BoardProps) {
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className="mb-3 last:mb-0"
+                            className={`mb-3 last:mb-0 ${snapshot.isDragging ? 'opacity-50' : ''}`}
+                            style={{
+                              ...provided.draggableProps.style,
+                              width: '325px',
+                              height: '122px',
+                            }}
                           >
-                            <TaskItem
-                              projectId={projectId}
-                              id={task.id}
-                              title={task.title}
-                              status={task.status}
-                              deadline={task.deadline}
-                              assignee={task.assignee}
-                            />
+                            <div {...provided.dragHandleProps}>
+                              <TaskItem
+                                projectId={projectId}
+                                id={task.id}
+                                title={task.title}
+                                status={task.status}
+                                deadline={task.deadline}
+                                assignee={task.assignee}
+                              />
+                            </div>
                           </div>
                         )}
                       </Draggable>
                     ))}
 
-                    {/* 드래그 중일 때만 보이는 placeholder (투명한 공간) */}
-                    {/* 드래그 중인 TaskItem이 들어갈 위치를 표시해줌 */}
-                    {provided.placeholder && snapshot.isDraggingOver && (
-                      <div
-                        style={{
-                          width: '325px',
-                          height: '122px',
-                          background: 'transparent',
-                          border: 'none',
-                          boxShadow: 'none',
-                        }}
-                      />
-                    )}
+                    {provided.placeholder}
 
-                    {/* 드래그 중이 아닐 때는 placeholder를 숨김 */}
-                    {/* placeholder는 공간만 차지하고 시각적으로는 보이지 않게 함 */}
-                    {provided.placeholder && !snapshot.isDraggingOver && (
-                      <span style={{ display: 'none' }}>{provided.placeholder}</span>
-                    )}
-
-                    {/* AddTaskButton - TaskItem과 일정한 간격 유지 */}
-                    {/* TaskItem이 있을 때만 위쪽에 margin을 줌 */}
-                    <div className={step.items.length > 0 ? 'mt-3' : ''}>
-                      <AddTaskButton
-                        stepName={step.name}
-                        className={step.items.length > 0 ? 'mt-[8px]' : ''}
-                      />
+                    <div className="mt-2">
+                      <AddTaskButton stepName={step.name} />
                     </div>
                   </div>
                 )}
@@ -130,7 +113,7 @@ export default function StepsBoard({ steps, projectId }: BoardProps) {
         ))}
         <button
           onClick={addStep}
-          className="flex bg-[#F8F8F8] text-[#898989] w-[325px] h-[68px] items-center justify-center rounded-[8px] font-medium text-[18px] cursor-pointer"
+          className="flex bg-[#F8F8F8] text-[#898989] w-[325px] h-[68px] items-center justify-center rounded-[8px] font-medium text-[18px] cursor-pointer hover:bg-[#F0F0F0] transition-colors duration-200"
         >
           + STEP 추가
         </button>
