@@ -58,13 +58,17 @@ export default function AddComment() {
   return (
     <>
       {/* 댓글 입력 UI */}
-      <div className="flex flex-row mt-[83px] ml-[135px] items-center">
+      <div
+        className="flex flex-row mt-[83px] ml-[135px] items-center
+      max-lg:ml-[103px]"
+      >
         <img className="mr-[20px]" src="/icons/comment-profile.svg" alt="댓글프로필" />
         <div className="relative">
           <input
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            className="p-[20px] w-[1109px] h-[50px]  bg-white rounded-[8px] border-[2px] border-[#BBBBBB] "
+            className="p-[20px] w-[1109px] h-[50px]  bg-white rounded-[8px] border-[2px] border-[#BBBBBB]
+            max-lg:w-[735px]"
             placeholder="댓글을 작성하세요"
           />
           <button
@@ -74,20 +78,29 @@ export default function AddComment() {
             <img src="/icons/comment-enter.svg" alt="전송" />
           </button>
         </div>
-        <p className="ml-[20px] text-[18px] ">활동 기록 보기</p>
-        <button onClick={toggle}>
-          <img
-            src={isOn ? '/icons/toggle-on.svg' : '/icons/toggle-off.svg'}
-            alt="토글 아이콘"
-            className="w-[48px] h-[24px] ml-[8px]"
-          />
-        </button>
+        <div
+          className="flex
+        max-lg:translate-y-[-48px] max-lg:translate-x-[-186px]"
+        >
+          <p className="ml-[20px] text-[18px] ">활동 기록 보기</p>
+          <button onClick={toggle}>
+            <img
+              src={isOn ? '/icons/toggle-on.svg' : '/icons/toggle-off.svg'}
+              alt="토글 아이콘"
+              className="w-[48px] h-[24px] ml-[8px]"
+            />
+          </button>
+        </div>
       </div>
 
       {/* 댓글 출력 UI 및 수정/삭제/대댓글 기능 */}
       {isOn &&
         comments.map((cmt, idx) => (
-          <div key={idx} className="mt-[40px] ml-[135px]">
+          <div
+            key={idx}
+            className="mt-[40px] ml-[135px]
+          max-lg:ml-[103px] max-lg:mt-[32px]"
+          >
             <div className="flex items-center mb-[8px]">
               <div className="flex flex-col items-center mr-[20px]">
                 <img src="/icons/comment-profile.svg" alt="댓글프로필" />
@@ -110,7 +123,10 @@ export default function AddComment() {
                       }}
                     />
                   ) : (
-                    <div className="bg-[#F8F8F8] rounded-[8px] w-[1288px] min-h-[46px] pl-[12px] py-[10px]">
+                    <div
+                      className="bg-[#F8F8F8] rounded-[8px] w-[1288px] min-h-[46px] pl-[12px] py-[10px]
+                    max-lg:w-[735px]"
+                    >
                       {cmt}
                     </div>
                   )}

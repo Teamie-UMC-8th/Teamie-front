@@ -22,7 +22,7 @@ export default function ReplyComment({
   // 현재 댓글이 대댓글 입력 중인 댓글이라면, 입력 필드를 렌더링
   if (replyToIndex === idx) {
     return (
-      <div className="flex items-start ml-[20px] ">
+      <div className="flex items-start ml-[20px]">
         <img
           src="/icons/arrow-reply.svg"
           alt="대댓글 화살표"
