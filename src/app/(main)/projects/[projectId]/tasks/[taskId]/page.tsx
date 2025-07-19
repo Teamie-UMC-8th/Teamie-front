@@ -30,7 +30,7 @@ export default function taskDetailPage() {
       <div className="mt-[10px] ml-[40px] border-[#E7E7E7] border-[1px] w-[1495px] " />
 
       <div>
-        <div className="flex tablet:flex-col mt-[60px] ml-[80px] items-center">
+        <div className="flex mt-[60px] ml-[80px] items-center">
           <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] mr-[28px]">
             마감 기한
           </div>
