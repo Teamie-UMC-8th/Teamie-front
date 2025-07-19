@@ -1,3 +1,4 @@
+
 "use client";
 
 import EditableMarkdown from "./EditableMarkdown";
@@ -63,7 +64,6 @@ export default function PersonalSection() {
             }}
           />
         </div>
-
       </div>
     </div>
   );
