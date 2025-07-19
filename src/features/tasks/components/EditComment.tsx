@@ -6,7 +6,10 @@ type Props = {
 
 export default function EditComment({ value, onChange, onSubmit }: Props) {
   return (
-    <div className="relative w-[1288px]">
+    <div
+      className="relative w-[1288px]
+    max-lg:w-[735px]"
+    >
       {/* 입력 필드: 댓글 내용을 수정할 수 있도록 함 */}
       <input
         value={value}
