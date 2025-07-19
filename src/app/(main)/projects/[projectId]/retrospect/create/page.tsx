@@ -16,7 +16,7 @@ export default function PersonalRetroPage() {
         </h2>
 
         {/* 구분선 */}
-        <hr className="w-full border-t-[2px] border-[#E7E7E7] rotate-180 mb-[20px] max-lg:w-[910px]"  />
+        <hr className="w-full border-t-[2px] border-[#E7E7E7] rotate-180 mb-[20px]"  />
 
         {/* 탭 버튼 */}
         <div className="w-fit h-[42px] bg-[#F8F8F8] border border-[#E7E7E7] rounded-[4px] flex items-center px-[4px] py-[4px] mb-[40px]">

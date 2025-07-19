@@ -1,6 +1,6 @@
 export default function PersonalSection() {
   return (
-    <div className="ml-[40px]">
+    <div className="w-full flex justify-center">
       <div className="w-full flex flex-col items-center gap-[28px] px-[16px]">
         {/* 섹션 1 */}
         <div
