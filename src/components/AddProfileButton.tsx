@@ -73,7 +73,7 @@ export default function AddProfileButton() {
           <img
             src="/icons/plus-circle.svg"
             alt="사용자 추가"
-            className="w-[36px] h-[36px] cursor-pointer"
+            className="w-[32px] h-[32px] cursor-pointer"
           />
         </button>
 

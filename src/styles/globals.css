@@ -32,7 +32,14 @@
 }
 
 /* 캘린더 전체 border 제거 */
-.rbc-calendar, .rbc-month-view, .rbc-month-row, .rbc-row-bg, .rbc-header, .rbc-date-cell, .rbc-day-bg, .rbc-month-header {
+.rbc-calendar,
+.rbc-month-view,
+.rbc-month-row,
+.rbc-row-bg,
+.rbc-header,
+.rbc-date-cell,
+.rbc-day-bg,
+.rbc-month-header {
   border: none !important;
   box-shadow: none !important;
 }

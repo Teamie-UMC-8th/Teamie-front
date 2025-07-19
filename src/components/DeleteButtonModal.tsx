@@ -1,3 +1,6 @@
+import { createPortal } from 'react-dom';
+import { useEffect, useState } from 'react';
+
 type DeleteButtonModalProps = {
   title: string;
   confirmText?: string;
@@ -8,14 +11,21 @@ type DeleteButtonModalProps = {
 
 export default function DeleteButtonModal({
   title,
-  confirmText = "예",
-  cancelText = "아니오",
+  confirmText = '예',
+  cancelText = '아니오',
   onConfirm,
   onCancel,
 }: DeleteButtonModalProps) {
-  return (
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  const modalContent = (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="relative w-[460px] bg-[#F8F8F8] shadow-[0_0_15px_rgba(0,0,0,0.2)] rounded-[12px] px-[32px] pt-[40px] pb-[40px]">
+      <div className="relative w-[460px] h-[214px] bg-[#F8F8F8] shadow-[0_0_15px_rgba(0,0,0,0.2)] rounded-[12px] px-[32px] py-[60px]">
         <button
           className="absolute top-[8px] right-[8px] w-[24px] h-[24px] cursor-pointer"
           onClick={onCancel}
@@ -30,13 +40,13 @@ export default function DeleteButtonModal({
         <div className="flex justify-center gap-[28px]">
           <button
             onClick={onCancel}
-            className="w-[103px] h-[34px] border border-black rounded-[4px] text-[18px]"
+            className="w-[103px] h-[34px] border border-black rounded-[4px] text-[18px] cursor-pointer"
           >
             {cancelText}
           </button>
           <button
             onClick={onConfirm}
-            className="w-[103px] h-[34px] border border-black rounded-[4px] text-[18px]"
+            className="w-[103px] h-[34px] border border-black rounded-[4px] text-[18px] cursor-pointer"
           >
             {confirmText}
           </button>
@@ -44,4 +54,9 @@ export default function DeleteButtonModal({
       </div>
     </div>
   );
+
+  if (mounted) {
+    return createPortal(modalContent, document.body);
+  }
+  return null;
 }
