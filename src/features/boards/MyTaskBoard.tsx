@@ -26,7 +26,7 @@ export default function MyTaskBoard() {
 
   return (
     <div
-      className="grid [grid-template-columns:repeat(2,325px)] lg:[grid-template-columns:repeat(4,325px)] gap-x-[36px] gap-y-[80px] mt-[60px] min-w-[1024px] overflow-x-auto"
+      className="grid [grid-template-columns:repeat(2,20.313rem)] lg:[grid-template-columns:repeat(4,20.313rem)] gap-x-[2.25rem] gap-y-[5rem] mt-[3.75rem] min-w-[64rem] overflow-x-auto"
       style={{
         paddingLeft: 'clamp(43px, calc(112px - ((100vw - 1024px) * 0.077)), 112px)',
       }}
@@ -39,7 +39,7 @@ export default function MyTaskBoard() {
             onToggle={() => handleToggle(project.id)}
           />
           {openProjectIds.includes(project.id) && (
-            <div className="flex flex-col gap-3 mt-6">
+            <div className="flex flex-col gap-3 mt-[1.5rem]">
               {project.myTasks.map((task) => (
                 <TaskItem
                   key={task.id}
