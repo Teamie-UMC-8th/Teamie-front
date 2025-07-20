@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useParams } from 'next/navigation';
 import { menus } from '@/constants/menus';
-import { getHomeUrl, getNewUrl, getProjectUrl } from '../utils/url';
+import { getHomeUrl, getProjectUrl } from '../utils/url';
 import { useActiveMenu } from '@/hooks/useActiveMenu';
 
 export default function Sidebar() {
@@ -12,6 +12,11 @@ export default function Sidebar() {
   const projectId = params.projectId as string | undefined;
 
   const activeMenu = useActiveMenu();
+
+  // /new 경로에서는 사이드바 숨기기
+  if (pathname === '/new') {
+    return null;
+  }
 
   const menuItems = menus[activeMenu];
 
@@ -23,8 +28,6 @@ export default function Sidebar() {
 
           if (activeMenu === 'home') {
             href = getHomeUrl(item.path);
-          } else if (activeMenu === 'new') {
-            href = getNewUrl(item.path);
           } else if (activeMenu === 'projects') {
             href = getProjectUrl(projectId ?? '', item.path);
           }

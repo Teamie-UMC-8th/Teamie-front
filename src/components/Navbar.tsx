@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { menus } from '@/constants/menus';
-import { getHomeUrl, getNewUrl } from '@/utils/url';
+import { getHomeUrl } from '@/utils/url';
 import { mockProjects } from '@/constants/mockData';
 import { SidebarMenus } from '@/types/sidebar';
 import ProfileDropdown from './ProfileDropdown';
@@ -21,9 +21,10 @@ export default function Navbar() {
     label: string;
     key: MenuKey | 'projects';
     urlFn?: (path: string) => string;
+    isDirectLink?: boolean;
   }[] = [
     { label: '홈', key: 'home', urlFn: getHomeUrl },
-    { label: '프로젝트 추가', key: 'new', urlFn: getNewUrl },
+    { label: '프로젝트 생성', key: 'new', isDirectLink: true },
     { label: '나의 프로젝트', key: 'projects' },
   ];
 
@@ -39,33 +40,42 @@ export default function Navbar() {
 
         {/* 왼쪽 고정 영역 */}
         <div className="flex items-center gap-[3.75rem] shrink-0">
-          {menuConfigs.map(({ label, key, urlFn }) => (
+          {menuConfigs.map(({ label, key, urlFn, isDirectLink }) => (
             <div key={key} className="relative">
-              <button
-                onClick={() => toggleMenu(key)}
-                className={`flex items-center cursor-pointer whitespace-nowrap ${
-                  openMenu === key ? 'text-[#81D7D4]' : 'text-black'
-                }`}
-              >
-                <span className="font-normal text-[1.125rem]">{label}</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className={`ml-[0.125rem] w-[1.5rem] h-[1.5rem] ${openMenu === key ? 'rotate-180' : ''}`}
-                  viewBox="0 0 24 24"
+              {isDirectLink ? (
+                <Link
+                  href="/new"
+                  className="flex items-center cursor-pointer whitespace-nowrap text-black hover:text-[#81D7D4]"
                 >
-                  <path
-                    d="M7 10L12 15L17 10"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    fill="none"
-                  />
-                </svg>
-              </button>
+                  <span className="font-normal text-[1.125rem]">{label}</span>
+                </Link>
+              ) : (
+                <button
+                  onClick={() => toggleMenu(key)}
+                  className={`flex items-center cursor-pointer whitespace-nowrap ${
+                    openMenu === key ? 'text-[#81D7D4]' : 'text-black'
+                  }`}
+                >
+                  <span className="font-normal text-[1.125rem]">{label}</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className={`ml-[0.125rem] w-[1.5rem] h-[1.5rem] ${openMenu === key ? 'rotate-180' : ''}`}
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M7 10L12 15L17 10"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      fill="none"
+                    />
+                  </svg>
+                </button>
+              )}
 
               {/* 드롭다운 */}
-              {openMenu === key && (
+              {!isDirectLink && openMenu === key && (
                 <ul className="absolute mt-[0.75rem] bg-white rounded-[0.5rem] shadow-[0_0_15px_rgba(0,0,0,0.2)] z-20">
                   {key === 'projects'
                     ? mockProjects.map((project) => (
