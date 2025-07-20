@@ -24,9 +24,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main
             className="flex-1 min-w-[1024px] py-[3.75rem]"
             style={{
-              /* 패딩 - 1920px 기준 160px, 1024px 기준 24px */
-              paddingLeft: 'clamp(1.5rem, calc(15.179vw - 8.214rem), 10rem)',
-              paddingRight: 'clamp(1.5rem, calc(15.179vw - 8.214rem), 10rem)',
+              /* 패딩 - 1920px 기준 120px, 1024px 기준 24px */
+              paddingLeft: 'clamp(1.5rem, calc(15.179vw - 8.214rem), 7.5rem)',
+              paddingRight: 'clamp(1.5rem, calc(15.179vw - 8.214rem), 7.5rem)',
             }}
           >
             {children}
