@@ -12,7 +12,8 @@ export default function BackButton() {
     <img
       src="/icons/arrow-left.svg"
       alt="뒤로가기"
-      className="cursor-pointer"
+      className="ml-[-2.5rem] mr-[1.25rem] cursor-pointer
+      max-lg:ml-[-0.75rem]"
       onClick={handleBack}
     />
   );
