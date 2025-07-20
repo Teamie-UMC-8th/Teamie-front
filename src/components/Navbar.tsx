@@ -28,23 +28,29 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="w-full border-b-[2px] border-[#E7E7E7] bg-white h-[58px] z-10 relative">
-      <div className="max-w-[1920px] mx-auto flex items-center h-full">
-        <img src="/logo.svg" alt="Teamie 로고" className="h-[23px] mt-[1px] ml-[21px]" />
+    <nav className="w-full border-b-[0.125rem] border-[#E7E7E7] bg-white h-[3.625rem] z-10 relative">
+      <div className="flex items-center h-full px-[1.313rem] min-w-tablet">
+        {/* 로고 */}
+        <img
+          src="/logo.svg"
+          alt="Teamie 로고"
+          className="h-[1.438rem] mt-[0.063rem] mr-[3.75rem] shrink-0"
+        />
 
-        <div className="flex items-center ml-[61px] gap-[60px] relative">
+        {/* 왼쪽 고정 영역 */}
+        <div className="flex items-center gap-[3.75rem] shrink-0">
           {menuConfigs.map(({ label, key, urlFn }) => (
             <div key={key} className="relative">
               <button
                 onClick={() => toggleMenu(key)}
-                className={`flex items-center cursor-pointer ${
+                className={`flex items-center cursor-pointer whitespace-nowrap ${
                   openMenu === key ? 'text-[#81D7D4]' : 'text-black'
                 }`}
               >
-                <span className="font-normal text-[18px]">{label}</span>
+                <span className="font-normal text-[1.125rem]">{label}</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className={`ml-[2px] w-[24px] h-[24px] ${openMenu === key ? 'rotate-180' : ''}`}
+                  className={`ml-[0.125rem] w-[1.5rem] h-[1.5rem] ${openMenu === key ? 'rotate-180' : ''}`}
                   viewBox="0 0 24 24"
                 >
                   <path
@@ -58,18 +64,19 @@ export default function Navbar() {
                 </svg>
               </button>
 
+              {/* 드롭다운 */}
               {openMenu === key && (
-                <ul className="absolute mt-[12px] bg-white rounded-[8px] shadow-[0_0_15px_rgba(0,0,0,0.2)] z-20">
+                <ul className="absolute mt-[0.75rem] bg-white rounded-[0.5rem] shadow-[0_0_15px_rgba(0,0,0,0.2)] z-20">
                   {key === 'projects'
                     ? mockProjects.map((project) => (
                         <li
                           key={project.id}
-                          className="mx-[8px] border-b-[2px] border-[#BBBBBB] last:border-none"
+                          className="mx-[0.5rem] border-b-[0.125rem] border-[#BBBBBB] last:border-none"
                         >
                           <Link
                             href={`/projects/${project.id}`}
                             onClick={() => setOpenMenu(null)}
-                            className="block pl-[12px] pr-[150px] py-[12px] text-[#505050] text-[18px] whitespace-nowrap"
+                            className="block pl-[0.75rem] pr-[9.375rem] py-[0.75rem] text-[#505050] text-[1.125rem] whitespace-nowrap"
                           >
                             {project.name}
                           </Link>
@@ -78,12 +85,12 @@ export default function Navbar() {
                     : menus[key].map((item) => (
                         <li
                           key={item.path}
-                          className="mx-[8px] border-b-[2px] border-[#BBBBBB] last:border-none"
+                          className="mx-[0.5rem] border-b-[0.125rem] border-[#BBBBBB] last:border-none"
                         >
                           <Link
                             href={urlFn!(item.path)}
                             onClick={() => setOpenMenu(null)}
-                            className="block pl-[12px] pr-[150px] py-[12px] text-[#505050] text-[18px] whitespace-nowrap"
+                            className="block pl-[0.75rem] pr-[9.375rem] py-[0.75rem] text-[#505050] text-[1.125rem] whitespace-nowrap"
                           >
                             {item.name}
                           </Link>
@@ -95,12 +102,16 @@ export default function Navbar() {
           ))}
         </div>
 
-        <div className="flex items-center ml-auto">
-          <button className="w-[143px] h-[32px] bg-[#81D7D4] text-white rounded-[4px] text-sm font-bold text-[16px] mr-[36px]">
+        {/* 길이 조절되는 부분*/}
+        <div className="flex-1" />
+
+        {/* 오른쪽 고정 영역 */}
+        <div className="flex items-center gap-[2.25rem] shrink-0 mr-[0.563rem]">
+          <button className="w-[8.938rem] h-[2rem] bg-[#81D7D4] text-white rounded-[0.25rem] text-sm font-bold text-[1rem]">
             pro로 업그레이드
           </button>
+          <ProfileDropdown />
         </div>
-        <ProfileDropdown />
       </div>
     </nav>
   );
