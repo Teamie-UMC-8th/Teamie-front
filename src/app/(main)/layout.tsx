@@ -15,9 +15,9 @@ const pretendard = localFont({
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko" className={pretendard.className}>
-      <body className="bg-white">
+      <body className="bg-white overflow-x-hidden">
         <Navbar />
-        <div className="flex min-h-screen overflow-x-auto">
+        <div className="flex min-h-screen">
           <div className="min-h-screen flex-none">
             <Sidebar />
           </div>
