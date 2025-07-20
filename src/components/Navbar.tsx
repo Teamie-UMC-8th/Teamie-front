@@ -28,6 +28,10 @@ export default function Navbar() {
     { label: '나의 프로젝트', key: 'projects' },
   ];
 
+  const upgradeButtonClick = () => {
+    window.alert('업그레이드 버튼 클릭 ^____^');
+  };
+
   return (
     <nav className="w-full border-b-[0.125rem] border-[#E7E7E7] bg-white h-[3.625rem] z-10 relative">
       <div className="flex items-center h-full px-[1.313rem] min-w-[1024px]">
@@ -117,8 +121,11 @@ export default function Navbar() {
 
         {/* 오른쪽 고정 영역 */}
         <div className="flex items-center gap-[2.25rem] shrink-0 mr-[0.563rem]">
-          <button className="w-[8.938rem] h-[2rem] bg-[#81D7D4] text-white rounded-[0.25rem] text-sm font-bold text-[1rem]">
-            pro로 업그레이드
+          <button
+            className="w-[8.938rem] h-[2rem] bg-[#81D7D4] text-white rounded-[0.25rem] text-sm font-bold text-[1rem]"
+            onClick={upgradeButtonClick}
+          >
+            PRO로 업그레이드
           </button>
           <ProfileDropdown />
         </div>
