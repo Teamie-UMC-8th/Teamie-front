@@ -16,8 +16,8 @@ export default function Sidebar() {
   const menuItems = menus[activeMenu];
 
   return (
-    <aside className="w-[183px] h-full bg-[#F8F8F8] border-r-[2px] border-[#E7E7E7] flex flex-col py-[4px] px-[2px]">
-      <nav className="flex flex-col text-[18px]">
+    <aside className="w-[4.125rem] lg:w-[11.563rem] h-full bg-[#F8F8F8] border-r-[0.125rem] border-[#E7E7E7] flex flex-col py-[0.25rem] px-[0.125rem]">
+      <nav className="flex flex-col text-[1.125rem]">
         {menuItems.map((item) => {
           let href = '';
 
@@ -38,7 +38,7 @@ export default function Sidebar() {
             <Link
               key={item.name}
               href={href}
-              className={`flex items-center gap-[11px] px-[20px] py-[16px] rounded-[2px]
+              className={`flex items-center gap-0 lg:gap-[0.688rem] justify-center lg:justify-start px-[1rem] lg:px-[1.25rem] py-[1rem] rounded-[0.125rem]
                 ${isActive ? 'bg-[#81D7D4] text-white font-bold' : 'text-black hover:bg-[#E7E7E7]'}
                 transition
               `}
@@ -46,9 +46,9 @@ export default function Sidebar() {
               <img
                 src={item.icon}
                 alt=""
-                className={`w-[28px] h-[28px] ${isActive ? 'brightness-0 invert' : ''}`}
+                className={`w-[1.75rem] h-[1.75rem] ${isActive ? 'brightness-0 invert' : ''}`}
               />
-              {item.name}
+              <span className="hidden lg:inline">{item.name}</span>
             </Link>
           );
         })}
