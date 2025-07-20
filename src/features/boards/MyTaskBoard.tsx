@@ -25,9 +25,14 @@ export default function MyTaskBoard() {
   };
 
   return (
-    <div className="grid grid-cols-4 gap-x-[36px] gap-y-[60px] mt-[60px] px-[35px]">
+    <div
+      className="grid [grid-template-columns:repeat(2,325px)] lg:[grid-template-columns:repeat(4,325px)] gap-x-[36px] gap-y-[80px] mt-[60px] min-w-[1024px] overflow-x-auto"
+      style={{
+        paddingLeft: 'clamp(43px, calc(112px - ((100vw - 1024px) * 0.077)), 112px)',
+      }}
+    >
       {filteredProjects.map((project) => (
-        <div key={project.id} className="flex flex-col">
+        <div key={project.id}>
           <ProjectHeader
             projectName={project.name}
             isOpen={openProjectIds.includes(project.id)}
