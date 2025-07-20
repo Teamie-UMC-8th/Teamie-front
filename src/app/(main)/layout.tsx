@@ -18,7 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-white">
         <Navbar />
         <div className="flex min-h-screen overflow-x-auto">
-          <div className="w-[185px] min-h-screen flex-none">
+          <div className="min-h-screen flex-none">
             <Sidebar />
           </div>
           <main
