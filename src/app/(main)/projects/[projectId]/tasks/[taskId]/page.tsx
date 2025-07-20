@@ -1,5 +1,6 @@
 'use client';
 import AddProfileButton from '@/components/AddProfileButton';
+import BackButton from '@/components/BackButton';
 import DeleteButton from '@/components/DeleteButton';
 import AddComment from '@/features/tasks/components/AddComment';
 import CommentToggle from '@/features/tasks/components/CommentToggle';
@@ -12,7 +13,7 @@ export default function taskDetailPage() {
       {/* 헤더 */}
       <div className="flex items-center">
         <div className="flex items-center">
-          <img src="/icons/arrow-left.svg" alt="뒤로가기" className="mt-[29px] mr-[20px]" />
+          <BackButton />
           <h1 className="text-[24px] text-black font-semibold mt-[28px]">빈 업무</h1>
         </div>
         <div className="ml-[1375px] translate-y-[18px]">
