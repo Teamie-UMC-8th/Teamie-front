@@ -2,10 +2,10 @@
 
 import Link from 'next/link';
 import useToggle from '@/features/portfolios/hooks/useToggle';
-import Tailored from '@/features/portfolios/Tailored';
+import Tailored from '@/features/portfolios/components/Tailored';
 import ToggleButton from '@/components/ToggleButton';
-import Projects from '@/features/portfolios/Projects';
 import { useState } from 'react';
+import Projects from '@/features/portfolios/components/Projects';
 
 export default function MyPage() {
   const { selected, setSelected } = useToggle();
