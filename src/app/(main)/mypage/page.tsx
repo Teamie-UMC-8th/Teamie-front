@@ -17,15 +17,15 @@ export default function MyPage() {
       {/* TODO: Pro로 업그레이드 시에 Navbar에 Credit 충전으로 변경 */}
       <div
         className="flex flex-col ml-[2.5rem]
-      max-lg:ml-[-96px]"
+      max-lg:ml-[0px]"
       >
-        <h1 className="text-black text-[24px] ml-[0.5rem]">마이페이지</h1>
+        <h1 className="text-black text-[24px] ml-[0.5rem] font-semibold">마이페이지</h1>
         <hr className="border-[#E7E7E7] border-[1px] w-[1600px] mt-[0.5rem]" />
       </div>
 
       <main
         className="mt-[60px] ml-[5rem] flex
-      max-lg:ml-[-40px] max-lg:flex-col"
+      max-lg:ml-[55px] max-lg:flex-col"
       >
         {/* 나의 프로필 */}
         <div className="flex flex-col">
@@ -121,7 +121,7 @@ export default function MyPage() {
                     className="mt-[12px] flex ml-[122px]
                   max-lg:w-[200px]"
                   >
-                    <div className="text-[16px] text-black">나의 잔여 Credit:</div>
+                    <div className="text-[16px] text-black ml-[20px]">잔여 Credit:</div>
                     <img src="icons/AiIcon.svg" alt="AiIcon" className="ml-[8px] mr-[4px]" />
                     <div className="text-black text-[16px]">100</div>
                   </div>
@@ -144,13 +144,13 @@ export default function MyPage() {
                 <img
                   src="icons/AddProject.svg"
                   alt="프로젝트 추가"
-                  className="w-[38px] h-[38px] mt-[3px] mr-[10px] cursor-pointer translate-y-[-18px]
-                  max-lg:translate-x-[-1106px] max-lg:translate-y-[32px]"
+                  className="w-[38px] h-[38px] mt-[3px] mr-[10px] cursor-pointer translate-y-[-16px]
+                  max-lg:translate-x-[-58px] "
                 />
               )}
               <div
                 className="translate-y-[-26px]
-              max-lg:translate-x-[-1356px] max-lg:translate-y-[22px]"
+              max-lg:translate-x-[-58px]"
               >
                 {showToggle && (
                   <ToggleButton

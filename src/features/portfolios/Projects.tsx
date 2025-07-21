@@ -4,10 +4,7 @@ import Link from 'next/link';
 
 export default function Tailored() {
   return (
-    <div
-      className="flex
-    max-lg:mt-[32px]"
-    >
+    <div className="flex">
       <Link href="/mypage/aimasterportfolio">
         <button
           className="bg-[#F8F8F8] w-[465px] h-[192px] rounded-[8px] grid justify-center mr-[24px] cursor-pointer
