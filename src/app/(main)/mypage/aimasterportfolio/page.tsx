@@ -120,7 +120,7 @@ function ContributionBar({ percentage }: { percentage: number }) {
   return (
     <div className="flex items-center gap-4">
       <div className={STYLES.tag}>기여도</div>
-      <div className="flex items-center gap-[21px]">
+      <div className="flex items-center gap-[28px]">
         <div className="w-[299px] h-[20px] bg-[#FFFFFF] border border-[#BBBBBB] rounded-[3px] overflow-hidden">
           <div
             className="h-full bg-[#81D7D4] transition-all duration-300"
@@ -201,7 +201,7 @@ function ProjectInfoSection({
   contribution: number;
 }) {
   return (
-    <section className="flex items-center gap-4 justify-between pb-[60px]">
+    <section className="flex flex-wrap items-center gap-20 justify-between pb-[60px] max-lg:flex-col max-lg:items-start">
       <ProjectPeriod startDate={startDate} endDate={endDate} />
       <CategorySelector selected={category} onSelect={onCategoryChange} />
       <ContributionBar percentage={contribution} />
