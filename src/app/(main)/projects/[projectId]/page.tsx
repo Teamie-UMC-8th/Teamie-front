@@ -40,7 +40,7 @@ export default function ProjectHomePage() {
         </div>
       </div>
       <div style={{ height: '132px' }} />
-      <div className="flex flex-row gap-[42px] mb-4">
+      <div className="flex flex-row gap-[42px] mb-12">
         <div className="flex flex-col">
           <h2 className="text-xl font-bold mb-2">우리 팀의 목표</h2>
           <textarea
@@ -57,14 +57,13 @@ export default function ProjectHomePage() {
         </div>
       </div>
 
-      <h2 className="text-xl font-bold mb-2">팀원 프로필</h2>
+      <h2 className="text-xl font-bold mb-5">팀원 프로필</h2>
       <div className="flex flex-row gap-8 mb-8">
         <MemberCard />
         <MemberCard />
         <MemberCard />
         <MemberCard />
       </div>
-
 
       <div className="mt-8">
         <DayPicker />
