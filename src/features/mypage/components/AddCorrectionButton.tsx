@@ -4,7 +4,7 @@ import Link from 'next/dist/client/link';
 
 export default function AddCorrectionButton() {
   return (
-    <Link href="/mypage/addcorrection">
+    <Link href="/mypage/correction">
       <img
         src="icons/AddProject.svg"
         alt="프로젝트 추가"
