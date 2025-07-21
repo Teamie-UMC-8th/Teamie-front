@@ -63,7 +63,6 @@ function CategorySelector({
   return (
     <div className="flex items-center gap-4">
       <div className={STYLES.tag}>분류</div>
-
       <div className="relative">
         <button
           className="flex items-center gap-[20px] cursor-pointer"
@@ -91,7 +90,6 @@ function CategorySelector({
             />
           </svg>
         </button>
-
         {isOpen && (
           <ul
             className="absolute top-[40px] left-0 z-10 bg-white border border-dashed border-[#B085E3] rounded-[8px] px-[12px] py-[10px] flex flex-col gap-[8px] w-[90px]"
@@ -201,10 +199,14 @@ function ProjectInfoSection({
   contribution: number;
 }) {
   return (
-    <section className="flex flex-wrap items-center gap-20 justify-between pb-[60px] max-lg:flex-col max-lg:items-start">
+    <section className="flex items-center justify-between pb-[60px] max-lg:flex-col max-lg:items-start">
+      <div className='flex flex-nowrap gap-[200px] max-lg:gap-[100px]'>
       <ProjectPeriod startDate={startDate} endDate={endDate} />
       <CategorySelector selected={category} onSelect={onCategoryChange} />
+      </div>
+      <div className='flex flex-wrap gap-[200px] max-lg:gap-[100px] max-lg:mt-[60px]'>
       <ContributionBar percentage={contribution} />
+      </div>
     </section>
   );
 }
@@ -217,7 +219,7 @@ function MasterPortfolioSection({
   onMethodChange: (method: GenerationMethod) => void;
 }) {
   return (
-    <section className="flex items-center justify-between bg-[#E9F8F8] rounded-tl-[8px] rounded-tr-[8px] px-[24px] py-[8px] mr-[12px] ml-[12px]">
+    <section className="flex items-center justify-between w-[1460px] max-lg:w-[908px] h-[52px] bg-[#E9F8F8] rounded-tl-[8px] rounded-tr-[8px] px-[24px] py-[8px] mr-[12px] ml-[12px]">
       <h2 className="text-[20px] leading-[28px] font-semibold text-[#000000] font-[Pretendard]">
         마스터 포트폴리오
       </h2>
@@ -257,7 +259,6 @@ export default function AIMasterPortfolioPage() {
             generationMethod={generationMethod}
             onMethodChange={setGenerationMethod}
           />
-
           {generationMethod === 'manual' && <ManualWriteSection />}
           {generationMethod === 'ai' && <AIGenerationSetion />}
         </div>
