@@ -1,6 +1,6 @@
-"use client";
-import Image from "next/image";
-import { useRef } from "react";
+'use client';
+import Image from 'next/image';
+import { useRef } from 'react';
 
 export default function schedulePage() {
   const dateInputRef = useRef<HTMLInputElement>(null);
@@ -17,7 +17,9 @@ export default function schedulePage() {
         <div className="flex gap-40 w-full">
           {/* 일자 */}
           <div className="flex items-center gap-1 min-w-0">
-            <span className="font-medium bg-[#DAF3F3] flex justify-center items-center text-center w-[100px] h-10 rounded px-1 py-0.5">일자</span>
+            <span className="font-medium bg-[#DAF3F3] flex justify-center items-center text-center w-[100px] h-10 rounded px-1 py-0.5">
+              일자
+            </span>
             <button
               type="button"
               className="p-1 rounded hover:bg-gray-100"
@@ -29,22 +31,22 @@ export default function schedulePage() {
             >
               <Image src="/icons/dayPicker.svg" alt="일자" width={24} height={24} />
             </button>
-            <input
-              type="date"
-              ref={dateInputRef}
-              className="hidden"
-            />
+            <input type="date" ref={dateInputRef} className="hidden" />
           </div>
           {/* 시작시간 */}
           <div className="flex items-center gap-1 min-w-0">
-            <span className="font-medium bg-[#DAF3F3] flex justify-center items-center text-center w-[100px] h-10 rounded px-1 py-0.5">시작시간</span>
+            <span className="font-medium bg-[#DAF3F3] flex justify-center items-center text-center w-[100px] h-10 rounded px-1 py-0.5">
+              시작시간
+            </span>
             <button className="p-1">
               <Image src="/icons/timePicker.svg" alt="일자" width={24} height={24} />
             </button>
           </div>
           {/* 장소 */}
           <div className="flex items-center gap-1 min-w-0">
-            <span className="font-medium bg-[#DAF3F3] flex justify-center items-center text-center w-[100px] h-10 rounded px-1 py-0.5">장소</span>
+            <span className="font-medium bg-[#DAF3F3] flex justify-center items-center text-center w-[100px] h-10 rounded px-1 py-0.5">
+              장소
+            </span>
             <input
               type="text"
               className="border border-transparent rounded px-1 py-1 focus:outline-none focus:ring text-sm"
@@ -60,14 +62,18 @@ export default function schedulePage() {
         </div>
         {/* 참석자 */}
         <div className="flex items-center gap-3 w-full">
-          <span className="font-medium bg-[#DAF3F3] flex justify-center items-center text-center w-[100px] h-10 rounded">참석자</span>
+          <span className="font-medium bg-[#DAF3F3] flex justify-center items-center text-center w-[100px] h-10 rounded">
+            참석자
+          </span>
           <button type="button" className="p-2 rounded hover:bg-gray-100">
             <Image src="/icons/addPerson.svg" alt="참석자" width={24} height={24} />
           </button>
         </div>
         {/* 비고 */}
         <div className="flex items-start gap-3 w-full">
-          <span className="font-medium w-[100px] h-10 flex justify-center items-center text-center mt-2 bg-[#DAF3F3] rounded">비고</span>
+          <span className="font-medium w-[100px] h-10 flex justify-center items-center text-center mt-2 bg-[#DAF3F3] rounded">
+            비고
+          </span>
           <textarea
             className="border border-[#BBBBBB] rounded px-3 py-2 focus:outline-none focus:ring resize-none"
             style={{ width: '500px' }}
@@ -77,14 +83,15 @@ export default function schedulePage() {
         </div>
         {/* 회의록 */}
         <div className="w-full">
-          <span className="font-medium w-[100px] h-10 flex justify-center items-center text-center mt-2 block mb-2 bg-[#DAF3F3] rounded">회의록</span>
+          <span className="font-medium w-[100px] h-10 flex justify-center items-center text-center mt-2 block mb-2 bg-[#DAF3F3] rounded">
+            회의록
+          </span>
           <textarea
             className="w-full border border-[#BBBBBB] rounded px-3 py-2 focus:outline-none focus:ring resize-none"
             rows={5}
             placeholder="회의록을 입력하거나 저장하세요"
           />
         </div>
-
       </form>
     </div>
   );
