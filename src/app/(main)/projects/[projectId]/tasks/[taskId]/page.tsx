@@ -32,7 +32,7 @@ export default function taskDetailPage() {
       <div className="mt-[10px] ml-[40px] border-[#E7E7E7] border-[1px] w-[1495px] " />
 
       {/* 업무 상세 정보 */}
-      <div>
+      <div className="flex flex-col">
         <div
           className="flex mt-[60px] ml-[80px] items-center 
         max-lg:flex-col max-lg:items-start max-lg:ml-[48px]"
@@ -55,17 +55,19 @@ export default function taskDetailPage() {
             </div>
             <AddProfileButton />
           </div>
-          {/* 진행 상태 */}
-          <div
-            className="flex items-center ml-[160px]
-          max-lg:ml-0 max-lg:mt-[40px]"
-          >
-            <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ">
-              진행상태
-            </div>
-            <TaskDropdown />
-          </div>
         </div>
+
+        {/* 진행 상태 */}
+        <div
+          className="flex items-center ml-[40px] mt-[40px]
+          max-lg:ml-0 max-lg:mt-[40px]"
+        >
+          <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ">
+            진행상태
+          </div>
+          <TaskDropdown />
+        </div>
+
         {/* 첨부파일 */}
         <div
           className="flex flex-row mt-[40px] ml-[80px]
@@ -76,6 +78,7 @@ export default function taskDetailPage() {
           </div>
           <FileUploader />
         </div>
+
         {/* 비고 */}
         <div
           className="flex flex-row mt-[40px] ml-[80px]
