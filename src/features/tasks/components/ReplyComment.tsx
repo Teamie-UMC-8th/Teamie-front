@@ -22,13 +22,17 @@ export default function ReplyComment({
   // 현재 댓글이 대댓글 입력 중인 댓글이라면, 입력 필드를 렌더링
   if (replyToIndex === idx) {
     return (
-      <div className="flex items-start ml-[20px]">
+      <div className="flex items-start ml-[20px] w-[1340px]">
         <img
           src="/icons/arrow-reply.svg"
           alt="대댓글 화살표"
           className="w-[24px] h-[24px] mr-[20px] mt-[20px]"
         />
-        <img className="mr-[20px] mt-[10px]" src="/icons/comment-profile.svg" alt="댓글프로필" />
+        <img
+          className="mr-[20px] mt-[10px] min-w-[48px]"
+          src="/icons/comment-profile.svg"
+          alt="댓글프로필"
+        />
         <div className="relative w-[1224px] mt-[10px]">
           <input
             value={replyValue}
@@ -50,7 +54,7 @@ export default function ReplyComment({
   // 제출된 대댓글이 있을 경우 출력 UI 렌더링
   if (submittedReply) {
     return (
-      <div className="flex items-start ml-[20px] ">
+      <div className="flex items-start ml-[20px] w-[1340px] ">
         <img
           src="/icons/arrow-reply.svg"
           alt="대댓글 화살표"
