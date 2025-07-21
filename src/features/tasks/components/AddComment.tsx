@@ -100,7 +100,7 @@ export default function AddComment() {
           <div
             key={idx}
             className="mt-[40px] ml-[95px]
-          max-lg:ml-[103px] max-lg:mt-[32px]"
+          max-lg:ml-[79px] max-lg:mt-[32px]"
           >
             <div className="flex items-center mb-[8px] w-[1360px]">
               <div className="flex flex-col items-center mr-[20px]">
