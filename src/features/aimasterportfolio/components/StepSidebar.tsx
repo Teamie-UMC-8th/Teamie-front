@@ -15,7 +15,7 @@ export default function StepsSidebar({ steps, currentStep, goToStep }: StepSideb
   const handleStepClick = (stepId: number) => {
     goToStep(stepId - 1);
   };
-  
+
   return (
     <div className="w-[280px] h-full bg-white border-r border-gray-200 flex flex-col p-6">
       <div
@@ -29,10 +29,10 @@ export default function StepsSidebar({ steps, currentStep, goToStep }: StepSideb
         }}
       >
         <Image src="/icons/arrow-left.svg" alt="뒤로가기" width={24} height={24} />
-        <p className="font-normal text-lg text-gray-700">돌아가기</p>
+        <p className="font-normal text-lg text-black-400">돌아가기</p>
       </div>
 
-      <div className="flex flex-col gap-[28px]">
+      <div className="flex flex-col gap-[28px] ">
         {steps.map((step, index) => {
           const isActive = currentStep + 1 === step.id;
           const isCompleted = currentStep + 1 > step.id;
