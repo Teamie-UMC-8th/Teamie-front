@@ -1,11 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import useToggle from '@/features/portfolios/hooks/useToggle';
-import Tailored from '@/features/portfolios/components/Tailored';
+import useToggle from '@/features/mypage/hooks/useToggle';
+import Tailored from '@/features/mypage/components/Tailored';
 import ToggleButton from '@/components/ToggleButton';
 import { useState } from 'react';
-import Projects from '@/features/portfolios/components/Projects';
+import Projects from '@/features/mypage/components/Projects';
 
 export default function MyPage() {
   const { selected, setSelected } = useToggle();
