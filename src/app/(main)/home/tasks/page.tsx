@@ -4,12 +4,12 @@ import MyTaskBoard from '@/features/boards/MyTaskBoard';
 
 export default function TaskPage() {
   return (
-    <div className="min-h-screen w-full bg-white flex flex-col">
-      <header className="flex items-center justify-between pb-[16px] px-[8px] border-b-[2px] border-[#E7E7E7]">
-        <h1 className="text-[24px] font-bold">나의 업무</h1>
+    <div className="min-h-screen w-full bg-white">
+      <header className="flex items-center justify-between pb-[1rem] px-[0.5rem] border-b-[0.125rem] border-[#E7E7E7]">
+        <h1 className="text-[1.375rem] lg:text-[1.5rem] font-semibold lg:font-bold">나의 업무</h1>
       </header>
 
-      <main className="flex-1 overflow-x-auto">
+      <main>
         <MyTaskBoard />
       </main>
     </div>
