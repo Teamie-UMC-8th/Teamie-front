@@ -55,9 +55,12 @@ export default function FileUploader() {
         } else if (ext === 'txt') {
           filePreview = '/icons/txt-file.svg';
           fileIcon = '/icons/txt-icon.svg';
-        } else if (ext === 'jpg' || ext === 'png') {
-          filePreview = '/icons/image-file.svg';
-          fileIcon = '/icons/image-icon.svg';
+        } else if (ext === 'jpg') {
+          filePreview = '/icons/jpg-file.svg';
+          fileIcon = '/icons/jpg-icon.svg';
+        } else if (ext === 'png') {
+          filePreview = '/icons/png-file.svg';
+          fileIcon = '/icons/png-icon.svg';
         }
 
         return (

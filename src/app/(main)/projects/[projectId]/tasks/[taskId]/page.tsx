@@ -76,7 +76,7 @@ export default function taskDetailPage() {
           className="flex flex-row mt-[40px] ml-[40px]
         max-lg:ml-[24px]"
         >
-          <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px]">
+          <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] min-w-[99px]">
             첨부파일
           </div>
           <FileUploader />
