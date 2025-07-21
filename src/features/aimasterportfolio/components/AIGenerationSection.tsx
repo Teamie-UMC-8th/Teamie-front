@@ -20,6 +20,3 @@ export default function AIGenerationSection() {
     </div>
   );
 }
-
-
-//시작하기 버튼 누르고 넘어가
