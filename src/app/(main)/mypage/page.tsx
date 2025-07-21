@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import useToggle from '@/features/portfolios/hooks/useToggle';
-import Project from '@/features/portfolios/Projects';
 import Tailored from '@/features/portfolios/Tailored';
 import ToggleButton from '@/components/ToggleButton';
+import Projects from '@/features/portfolios/Projects';
 
 export default function CalendarPage() {
   const { selected, setSelected } = useToggle();
@@ -76,12 +76,16 @@ export default function CalendarPage() {
                 className="w-[38px] h-[38px] mt-[3px] mr-[10px] cursor-pointer translate-y-[-18px]"
               />
               <div className="translate-y-[-26px] ">
-                <ToggleButton leftLabel="프로젝트" rightLabel="AI 첨삭" />
+                <ToggleButton
+                  leftLabel="프로젝트"
+                  rightLabel="AI 첨삭"
+                  onToggle={(isLeft) => setSelected(isLeft ? 'project' : 'ai')}
+                />
               </div>
             </div>
           </div>
 
-          {selected === 'project' && <Project />}
+          {selected === 'project' && <Projects />}
           {selected === 'ai' && <Tailored />}
         </div>
       </main>

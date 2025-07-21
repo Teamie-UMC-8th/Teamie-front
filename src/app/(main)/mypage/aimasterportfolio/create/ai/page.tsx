@@ -88,7 +88,11 @@ export default function AIMasterPortfolioCreatePage() {
                     {currentStep === 2 && <Step3 />}
                   </div>
                   <Image
+<<<<<<< HEAD
                     className="absolute top-[0] left-[-6px] translate-x-[-50%] translate-y-[50%] "
+=======
+                    className="absolute top-[0] left-[-6px] translate-x-[-50%] translate-y-[50%]"
+>>>>>>> dev
                     src="/icons/spike-left.svg"
                     alt="spike-left"
                     width={30}
@@ -104,7 +108,11 @@ export default function AIMasterPortfolioCreatePage() {
                     className="rounded-[6px] border-[1.5px] border-[#898989] bg-[#FFF] p-[6px] px-[32px] cursor-pointer"
                     onClick={() => {
                       if (currentStep === 0) {
+<<<<<<< HEAD
                         router.push('/mypage/`/projects/${projectId}/retrospect/ai`');
+=======
+                        router.push('/mypage/`/projects/${projectId}/retrospect`');
+>>>>>>> dev
                       } else {
                         goToStep(currentStep - 1);
                       }
