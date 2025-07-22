@@ -1,5 +1,6 @@
 'use client';
 
+import CorrectionStartButton from '@/features/correction/components/CorrectionStartButton';
 import Link from 'next/link';
 
 export default function CorrectionIntro() {
@@ -42,13 +43,11 @@ export default function CorrectionIntro() {
                 <p className="font-semibold text-[18px] mt-[16px]">Job Description</p>
                 <textarea className="border border-[#BBBBBB] w-[645px] h-[64px] rounded-[4px] mt-[2px] px-[12px] py-[10px] " />
 
-                <Link href="/mypage/addcorrection/analyzing/">
-                  <img
-                    src="/icons/CorrectionRequestButton.svg"
-                    alt="첨삭 의뢰 버튼"
-                    className="mt-[20px] cursor-pointer ml-[308px]"
-                  />
-                </Link>
+                <CorrectionStartButton
+                  onStart={() => {
+                    // 시작 로직 작성
+                  }}
+                />
               </div>
             </div>
           </div>
