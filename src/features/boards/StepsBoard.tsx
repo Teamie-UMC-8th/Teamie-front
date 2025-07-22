@@ -59,7 +59,7 @@ export default function StepsBoard({ steps, projectId }: BoardProps) {
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    className="flex flex-col mt-6 min-h-[10px]"
+                    className="flex flex-col mt-6 min-h-[0.625rem]"
                   >
                     {/* 각 TaskItem은 드래그 가능한 아이템 (Draggable) */}
                     {step.items.map((task, idx) => (
@@ -81,8 +81,8 @@ export default function StepsBoard({ steps, projectId }: BoardProps) {
                             className={`mb-3 last:mb-0 ${snapshot.isDragging ? 'opacity-50' : ''}`}
                             style={{
                               ...provided.draggableProps.style,
-                              width: '325px',
-                              height: '122px',
+                              width: '100%',
+                              height: '7.625rem',
                             }}
                           >
                             <div {...provided.dragHandleProps}>
@@ -113,7 +113,7 @@ export default function StepsBoard({ steps, projectId }: BoardProps) {
         ))}
         <button
           onClick={addStep}
-          className="flex bg-[#F8F8F8] text-[#898989] w-[325px] h-[68px] items-center justify-center rounded-[8px] font-medium text-[18px] cursor-pointer hover:bg-[#F0F0F0] transition-colors duration-200"
+          className="flex bg-[#F8F8F8] text-[#898989] w-full h-[4.25rem] items-center justify-center rounded-[0.5rem] font-medium text-[1.125rem] cursor-pointer hover:bg-[#F0F0F0] transition-colors duration-200"
         >
           + STEP 추가
         </button>
