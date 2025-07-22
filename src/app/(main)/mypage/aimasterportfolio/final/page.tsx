@@ -201,10 +201,14 @@ function ProjectInfoSection({
   contribution: number;
 }) {
   return (
-    <section className="flex items-center gap-4 justify-between pb-[60px]">
+    <section className="flex items-center justify-between pb-[60px] max-lg:flex-col max-lg:items-start">
+      <div className='flex flex-nowrap gap-[200px] max-lg:gap-[100px]'>
       <ProjectPeriod startDate={startDate} endDate={endDate} />
       <CategorySelector selected={category} onSelect={onCategoryChange} />
+      </div>
+      <div className='flex flex-wrap max-lg:mt-[60px]'>
       <ContributionBar percentage={contribution} />
+      </div>
     </section>
   );
 }
@@ -217,7 +221,7 @@ function MasterPortfolioSection({
   onMethodChange: (method: GenerationMethod) => void;
 }) {
   return (
-    <section className="flex items-center justify-between bg-[#E9F8F8] rounded-tl-[8px] rounded-tr-[8px] px-[24px] py-[8px] mr-[12px] ml-[12px]">
+    <section className="flex items-center justify-between w-[1460px] max-lg:w-[908px] h-[52px] bg-[#E9F8F8] rounded-tl-[8px] rounded-tr-[8px] px-[24px] py-[8px] mr-[12px] ml-[12px]">
       <h2 className="text-[20px] leading-[28px] font-semibold text-[#000000] font-[Pretendard]">
         마스터 포트폴리오
       </h2>
@@ -260,38 +264,38 @@ export default function AIMasterPortfolioPage() {
 
           {generationMethod === 'manual' && <ManualWriteSection />}
           {generationMethod === 'ai' && (
-            <div className="h-[804px] rounded-[16px] bg-[#F8F8F8] shadow-[0_0_8px_rgba(0,0,0,0.25)] p-[40px] flex flex-col items-start gap-[32px]">
-              {/* 상세 정보 */}
-              <div className="flex w-full">
-                <div className="w-full flex-[0.6] h-[25px] px-[18px] py-[6px] text-left font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-[#000000] whitespace-nowrap">
-                  상세 정보
-                </div>
-                <div className="w-full flex-[9.4] h-[162px] bg-[#FFFFFF] border-[1.5px] border-[#BBBBBB] rounded-[8px] font-[Pretendard] text-[18px] font-normal leading-[26px] text-black p-4" />
-              </div>
+            <div className="w-[1492px] max-lg:w-[928px] h-auto rounded-[16px] bg-[#F8F8F8] shadow-[0_0_8px_rgba(0,0,0,0.25)] p-[40px] max-lg:px-[28px] py-[40px] flex flex-col gap-[28px] max-lg:gap-[53px]">
+               {/* 상세 정보 */}
+<div className="flex w-full max-lg:flex-col max-lg:gap-[8px]">
+  <div className="w-full lg:flex-[0.6] h-[25px] text-left font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-black whitespace-nowrap max-lg:mt-[2px]">
+    상세정보
+  </div>
+  <div className="w-full lg:flex-[9.4] h-[162px] min-h-[162px] max-h-[162px] appearance-none bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] font-[Pretendard] text-[18px] max-lg:text-[16px] font-normal leading-[26px] text-black placeholder:text-[#898989] p-4" />
+</div>
 
-              {/* 담당 업무 */}
-              <div className="flex w-full">
-                <div className="w-full flex-[0.6] h-[25px] px-[18px] py-[6px] text-left font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-[#000000] whitespace-nowrap">
-                  담당 업무
-                </div>
-                <div className="w-full flex-[9.4] h-[162px] bg-[#FFFFFF] border-[1.5px] border-[#BBBBBB] rounded-[8px] font-[Pretendard] text-[18px] font-normal leading-[26px] text-black p-4" />
-              </div>
+{/* 담당 업무 */}
+<div className="flex w-full max-lg:flex-col max-lg:gap-[8px]">
+  <div className="w-full lg:flex-[0.6] h-[25px] text-left font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-black whitespace-nowrap">
+    담당 업무
+  </div>
+  <div className="w-full lg:flex-[9.4] h-[162px] min-h-[162px] max-h-[162px] appearance-none bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] font-[Pretendard] text-[18px] max-lg:text-[16px] font-normal leading-[26px] text-black placeholder:text-[#898989] p-4" />
+</div>
 
-              {/* 주요 성과 */}
-              <div className="flex w-full">
-                <div className="w-full flex-[0.6] h-[25px] px-[18px] py-[6px] text-left font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-[#000000] whitespace-nowrap">
-                  주요 성과
-                </div>
-                <div className="w-full flex-[9.4] h-[162px] bg-[#FFFFFF] border-[1.5px] border-[#BBBBBB] rounded-[8px] font-[Pretendard] text-[18px] font-normal leading-[26px] text-black p-4" />
-              </div>
+{/* 주요 성과 */}
+<div className="flex w-full max-lg:flex-col max-lg:gap-[8px]">
+  <div className="w-full lg:flex-[0.6] h-[25px] text-left font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-black whitespace-nowrap">
+    주요 성과
+  </div>
+  <div className="w-full lg:flex-[9.4] h-[162px] min-h-[162px] max-h-[162px] appearance-none bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] font-[Pretendard] text-[18px] max-lg:text-[16px] font-normal leading-[26px] text-black placeholder:text-[#898989] p-4" />
+</div>
 
-              {/* 배운 점 */}
-              <div className="flex w-full">
-                <div className="w-full flex-[0.6] h-[25px] px-[18px] py-[6px] text-left font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-[#000000] whitespace-nowrap">
-                  배운 점
-                </div>
-                <div className="w-full flex-[9.4] h-[162px] bg-[#FFFFFF] border-[1.5px] border-[#BBBBBB] rounded-[8px] font-[Pretendard] text-[18px] font-normal leading-[26px] text-black p-4" />
-              </div>
+{/* 배운 점 */}
+<div className="flex w-full max-lg:flex-col max-lg:gap-[8px]">
+  <div className="w-full lg:flex-[0.6] h-[25px] text-left font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-black whitespace-nowrap">
+    배운 점
+  </div>
+  <div className="w-full lg:flex-[9.4] h-[162px] min-h-[162px] max-h-[162px] appearance-none bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] font-[Pretendard] text-[18px] max-lg:text-[16px] font-normal leading-[26px] text-black placeholder:text-[#898989] p-4" />
+</div>
             </div>
           )}
         </div>
