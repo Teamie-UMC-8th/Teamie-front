@@ -2,7 +2,7 @@ import { JSX, useState } from 'react';
 import CorrectionStartButtonModal from './CorrectionStartModal';
 import Link from 'next/link';
 
-type CorrectionStartButtonProps = {
+type CorrectionRequestStartButtonProps = {
   onStart: () => void;
   modalTitle?: string;
   confirmText?: string;
@@ -16,7 +16,7 @@ export default function CorrectionStartButton({
   cancelText = '취소',
   confirmText = '의뢰',
   className = '',
-}: CorrectionStartButtonProps) {
+}: CorrectionRequestStartButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleStart = () => {
@@ -28,9 +28,9 @@ export default function CorrectionStartButton({
     <>
       <button onClick={() => setIsModalOpen(true)} className={`${className} cursor-pointer `}>
         <img
-          src="/icons/CorrectionStartButton.svg"
-          alt="첨삭 시작 버튼"
-          className="mt-[14px] ml-[338px]"
+          src="/icons/CorrectionRequestStartButton.svg"
+          alt="첨삭 의뢰 시작 버튼"
+          className="mt-[14px] ml-[308px]"
         />
       </button>
 
