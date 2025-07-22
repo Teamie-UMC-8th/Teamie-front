@@ -7,7 +7,7 @@ const CorrectionResponsiveHeader: React.FC = () => {
   const pathname = usePathname();
   return (
     <div
-      className="fixed top-[60px] left-0 w-full h-[108px] bg-white z-50"
+      className="fixed top-[58px] left-0 w-full h-[108px] bg-white z-50"
       style={{ boxShadow: '0px 4px 3px 0px #0000000D' }}
     >
       {/* navbar 내용 */}
