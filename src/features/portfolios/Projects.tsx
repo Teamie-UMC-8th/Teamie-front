@@ -21,7 +21,10 @@ export default function Tailored() {
             >
               프로젝트 명
             </p>
-            <div className="absolute right-[8px] bg-[#CDE3C9] w-[80px] h-[32px] rounded-[4px] flex items-center justify-center">
+            <div
+              className="absolute right-[8px] bg-[#CDE3C9] w-[80px] h-[32px] rounded-[4px] flex items-center justify-center
+            max-lg:right-[4px]"
+            >
               <span className="text-[16px]">동아리</span>
             </div>
           </div>
@@ -66,7 +69,10 @@ export default function Tailored() {
             >
               프로젝트 명
             </p>
-            <div className="absolute right-[8px] bg-[#FBD5D5] w-[80px] h-[32px] rounded-[4px] flex items-center justify-center">
+            <div
+              className="absolute right-[8px] bg-[#FBD5D5] w-[80px] h-[32px] rounded-[4px] flex items-center justify-center
+            max-lg:right-[4px]"
+            >
               <span>프로젝트</span>
             </div>
           </div>
