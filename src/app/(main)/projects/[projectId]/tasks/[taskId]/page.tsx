@@ -11,12 +11,12 @@ export default function taskDetailPage() {
   return (
     <div>
       {/* 헤더 */}
-      <div className="flex items-center">
+      <div className="flex items-center justify-between">
         <div className="flex items-center">
           <BackButton />
-          <h1 className="text-[24px] text-black font-semibold mt-[28px]">빈 업무</h1>
+          <h1 className="text-[24px] text-black font-semibold">빈 업무</h1>
         </div>
-        <div className="ml-[1375px] translate-y-[18px]">
+        <div className="max-lg:mr-[74px]">
           <DeleteButton
             onDelete={() => {
               // 삭제 로직 작성
@@ -29,13 +29,16 @@ export default function taskDetailPage() {
       </div>
 
       {/* 구분선 */}
-      <div className="mt-[10px] ml-[40px] border-[#E7E7E7] border-[1px] w-[1495px] " />
+      <div
+        className="mt-[6px] border-[#E7E7E7] border-[1px] w-auto
+      max-lg:w-[910px]"
+      />
 
       {/* 업무 상세 정보 */}
-      <div>
+      <div className="flex flex-col">
         <div
-          className="flex mt-[60px] ml-[80px] items-center 
-        max-lg:flex-col max-lg:items-start max-lg:ml-[48px]"
+          className="flex mt-[60px] ml-[40px] items-center 
+        max-lg:flex-col max-lg:items-start max-lg:ml-[24px]"
         >
           {/* 마감 기한 */}
           <div className="flex items-center">
@@ -48,47 +51,51 @@ export default function taskDetailPage() {
           {/* 담당자 */}
           <div
             className="flex items-center ml-[160px]
-          max-lg:ml-0 max-lg:mt-[40px]"
+          max-lg:ml-[0px] max-lg:mt-[40px]"
           >
             <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px]  mr-[28px]">
               담당자
             </div>
             <AddProfileButton />
           </div>
-          {/* 진행 상태 */}
-          <div
-            className="flex items-center ml-[160px]
-          max-lg:ml-0 max-lg:mt-[40px]"
-          >
-            <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ">
-              진행상태
-            </div>
-            <TaskDropdown />
-          </div>
         </div>
+
+        {/* 진행 상태 */}
+        <div
+          className="flex items-center ml-[40px] mt-[40px]
+          max-lg:ml-[24px] max-lg:mt-[40px]"
+        >
+          <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px]">
+            진행상태
+          </div>
+          <TaskDropdown />
+        </div>
+
         {/* 첨부파일 */}
         <div
-          className="flex flex-row mt-[40px] ml-[80px]
-        max-lg:ml-[48px]"
+          className="flex flex-row mt-[40px] ml-[40px]
+        max-lg:ml-[24px]"
         >
-          <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px]">
+          <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] min-w-[99px]">
             첨부파일
           </div>
           <FileUploader />
         </div>
+
         {/* 비고 */}
         <div
-          className="flex flex-row mt-[40px] ml-[80px]
-        max-lg:ml-[48px]"
+          className="flex flex-row mt-[40px] ml-[40px]
+        max-lg:ml-[24px]"
         >
-          <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px]">
+          <div className="min-w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px]">
             비고
           </div>
           <textarea
-            className="w-[1109px] h-[84px] px-[20px] py-[16px] border-[2px] rounded-[6px] border-[#BBBBBB] ml-[28px] 
-          max-lg:w-[735px]"
+            className="w-[1109px] min-w-[1109px] h-[84px] px-[20px] py-[16px] border-[2px] rounded-[6px] border-[#BBBBBB] ml-[28px] 
+          max-lg:w-[735px] max-lg:min-w-[735px]"
           />
         </div>
+
         <AddComment />
       </div>
     </div>
