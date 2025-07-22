@@ -102,7 +102,7 @@ export default function AddComment() {
             className="mt-[40px] ml-[95px]
           max-lg:ml-[79px] max-lg:mt-[32px]"
           >
-            <div className="flex items-center mb-[8px] w-[1360px]">
+            <div className="flex items-center mb-[8px] w-[1360px] group">
               <div className="flex flex-col items-center mr-[20px]">
                 <img src="/icons/comment-profile.svg" alt="댓글프로필" className="min-w-fit" />
                 <div className="text-[12px] text-black mt-[2px]">Teamie</div>
