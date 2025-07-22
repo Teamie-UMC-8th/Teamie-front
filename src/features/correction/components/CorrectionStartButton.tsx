@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 type CorrectionStartButtonProps = {
   onStart: () => void;
-  modalTitle?: JSX.Element;
+  modalTitle?: string;
   confirmText?: string;
   cancelText?: string;
   className?: string;
@@ -12,12 +12,7 @@ type CorrectionStartButtonProps = {
 
 export default function CorrectionStartButton({
   onStart,
-  modalTitle = (
-    <div className="flex items-center gap-[8px]">
-      <img src="/icons/CorrectionModalIcon.svg" alt="첨삭 모달 아이콘" />
-      <span>6 Credit을 사용하여 AI 지원 맞춤 포트폴리오 첨삭을 의뢰하시겠습니까?</span>
-    </div>
-  ),
+  modalTitle = '6 Credit을 사용하여',
   cancelText = '취소',
   confirmText = '의뢰',
   className = '',
