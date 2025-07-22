@@ -60,29 +60,34 @@ export default function AIMasterPortfolioCreatePage() {
     <>
       <Portal as="aside" containerId="step-sidebar">
         <div
-          className="fixed top-0 left-0 h-full bg-white shadow-lg z-1"
+          className="fixed top-0 left-0 h-full bg-white shadow-lg z-1
+          max-lg:w-full max-lg:h-[168px]
+          max-lg:border-none
+          max-lg:justify-end"
           style={{ paddingTop: `${sidebarPaddingTop}px` }}
         >
           <StepsSidebar currentStep={currentStep} steps={AI_CREATE_STEPS} goToStep={goToStep} />
         </div>
       </Portal>
 
-      <div className="ml-[300px]">
-        <main className="flex flex-col gap-0 max-w-[1600px] mx-auto p-6">
-          <section className="flex items-center justify-between bg-[#E9F8F8] rounded-tl-[8px] rounded-tr-[8px] px-[24px] py-[8px] mr-[12px] ml-[12px]">
+      <div className="ml-0 max-lg:ml-0]">
+        <main className="flex flex-col gap-0 max-w-[1323px] mx-auto p-6">
+          <section className=" max-lg:mt-[120px] w-[1323px] max-lg:w-[908px] h-[52px] flex items-center justify-between bg-[#E9F8F8] rounded-tl-[8px] rounded-tr-[8px] px-[24px] py-[8px] mr-[12px] ml-[12px]">
             <h2 className="text-[20px] leading-[28px] font-semibold text-[#000000] font-[Pretendard]">
               AI 마스터 포트폴리오 생성
             </h2>
           </section>
 
-          <div className="flex flex-col w-full h-[804px] rounded-[16px] bg-[#F8F8F8] shadow-[0_0_4px_rgba(0,0,0,0.20)] p-[40px] gap-[32px] overflow-y-auto">
+          <div className="flex flex-col w-[1359px] max-lg:w-[928px] h-[800px] max-lg:h-[732px]rounded-[16px] bg-[#F8F8F8] shadow-[0_0_4px_rgba(0,0,0,0.20)] p-[40px] gap-[32px] overflow-y-auto">
             <div className="flex flex-col gap-[40px] items-end">
               <div className="flex items-start gap-[40px] w-full">
-                <div className="w-[80px] h-[80px] bg-[#D9D9D9] mt-[24px]" />
+                <div className="w-[80px] max-lg:w-[60px] h-[80px] max-lg:h-[60px] bg-[#D9D9D9] mt-[24px]" />
 
                 {/* 첫번째 버블 */}
                 <div className="relative w-[100%] h-[100%]">
-                  <div className="w-[100%] h-[100%] bg-white border-none rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.10)] p-[50px]">
+                  <div className="w-[1091.95px] max-lg:w-[751px] h-[426px] max-lg:h-[376px] bg-white border-none rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.10)] 
+                  p-[50px] max-lg:px-[36px] max-lg:py-[32px]
+                  max-lg:text-[16px] max-lg:leading-[24px]">
                     {currentStep === 0 && <Step1 />}
                     {currentStep === 1 && <Step2 />}
                     {currentStep === 2 && <Step3 />}
@@ -104,8 +109,12 @@ export default function AIMasterPortfolioCreatePage() {
                     className="rounded-[6px] border-[1.5px] border-[#898989] bg-[#FFF] p-[6px] px-[32px] cursor-pointer"
                     onClick={() => {
                       if (currentStep === 0) {
+<<<<<<< HEAD
                         router.push('/mypage/`/projects/${projectId}/retrospect/ai`');
 
+=======
+                        router.push('/mypeag/`/projects/${projectId}/retrospect/create`');
+>>>>>>> ad945ed (✨Feat: step1 반응형 구현)
                       } else {
                         goToStep(currentStep - 1);
                       }
