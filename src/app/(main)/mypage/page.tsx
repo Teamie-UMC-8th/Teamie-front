@@ -6,6 +6,7 @@ import Tailored from '@/features/mypage/components/Tailored';
 import ToggleButton from '@/components/ToggleButton';
 import { useState } from 'react';
 import Projects from '@/features/mypage/components/Projects';
+import AddCorrectionButton from '@/features/mypage/components/AddCorrectionButton';
 
 export default function MyPage() {
   const { selected, setSelected } = useToggle();
@@ -140,14 +141,7 @@ export default function MyPage() {
             <h2 className="text-[1.375rem] mb-[2.5rem] font-bold">포트폴리오</h2>
             <div className="flex items-center ">
               {/* AI 첨삭일 때만 + 버튼 표시 */}
-              {showToggle && selected === 'ai' && (
-                <img
-                  src="icons/AddProject.svg"
-                  alt="프로젝트 추가"
-                  className="w-[2.375rem] h-[2.375rem] mt-[3px] mr-[0.625rem] cursor-pointer translate-y-[-1rem]
-                  max-lg:translate-x-[-3.625rem] "
-                />
-              )}
+              {showToggle && selected === 'ai' && <AddCorrectionButton />}
               <div
                 className="translate-y-[-1.625rem]
               max-lg:translate-x-[-3.625rem]"

@@ -35,7 +35,7 @@ export default function Tailored() {
                 기여도
               </div>
               <div className="text-[16px] text-black mr-[24px]">63%</div>
-              <img src="icons/percent-bar.svg" alt="Percent Bar" className="max-lg:w-[247px]" />
+              <img src="/icons/percent-bar.svg" alt="Percent Bar" className="max-lg:w-[247px]" />
             </div>
             <div className="flex mb-[12px]">
               <div className="text-[16px] text-[#898989] mr-[20px] ml-[12px] max-lg:ml-[36px]">
@@ -83,7 +83,7 @@ export default function Tailored() {
                 기여도
               </div>
               <div className="text-[16px] text-black mr-[24px]">63%</div>
-              <img src="icons/percent-bar.svg" alt="Percent Bar" className="max-lg:w-[247px]" />
+              <img src="/icons/percent-bar.svg" alt="Percent Bar" className="max-lg:w-[247px]" />
             </div>
             <div className="flex mb-[12px]">
               <div
