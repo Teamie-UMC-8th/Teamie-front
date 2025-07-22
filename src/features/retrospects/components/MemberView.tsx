@@ -23,17 +23,34 @@ export function MemberView() {
   };
 
   return (
-    <div>
+    <div className="w-full px-[255px] pt-[60px] max-lg:px-[128px]">
       {/* 제목 */}
-      <h2 className="mb-[16px] font-[Pretendard] font-bold text-[24px] leading-[29px] tracking-[0.04em] text-black whitespace-nowrap">회고</h2>
+      <h2
+        className="
+          font-[Pretendard] text-[#000000] whitespace-nowrap
+          font-bold text-[24px] leading-[29px] tracking-[0.04em]
+          max-lg:font-semibold max-lg:text-[22px] max-lg:leading-[28px] max-lg:tracking-[0]
+          mb-[16px]
+        "
+      >
+        회고
+      </h2>
 
       {/* 구분선 */}
-      <hr className="w-[1495px] border-t-[2px] border-[#E7E7E7] mb-[140px]" />
+      <hr className="w-full border-t-[2px] border-[#E7E7E7] rotate-180 mb-[195px]" />
 
-      <div className="flex gap-[100px] pl-[100px] pr-[100px]">
-        {/* 왼쪽 카드 (비활성화된 종료 버튼) */}
+      {/* 카드 영역 (반응형 대응 완료) */}
+      <div
+        className="
+          flex gap-[100px] pl-[360px] pr-[361px]
+          max-lg:flex-col max-lg:gap-[80px] max-lg:px-[198px]
+        "
+      >
+        {/* 왼쪽 카드 */}
         <div className="w-[562px] h-[310px] bg-[#F8F8F8] rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.2)] flex flex-col items-center text-center p-[24px] pt-[53px] text-[#898989]">
-          <strong className="text-[18px] font-bold leading-[26px] mb-[33px]">팀장만 종료 가능합니다.</strong>
+          <strong className="text-[18px] font-bold leading-[26px] mb-[33px]">
+            팀장만 종료 가능합니다.
+          </strong>
           <p className="text-[16px] leading-[24px] mb-[40px]">
             프로젝트를 종료하면 프로젝트 대시보드 내의 <br />
             모든 내용을 수정하거나 삭제할 수 없게 됩니다. <br />
@@ -47,7 +64,7 @@ export function MemberView() {
           </button>
         </div>
 
-        {/* 오른쪽 카드 (프로젝트 이탈 버튼) */}
+        {/* 오른쪽 카드 */}
         <div className="w-[562px] h-[310px] bg-white rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.2)] flex flex-col items-center text-center p-[24px] pt-[40px]">
           <strong className="text-[18px] font-bold leading-[26px] mb-[20px]">
             팀장은 이탈이 불가능합니다. <br />

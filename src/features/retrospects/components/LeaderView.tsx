@@ -7,16 +7,29 @@ export default function LeaderView() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <div>
+    <div className="w-full px-[255px] pt-[60px] max-lg:px-[128px]">
       {/* 제목 */}
-      <h2 className="mb-[16px] font-[Pretendard] font-bold text-[24px] leading-[29px] tracking-[0.04em] text-black whitespace-nowrap">
+      <h2
+        className="
+          font-[Pretendard] text-[#000000] whitespace-nowrap
+          font-bold text-[24px] leading-[29px] tracking-[0.04em]
+          max-lg:font-semibold max-lg:text-[22px] max-lg:leading-[28px] max-lg:tracking-[0]
+          mb-[16px]
+        "
+      >
         회고
       </h2>
 
       {/* 구분선 */}
-      <hr className="w-[1495px] border-t-[2px] border-[#E7E7E7] mb-[140px]" />
+      <hr className="w-full border-t-[2px] border-[#E7E7E7] rotate-180 mb-[195px]" />
 
-      <div className="flex gap-[100px] pl-[100px] pr-[100px]">
+      {/* 카드 영역 (MemberView와 동일하게 반응형 적용) */}
+      <div
+        className="
+          flex gap-[100px] pl-[360px] pr-[361px]
+          max-lg:flex-col max-lg:gap-[80px] max-lg:px-[198px]
+        "
+      >
         {/* 팀장 카드 */}
         <div className="w-[562px] h-[310px] bg-white rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.2)] flex flex-col items-center text-center p-[24px] gap-[20px] pt-[53px]">
           <strong className="text-[18px] font-bold leading-[26px] mb-[20px]">
@@ -55,6 +68,7 @@ export default function LeaderView() {
         </div>
       </div>
 
+      {/* 종료 모달 */}
       {isModalOpen && (
         <ProjectEndModal
           onConfirm={() => {
