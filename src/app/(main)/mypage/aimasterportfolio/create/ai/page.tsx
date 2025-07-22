@@ -61,7 +61,7 @@ export default function AIMasterPortfolioCreatePage() {
       <Portal as="aside" containerId="step-sidebar">
         <div
           className="fixed top-0 left-0 h-full bg-white shadow-lg z-1
-          max-lg:w-full max-lg:h-[168px]
+          max-lg:w-full max-lg:h-[138px]
           max-lg:border-none
           max-lg:justify-end"
           style={{ paddingTop: `${sidebarPaddingTop}px` }}
