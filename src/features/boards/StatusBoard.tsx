@@ -6,14 +6,14 @@ export default function StatusBoard({ steps, projectId }: BoardProps) {
   const allTasks = steps.flatMap((step) => step.items);
 
   return (
-    <div className="flex gap-[80px] mt-[60px] ml-[35px]">
+    <div className="grid [grid-template-columns:repeat(2,20.313rem)] lg:[grid-template-columns:repeat(4,20.313rem)] gap-x-[2.25rem] gap-y-[5rem] mt-[3.75rem]">
       {STATUS_ORDER.map(({ status, color }) => {
         const tasksByStatus = allTasks.filter((task) => task.status === status);
 
         return (
           <div key={status} className="flex flex-col">
             <div
-              className="w-[325px] h-[46px] flex items-center justify-center rounded-[8px] font-medium text-[18px]"
+              className="w-full h-[46px] flex items-center justify-center rounded-[8px] font-medium text-[18px]"
               style={{ backgroundColor: color }}
             >
               {status}
