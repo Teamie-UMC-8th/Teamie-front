@@ -115,10 +115,42 @@ export default function tailoredPortfolio() {
                 확보했습니다.
               </p>
             </div>
+            {/* Divider line */}
             <div className="border-l-[2px] border-[#E7E7E7] h-[492px] ml-[40px] mr-[40px]" />
+
             <div className="w-[620px] h-[476px] mt-[8px]">
               <div className="w-[620px] h-[84px] bg-[#F8F8F8] border border-[#898989] rounded-[6px] px-[20px] py-[16px]">
                 총평
+              </div>
+
+              <div className="flex mt-[48px] items-center">
+                <div>토글</div>
+                <div className="flex ml-[16px]">
+                  <div className="bg-[#EF7C7C] w-[4px] h-[34px] rounded-l-[4px]"></div>
+                  <div className="w-[189px] h-[34px] bg-[#D846460D] px-[12px] py-[4px] rounded-r-[4px]">
+                    <p className="text-[18px]">축소하거나 제외하세요.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-[16px] text-[18px]">
+                <p>1. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
+                <p>2. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
+              </div>
+
+              <div className="flex mt-[48px] items-center w-[620px]">
+                <div>토글</div>
+                <div className="flex ml-[16px]">
+                  <div className="bg-[#97D099] w-[4px] h-[34px] rounded-l-[4px]"></div>
+                  <div className="w-[260px] h-[34px] bg-[#97D0991A] px-[12px] py-[4px] rounded-r-[4px]">
+                    <p className="text-[18px]">내용을 더 구체화하여 강조하세요.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-[16px] text-[18px] w-[620px]">
+                <p>1. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
+                <p>2. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
               </div>
             </div>
           </div>
@@ -129,6 +161,10 @@ export default function tailoredPortfolio() {
           <div className="w-[1400px] h-[548px] rounded-[8px] border border-[#E7E7E7] bg-white mt-[12px] px-[40px] py-[28px] flex">
             <div className="w-[620px] h-[476px] text-[18px] mt-[8px]">
               <p>[연간 활동 기획 및 운영 총괄]</p>
+              <div className="flex">
+                <div className="bg-[#EF7C7C] w-[4px] h-[34px] rounded-l-[4px]"></div>
+                <div className="bg-[#D846460D] px-[12px] py-[4px] rounded-r-[4px]"></div>
+              </div>
               <p>- 동아리 연간 활동 계획 및 예산안 수립</p>
               <p>- 월 1회 정기모임 및 분기 1회 특별 행사 기획∙운영</p>
               <p>- 전산장부 시스템 도입 및 동아리 전체 예산 집행, 회계 처리 총괄</p>
@@ -151,6 +187,36 @@ export default function tailoredPortfolio() {
               <div className="w-[620px] h-[84px] bg-[#F8F8F8] border border-[#898989] rounded-[6px] px-[20px] py-[16px]">
                 총평
               </div>
+
+              <div className="flex mt-[48px] items-center">
+                <div>토글</div>
+                <div className="flex ml-[16px]">
+                  <div className="bg-[#EF7C7C] w-[4px] h-[34px] rounded-l-[4px]"></div>
+                  <div className="w-[189px] h-[34px] bg-[#D846460D] px-[12px] py-[4px] rounded-r-[4px]">
+                    <p className="text-[18px]">축소하거나 제외하세요.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-[16px] text-[18px]">
+                <p>1. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
+                <p>2. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
+              </div>
+
+              <div className="flex mt-[48px] items-center w-[620px]">
+                <div>토글</div>
+                <div className="flex ml-[16px]">
+                  <div className="bg-[#97D099] w-[4px] h-[34px] rounded-l-[4px]"></div>
+                  <div className="w-[260px] h-[34px] bg-[#97D0991A] px-[12px] py-[4px] rounded-r-[4px]">
+                    <p className="text-[18px]">내용을 더 구체화하여 강조하세요.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-[16px] text-[18px] w-[620px]">
+                <p>1. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
+                <p>2. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
+              </div>
             </div>
           </div>
         </div>
@@ -160,6 +226,10 @@ export default function tailoredPortfolio() {
           <div className="w-[1400px] h-[548px] rounded-[8px] border border-[#E7E7E7] bg-white mt-[12px] px-[40px] py-[28px] flex">
             <div className="w-[620px] h-[476px] text-[18px] mt-[8px]">
               <p>[연간 활동 기획 및 운영 총괄]</p>
+              <div className="flex">
+                <div className="bg-[#97D099] w-[4px] h-[34px] rounded-l-[4px]"></div>
+                <div className="bg-[#97D0991A] px-[12px] py-[4px] rounded-r-[4px]"></div>
+              </div>
               <p>- 동아리 연간 활동 계획 및 예산안 수립</p>
               <p>- 월 1회 정기모임 및 분기 1회 특별 행사 기획∙운영</p>
               <p>- 전산장부 시스템 도입 및 동아리 전체 예산 집행, 회계 처리 총괄</p>
@@ -181,6 +251,36 @@ export default function tailoredPortfolio() {
             <div className="w-[620px] h-[476px] mt-[8px]">
               <div className="w-[620px] h-[84px] bg-[#F8F8F8] border border-[#898989] rounded-[6px] px-[20px] py-[16px]">
                 총평
+              </div>
+
+              <div className="flex mt-[48px] items-center">
+                <div>토글</div>
+                <div className="flex ml-[16px]">
+                  <div className="bg-[#EF7C7C] w-[4px] h-[34px] rounded-l-[4px]"></div>
+                  <div className="w-[189px] h-[34px] bg-[#D846460D] px-[12px] py-[4px] rounded-r-[4px]">
+                    <p className="text-[18px]">축소하거나 제외하세요.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-[16px] text-[18px]">
+                <p>1. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
+                <p>2. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
+              </div>
+
+              <div className="flex mt-[48px] items-center w-[620px]">
+                <div>토글</div>
+                <div className="flex ml-[16px]">
+                  <div className="bg-[#97D099] w-[4px] h-[34px] rounded-l-[4px]"></div>
+                  <div className="w-[260px] h-[34px] bg-[#97D0991A] px-[12px] py-[4px] rounded-r-[4px]">
+                    <p className="text-[18px]">내용을 더 구체화하여 강조하세요.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-[16px] text-[18px] w-[620px]">
+                <p>1. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
+                <p>2. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
               </div>
             </div>
           </div>
@@ -212,6 +312,36 @@ export default function tailoredPortfolio() {
             <div className="w-[620px] h-[476px] mt-[8px]">
               <div className="w-[620px] h-[84px] bg-[#F8F8F8] border border-[#898989] rounded-[6px] px-[20px] py-[16px]">
                 총평
+              </div>
+
+              <div className="flex mt-[48px] items-center">
+                <div>토글</div>
+                <div className="flex ml-[16px]">
+                  <div className="bg-[#EF7C7C] w-[4px] h-[34px] rounded-l-[4px]"></div>
+                  <div className="w-[189px] h-[34px] bg-[#D846460D] px-[12px] py-[4px] rounded-r-[4px]">
+                    <p className="text-[18px]">축소하거나 제외하세요.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-[16px] text-[18px]">
+                <p>1. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
+                <p>2. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
+              </div>
+
+              <div className="flex mt-[48px] items-center w-[620px]">
+                <div>토글</div>
+                <div className="flex ml-[16px]">
+                  <div className="bg-[#97D099] w-[4px] h-[34px] rounded-l-[4px]"></div>
+                  <div className="w-[260px] h-[34px] bg-[#97D0991A] px-[12px] py-[4px] rounded-r-[4px]">
+                    <p className="text-[18px]">내용을 더 구체화하여 강조하세요.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-[16px] text-[18px] w-[620px]">
+                <p>1. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
+                <p>2. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
               </div>
             </div>
           </div>
