@@ -1,14 +1,21 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function Tailored() {
+  const pathname = usePathname();
+  const isAnalyzeFinPage = pathname === '/mypage/addcorrection/projectSelect';
+
   return (
-    <div className="flex">
+    <div
+      className="flex
+    max-lg:flex-col max-lg:gap-[20px]"
+    >
       <Link href="/mypage/aimasterportfolio">
         <button
-          className="bg-[#F8F8F8] w-[465px] h-[192px] rounded-[8px] grid justify-center mr-[24px] cursor-pointer
-          max-lg:w-[421px] max-lg:h-[180px]"
+          className={`bg-[#F8F8F8] w-[465px] h-[192px] rounded-[8px] grid justify-center mr-[24px] cursor-pointer
+        ${!isAnalyzeFinPage && 'max-lg:w-[421px] max-lg:h-[180px]'}`}
           style={{ boxShadow: '0px 0px 4px 0px #00000033' }}
         >
           <div
@@ -55,8 +62,8 @@ export default function Tailored() {
 
       <Link href="/mypage/aimasterportfolio">
         <button
-          className="bg-[#F8F8F8] w-[465px] h-[192px] rounded-[8px] grid justify-center cursor-pointer
-          max-lg:w-[421px] max-lg:h-[180px]"
+          className={`bg-[#F8F8F8] w-[465px] h-[192px] rounded-[8px] grid justify-center mr-[24px] cursor-pointer
+        ${!isAnalyzeFinPage && 'max-lg:w-[421px] max-lg:h-[180px]'}`}
           style={{ boxShadow: '0px 0px 4px 0px #00000033' }}
         >
           <div
