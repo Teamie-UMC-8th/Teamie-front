@@ -3,10 +3,11 @@
 import { useState } from 'react';
 
 const TAILORED_OPTIONS = [
-  { label: '정규직', color: 'bg-[#BED9FB]' },
-  { label: '계약직', color: 'bg-[#CDE3C9]' },
-  { label: '인턴', color: 'bg-[#F7DFC4]' },
-  { label: '활동', color: 'bg-[#FBD5D5]' },
+  { label: '수업', color: 'bg-[#BED9FB]' },
+  { label: '동아리', color: 'bg-[#CDE3C9]' },
+  { label: '대외활동', color: 'bg-[#F7DFC4]' },
+  { label: '프로젝트', color: 'bg-[#FBD5D5]' },
+  { label: '기타', color: 'bg-[#C8C8C8]' },
 ];
 
 export default function TailoredDropdown() {
@@ -42,14 +43,14 @@ export default function TailoredDropdown() {
       {/* 옵션 목록 */}
       {isOpen && (
         <div
-          className="absolute mt-[10px] w-[94px] h-[176px] bg-white rounded-[4px] shadow- z-10 p-[8px] right-0"
+          className="absolute mt-[10px] w-[104px] h-[216px] bg-white rounded-[8px] shadow- z-10 p-[12px] right-0"
           style={{ boxShadow: '0px 0px 15px rgba(0, 0, 0, 0.2)' }}
         >
           {TAILORED_OPTIONS.map((option) => (
             <button
               key={option.label}
               onClick={() => handleSelect(option)}
-              className={`w-[80px] h-[34px] ${option.color} rounded-[4px] mb-[8px] last:mb-0 cursor-pointer`}
+              className={`w-[80px] h-[32px] ${option.color} rounded-[4px] mb-[8px] last:mb-0 cursor-pointer`}
             >
               {option.label}
             </button>
