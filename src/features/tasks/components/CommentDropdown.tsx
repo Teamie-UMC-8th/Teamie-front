@@ -22,7 +22,7 @@ export default function CommentMenuDropdown({ onSelect }: { onSelect: (action: s
     <div className="flex flex-col">
       <button
         onClick={toggleDropdown}
-        className="absolute right-[8px] top-1/2 -translate-y-1/2 cursor-pointer"
+        className="absolute right-[8px] top-1/2 -translate-y-1/2 cursor-pointer group-hover:block hidden"
       >
         <img src="/icons/comment-dropdown.svg" alt="댓글 드롭다운" />
       </button>
