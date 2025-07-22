@@ -17,7 +17,8 @@ export default function StepsSidebar({ steps, currentStep, goToStep }: StepSideb
   };
 
   return (
-    <div className="w-[280px] h-full bg-white border-gray-200 flex flex-col p-6">
+    <div className="w-[280px]  max-lg:w-full h-full max-lg:h-[138px] bg-white border-gray-200 flex flex-col p-6
+    shadow-lg z-1">
       {/* 뒤로가기 */}
       <div
         className="flex items-center gap-2 justify-end mb-8 cursor-pointer hover:bg-gray-50 p-2 rounded
@@ -35,7 +36,7 @@ export default function StepsSidebar({ steps, currentStep, goToStep }: StepSideb
       </div>
 
       {/* 스텝 리스트 */}
-      <div className="flex flex-col gap-[28px] max-lg:flex-row max-lg:gap-[16px] max-lg:justify-start">
+      <div className="flex flex-col gap-[28px] max-lg:flex-row max-lg:gap-[16px] max-lg:justify-end max-lg:w-full">
         {steps.map((step, index) => {
           const isActive = currentStep + 1 === step.id;
           const isCompleted = currentStep + 1 > step.id;
@@ -80,6 +81,7 @@ export default function StepsSidebar({ steps, currentStep, goToStep }: StepSideb
                   {step.title}
                 </span>
               </div>
+
 
               {index < steps.length - 1 && (
                 <div
