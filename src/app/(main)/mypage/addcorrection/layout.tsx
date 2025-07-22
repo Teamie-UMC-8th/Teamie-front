@@ -2,12 +2,23 @@
 
 import React from 'react';
 import CorrectionSidebar from '@/features/correction/components/CorrectionSidebar';
+import CorrectionResponsiveHeader from '@/features/correction/components/CorrectionResponsiveHeader';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex">
-      <CorrectionSidebar />
-      <div className="flex-1">{children}</div>
+      <div className="hidden max-lg:block">
+        <CorrectionResponsiveHeader />
+      </div>
+      <div className="block max-lg:hidden">
+        <CorrectionSidebar />
+      </div>
+      <div
+        className="flex-1
+      max-lg: mt-[128px]"
+      >
+        {children}
+      </div>
     </div>
   );
 }
