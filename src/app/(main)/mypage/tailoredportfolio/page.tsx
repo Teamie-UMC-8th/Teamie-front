@@ -1,10 +1,17 @@
 'use client';
 
+import { useState } from 'react';
 import DeleteButton from '@/components/DeleteButton';
+import ReductionToggle from '@/features/correction/components/ReductionToggle';
 import TailoredDropdown from '@/features/correction/components/TailoredDropdown';
 import Link from 'next/link';
+import ReductionMark from '@/features/correction/components/ReductionMark';
+import ConcretizationMark from '@/features/correction/components/ConcretizationMark';
+import ConcretizationToggle from '@/features/correction/components/ConcretizationToggle';
 
 export default function tailoredPortfolio() {
+  const [toggleROn, setRToggleOn] = useState(false);
+  const [toggleCOn, setCToggleOn] = useState(false);
   return (
     <div>
       <div className="flex justify-between">
@@ -161,18 +168,16 @@ export default function tailoredPortfolio() {
           <div className="w-[1400px] h-[548px] rounded-[8px] border border-[#E7E7E7] bg-white mt-[12px] px-[40px] py-[28px] flex">
             <div className="w-[620px] h-[476px] text-[18px] mt-[8px]">
               <p>[연간 활동 기획 및 운영 총괄]</p>
-              <div className="flex">
-                <div className="bg-[#EF7C7C] w-[4px] h-[34px] rounded-l-[4px]"></div>
-                <div className="bg-[#D846460D] px-[12px] py-[4px] rounded-r-[4px]"></div>
-              </div>
               <p>- 동아리 연간 활동 계획 및 예산안 수립</p>
               <p>- 월 1회 정기모임 및 분기 1회 특별 행사 기획∙운영</p>
               <p>- 전산장부 시스템 도입 및 동아리 전체 예산 집행, 회계 처리 총괄</p>
               <p>- 타 부서(홍보국, 대외협력국) 협업 및 연간/상반기 운영 현황 보고</p>
+              {toggleROn && <ReductionMark />}
               <p className="mt-[48px]" />
               <p>[참여 경험 고도화 및 문제 해결]</p>
               <p>- 참여자 피드백 기반 프로그램 개선 (활동지 난이도 분리, 익명 피드백 도입 등)</p>
               <p>- 사전 설문 기반 참여자 성향 분석 및 맞춤형 조 편성 시스템 설계</p>
+              {toggleCOn && <ConcretizationMark />}
               <p className="mt-[48px]" />
               <p>
                 어려움과 극복 과정: 회원 간 친분 형성 후 공식 활동 참여율이 저하되는 문제가
@@ -189,7 +194,7 @@ export default function tailoredPortfolio() {
               </div>
 
               <div className="flex mt-[48px] items-center">
-                <div>토글</div>
+                <ReductionToggle onRToggle={setRToggleOn} />
                 <div className="flex ml-[16px]">
                   <div className="bg-[#EF7C7C] w-[4px] h-[34px] rounded-l-[4px]"></div>
                   <div className="w-[189px] h-[34px] bg-[#D846460D] px-[12px] py-[4px] rounded-r-[4px]">
@@ -204,7 +209,7 @@ export default function tailoredPortfolio() {
               </div>
 
               <div className="flex mt-[48px] items-center w-[620px]">
-                <div>토글</div>
+                <ConcretizationToggle onCToggle={setCToggleOn} />
                 <div className="flex ml-[16px]">
                   <div className="bg-[#97D099] w-[4px] h-[34px] rounded-l-[4px]"></div>
                   <div className="w-[260px] h-[34px] bg-[#97D0991A] px-[12px] py-[4px] rounded-r-[4px]">
