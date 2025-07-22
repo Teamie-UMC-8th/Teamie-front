@@ -30,12 +30,12 @@ export default function ProjectSelect() {
             </div>
           </div>
 
-          <div className="relative ml-[1068px] mt-[20px]">
-            <img src="/icons/NextPageBubble.svg" alt="다음으로 말풍선" />
+          <div className="relative ml-[920px] mt-[20px]">
+            <img src="/icons/CorrectionStartBubble.svg" alt="첨삭 시작 말풍선" />
             <Link href="/mypage/tailoredportfolio">
               <img
-                src="/icons/NextPage.svg"
-                alt="다음으로"
+                src="/icons/CorrectionStartButton.svg"
+                alt="첨삭 시작 버튼"
                 className="absolute top-[36px] left-[52px] cursor-pointer"
               />
             </Link>
