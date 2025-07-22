@@ -204,7 +204,7 @@ function ProjectInfoSection({
       <ProjectPeriod startDate={startDate} endDate={endDate} />
       <CategorySelector selected={category} onSelect={onCategoryChange} />
       </div>
-      <div className='flex flex-wrap gap-[200px] max-lg:gap-[100px] max-lg:mt-[60px]'>
+      <div className='flex flex-wrap max-lg:mt-[60px]'>
       <ContributionBar percentage={contribution} />
       </div>
     </section>
