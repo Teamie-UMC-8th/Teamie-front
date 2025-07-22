@@ -1,6 +1,7 @@
 'use client';
 
 import BackButton from '@/components/BackButton';
+import Link from 'next/link';
 import React from 'react';
 
 const CorrectionSidebar: React.FC = () => {
@@ -9,8 +10,10 @@ const CorrectionSidebar: React.FC = () => {
       className="fixed top-[0px] left-0 bg-white w-[281px] h-screen"
       style={{ boxShadow: '4px 0px 3px 0px #0000000D' }}
     >
-      <div className="flex items-center ml-[162px] mt-[80px]">
-        <BackButton />
+      <div className="flex items-center ml-[152px] mt-[80px]">
+        <Link href="/mypage">
+          <img src="/icons/arrow-left.svg" alt="뒤로가기" className="cursor-pointer mr-[12px]" />
+        </Link>
         <p className="text-[18px]">돌아가기</p>
       </div>
       <div className="mt-[92px] ml-[40px]">
