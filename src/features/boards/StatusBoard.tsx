@@ -13,7 +13,7 @@ export default function StatusBoard({ steps, projectId }: BoardProps) {
         return (
           <div key={status} className="flex flex-col">
             <div
-              className="w-full h-[46px] flex items-center justify-center rounded-[8px] font-medium text-[18px]"
+              className="w-full h-[2.875rem] flex items-center justify-center rounded-[0.5rem] font-medium text-[1.125rem]"
               style={{ backgroundColor: color }}
             >
               {status}

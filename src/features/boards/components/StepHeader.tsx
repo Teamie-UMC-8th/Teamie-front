@@ -29,11 +29,11 @@ export default function StepHeader({
       onMouseLeave={() => setIsHovered(false)}
     >
       <button onClick={onToggle} className="cursor-pointer w-full">
-        <div className="flex bg-[#DAF3F3] w-[325px] h-[68px] items-center justify-between rounded-[8px]">
-          <span className="font-medium text-[18px] mx-auto">{stepName}</span>
+        <div className="flex bg-[#DAF3F3] w-full h-[4.25rem] items-center justify-between rounded-[0.5rem]">
+          <span className="font-medium text-[1.125rem] mx-auto">{stepName}</span>
           {showDelete && isHovered ? (
             <span
-              className="w-[32px] h-[32px] mr-[4px] flex items-center justify-center"
+              className="w-[2rem] h-[2rem] mr-[0.25rem] flex items-center justify-center"
               onClick={handleIconClick}
               role="button"
               tabIndex={0}
@@ -46,7 +46,7 @@ export default function StepHeader({
           ) : (
             <img
               src="/icons/arrow-down.svg"
-              className={`w-[32px] h-[32px] mr-[4px] ${isOpen ? 'rotate-180' : ''}`}
+              className={`w-[2rem] h-[2rem] mr-[0.25rem] ${isOpen ? 'rotate-180' : ''}`}
             />
           )}
         </div>
