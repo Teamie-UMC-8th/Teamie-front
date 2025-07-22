@@ -51,14 +51,6 @@ export default function AiLoadingPage() {
           </div>
           <div className="relative ml-[1068px] mt-[20px]">
             <img src="/icons/NextPageBubble.svg" alt="다음으로 말풍선" />
-            <img
-              src="/icons/NextPageOff.svg"
-              alt="다음으로"
-              className="absolute top-[36px] left-[52px]"
-            />
-          </div>
-          <div className="relative ml-[1068px] mt-[20px]">
-            <img src="/icons/NextPageBubble.svg" alt="다음으로 말풍선" />
             <Link href="/mypage/addcorrection/analyzefin">
               <img
                 src="/icons/NextPage.svg"
@@ -66,6 +58,14 @@ export default function AiLoadingPage() {
                 className="absolute top-[36px] left-[52px] cursor-pointer"
               />
             </Link>
+          </div>
+          <div className="relative ml-[1068px] mt-[20px]">
+            <img src="/icons/NextPageBubble.svg" alt="다음으로 말풍선" />
+            <img
+              src="/icons/NextPageOff.svg"
+              alt="다음으로"
+              className="absolute top-[36px] left-[52px]"
+            />
           </div>
         </div>
       </div>
