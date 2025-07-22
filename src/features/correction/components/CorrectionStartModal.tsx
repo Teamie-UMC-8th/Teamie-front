@@ -3,7 +3,7 @@ import { JSX, useEffect, useState } from 'react';
 import Link from 'next/link';
 
 type CorrectionStartButtonModalProps = {
-  title: JSX.Element;
+  title: string;
   confirmText?: string;
   cancelText?: string;
   onConfirm: () => void;
@@ -12,8 +12,8 @@ type CorrectionStartButtonModalProps = {
 
 export default function CorrectionStartButtonModal({
   title,
-  confirmText = '예',
-  cancelText = '아니오',
+  confirmText = '의뢰',
+  cancelText = '취소',
   onConfirm,
   onCancel,
 }: CorrectionStartButtonModalProps) {
@@ -26,7 +26,12 @@ export default function CorrectionStartButtonModal({
 
   const modalContent = (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="relative w-[460px] h-[214px] bg-[#F8F8F8] shadow-[0_0_15px_rgba(0,0,0,0.2)] rounded-[12px] px-[32px] py-[60px]">
+      <div
+        className="relative w-[498px] h-[266px] bg-[#F8F8F8] rounded-[12px] px-[124px] py-[60px]"
+        style={{
+          boxShadow: '0px 0px 15px 0px #00000033',
+        }}
+      >
         <button
           className="absolute top-[8px] right-[8px] w-[24px] h-[24px] cursor-pointer"
           onClick={onCancel}
@@ -34,9 +39,19 @@ export default function CorrectionStartButtonModal({
           <img src="/icons/곱하기.svg" alt="닫기" />
         </button>
 
-        <h3 className="text-[20px] leading-[28px] font-semibold text-center text-black mb-[32px]">
-          {title}
-        </h3>
+        <div className="w-[251px] grid place-items-center">
+          <div className="flex items-start">
+            <img
+              src="/icons/CorrectionModalIcon.svg"
+              alt="첨삭 모달 아이콘"
+              className="mt-[2px] mr-[12px]"
+            />
+            <h3 className="text-[20px] font-semibold text-center text-black">{title}</h3>
+          </div>
+          <p className="text-[20px] font-semibold text-center text-black mb-[28px]">
+            AI 지원 맞춤 포트폴리오 첨삭을 의뢰하시겠습니까?
+          </p>
+        </div>
 
         <div className="flex justify-center gap-[28px]">
           <button
