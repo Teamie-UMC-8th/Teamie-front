@@ -36,11 +36,18 @@ export default function DashboardPage() {
       />
 
       <main className="flex-1 overflow-x-auto">
-        {isStepView ? (
-          <StepsBoard steps={steps} projectId={projectId} />
-        ) : (
-          <StatusBoard steps={steps} projectId={projectId} />
-        )}
+        <div
+          className="min-w-[64rem]"
+          style={{
+            paddingLeft: 'clamp(43px, calc(112px - ((100vw - 1024px) * 0.077)), 112px)',
+          }}
+        >
+          {isStepView ? (
+            <StepsBoard steps={steps} projectId={projectId} />
+          ) : (
+            <StatusBoard steps={steps} projectId={projectId} />
+          )}
+        </div>
       </main>
     </div>
   );

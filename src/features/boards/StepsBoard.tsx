@@ -38,7 +38,7 @@ export default function StepsBoard({ steps, projectId }: BoardProps) {
   return (
     // 전체 드래그앤드롭 컨텍스트 - 모든 드래그앤드롭 이벤트를 관리
     <DragDropContext onDragEnd={onDragEnd}>
-      <div className="grid grid-cols-4 gap-x-[36px] gap-y-[60px] mt-[60px] px-[35px]">
+      <div className="grid [grid-template-columns:repeat(2,20.313rem)] lg:[grid-template-columns:repeat(4,20.313rem)] gap-x-[2.25rem] gap-y-[5rem] mt-[3.75rem]">
         {localSteps.map((step) => (
           <div key={step.id} className="flex flex-col">
             <StepHeader
