@@ -85,9 +85,7 @@ export default function AIMasterPortfolioCreatePage() {
 
                 {/* 첫번째 버블 */}
                 <div className="relative w-[100%] h-[100%]">
-                  <div className="w-[1091.95px] max-lg:w-[751px] h-[426px] max-lg:h-[376px] bg-white border-none rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.10)] 
-                  p-[50px] max-lg:px-[36px] max-lg:py-[32px]
-                  max-lg:text-[16px] max-lg:leading-[24px]">
+                  <div className="w-[100%] h-[100%] bg-white border-none rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.10)] p-[50px]">
                     {currentStep === 0 && <Step1 />}
                     {currentStep === 1 && <Step2 />}
                     {currentStep === 2 && <Step3 />}

@@ -23,7 +23,7 @@ export default function Step2() {
         생성할 수 있어요. 제가 참고할 회의록을 모두 선택하셨다면, 생성을 시작할게요!
       </div>
       <div className="w-fit flex flex-col justify-center items-center border-[2px] border-[#81D7D4] bg-[#DAF3F3] rounded-[100px] py-[16px] px-[36px]">
-        <h3 className="text-[#000000] text-[20px] leading-[28px] font-normal tracking-[0.8px]">
+        <h3 className="text-[#000000] text-[20px] max-lg:text-[18px] leading-[28px] max-lg:leading-[26px] font-normal tracking-[0.8px]">
           생성 시 최대 <strong>N Credit</strong>이 사용됩니다
         </h3>
         <p className="text-[#898989] text-[14px] leading-[22px]">
@@ -36,11 +36,11 @@ export default function Step2() {
           <br /> 회의록 없이 마스터 포트폴리오를 생성할게요.
         </div>
       ) : (
-        <div className="w-full border-[1.5px] border-[#898989] rounded-[20px] p-[16px] max-h-[512px] overflow-y-auto">
-          <div className="grid grid-cols-2 gap-[16px]">
-            {Array.from({ length: 4 }).map((_, index) => (
+        <div className="w-full max-lg:w-[475px]  max-lg:h-[512px] border-[1.5px] border-[#898989] rounded-[20px] p-[16px] max-h-[512px] overflow-y-auto">
+          <div className="grid grid-cols-2 max-lg:grid-cols-1 gap-[16px]">
+            {Array.from({ length: 6 }).map((_, index) => (
               <div key={index} className="flex flex-col gap-[8px]">
-                <div className="flex flex-col w-full h-full bg-[#f8f8f8] shadow-[0_0_4px_rgba(0,0,0,0.25)] rounded-[8px] p-[16px]">
+                <div className="flex flex-col w-full max-lg:w-[419px] h-full max-lg:h-[199px]bg-[#f8f8f8] shadow-[0_0_4px_rgba(0,0,0,0.25)] rounded-[8px] p-[16px] bg-[#F8F8F8]">
                   <div className="p-2 rounded-[4px] border-[1px] border-[#E7E7E7] bg-[#FFF] text-[#000000] text-[18px] leading-[26px] font-normal tracking-[0.72px]">
                     3주차 정기 회의
                   </div>
