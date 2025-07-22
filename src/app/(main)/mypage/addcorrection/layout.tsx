@@ -15,7 +15,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </div>
       <div
         className="flex-1
-      max-lg: mt-[32px]"
+      max-lg: mt-[116px]"
       >
         {children}
       </div>

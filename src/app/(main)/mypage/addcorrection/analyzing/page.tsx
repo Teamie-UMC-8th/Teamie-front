@@ -6,7 +6,7 @@ export default function AiLoadingPage() {
   return (
     <div
       className="ml-[80px]
-    max-lg:ml-[-100px]"
+    max-lg:ml-[24px]"
     >
       <div className="flex flex-col items-center">
         <div
