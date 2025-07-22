@@ -61,7 +61,7 @@ function CategorySelector({
   };
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-[28px]">
       <div className={STYLES.tag}>분류</div>
 
       <div className="relative">
@@ -72,7 +72,7 @@ function CategorySelector({
           aria-haspopup="listbox"
         >
           <div
-            className="w-[80px] h-[32px] rounded-[4px] px-[12px] py-[4px] text-black font-[Pretendard] text-[16px] leading-[26px] flex items-center justify-center whitespace-nowrap"
+            className="w-[80px] h-[32px] rounded-[4px] px-[12px] py-[4px] text-black font-[Pretendard] text-[16px] leading-[24px] flex items-center justify-center whitespace-nowrap"
             style={{ backgroundColor: selected.color }}
           >
             {selected.label}
@@ -94,7 +94,8 @@ function CategorySelector({
 
         {isOpen && (
           <ul
-            className="absolute top-[40px] left-0 z-10 bg-white border border-dashed border-[#B085E3] rounded-[8px] px-[12px] py-[10px] flex flex-col gap-[8px] w-[90px]"
+            className="absolute top-[40px] left-0 z-10 w-[104px] h-[216px] bg-white rounded-[8px] shadow-[0_0_15px_rgba(0,0,0,0.2)] 
+            px-[12px] py-[10px] flex flex-col gap-[8px]"
             role="listbox"
           >
             {CATEGORIES.map((option) => (
