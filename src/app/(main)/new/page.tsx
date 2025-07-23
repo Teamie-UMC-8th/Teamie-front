@@ -4,6 +4,29 @@ import { useState } from 'react';
 
 export default function New() {
   const [inviteVisible, setInviteVisible] = useState(false);
+  const [showCopyModal, setShowCopyModal] = useState(false);
+
+  const handleRedirect = () => {
+    window.alert('프로젝트로 이동');
+  };
+
+  const handleCopyText = async () => {
+    const textToCopy = `💡 프로젝트에 참여해 주세요!
+아래 링크를 통해 참여를 수락하면, 
+바로 협업을 시작할 수 있어요.
+👉 참여하기: 참여 URL
+링크 유효기간: 날짜까지`;
+
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      setShowCopyModal(true);
+      setTimeout(() => {
+        setShowCopyModal(false);
+      }, 5000);
+    } catch (err) {
+      window.alert('텍스트 복사에 실패했습니다.');
+    }
+  };
 
   return (
     <div className="min-h-screen w-full bg-white">
@@ -36,10 +59,11 @@ export default function New() {
         <div className="flex items-center justify-center mt-[60px]">
           <div className="flex flex-col items-cetner gap-[16px]">
             <h2 className="px-[4px] text-[22px] font-semibold text-black">
-              링크로 팀원 초대 (유효기간: 7일)
+              링크로 팀원 초대
+              <span className="px-[8px] text-[16px] font-normal">(유효기간: 7일)</span>
             </h2>
 
-            <div className="bg-[#FFFFFF] p-[40px] border-[2px] border-[#BBBBBB] rounded-[12px]">
+            <div className="bg-[#FFFFFF] p-[40px] border-[2px] border-[#BBBBBB] rounded-[12px] relative">
               <div className="bg-[#F8F8F8] rounded-[12px] relative">
                 <p className="px-[120px] py-[32px] text-[18px] text-center">
                   💡 프로젝트에 참여해 주세요!
@@ -52,13 +76,28 @@ export default function New() {
                   링크 유효기간: 날짜까지
                 </p>
 
-                <button className="absolute top-[12px] right-[12px] cursor-pointer">
+                <button
+                  className="absolute top-[12px] right-[12px] cursor-pointer"
+                  onClick={handleCopyText}
+                >
                   <img src="/icons/copy_url.svg" alt="copy_url" />
                 </button>
+
+                {/* 복사 완료 모달 */}
+                {showCopyModal && (
+                  <div className="absolute bottom-[-20px] left-1/2 transform -translate-x-1/2 z-50">
+                    <div className="bg-[#F8F8F8] text-[#505050] px-[20px] py-[8px] border-[1.5px] border-[#BBBBBB] rounded-[6px] text-[18px] whitespace-nowrap">
+                      초대 메세지가 복사되었습니다.
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
-            <button className="self-center mt-[32px] px-[40px] py-[10px] bg-[#81D7D4] text-white font-bold text-[18px] rounded-[6px]">
+            <button
+              className="cursor-pointer self-center mt-[32px] px-[40px] py-[10px] bg-[#81D7D4] text-white font-bold text-[18px] rounded-[6px]"
+              onClick={handleRedirect}
+            >
               프로젝트로 이동
             </button>
           </div>
