@@ -31,6 +31,39 @@ export default function New() {
           </div>
         </div>
       </main>
+
+      {inviteVisible && (
+        <div className="flex items-center justify-center mt-[60px]">
+          <div className="flex flex-col items-cetner gap-[16px]">
+            <h2 className="px-[4px] text-[22px] font-semibold text-black">
+              링크로 팀원 초대 (유효기간: 7일)
+            </h2>
+
+            <div className="bg-[#FFFFFF] p-[40px] border-[2px] border-[#BBBBBB] rounded-[12px]">
+              <div className="bg-[#F8F8F8] rounded-[12px] relative">
+                <p className="px-[120px] py-[32px] text-[18px] text-center">
+                  💡 프로젝트에 참여해 주세요!
+                  <br />
+                  아래 링크를 통해 참여를 수락하면, <br />
+                  바로 협업을 시작할 수 있어요.
+                  <br />
+                  👉 참여하기: 참여 URL
+                  <br />
+                  링크 유효기간: 날짜까지
+                </p>
+
+                <button className="absolute top-[12px] right-[12px] cursor-pointer">
+                  <img src="/icons/copy_url.svg" alt="copy_url" />
+                </button>
+              </div>
+            </div>
+
+            <button className="self-center mt-[32px] px-[40px] py-[10px] bg-[#81D7D4] text-white font-bold text-[18px] rounded-[6px]">
+              프로젝트로 이동
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
