@@ -1,10 +1,12 @@
 'use client';
+
 import { useState } from 'react';
+import MeetingLogModal from '../MeetingLogModal';
 
 export default function Step2() {
   const length = 5;
   const [openModal, setOpenModal] = useState(false);
-  const [modalContent, setModalContent] = useState('');
+  const [selectedLogContent, setSelectedLogContent] = useState('');
 
   return (
     <div className="flex flex-col gap-[16px] items-center">
@@ -37,7 +39,7 @@ export default function Step2() {
         </p>
       </div>
 
-      {length === 0 ? (
+      {Number(length) === 0 ? (
         <div className="bg-[#F8F8F8] rounded-[8px] shadow-[0_0_4px_rgba(0,0,0,0.20)] px-[16px] py-[24px] text-[#505050] text-center min-w-[660px] mt-8">
           OOO님이 참석한 일정에 작성된 회의록이 없어요.
           <br /> 회의록 없이 마스터 포트폴리오를 생성할게요.
@@ -66,28 +68,22 @@ export default function Step2() {
                       회의록
                     </div>
 
-                    {/* 회의록 본문 + 호버 버튼 */}
                     <div
-                      className="relative group flex-9 rounded-[4px] border border-[#E7E7E7] bg-white text-black text-[14px] leading-[22px] font-normal tracking-[0.56px] whitespace-pre-wrap px-[12px] py-[4px] overflow-hidden 
-                      cursor-pointer"
+                      className="relative group flex-9 rounded-[4px] border border-[#E7E7E7] bg-white text-black text-[14px] leading-[22px] font-normal tracking-[0.56px] whitespace-pre-wrap px-[12px] py-[4px] overflow-hidden cursor-pointer"
                       style={{
                         display: '-webkit-box',
                         WebkitLineClamp: 3,
                         WebkitBoxOrient: 'vertical',
                       }}
                     >
-                      {/* 배경 오버레이 */}
                       <div className="absolute inset-0 bg-[rgba(0,0,0,0.1)] opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-[4px]" />
-
-                      {/* 본문 텍스트 */}
                       내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내{' '}
-
-                      {/* 중앙 버튼 */}
                       <button
-                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-[12px] py-[4px] text-[14px] font-semibold rounded-[4px] shadow opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10
-                        cursor-pointer"
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-[12px] py-[4px] text-[14px] font-semibold rounded-[4px] shadow opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 cursor-pointer"
                         onClick={() => {
-                          setModalContent('전체 회의록 내용입니다.\n내용내용내용내용...');
+                          setSelectedLogContent(
+                            ' ' 
+                          );
                           setOpenModal(true);
                         }}
                       >
@@ -102,23 +98,13 @@ export default function Step2() {
         </div>
       )}
 
-      {/* ✅ 모달 */}
-      {openModal && (
-        <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center">
-          <div className="bg-white w-[640px] max-h-[80vh] rounded-[8px] shadow-xl p-6 overflow-y-auto">
-            <h2 className="text-[20px] font-bold mb-4">회의록 상세 보기</h2>
-            <p className="whitespace-pre-wrap text-[16px] leading-[24px] text-[#000000]">{modalContent}</p>
-            <div className="flex justify-end mt-6">
-              <button
-                className="px-[16px] py-[8px] bg-gray-200 rounded-[6px] hover:bg-gray-300 transition"
-                onClick={() => setOpenModal(false)}
-              >
-                닫기
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <MeetingLogModal
+        isOpen={openModal}
+        onClose={() => setOpenModal(false)}
+        title="일정A"
+        date="2025.05.25"
+        content={selectedLogContent}
+      />
     </div>
   );
 }
