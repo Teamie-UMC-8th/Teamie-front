@@ -12,6 +12,7 @@ interface StepSidebarProps {
 
 export default function StepsSidebar({ steps, currentStep, goToStep }: StepSidebarProps) {
   const router = useRouter();
+
   const handleStepClick = (stepId: number) => {
     goToStep(stepId - 1);
   };
@@ -22,11 +23,7 @@ export default function StepsSidebar({ steps, currentStep, goToStep }: StepSideb
       <div
         className="flex items-center gap-2 justify-end mb-8 cursor-pointer hover:bg-gray-50 p-2 rounded max-lg:justify-start max-lg:mb-4"
         onClick={() => {
-          if (currentStep === 0) {
-            router.push('/mypage/aimasterportfolio');
-          } else {
-            goToStep(currentStep - 1);
-          }
+          router.push('/mypage/aimasterportfolio');
         }}
       >
         <Image src="/icons/arrow-left.svg" alt="뒤로가기" width={24} height={24} />
@@ -82,7 +79,7 @@ export default function StepsSidebar({ steps, currentStep, goToStep }: StepSideb
               {index < steps.length - 1 && (
                 <div
                   className={`bg-gray-200 absolute left-[15px] top-[44px] w-0.5 h-[44px] 
-                              max-lg:static max-lg:w-[28px] max-lg:h-0.5 max-lg:left-auto max-lg:top-auto`}
+                    max-lg:static max-lg:w-[28px] max-lg:h-0.5 max-lg:left-auto max-lg:top-auto`}
                 />
               )}
             </div>
