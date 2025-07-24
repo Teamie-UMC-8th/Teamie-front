@@ -1,5 +1,10 @@
+'use client';
+import { useState } from 'react';
+
 export default function Step2() {
   const length = 5;
+  const [openModal, setOpenModal] = useState(false);
+  const [modalContent, setModalContent] = useState('');
 
   return (
     <div className="flex flex-col gap-[16px] items-center">
@@ -19,9 +24,10 @@ export default function Step2() {
           <li>어려웠던 점과 극복한 방법</li>
         </ul>
         <br />
-        회의록은 필수로 선택하지 않아도 되지만, 양질의 회의록이 많다면 좋은 마스터 포트폴리오를
-        생성할 수 있어요. 제가 참고할 회의록을 모두 선택하셨다면, 생성을 시작할게요!
+        회의록은 필수로 선택하지 않아도 되지만, 양질의 회의록이 많다면 좋은 마스터 포트폴리오를 생성할 수 있어요.
+        제가 참고할 회의록을 모두 선택하셨다면, 생성을 시작할게요!
       </div>
+
       <div className="w-fit flex flex-col justify-center items-center border-[2px] border-[#81D7D4] bg-[#DAF3F3] rounded-[100px] py-[16px] px-[36px]">
         <h3 className="text-[#000000] text-[20px] max-lg:text-[18px] leading-[28px] max-lg:leading-[26px] font-normal tracking-[0.8px]">
           생성 시 최대 <strong>N Credit</strong>이 사용됩니다
@@ -30,18 +36,19 @@ export default function Step2() {
           {length}개의 회의록이 선택되었습니다.
         </p>
       </div>
-      {Number(length) === 0 ? ( //0이면 회의록 없음 안내
+
+      {length === 0 ? (
         <div className="bg-[#F8F8F8] rounded-[8px] shadow-[0_0_4px_rgba(0,0,0,0.20)] px-[16px] py-[24px] text-[#505050] text-center min-w-[660px] mt-8">
           OOO님이 참석한 일정에 작성된 회의록이 없어요.
           <br /> 회의록 없이 마스터 포트폴리오를 생성할게요.
         </div>
       ) : (
-        <div className="w-full max-lg:w-[475px]  max-lg:h-[512px] border-[1.5px] border-[#898989] rounded-[20px] p-[16px] max-h-[512px] overflow-y-auto">
+        <div className="w-full max-lg:w-[475px] max-lg:h-[512px] border-[1.5px] border-[#898989] rounded-[20px] p-[16px] max-h-[512px] overflow-y-auto">
           <div className="grid grid-cols-2 max-lg:grid-cols-1 gap-[16px]">
             {Array.from({ length: 6 }).map((_, index) => (
               <div key={index} className="flex flex-col gap-[8px]">
-                <div className="flex flex-col w-full max-lg:w-[419px] h-full max-lg:h-[199px]bg-[#f8f8f8] shadow-[0_0_4px_rgba(0,0,0,0.25)] rounded-[8px] p-[16px] bg-[#F8F8F8]">
-                  <div className="p-2 rounded-[4px] border-[1px] border-[#E7E7E7] bg-[#FFF] text-[#000000] text-[18px] leading-[26px] font-normal tracking-[0.72px]">
+                <div className="flex flex-col w-full max-lg:w-[419px] bg-[#F8F8F8] shadow-[0_0_4px_rgba(0,0,0,0.25)] rounded-[8px] p-[16px]">
+                  <div className="p-2 rounded-[4px] border border-[#E7E7E7] bg-white text-black text-[18px] leading-[26px] font-normal tracking-[0.72px]">
                     3주차 정기 회의
                   </div>
 
@@ -49,30 +56,66 @@ export default function Step2() {
                     <div className="flex-1 text-[#898989] text-[14px] leading-[22px] font-normal tracking-[0.56px]">
                       일자
                     </div>
-                    <div className="flex-9 w-fulltext-[#000000] text-[14px] leading-[22px] font-normal tracking-[0.56px]">
+                    <div className="flex-9 text-black text-[14px] leading-[22px] font-normal tracking-[0.56px]">
                       2025.05.25
                     </div>
                   </div>
 
                   <div className="w-full flex gap-[8px] mt-[8px]">
-                    <div className="flex-1 w-full text-[#898989] text-[14px] leading-[22px] font-normal tracking-[0.56px] whitespace-pre">
+                    <div className="flex-1 text-[#898989] text-[14px] leading-[22px] font-normal tracking-[0.56px] whitespace-pre">
                       회의록
                     </div>
 
+                    {/* 회의록 본문 + 호버 버튼 */}
                     <div
-                      className="flex-9 rounded-[4px] border-[1px]  border-[#E7E7E7] bg-[#FFF] text-[#000000] text-[14px] leading-[22px] font-normal tracking-[0.56px] whitespace-pre-wrap px-[12px] py-[4px] overflow-hidden"
+                      className="relative group flex-9 rounded-[4px] border border-[#E7E7E7] bg-white text-black text-[14px] leading-[22px] font-normal tracking-[0.56px] whitespace-pre-wrap px-[12px] py-[4px] overflow-hidden 
+                      cursor-pointer"
                       style={{
                         display: '-webkit-box',
                         WebkitLineClamp: 3,
                         WebkitBoxOrient: 'vertical',
                       }}
                     >
+                      {/* 배경 오버레이 */}
+                      <div className="absolute inset-0 bg-[rgba(0,0,0,0.1)] opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-[4px]" />
+
+                      {/* 본문 텍스트 */}
                       내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내{' '}
+
+                      {/* 중앙 버튼 */}
+                      <button
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-[12px] py-[4px] text-[14px] font-semibold rounded-[4px] shadow opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10
+                        cursor-pointer"
+                        onClick={() => {
+                          setModalContent('전체 회의록 내용입니다.\n내용내용내용내용...');
+                          setOpenModal(true);
+                        }}
+                      >
+                        회의록 보기
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* ✅ 모달 */}
+      {openModal && (
+        <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center">
+          <div className="bg-white w-[640px] max-h-[80vh] rounded-[8px] shadow-xl p-6 overflow-y-auto">
+            <h2 className="text-[20px] font-bold mb-4">회의록 상세 보기</h2>
+            <p className="whitespace-pre-wrap text-[16px] leading-[24px] text-[#000000]">{modalContent}</p>
+            <div className="flex justify-end mt-6">
+              <button
+                className="px-[16px] py-[8px] bg-gray-200 rounded-[6px] hover:bg-gray-300 transition"
+                onClick={() => setOpenModal(false)}
+              >
+                닫기
+              </button>
+            </div>
           </div>
         </div>
       )}
