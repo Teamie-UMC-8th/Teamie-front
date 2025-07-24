@@ -23,14 +23,14 @@ export default function ProfileDropdown() {
             <Link href="/mypage">
               <button className="flex mt-[0.813rem] ml-[1.25rem] cursor-pointer">
                 <img src="/icons/myPage-dropdown.svg" alt="마이페이지" className="mr-[0.75rem]" />
-                <div className="text-[#505050] text-[1.125rem]">마이페이지</div>
+                <div className="text-[#000000] text-[1.125rem]">마이페이지</div>
               </button>
             </Link>
             <Link href="/login">
               <hr className="border-[0.063rem] border-[#BBBBBB] w-[15.563rem] ml-[0.5rem] mt-[0.375rem]"></hr>
               <button className="flex ml-[1.5rem] mt-[0.75rem] cursor-pointer">
                 <img src="/icons/logout.svg" alt="로그아웃" className="mr-[0.75rem]" />
-                <div className="text-[#505050] text-[1.125rem]">로그아웃</div>
+                <div className="text-[#000000] text-[1.125rem]">로그아웃</div>
               </button>
             </Link>
           </div>
