@@ -9,7 +9,7 @@ export default function Step1() {
         수 있어요.
         <br />
         <br />
-        <ul>
+        <ul className="list-disc list-inside ml-[10px]">
           <li>사용한 기술, 방법론, 또는 툴</li>
           <li>어려웠던 점과 극복한 방법</li>
           <li>새롭게 배우거나 깨달은 점</li>
