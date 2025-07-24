@@ -5,6 +5,7 @@ import { useState } from 'react';
 
 import ManualWriteSection from '@/features/aimasterportfolio/components/ManualWriteSection';
 import AIGenerationSetion from '@/features/aimasterportfolio/components/AIGenerationSection';
+import MenuButton from '@/features/aimasterportfolio/components/MenuButton';
 
 const CATEGORIES = [
   { label: '수업', color: '#BED9FB' },
@@ -31,6 +32,7 @@ function ProjectHeader({ title }: { title: string }) {
       <h1 className="font-[Pretendard] font-bold text-[22px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap">
         {title}
       </h1>
+      <MenuButton />
     </header>
   );
 }
