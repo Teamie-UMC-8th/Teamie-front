@@ -30,7 +30,6 @@ export default function StepsSidebar({ steps, currentStep, goToStep }: StepSideb
         <p className="font-normal text-lg text-black-400">돌아가기</p>
       </div>
 
-      {/* 스텝 리스트 */}
       <div className="flex flex-col gap-[28px] max-lg:flex-row max-lg:gap-[16px] max-lg:justify-end max-lg:w-full">
         {steps.map((step, index) => {
           const isActive = currentStep + 1 === step.id;
@@ -39,20 +38,8 @@ export default function StepsSidebar({ steps, currentStep, goToStep }: StepSideb
 
           return (
             <div key={step.id} className="relative max-lg:flex max-lg:items-center max-lg:gap-[12px]">
-              {/* 스텝 항목 */}
               <div
-                className={`flex items-center gap-4 py-3 select-none transition-colors ${
-                  isClickable
-                    ? 'cursor-pointer hover:bg-gray-50 active:bg-gray-100'
-                    : 'cursor-not-allowed opacity-60'
-                }`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (isClickable) {
-                    handleStepClick(step.id);
-                  }
-                }}
+                className="flex items-center gap-4 py-3 select-none"
               >
                 <div
                   className={`w-[32px] max-lg:w-[28px] h-[32px] max-lg:h-[28px] rounded-full flex items-center justify-center text-white font-medium text-lg ${
@@ -75,7 +62,6 @@ export default function StepsSidebar({ steps, currentStep, goToStep }: StepSideb
                 </span>
               </div>
 
-              {/* 연결 선 */}
               {index < steps.length - 1 && (
                 <div
                   className={`bg-gray-200 absolute left-[15px] top-[44px] w-0.5 h-[44px] 
