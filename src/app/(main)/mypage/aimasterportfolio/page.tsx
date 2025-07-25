@@ -29,17 +29,16 @@ function ProjectHeader({ title }: { title: string }) {
   return (
     <div className="flex flex-col gap-[12px] px-[30px]">
       <div className="flex items-center gap-[20px] max-lg:gap-[8px]">
-        {/* 화살표만 왼쪽으로 당김 */}
         <Image
           src="/icons/arrow-left.svg"
           alt="뒤로가기"
           width={24}
           height={24}
-          className="-ml-[70px]" // 🔥 요거 추가
         />
-        <h1 className="font-[Pretendard] font-bold text-[22px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap">
+        <h1 className="font-[Pretendard] font-bold text-[22px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap gap-[1437px]">
           {title}
         </h1>
+        <MenuButton/>
       </div>
     </div>
   );
@@ -183,9 +182,10 @@ function GenerationMethodSelector({
             aria-label={label}
           >
             {hasIcon && (
-              <div
-                className="w-[24px] h-[24px] bg-[#D9D9D9] flex items-center justify-center"
-                aria-hidden="true"
+              <img
+                src="/icons/coin.svg"
+                alt="AI 아이콘"
+                className="w-[24px] h-[24px] object-contain"
               />
             )}
             {label}
@@ -254,7 +254,7 @@ export default function AIMasterPortfolioPage() {
     <main className="flex flex-col gap-4 max-w-[1600px] mx-auto">
       <ProjectHeader title={projectData.title} />
 
-      <hr className="w-full h-[2px] bg-[#E7E7E7] border-0" />
+      <hr className="w-[1600px] max-lg:w-[976px] h-0 border-t-[2px] border-[#E7E7E7] "/>
 
       <div className="flex flex-col gap-4 pr-[30px] pl-[30px] pt-[40px] pb-[12px]">
         <ProjectInfoSection
