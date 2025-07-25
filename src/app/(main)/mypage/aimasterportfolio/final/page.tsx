@@ -207,7 +207,7 @@ function ProjectInfoSection({
       <ProjectPeriod startDate={startDate} endDate={endDate} />
       <CategorySelector selected={category} onSelect={onCategoryChange} />
       </div>
-      <div className='flex flex-wrap max-lg:mt-[60px]'>
+      <div className='flex flex-wrap max-lg:mt-[60px] lg:ml-[200px]'>
       <ContributionBar percentage={contribution} />
       </div>
     </section>
@@ -265,7 +265,7 @@ export default function AIMasterPortfolioPage() {
 
           {generationMethod === 'manual' && <ManualWriteSection />}
           {generationMethod === 'ai' && (
-            <div className="w-[1492px] max-lg:w-[928px] h-auto rounded-[16px] bg-[#F8F8F8] shadow-[0_0_8px_rgba(0,0,0,0.25)] p-[40px] max-lg:px-[28px] py-[40px] flex flex-col gap-[28px] max-lg:gap-[53px]">
+             <div className="w-[1492px] max-lg:w-[928px] h-auto rounded-[16px] bg-[#F8F8F8] shadow-[0_0_8px_rgba(0,0,0,0.25)] p-[40px] max-lg:px-[28px] py-[40px] flex flex-col gap-[28px] max-lg:gap-[53px]">
                {/* 상세 정보 */}
 <div className="flex w-full max-lg:flex-col max-lg:gap-[8px]">
   <div className="w-full lg:flex-[0.6] h-[25px] text-left font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-black whitespace-nowrap max-lg:mt-[2px]">

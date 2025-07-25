@@ -27,13 +27,21 @@ type GenerationMethod = 'ai' | 'manual';
 
 function ProjectHeader({ title }: { title: string }) {
   return (
-    <header className="flex items-center gap-4">
-      <Image src="/icons/arrow-left.svg" alt="뒤로가기" width={24} height={24} />
-      <h1 className="font-[Pretendard] font-bold text-[22px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap">
-        {title}
-      </h1>
-      <MenuButton />
-    </header>
+    <div className="flex flex-col gap-[12px] px-[30px]">
+      <div className="flex items-center gap-[20px] max-lg:gap-[8px]">
+        {/* 화살표만 왼쪽으로 당김 */}
+        <Image
+          src="/icons/arrow-left.svg"
+          alt="뒤로가기"
+          width={24}
+          height={24}
+          className="-ml-[70px]" // 🔥 요거 추가
+        />
+        <h1 className="font-[Pretendard] font-bold text-[22px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap">
+          {title}
+        </h1>
+      </div>
+    </div>
   );
 }
 
@@ -63,9 +71,8 @@ function CategorySelector({
   };
 
   return (
-    <div className="flex items-center gap-[28px]">
+     <div className="flex items-center gap-[28px]">
       <div className={STYLES.tag}>분류</div>
-
       <div className="relative">
         <button
           className="flex items-center gap-[20px] cursor-pointer"
@@ -93,7 +100,6 @@ function CategorySelector({
             />
           </svg>
         </button>
-
         {isOpen && (
           <ul
             className="absolute top-[40px] left-0 z-10 w-[104px] h-[216px] bg-white rounded-[8px] shadow-[0_0_15px_rgba(0,0,0,0.2)] 
@@ -123,7 +129,7 @@ function ContributionBar({ percentage }: { percentage: number }) {
   return (
     <div className="flex items-center gap-4">
       <div className={STYLES.tag}>기여도</div>
-      <div className="flex items-center gap-[21px]">
+      <div className="flex items-center gap-[28px]">
         <div className="w-[299px] h-[20px] bg-[#FFFFFF] border border-[#BBBBBB] rounded-[3px] overflow-hidden">
           <div
             className="h-full bg-[#81D7D4] transition-all duration-300"
@@ -204,10 +210,14 @@ function ProjectInfoSection({
   contribution: number;
 }) {
   return (
-    <section className="flex items-center gap-4 justify-between pb-[60px]">
+    <section className="flex items-center pb-[60px] max-lg:flex-col max-lg:items-start">
+      <div className='flex flex-nowrap gap-[200px] max-lg:gap-[100px]'>
       <ProjectPeriod startDate={startDate} endDate={endDate} />
       <CategorySelector selected={category} onSelect={onCategoryChange} />
+      </div>
+      <div className='flex flex-wrap max-lg:mt-[60px] lg:ml-[200px]'>
       <ContributionBar percentage={contribution} />
+      </div>
     </section>
   );
 }
@@ -220,7 +230,7 @@ function MasterPortfolioSection({
   onMethodChange: (method: GenerationMethod) => void;
 }) {
   return (
-    <section className="flex items-center justify-between bg-[#E9F8F8] rounded-tl-[8px] rounded-tr-[8px] px-[24px] py-[8px] mr-[12px] ml-[12px]">
+    <section className="flex items-center justify-between w-[1460px] max-lg:w-[908px] h-[52px] bg-[#E9F8F8] rounded-tl-[8px] rounded-tr-[8px] px-[24px] py-[8px] mr-[12px] ml-[12px]">
       <h2 className="text-[20px] leading-[28px] font-semibold text-[#000000] font-[Pretendard]">
         마스터 포트폴리오
       </h2>
@@ -260,7 +270,6 @@ export default function AIMasterPortfolioPage() {
             generationMethod={generationMethod}
             onMethodChange={setGenerationMethod}
           />
-
           {generationMethod === 'manual' && <ManualWriteSection />}
           {generationMethod === 'ai' && <AIGenerationSetion />}
         </div>
