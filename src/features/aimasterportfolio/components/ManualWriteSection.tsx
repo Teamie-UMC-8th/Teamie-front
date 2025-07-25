@@ -47,4 +47,4 @@ export default function ManualWriteSection() {
       </div>
     </div>
   );
-}
+} 
