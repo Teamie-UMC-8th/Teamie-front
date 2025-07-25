@@ -18,18 +18,18 @@ export default function MeetingLogModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-      <div className="relative w-[970px] h-[620px] bg-white shadow-[0_0_15px_rgba(0,0,0,0.2)] rounded-[16px]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
+      <div className="relative w-[970px] max-lg:[930px] h-[620px] max-lg:h-[605px] bg-white shadow-[0_0_15px_rgba(0,0,0,0.2)] rounded-[16px]">
         {/* 닫기 버튼 */}
         <button
-          className="absolute top-[24px] right-[24px]"
+          className="absolute top-[24px] max-lg:top-[16px] right-[24px] max-lg:right-[16px]"
           onClick={onClose}
         >
           <img src="/icons/곱하기.svg" alt="닫기" />
         </button>
 
         {/* 내부 내용 */}
-        <div className="px-[60px] py-[48px]">
+        <div className="px-[60px] max-lg:px-[40px] py-[48px] max-lg:py-[41px]">
           <h2 className="text-[20px] font-bold leading-[28px] text-black mb-[8px]">
             {title}
           </h2>
