@@ -9,8 +9,8 @@ export default function ProjectHomePage() {
       <div className="flex flex-row gap-[29px] mb-4">
         <div className="flex flex-col">
           <h2 className="text-xl font-bold mb-2">게시판</h2>
-          <div className="w-[920px] h-[344px] p-4 border border-[#BBBBBB] rounded-lg bg-white flex flex-col">
-            <div className="flex flex-row gap-4 mb-6">
+          <div className="w-[920px] h-[344px] pl-[40px] pt-[40px] pr-4 pb-4 border border-[#BBBBBB] rounded-lg bg-white flex flex-col">
+            <div className="flex flex-row gap-12 mb-6">
               {[...Array(5)].map((_, idx) => (
                 <img
                   key={`postit-row1-${idx}`}
@@ -20,7 +20,7 @@ export default function ProjectHomePage() {
                 />
               ))}
             </div>
-            <div className="flex flex-row gap-4 mt-6" style={{ marginTop: '24px' }}>
+            <div className="flex flex-row gap-12 ml-[20px]">
               {[...Array(5)].map((_, idx) => (
                 <img
                   key={`postit-row2-${idx}`}
@@ -49,7 +49,10 @@ export default function ProjectHomePage() {
           />
         </div>
         <div className="flex flex-col">
-          <h2 className="text-xl font-bold mb-2">우리팀의 규칙</h2>
+          <div className="flex flex-row justify-between items-center">
+            <h3 className="text-xl font-bold mb-2">우리팀의 규칙</h3>
+            <h3 className="text-xl font-normal mb-2 text-gray-600/70">+ 전체보기</h3>
+          </div>
           <textarea
             className="w-[688px] h-[232px] p-3 border border-[#BBBBBB] rounded-lg resize-none"
             placeholder="우리팀의 규칙을 작성해주세요..."
@@ -58,15 +61,11 @@ export default function ProjectHomePage() {
       </div>
 
       <h2 className="text-xl font-bold mb-5">팀원 프로필</h2>
-      <div className="flex flex-row gap-8 mb-8">
+      <div className="flex flex-row gap-13 mb-8">
         <MemberCard />
         <MemberCard />
         <MemberCard />
         <MemberCard />
-      </div>
-
-      <div className="mt-8">
-        <DayPicker />
       </div>
     </div>
   );
