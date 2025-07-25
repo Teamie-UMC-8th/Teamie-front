@@ -5,6 +5,7 @@ import { useState } from 'react';
 
 import ManualWriteSection from '@/features/aimasterportfolio/components/ManualWriteSection';
 import AIGenerationSetion from '@/features/aimasterportfolio/components/AIGenerationSection';
+import MenuButton from '@/features/aimasterportfolio/components/MenuButton';
 
 const CATEGORIES = [
   { label: '수업', color: '#BED9FB' },
@@ -26,13 +27,21 @@ type GenerationMethod = 'ai' | 'manual';
 
 function ProjectHeader({ title }: { title: string }) {
   return (
-    <header className="flex items-center gap-[28px]">
-      <Image src="/icons/arrow-left.svg" alt="뒤로가기" width={24} height={24} />
-      <h1 className="font-[Pretendard] font-bold text-[22px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap">
-        {title}
-      </h1>
-    </header>
-  );
+      <div className="flex flex-col gap-[12px] px-[30px]">
+        <div className="flex items-center gap-[20px] max-lg:gap-[8px]">
+          <Image
+            src="/icons/arrow-left.svg"
+            alt="뒤로가기"
+            width={24}
+            height={24}
+          />
+          <h1 className="font-[Pretendard] font-bold text-[22px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap gap-[1437px]">
+            {title}
+          </h1>
+          <MenuButton/>
+        </div>
+      </div>
+    );
 }
 
 function ProjectPeriod({ startDate, endDate }: { startDate: string; endDate: string }) {
@@ -175,9 +184,10 @@ function GenerationMethodSelector({
             aria-label={label}
           >
             {hasIcon && (
-              <div
-                className="w-[24px] h-[24px] bg-[#D9D9D9] flex items-center justify-center"
-                aria-hidden="true"
+              <img
+                src="/icons/coin.svg"
+                alt="AI 아이콘"
+                className="w-[24px] h-[24px] object-contain"
               />
             )}
             {label}
