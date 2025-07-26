@@ -255,7 +255,7 @@ export default function AIMasterPortfolioPage() {
     <main className="flex flex-col gap-4 max-w-[1600px] mx-auto">
       <ProjectHeader title={projectData.title} />
 
-      <hr className="w-full h-[2px] bg-[#E7E7E7] border-0 m-0" />
+      <hr className="w-full h-[2px] bg-[#E7E7E7] border-0 m-0 mb-[60px]" />
 
       <div className="flex flex-col gap-4 pr-[30px] pl-[30px] pb-[12px]">
         <ProjectInfoSection
