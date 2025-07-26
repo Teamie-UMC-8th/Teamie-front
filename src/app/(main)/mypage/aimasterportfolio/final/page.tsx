@@ -288,7 +288,7 @@ export default function AIMasterPortfolioPage() {
                 </div>
                 <button
                   onClick={handleCopyAll}
-                  className="absolute top-[8px] right-[8px] justify-end maxx-lg:hidden"
+                  className="absolute top-[8px] right-[8px] justify-end max-lg:hidden"
                 >
                   <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
                 </button>
