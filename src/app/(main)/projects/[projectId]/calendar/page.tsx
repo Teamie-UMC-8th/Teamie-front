@@ -158,9 +158,7 @@ export default function TeamCalendarPage() {
         />
       </div>
       {/* Daypicker 컴포넌트 호출 */}
-      <div className="w-full flex justify-center">
-        <Daypicker />
-      </div>
+      <div className="w-full flex justify-center"></div>
     </div>
   );
 }
