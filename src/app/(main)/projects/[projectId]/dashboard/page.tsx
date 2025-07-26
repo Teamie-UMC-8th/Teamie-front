@@ -20,8 +20,11 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen w-full bg-white flex flex-col">
-      <header className="flex items-center justify-between pb-[16px] px-[8px] border-b-[2px] border-[#E7E7E7]">
-        <h1 className="text-[24px] font-bold">업무 대시보드</h1>
+      <header className="flex items-center justify-between pb-[1rem] px-[0.5rem] border-b-[0.125rem] border-[#E7E7E7]">
+        <h1 className="lg:text-[1.5rem] text-[1.375rem] lg:font-bold font-semibold">
+          업무 대시보드
+        </h1>
+        <div className="flex-1 flex justify-end"></div>
         <Searchbar
           placeholder="검색어를 입력하세요."
           onChange={() => {}}
@@ -36,11 +39,18 @@ export default function DashboardPage() {
       />
 
       <main className="flex-1 overflow-x-auto">
-        {isStepView ? (
-          <StepsBoard steps={steps} projectId={projectId} />
-        ) : (
-          <StatusBoard steps={steps} projectId={projectId} />
-        )}
+        <div
+          className="min-w-[40rem]"
+          style={{
+            paddingLeft: 'clamp(2.688rem, calc(7rem - ((100vw - 64rem) * 0.077)), 7rem)',
+          }}
+        >
+          {isStepView ? (
+            <StepsBoard steps={steps} projectId={projectId} />
+          ) : (
+            <StatusBoard steps={steps} projectId={projectId} />
+          )}
+        </div>
       </main>
     </div>
   );
