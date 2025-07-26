@@ -26,7 +26,7 @@ export default function Step2() {
   const length = selectedIndexes.length;
 
   return (
-    <div className="flex flex-col gap-[16px] items-center">
+    <div className="flex flex-col gap-[36px] max-lg:gap-[28px] items-center">
       <div>
         <strong>
           포트폴리오 생성 시에 참고하면 좋을 회의록이 있다면 최대 8개까지 선택해주세요.

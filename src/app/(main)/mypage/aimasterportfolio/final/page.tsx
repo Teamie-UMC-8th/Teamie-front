@@ -1,10 +1,8 @@
 'use client';
 
+import { useState, useRef } from 'react';
 import Image from 'next/image';
-import { useState } from 'react';
-
 import ManualWriteSection from '@/features/aimasterportfolio/components/ManualWriteSection';
-import AIGenerationSetion from '@/features/aimasterportfolio/components/AIGenerationSection';
 import MenuButton from '@/features/aimasterportfolio/components/MenuButton';
 
 const CATEGORIES = [
@@ -27,21 +25,16 @@ type GenerationMethod = 'ai' | 'manual';
 
 function ProjectHeader({ title }: { title: string }) {
   return (
-      <div className="flex flex-col gap-[12px] px-[30px]">
-        <div className="flex items-center gap-[20px] max-lg:gap-[8px]">
-          <Image
-            src="/icons/arrow-left.svg"
-            alt="뒤로가기"
-            width={24}
-            height={24}
-          />
-          <h1 className="font-[Pretendard] font-bold text-[22px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap gap-[1437px]">
-            {title}
-          </h1>
-          <MenuButton/>
-        </div>
+    <div className="flex flex-col gap-[12px] px-[30px]">
+      <div className="flex items-center gap-[20px] max-lg:gap-[8px]">
+        <Image src="/icons/arrow-left.svg" alt="뒤로가기" width={24} height={24} />
+        <h1 className="font-[Pretendard] font-bold text-[22px] leading-[29px] text-[#000000]">
+          {title}
+        </h1>
+        <MenuButton />
       </div>
-    );
+    </div>
+  );
 }
 
 function ProjectPeriod({ startDate, endDate }: { startDate: string; endDate: string }) {
@@ -64,24 +57,18 @@ function CategorySelector({
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleSelect = (option: Category) => {
-    onSelect(option);
-    setIsOpen(false);
-  };
-
   return (
     <div className="flex items-center gap-[28px]">
       <div className={STYLES.tag}>분류</div>
-
       <div className="relative">
         <button
-          className="flex items-center gap-[20px] cursor-pointer"
+          className="flex items-center gap-[20px]"
           onClick={() => setIsOpen(!isOpen)}
           aria-expanded={isOpen}
           aria-haspopup="listbox"
         >
           <div
-            className="w-[80px] h-[32px] rounded-[4px] px-[12px] py-[4px] text-black font-[Pretendard] text-[16px] leading-[24px] flex items-center justify-center whitespace-nowrap"
+            className="w-[80px] h-[32px] rounded-[4px] px-[12px] py-[4px] text-black font-[Pretendard] text-[16px] leading-[24px] flex items-center justify-center"
             style={{ backgroundColor: selected.color }}
           >
             {selected.label}
@@ -100,19 +87,20 @@ function CategorySelector({
             />
           </svg>
         </button>
-
         {isOpen && (
           <ul
-            className="absolute top-[40px] left-0 z-10 w-[104px] h-[216px] bg-white rounded-[8px] shadow-[0_0_15px_rgba(0,0,0,0.2)] 
-            px-[12px] py-[10px] flex flex-col gap-[8px]"
+            className="absolute top-[40px] left-0 z-10 w-[104px] bg-white rounded-[8px] shadow-[0_0_15px_rgba(0,0,0,0.2)] px-[12px] py-[10px] flex flex-col gap-[8px]"
             role="listbox"
           >
             {CATEGORIES.map((option) => (
               <li
                 key={option.label}
-                className="w-full h-[36px] rounded-[6px] flex items-center justify-center cursor-pointer font-[Pretendard] text-[16px] text-black hover:opacity-80"
+                className="h-[36px] rounded-[6px] flex items-center justify-center cursor-pointer font-[Pretendard] text-[16px] hover:opacity-80"
                 style={{ backgroundColor: option.color }}
-                onClick={() => handleSelect(option)}
+                onClick={() => {
+                  onSelect(option);
+                  setIsOpen(false);
+                }}
                 role="option"
                 aria-selected={selected.label === option.label}
               >
@@ -131,7 +119,7 @@ function ContributionBar({ percentage }: { percentage: number }) {
     <div className="flex items-center gap-4">
       <div className={STYLES.tag}>기여도</div>
       <div className="flex items-center gap-[21px]">
-        <div className="w-[299px] h-[20px] bg-[#FFFFFF] border border-[#BBBBBB] rounded-[3px] overflow-hidden">
+        <div className="w-[299px] h-[20px] bg-white border border-[#BBBBBB] rounded-[3px] overflow-hidden">
           <div
             className="h-full bg-[#81D7D4] transition-all duration-300"
             style={{ width: `${percentage}%` }}
@@ -142,7 +130,7 @@ function ContributionBar({ percentage }: { percentage: number }) {
             aria-label={`기여도 ${percentage}%`}
           />
         </div>
-        <span className="w-[42px] h-[28px] text-[#000000] font-[Pretendard] text-[20px] font-normal leading-[28px] tracking-[0.04em] text-center">
+        <span className="w-[42px] text-center font-[Pretendard] text-[20px] leading-[28px]">
           {percentage}%
         </span>
       </div>
@@ -155,7 +143,7 @@ function GenerationMethodSelector({
   onMethodChange,
 }: {
   method: GenerationMethod;
-  onMethodChange: (method: GenerationMethod) => void;
+  onMethodChange: (m: GenerationMethod) => void;
 }) {
   const methods = [
     { id: 'ai' as const, label: 'AI 생성', hasIcon: true },
@@ -163,11 +151,7 @@ function GenerationMethodSelector({
   ];
 
   return (
-    <div
-      className="flex items-center gap-0 bg-white p-[4px] rounded-[8px] border border-[#e7e7e7]"
-      role="radiogroup"
-      aria-label="생성 방법 선택"
-    >
+    <div className="flex items-center gap-0 bg-white p-[4px] rounded-[8px] border border-[#e7e7e7]">
       {methods.map(({ id, label, hasIcon }) => {
         const isSelected = method === id;
         return (
@@ -177,18 +161,14 @@ function GenerationMethodSelector({
             className={`${STYLES.methodButton} ${
               isSelected
                 ? 'bg-[#81D7D4] text-white font-bold cursor-default'
-                : 'bg-[#ffffff] text-[#BBBBBB] font-normal hover:font-bold cursor-pointer'
+                : 'bg-[#ffffff] text-[#BBBBBB] font-normal hover:font-bold'
             }`}
             role="radio"
             aria-checked={isSelected}
             aria-label={label}
           >
             {hasIcon && (
-              <img
-                src="/icons/coin.svg"
-                alt="AI 아이콘"
-                className="w-[24px] h-[24px] object-contain"
-              />
+              <img src="/icons/coin.svg" alt="AI 아이콘" className="w-[24px] h-[24px]" />
             )}
             {label}
           </button>
@@ -208,17 +188,17 @@ function ProjectInfoSection({
   startDate: string;
   endDate: string;
   category: Category;
-  onCategoryChange: (category: Category) => void;
+  onCategoryChange: (c: Category) => void;
   contribution: number;
 }) {
   return (
     <section className="flex items-center justify-between pb-[60px] max-lg:flex-col max-lg:items-start">
-      <div className='flex flex-nowrap gap-[200px] max-lg:gap-[100px]'>
-      <ProjectPeriod startDate={startDate} endDate={endDate} />
-      <CategorySelector selected={category} onSelect={onCategoryChange} />
+      <div className="flex flex-nowrap gap-[200px] max-lg:gap-[100px]">
+        <ProjectPeriod startDate={startDate} endDate={endDate} />
+        <CategorySelector selected={category} onSelect={onCategoryChange} />
       </div>
-      <div className='flex flex-wrap max-lg:mt-[60px] lg:ml-[200px]'>
-      <ContributionBar percentage={contribution} />
+      <div className="flex flex-wrap max-lg:mt-[60px] lg:ml-[200px]">
+        <ContributionBar percentage={contribution} />
       </div>
     </section>
   );
@@ -229,13 +209,11 @@ function MasterPortfolioSection({
   onMethodChange,
 }: {
   generationMethod: GenerationMethod;
-  onMethodChange: (method: GenerationMethod) => void;
+  onMethodChange: (m: GenerationMethod) => void;
 }) {
   return (
-    <section className="flex items-center justify-between w-[1460px] max-lg:w-[908px] h-[52px] bg-[#E9F8F8] rounded-tl-[8px] rounded-tr-[8px] px-[24px] py-[8px] mr-[12px] ml-[12px]">
-      <h2 className="text-[20px] leading-[28px] font-semibold text-[#000000] font-[Pretendard]">
-        마스터 포트폴리오
-      </h2>
+    <section className="flex items-center justify-between w-[1460px] max-lg:w-[908px] h-[52px] bg-[#E9F8F8] rounded-tl-[8px] rounded-tr-[8px] px-[24px] py-[8px]">
+      <h2 className="text-[20px] font-semibold text-[#000000]">마스터 포트폴리오</h2>
       <GenerationMethodSelector method={generationMethod} onMethodChange={onMethodChange} />
     </section>
   );
@@ -244,6 +222,10 @@ function MasterPortfolioSection({
 export default function AIMasterPortfolioPage() {
   const [generationMethod, setGenerationMethod] = useState<GenerationMethod>('ai');
   const [selectedCategory, setSelectedCategory] = useState<Category>(CATEGORIES[0]);
+  const detailRef = useRef<HTMLDivElement>(null);
+  const taskRef = useRef<HTMLDivElement>(null);
+  const resultRef = useRef<HTMLDivElement>(null);
+  const learnRef = useRef<HTMLDivElement>(null);
 
   const projectData = {
     title: '프로젝트 A',
@@ -252,13 +234,22 @@ export default function AIMasterPortfolioPage() {
     contribution: 74,
   };
 
+  const handleCopyAll = () => {
+    const detail = detailRef.current?.innerText ?? '';
+    const task = taskRef.current?.innerText ?? '';
+    const result = resultRef.current?.innerText ?? '';
+    const learn = learnRef.current?.innerText ?? '';
+    const fullText = `상세 정보:\n${detail}\n\n담당 업무:\n${task}\n\n주요 성과:\n${result}\n\n배운 점:\n${learn}`;
+    navigator.clipboard.writeText(fullText).then(() => alert('전체 내용이 복사되었습니다!'));
+  };
+
   return (
     <main className="flex flex-col gap-4 max-w-[1600px] mx-auto">
       <ProjectHeader title={projectData.title} />
 
       <hr className="w-full h-[2px] bg-[#E7E7E7] border-0" />
 
-      <div className="flex flex-col gap-4 pr-[30px] pl-[30px] pt-[40px] pb-[12px]">
+      <div className="flex flex-col gap-4 px-[30px] pt-[40px] pb-[12px]">
         <ProjectInfoSection
           startDate={projectData.startDate}
           endDate={projectData.endDate}
@@ -267,46 +258,73 @@ export default function AIMasterPortfolioPage() {
           contribution={projectData.contribution}
         />
 
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-4">
           <MasterPortfolioSection
             generationMethod={generationMethod}
             onMethodChange={setGenerationMethod}
           />
 
           {generationMethod === 'manual' && <ManualWriteSection />}
+
           {generationMethod === 'ai' && (
-             <div className="w-[1492px] max-lg:w-[928px] h-auto rounded-[16px] bg-[#F8F8F8] shadow-[0_0_8px_rgba(0,0,0,0.25)] p-[40px] max-lg:px-[28px] py-[40px] flex flex-col gap-[28px] max-lg:gap-[53px]">
-               {/* 상세 정보 */}
-<div className="flex w-full max-lg:flex-col max-lg:gap-[8px]">
-  <div className="w-full lg:flex-[0.6] h-[25px] text-left font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-black whitespace-nowrap max-lg:mt-[2px]">
-    상세정보
-  </div>
-  <div className="w-full lg:flex-[9.4] h-[162px] min-h-[162px] max-h-[162px] appearance-none bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] font-[Pretendard] text-[18px] max-lg:text-[16px] font-normal leading-[26px] text-black placeholder:text-[#898989] p-4" />
-</div>
+            <div className="w-[1492px] max-lg:w-[928px] h-auto rounded-[16px] bg-[#F8F8F8] shadow-[0_0_8px_rgba(0,0,0,0.25)] p-[40px] max-lg:px-[28px] py-[40px] flex flex-col gap-[28px] max-lg:gap-[53px]">
+              {/* 상세 정보 */}
+              <div className="flex w-full max-lg:flex-col max-lg:gap-[8px] relative">
+                <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
+                  상세 정보
+                </div>
+                <div
+                  ref={detailRef}
+                  className="w-full lg:flex-[9.4] h-[162px] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 overflow-y-auto"
+                >
+                  {/* 상세 정보 내용을 여기에 */}
+                </div>
+                <button
+                  onClick={handleCopyAll}
+                  className="absolute top-[8px] right-[8px] flex items-center justify-end max-lg:hidden"
+                >
+                  <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
+                </button>
+              </div>
 
-{/* 담당 업무 */}
-<div className="flex w-full max-lg:flex-col max-lg:gap-[8px]">
-  <div className="w-full lg:flex-[0.6] h-[25px] text-left font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-black whitespace-nowrap">
-    담당 업무
-  </div>
-  <div className="w-full lg:flex-[9.4] h-[162px] min-h-[162px] max-h-[162px] appearance-none bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] font-[Pretendard] text-[18px] max-lg:text-[16px] font-normal leading-[26px] text-black placeholder:text-[#898989] p-4" />
-</div>
+              {/* 담당 업무 */}
+              <div className="flex w-full max-lg:flex-col max-lg:gap-[8px]">
+                <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
+                  담당 업무
+                </div>
+                <div
+                  ref={taskRef}
+                  className="w-full lg:flex-[9.4] h-[162px] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 overflow-y-auto"
+                >
+                  {/* 담당 업무 내용을 여기에 */}
+                </div>
+              </div>
 
-{/* 주요 성과 */}
-<div className="flex w-full max-lg:flex-col max-lg:gap-[8px]">
-  <div className="w-full lg:flex-[0.6] h-[25px] text-left font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-black whitespace-nowrap">
-    주요 성과
-  </div>
-  <div className="w-full lg:flex-[9.4] h-[162px] min-h-[162px] max-h-[162px] appearance-none bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] font-[Pretendard] text-[18px] max-lg:text-[16px] font-normal leading-[26px] text-black placeholder:text-[#898989] p-4" />
-</div>
+              {/* 주요 성과 */}
+              <div className="flex w-full max-lg:flex-col max-lg:gap-[8px]">
+                <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
+                  주요 성과
+                </div>
+                <div
+                  ref={resultRef}
+                  className="w-full lg:flex-[9.4] h-[162px] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 overflow-y-auto"
+                >
+                  {/* 주요 성과 내용을 여기에 */}
+                </div>
+              </div>
 
-{/* 배운 점 */}
-<div className="flex w-full max-lg:flex-col max-lg:gap-[8px]">
-  <div className="w-full lg:flex-[0.6] h-[25px] text-left font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-black whitespace-nowrap">
-    배운 점
-  </div>
-  <div className="w-full lg:flex-[9.4] h-[162px] min-h-[162px] max-h-[162px] appearance-none bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] font-[Pretendard] text-[18px] max-lg:text-[16px] font-normal leading-[26px] text-black placeholder:text-[#898989] p-4" />
-</div>
+              {/* 배운 점 */}
+              <div className="flex w-full max-lg:flex-col max-lg:gap-[8px]">
+                <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
+                  배운 점
+                </div>
+                <div
+                  ref={learnRef}
+                  className="w-full lg:flex-[9.4] h-[162px] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 overflow-y-auto"
+                >
+                  {/* 배운 점 내용을 여기에 */}
+                </div>
+              </div>
             </div>
           )}
         </div>
