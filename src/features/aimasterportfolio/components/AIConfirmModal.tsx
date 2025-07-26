@@ -21,7 +21,8 @@ export default function AIConfirmModal({ onConfirm, onCancel }: AIConfirmModalPr
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
-      <div className="relative w-[460px] bg-[#F8F8F8] shadow-[0_0_15px_rgba(0,0,0,0.2)] rounded-[12px] px-[32px] pt-[40px] pb-[40px]">
+      <div className="relative w-[498px] h-[264px] bg-[#F8F8F8] shadow-[0_0_15px_rgba(0,0,0,0.2)] rounded-[12px] px-[32px] pt-[60px] pb-[40px]">
+        {/* 닫기 버튼 */}
         <button
           className="absolute top-[8px] right-[8px] w-[24px] h-[24px] cursor-pointer"
           onClick={onCancel}
@@ -29,14 +30,20 @@ export default function AIConfirmModal({ onConfirm, onCancel }: AIConfirmModalPr
           <img src="/icons/곱하기.svg" alt="닫기" className="w-[24px] h-[24px]" />
         </button>
 
-        <div className="flex items-center justify-center gap-[6px] text-[16px] leading-[24px] font-semibold text-black text-center mb-[4px]">
-          <Image src="/icons/coin.svg" alt="credit" width={24} height={24} />
-          <span 
-          className="text-[20px] font-semibold leading-[28px] text-black">6 Credit을 사용하여<br/>
-          AI 마스터 포트폴리오를 생성하시겠습니까?
+        {/* 메시지 */}
+        <div className="flex flex-col items-center justify-center text-center mb-[4px]">
+          <div className="flex items-center gap-[6px]">
+            <Image src="/icons/coin.svg" alt="credit" width={24} height={24} />
+            <span className="text-[20px] font-semibold leading-[28px] text-black">
+              6 Credit을 사용하여
+            </span>
+          </div>
+          <span className="text-[20px] font-semibold leading-[28px] text-black mt-[4px]">
+            AI 마스터 포트폴리오를 생성하시겠습니까?
           </span>
         </div>
 
+        {/* 설명 */}
         <p className="text-[14px] leading-[22px] text-[#898989] text-center mb-[32px]">
           AI 마스터 포트폴리오는 프로젝트별로 한 번만 생성할 수 있어요.
         </p>
@@ -62,4 +69,4 @@ export default function AIConfirmModal({ onConfirm, onCancel }: AIConfirmModalPr
     </div>,
     document.body
   );
-} 
+}

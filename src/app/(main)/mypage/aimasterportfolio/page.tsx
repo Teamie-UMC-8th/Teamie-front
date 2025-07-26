@@ -1,279 +1,157 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import StepsSidebar from '@/features/aimasterportfolio/components/StepSidebar';
+import Portal from '@/components/Portal';
+import { useFunnel } from '@/features/aimasterportfolio/hooks/useFunnel';
 import Image from 'next/image';
-import { useState } from 'react';
+import Step1 from '@/features/aimasterportfolio/components/steps/Step1';
+import Step2 from '@/features/aimasterportfolio/components/steps/Step2';
+import Step3 from '@/features/aimasterportfolio/components/steps/Step3';
+import { useRouter } from 'next/navigation';
+import AIConfirmModal from '@/features/aimasterportfolio/components/AIConfirmModal';
 
-import ManualWriteSection from '@/features/aimasterportfolio/components/ManualWriteSection';
-import AIGenerationSetion from '@/features/aimasterportfolio/components/AIGenerationSection';
-import MenuButton from '@/features/aimasterportfolio/components/MenuButton';
+const AI_CREATE_STEPS = [
+  {
+    id: 1,
+    title: '개인 회고 작성',
+    buttons: {
+      sub: '개인 회고로 이동',
+      main: <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">다음으로 →</span>,
+    },
+  },
+  {
+    id: 2,
+    title: '회의록 선택',
+    buttons: {
+      sub: '← 이전으로',
+      main: <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">다음으로 →</span>,
+    },
+  },
+  {
+    id: 3,
+    title: '추가 질문',
+    buttons: {
+      sub: '임시저장',
+      main: <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">AI 마스터 포트폴리오 생성하기</span>,
+    },
+  },
+];
 
-const CATEGORIES = [
-  { label: '수업', color: '#BED9FB' },
-  { label: '동아리', color: '#CDE3C9' },
-  { label: '대외활동', color: '#F7DFC4' },
-  { label: '프로젝트', color: '#FBD5D5' },
-  { label: '기타', color: '#C8C8C8' },
-] as const;
+export default function AIMasterPortfolioCreatePage() {
+  const router = useRouter();
+  const { currentStep, goToStep } = useFunnel();
+  const [scrollY, setScrollY] = useState(0);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-const STYLES = {
-  tag: 'w-[99px] h-[37px] bg-[#DAF3F3] rounded-[4px] px-[18px] py-[6px] flex items-center justify-center font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-[#000000] whitespace-nowrap',
-  text: 'font-[Pretendard] font-normal text-[20px] leading-[30px] text-[#000000] whitespace-nowrap',
-  methodButton:
-    'px-[12px] py-[4px] rounded-[4px] flex items-center justify-center gap-[8px] font-[Pretendard] text-[18px] leading-[26px] whitespace-nowrap transition-all',
-} as const;
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
 
-type Category = (typeof CATEGORIES)[number];
-type GenerationMethod = 'ai' | 'manual';
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-function ProjectHeader({ title }: { title: string }) {
-  return (
-    <div className="flex flex-col gap-[12px] px-[30px]">
-      <div className="flex items-center gap-[20px] max-lg:gap-[8px]">
-        <Image
-          src="/icons/arrow-left.svg"
-          alt="뒤로가기"
-          width={24}
-          height={24}
-        />
-        <h1 className="font-[Pretendard] font-bold text-[22px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap gap-[1437px]">
-          {title}
-        </h1>
-        <MenuButton/>
-      </div>
-    </div>
-  );
-}
-
-function ProjectPeriod({ startDate, endDate }: { startDate: string; endDate: string }) {
-  return (
-    <div className="flex items-center gap-4">
-      <div className={STYLES.tag}>진행 기간</div>
-      <time className={STYLES.text}>
-        {startDate} ~ {endDate}
-      </time>
-    </div>
-  );
-}
-
-function CategorySelector({
-  selected,
-  onSelect,
-}: {
-  selected: Category;
-  onSelect: (category: Category) => void;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleSelect = (option: Category) => {
-    onSelect(option);
-    setIsOpen(false);
-  };
+  const sidebarPaddingTop = Math.max(0, 56 - scrollY);
 
   return (
-     <div className="flex items-center gap-[28px]">
-      <div className={STYLES.tag}>분류</div>
-      <div className="relative">
-        <button
-          className="flex items-center gap-[20px] cursor-pointer"
-          onClick={() => setIsOpen(!isOpen)}
-          aria-expanded={isOpen}
-          aria-haspopup="listbox"
+    <>
+      <Portal as="aside" containerId="step-sidebar">
+        <div
+          className="fixed top-0 left-0 h-full bg-white shadow-lg z-1
+          max-lg:w-full max-lg:h-[168px] max-lg:border-none max-lg:justify-end"
+          style={{ paddingTop: `${sidebarPaddingTop}px` }} // ✅ 백틱 처리
         >
-          <div
-            className="w-[80px] h-[32px] rounded-[4px] px-[12px] py-[4px] text-black font-[Pretendard] text-[16px] leading-[24px] flex items-center justify-center whitespace-nowrap"
-            style={{ backgroundColor: selected.color }}
-          >
-            {selected.label}
+          <StepsSidebar currentStep={currentStep} steps={AI_CREATE_STEPS} goToStep={goToStep} />
+        </div>
+      </Portal>
+
+      <div className="ml-0 max-lg:ml-0">
+        <main className="flex flex-col gap-0 max-w-[1323px] mx-auto p-6">
+          <section className="max-lg:mt-[120px] w-[1323px] max-lg:w-[908px] h-[52px] flex items-center justify-between bg-[#E9F8F8] rounded-tl-[8px] rounded-tr-[8px] px-[24px] py-[8px] mr-[12px] ml-[12px]">
+            <h2 className="text-[20px] leading-[28px] font-semibold text-[#000000] font-[Pretendard]">
+              AI 마스터 포트폴리오 생성
+            </h2>
+          </section>
+
+          <div className="flex flex-col w-[1359px] max-lg:w-[928px] h-[800px] max-lg:h-[732px] rounded-[16px] bg-[#F8F8F8] shadow-[0_0_4px_rgba(0,0,0,0.20)] p-[40px] gap-[32px] overflow-y-auto">
+            <div className="flex flex-col gap-[40px] items-end">
+              {/* 첫번째 버블 */}
+              <div className="flex items-start gap-[40px] w-full">
+                <div className="w-[80px] max-lg:w-[60px] h-[80px] max-lg:h-[60px] bg-[#D9D9D9] mt-[24px]" />
+
+                <div className="relative w-full h-full">
+                  <div className="w-[1091.95px] max-lg:w-[751px] h-[426px] max-lg:h-[376px] bg-white border-none rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.10)] 
+                    p-[50px] max-lg:px-[36px] max-lg:py-[32px] max-lg:text-[16px] max-lg:leading-[24px]">
+                    {currentStep === 0 && <Step1 />}
+                    {currentStep === 1 && <Step2 />}
+                    {currentStep === 2 && <Step3 />}
+                  </div>
+                  <Image
+                    className="absolute top-0 left-[-6px] translate-x-[-50%] translate-y-[50%]"
+                    src="/icons/spike-left.svg"
+                    alt="spike-left"
+                    width={30}
+                    height={30}
+                  />
+                </div>
+              </div>
+
+              {/* 두번째 버블 */}
+              <div className="relative w-fit h-full">
+                <div className="w-fit h-full bg-white border-none rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.10)] px-[34px] py-[24px] flex gap-[16px]">
+                  <button
+                    className="rounded-[6px] border-[1.5px] border-[#898989] bg-[#FFF] p-[6px] px-[32px] cursor-pointer"
+                    onClick={() => {
+                      if (currentStep === 0) {
+                        router.push(`/mypage//projects/${projectId}/retrospect/ai`); // ✅ 백틱 처리
+                      } else {
+                        goToStep(currentStep - 1);
+                      }
+                    }}
+                  >
+                    {AI_CREATE_STEPS[currentStep].buttons.sub}
+                  </button>
+
+                  <button
+                    className="rounded-[6px] border-[1px] border-[#81D7D4] bg-[#81D7D4] p-[6px] px-[32px] text-[#FFF] cursor-pointer"
+                    onClick={() => {
+                      if (currentStep === 2) {
+                        setShowConfirmModal(true);
+                      } else {
+                        goToStep(currentStep + 1);
+                      }
+                    }}
+                  >
+                    {AI_CREATE_STEPS[currentStep].buttons.main}
+                  </button>
+                </div>
+
+                <Image
+                  className="absolute top-0 right-[-6px] translate-x-[50%] translate-y-[50%]"
+                  src="/icons/spike-right.svg"
+                  alt="spike-right"
+                  width={30}
+                  height={30}
+                />
+              </div>
+            </div>
           </div>
-          <svg
-            width="14"
-            height="8"
-            viewBox="0 0 14 8"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}
-          >
-            <path
-              d="M13.4393 1.56365L7.77721 7.56922C7.64608 7.70832 7.50507 7.81525 7.35419 7.89003C7.20331 7.96481 7.03763 8.00145 6.85714 7.99996C6.67666 7.99846 6.51097 7.96107 6.3601 7.88779C6.20922 7.8145 6.06821 7.70757 5.93708 7.56698L0.274961 1.5614C0.197407 1.47765 0.13184 1.38119 0.0782577 1.27201C0.0260853 1.16283 -3.03994e-07 1.04542 -3.09486e-07 0.919795C-3.20469e-07 0.668534 0.0775525 0.452419 0.23266 0.271451C0.390587 0.0904841 0.597162 -2.61028e-08 0.852384 -3.72589e-08L12.8598 -5.62119e-07C13.1164 -5.73337e-07 13.323 0.0927276 13.4795 0.278182C13.636 0.463636 13.7143 0.679003 13.7143 0.924281C13.7143 0.987096 13.6226 1.19947 13.4393 1.5614"
-              fill="black"
-            />
-          </svg>
-        </button>
-        {isOpen && (
-          <ul
-            className="absolute top-[40px] left-0 z-10 w-[104px] h-[216px] bg-white rounded-[8px] shadow-[0_0_15px_rgba(0,0,0,0.2)] 
-            px-[12px] py-[10px] flex flex-col gap-[8px]"
-            role="listbox"
-          >
-            {CATEGORIES.map((option) => (
-              <li
-                key={option.label}
-                className="w-full h-[36px] rounded-[6px] flex items-center justify-center cursor-pointer font-[Pretendard] text-[16px] text-black hover:opacity-80"
-                style={{ backgroundColor: option.color }}
-                onClick={() => handleSelect(option)}
-                role="option"
-                aria-selected={selected.label === option.label}
-              >
-                {option.label}
-              </li>
-            ))}
-          </ul>
+        </main>
+
+        {showConfirmModal && (
+          <AIConfirmModal
+            onConfirm={() => {
+              setShowConfirmModal(false);
+              router.push('/mypage/aimasterportfolio/final');
+            }}
+            onCancel={() => {
+              setShowConfirmModal(false);
+            }}
+          />
         )}
       </div>
-    </div>
-  );
-}
-
-function ContributionBar({ percentage }: { percentage: number }) {
-  return (
-    <div className="flex items-center gap-4">
-      <div className={STYLES.tag}>기여도</div>
-      <div className="flex items-center gap-[28px]">
-        <div className="w-[299px] h-[20px] bg-[#FFFFFF] border border-[#BBBBBB] rounded-[3px] overflow-hidden">
-          <div
-            className="h-full bg-[#81D7D4] transition-all duration-300"
-            style={{ width: `${percentage}%` }}
-            role="progressbar"
-            aria-valuenow={percentage}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label={`기여도 ${percentage}%`}
-          />
-        </div>
-        <span className="w-[42px] h-[28px] text-[#000000] font-[Pretendard] text-[20px] font-normal leading-[28px] tracking-[0.04em] text-center">
-          {percentage}%
-        </span>
-      </div>
-    </div>
-  );
-}
-
-function GenerationMethodSelector({
-  method,
-  onMethodChange,
-}: {
-  method: GenerationMethod;
-  onMethodChange: (method: GenerationMethod) => void;
-}) {
-  const methods = [
-    { id: 'ai' as const, label: 'AI 생성', hasIcon: true },
-    { id: 'manual' as const, label: '직접 작성', hasIcon: false },
-  ];
-
-  return (
-    <div
-      className="flex items-center gap-0 bg-white p-[4px] rounded-[8px] border border-[#e7e7e7]"
-      role="radiogroup"
-      aria-label="생성 방법 선택"
-    >
-      {methods.map(({ id, label, hasIcon }) => {
-        const isSelected = method === id;
-        return (
-          <button
-            key={id}
-            onClick={() => onMethodChange(id)}
-            className={`${STYLES.methodButton} ${
-              isSelected
-                ? 'bg-[#81D7D4] text-white font-bold cursor-default'
-                : 'bg-[#ffffff] text-[#BBBBBB] font-normal hover:font-bold cursor-pointer'
-            }`}
-            role="radio"
-            aria-checked={isSelected}
-            aria-label={label}
-          >
-            {hasIcon && (
-              <img
-                src="/icons/coin.svg"
-                alt="AI 아이콘"
-                className="w-[24px] h-[24px] object-contain"
-              />
-            )}
-            {label}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-function ProjectInfoSection({
-  startDate,
-  endDate,
-  category,
-  onCategoryChange,
-  contribution,
-}: {
-  startDate: string;
-  endDate: string;
-  category: Category;
-  onCategoryChange: (category: Category) => void;
-  contribution: number;
-}) {
-  return (
-    <section className="flex items-center pb-[60px] max-lg:flex-col max-lg:items-start">
-      <div className='flex flex-nowrap gap-[200px] max-lg:gap-[100px]'>
-      <ProjectPeriod startDate={startDate} endDate={endDate} />
-      <CategorySelector selected={category} onSelect={onCategoryChange} />
-      </div>
-      <div className='flex flex-wrap max-lg:mt-[60px] lg:ml-[200px]'>
-      <ContributionBar percentage={contribution} />
-      </div>
-    </section>
-  );
-}
-
-function MasterPortfolioSection({
-  generationMethod,
-  onMethodChange,
-}: {
-  generationMethod: GenerationMethod;
-  onMethodChange: (method: GenerationMethod) => void;
-}) {
-  return (
-    <section className="flex items-center justify-between w-[1460px] max-lg:w-[908px] h-[52px] bg-[#E9F8F8] rounded-tl-[8px] rounded-tr-[8px] px-[24px] py-[8px] mr-[12px] ml-[12px]">
-      <h2 className="text-[20px] leading-[28px] font-semibold text-[#000000] font-[Pretendard]">
-        마스터 포트폴리오
-      </h2>
-      <GenerationMethodSelector method={generationMethod} onMethodChange={onMethodChange} />
-    </section>
-  );
-}
-
-export default function AIMasterPortfolioPage() {
-  const [generationMethod, setGenerationMethod] = useState<GenerationMethod>('ai');
-  const [selectedCategory, setSelectedCategory] = useState<Category>(CATEGORIES[0]);
-
-  const projectData = {
-    title: '프로젝트 A',
-    startDate: '2025.04.02',
-    endDate: '2025.06.20',
-    contribution: 74,
-  };
-
-  return (
-    <main className="flex flex-col gap-4 max-w-[1600px] mx-auto">
-      <ProjectHeader title={projectData.title} />
-
-      <hr className="w-[1600px] max-lg:w-[976px] h-0 border-t-[2px] border-[#E7E7E7] "/>
-
-      <div className="flex flex-col gap-4 pr-[30px] pl-[30px] pt-[40px] pb-[12px]">
-        <ProjectInfoSection
-          startDate={projectData.startDate}
-          endDate={projectData.endDate}
-          category={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-          contribution={projectData.contribution}
-        />
-
-        <div className="flex flex-col">
-          <MasterPortfolioSection
-            generationMethod={generationMethod}
-            onMethodChange={setGenerationMethod}
-          />
-          {generationMethod === 'manual' && <ManualWriteSection />}
-          {generationMethod === 'ai' && <AIGenerationSetion />}
-        </div>
-      </div>
-    </main>
+    </>
   );
 }
