@@ -47,4 +47,4 @@ export default function ConfirmLeaveModal({ onConfirm, onCancel }: ConfirmLeaveM
       </div>
     </div>
   );
-}
+} 

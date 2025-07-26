@@ -5,6 +5,7 @@ import { useState } from 'react';
 
 import ManualWriteSection from '@/features/aimasterportfolio/components/ManualWriteSection';
 import AIGenerationSetion from '@/features/aimasterportfolio/components/AIGenerationSection';
+import MenuButton from '@/features/aimasterportfolio/components/MenuButton';
 
 const CATEGORIES = [
   { label: '수업', color: '#BED9FB' },
@@ -26,12 +27,20 @@ type GenerationMethod = 'ai' | 'manual';
 
 function ProjectHeader({ title }: { title: string }) {
   return (
-    <header className="flex items-center gap-4">
-      <Image src="/icons/arrow-left.svg" alt="뒤로가기" width={24} height={24} />
-      <h1 className="font-[Pretendard] font-bold text-[22px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap">
-        {title}
-      </h1>
-    </header>
+    <div className="flex flex-col gap-[12px] px-[30px]">
+      <div className="flex items-center gap-[20px] max-lg:gap-[8px]">
+        <Image
+          src="/icons/arrow-left.svg"
+          alt="뒤로가기"
+          width={24}
+          height={24}
+        />
+        <h1 className="font-[Pretendard] font-bold text-[22px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap gap-[1437px]">
+          {title}
+        </h1>
+        <MenuButton/>
+      </div>
+    </div>
   );
 }
 
@@ -61,9 +70,8 @@ function CategorySelector({
   };
 
   return (
-    <div className="flex items-center gap-4">
+     <div className="flex items-center gap-[28px]">
       <div className={STYLES.tag}>분류</div>
-
       <div className="relative">
         <button
           className="flex items-center gap-[20px] cursor-pointer"
@@ -72,7 +80,7 @@ function CategorySelector({
           aria-haspopup="listbox"
         >
           <div
-            className="w-[80px] h-[32px] rounded-[4px] px-[12px] py-[4px] text-black font-[Pretendard] text-[16px] leading-[26px] flex items-center justify-center whitespace-nowrap"
+            className="w-[80px] h-[32px] rounded-[4px] px-[12px] py-[4px] text-black font-[Pretendard] text-[16px] leading-[24px] flex items-center justify-center whitespace-nowrap"
             style={{ backgroundColor: selected.color }}
           >
             {selected.label}
@@ -91,10 +99,10 @@ function CategorySelector({
             />
           </svg>
         </button>
-
         {isOpen && (
           <ul
-            className="absolute top-[40px] left-0 z-10 bg-white border border-dashed border-[#B085E3] rounded-[8px] px-[12px] py-[10px] flex flex-col gap-[8px] w-[90px]"
+            className="absolute top-[40px] left-0 z-10 w-[104px] h-[216px] bg-white rounded-[8px] shadow-[0_0_15px_rgba(0,0,0,0.2)] 
+            px-[12px] py-[10px] flex flex-col gap-[8px]"
             role="listbox"
           >
             {CATEGORIES.map((option) => (
@@ -120,7 +128,7 @@ function ContributionBar({ percentage }: { percentage: number }) {
   return (
     <div className="flex items-center gap-4">
       <div className={STYLES.tag}>기여도</div>
-      <div className="flex items-center gap-[21px]">
+      <div className="flex items-center gap-[28px]">
         <div className="w-[299px] h-[20px] bg-[#FFFFFF] border border-[#BBBBBB] rounded-[3px] overflow-hidden">
           <div
             className="h-full bg-[#81D7D4] transition-all duration-300"
@@ -174,9 +182,10 @@ function GenerationMethodSelector({
             aria-label={label}
           >
             {hasIcon && (
-              <div
-                className="w-[24px] h-[24px] bg-[#D9D9D9] flex items-center justify-center"
-                aria-hidden="true"
+              <img
+                src="/icons/coin.svg"
+                alt="AI 아이콘"
+                className="w-[24px] h-[24px] object-contain"
               />
             )}
             {label}
@@ -201,10 +210,14 @@ function ProjectInfoSection({
   contribution: number;
 }) {
   return (
-    <section className="flex items-center gap-4 justify-between pb-[60px]">
+    <section className="flex items-center pb-[60px] max-lg:flex-col max-lg:items-start">
+      <div className='flex flex-nowrap gap-[200px] max-lg:gap-[100px]'>
       <ProjectPeriod startDate={startDate} endDate={endDate} />
       <CategorySelector selected={category} onSelect={onCategoryChange} />
+      </div>
+      <div className='flex flex-wrap max-lg:mt-[60px] lg:ml-[200px]'>
       <ContributionBar percentage={contribution} />
+      </div>
     </section>
   );
 }
@@ -217,7 +230,7 @@ function MasterPortfolioSection({
   onMethodChange: (method: GenerationMethod) => void;
 }) {
   return (
-    <section className="flex items-center justify-between bg-[#E9F8F8] rounded-tl-[8px] rounded-tr-[8px] px-[24px] py-[8px] mr-[12px] ml-[12px]">
+    <section className="flex items-center justify-between w-[1460px] max-lg:w-[908px] h-[52px] bg-[#E9F8F8] rounded-tl-[8px] rounded-tr-[8px] px-[24px] py-[8px] mr-[12px] ml-[12px]">
       <h2 className="text-[20px] leading-[28px] font-semibold text-[#000000] font-[Pretendard]">
         마스터 포트폴리오
       </h2>
@@ -241,7 +254,7 @@ export default function AIMasterPortfolioPage() {
     <main className="flex flex-col gap-4 max-w-[1600px] mx-auto">
       <ProjectHeader title={projectData.title} />
 
-      <hr className="w-full h-[2px] bg-[#E7E7E7] border-0" />
+      <hr className="w-[1600px] max-lg:w-[976px] h-0 border-t-[2px] border-[#E7E7E7] "/>
 
       <div className="flex flex-col gap-4 pr-[30px] pl-[30px] pt-[40px] pb-[12px]">
         <ProjectInfoSection
@@ -257,7 +270,6 @@ export default function AIMasterPortfolioPage() {
             generationMethod={generationMethod}
             onMethodChange={setGenerationMethod}
           />
-
           {generationMethod === 'manual' && <ManualWriteSection />}
           {generationMethod === 'ai' && <AIGenerationSetion />}
         </div>

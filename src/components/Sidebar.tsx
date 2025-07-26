@@ -13,10 +13,11 @@ export default function Sidebar() {
 
   const activeMenu = useActiveMenu();
 
-  // /new 경로에서는 사이드바 숨기기
-  if (pathname === '/new') {
+  // /new 경로와 /aimasterportfolio 경로에서는 사이드바 숨기기
+  if (pathname === '/new' || pathname.includes('/aimasterportfolio')) {
     return null;
   }
+
 
   const menuItems = menus[activeMenu];
 
