@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useRef } from 'react';
 import Image from 'next/image';
+import { useState, useRef } from 'react';
+
 import ManualWriteSection from '@/features/aimasterportfolio/components/ManualWriteSection';
+import AIGenerationSection from '@/features/aimasterportfolio/components/AIGenerationSection';
 import MenuButton from '@/features/aimasterportfolio/components/MenuButton';
 
 const CATEGORIES = [
@@ -28,7 +30,7 @@ function ProjectHeader({ title }: { title: string }) {
     <div className="flex flex-col gap-[12px] px-[30px]">
       <div className="flex items-center gap-[20px] max-lg:gap-[8px]">
         <Image src="/icons/arrow-left.svg" alt="뒤로가기" width={24} height={24} />
-        <h1 className="font-[Pretendard] font-bold text-[22px] leading-[29px] text-[#000000]">
+        <h1 className="font-[Pretendard] font-bold text-[22px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap gap-[1437px]">
           {title}
         </h1>
         <MenuButton />
@@ -57,18 +59,24 @@ function CategorySelector({
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
+  const handleSelect = (option: Category) => {
+    onSelect(option);
+    setIsOpen(false);
+  };
+
   return (
     <div className="flex items-center gap-[28px]">
       <div className={STYLES.tag}>분류</div>
+
       <div className="relative">
         <button
-          className="flex items-center gap-[20px]"
+          className="flex items-center gap-[20px] cursor-pointer"
           onClick={() => setIsOpen(!isOpen)}
           aria-expanded={isOpen}
           aria-haspopup="listbox"
         >
           <div
-            className="w-[80px] h-[32px] rounded-[4px] px-[12px] py-[4px] text-black font-[Pretendard] text-[16px] leading-[24px] flex items-center justify-center"
+            className="w-[80px] h-[32px] rounded-[4px] px-[12px] py-[4px] text-black font-[Pretendard] text-[16px] leading-[24px] flex items-center justify-center whitespace-nowrap"
             style={{ backgroundColor: selected.color }}
           >
             {selected.label}
@@ -87,20 +95,18 @@ function CategorySelector({
             />
           </svg>
         </button>
+
         {isOpen && (
           <ul
-            className="absolute top-[40px] left-0 z-10 w-[104px] bg-white rounded-[8px] shadow-[0_0_15px_rgba(0,0,0,0.2)] px-[12px] py-[10px] flex flex-col gap-[8px]"
+            className="absolute top-[40px] left-0 z-10 w-[104px] h-[216px] bg-white rounded-[8px] shadow-[0_0_15px_rgba(0,0,0,0.2)] px-[12px] py-[10px] flex flex-col gap-[8px]"
             role="listbox"
           >
             {CATEGORIES.map((option) => (
               <li
                 key={option.label}
-                className="h-[36px] rounded-[6px] flex items-center justify-center cursor-pointer font-[Pretendard] text-[16px] hover:opacity-80"
+                className="w-full h-[36px] rounded-[6px] flex items-center justify-center cursor-pointer font-[Pretendard] text-[16px] text-black hover:opacity-80"
                 style={{ backgroundColor: option.color }}
-                onClick={() => {
-                  onSelect(option);
-                  setIsOpen(false);
-                }}
+                onClick={() => handleSelect(option)}
                 role="option"
                 aria-selected={selected.label === option.label}
               >
@@ -119,7 +125,7 @@ function ContributionBar({ percentage }: { percentage: number }) {
     <div className="flex items-center gap-4">
       <div className={STYLES.tag}>기여도</div>
       <div className="flex items-center gap-[21px]">
-        <div className="w-[299px] h-[20px] bg-white border border-[#BBBBBB] rounded-[3px] overflow-hidden">
+        <div className="w-[299px] h-[20px] bg-[#FFFFFF] border border-[#BBBBBB] rounded-[3px] overflow-hidden">
           <div
             className="h-full bg-[#81D7D4] transition-all duration-300"
             style={{ width: `${percentage}%` }}
@@ -130,7 +136,7 @@ function ContributionBar({ percentage }: { percentage: number }) {
             aria-label={`기여도 ${percentage}%`}
           />
         </div>
-        <span className="w-[42px] text-center font-[Pretendard] text-[20px] leading-[28px]">
+        <span className="w-[42px] h-[28px] text-[#000000] font-[Pretendard] text-[20px] font-normal leading-[28px] tracking-[0.04em] text-center">
           {percentage}%
         </span>
       </div>
@@ -143,7 +149,7 @@ function GenerationMethodSelector({
   onMethodChange,
 }: {
   method: GenerationMethod;
-  onMethodChange: (m: GenerationMethod) => void;
+  onMethodChange: (method: GenerationMethod) => void;
 }) {
   const methods = [
     { id: 'ai' as const, label: 'AI 생성', hasIcon: true },
@@ -161,14 +167,14 @@ function GenerationMethodSelector({
             className={`${STYLES.methodButton} ${
               isSelected
                 ? 'bg-[#81D7D4] text-white font-bold cursor-default'
-                : 'bg-[#ffffff] text-[#BBBBBB] font-normal hover:font-bold'
+                : 'bg-[#ffffff] text-[#BBBBBB] font-normal hover:font-bold cursor-pointer'
             }`}
             role="radio"
             aria-checked={isSelected}
             aria-label={label}
           >
             {hasIcon && (
-              <img src="/icons/coin.svg" alt="AI 아이콘" className="w-[24px] h-[24px]" />
+              <img src="/icons/coin.svg" alt="AI 아이콘" className="w-[24px] h-[24px] object-contain" />
             )}
             {label}
           </button>
@@ -188,7 +194,7 @@ function ProjectInfoSection({
   startDate: string;
   endDate: string;
   category: Category;
-  onCategoryChange: (c: Category) => void;
+  onCategoryChange: (category: Category) => void;
   contribution: number;
 }) {
   return (
@@ -209,11 +215,13 @@ function MasterPortfolioSection({
   onMethodChange,
 }: {
   generationMethod: GenerationMethod;
-  onMethodChange: (m: GenerationMethod) => void;
+  onMethodChange: (method: GenerationMethod) => void;
 }) {
   return (
-    <section className="flex items-center justify-between w-[1460px] max-lg:w-[908px] h-[52px] bg-[#E9F8F8] rounded-tl-[8px] rounded-tr-[8px] px-[24px] py-[8px]">
-      <h2 className="text-[20px] font-semibold text-[#000000]">마스터 포트폴리오</h2>
+    <section className="flex items-center justify-between w-[1460px] max-lg:w-[908px] h-[52px] bg-[#E9F8F8] rounded-tl-[8px] rounded-tr-[8px] px-[24px] py-[8px] mr-[12px] ml-[12px]">
+      <h2 className="text-[20px] leading-[28px] font-semibold text-[#000000] font-[Pretendard]">
+        마스터 포트폴리오
+      </h2>
       <GenerationMethodSelector method={generationMethod} onMethodChange={onMethodChange} />
     </section>
   );
@@ -247,9 +255,9 @@ export default function AIMasterPortfolioPage() {
     <main className="flex flex-col gap-4 max-w-[1600px] mx-auto">
       <ProjectHeader title={projectData.title} />
 
-      <hr className="w-full h-[2px] bg-[#E7E7E7] border-0" />
+      <hr className="w-full h-[2px] bg-[#E7E7E7] border-0 m-0" />
 
-      <div className="flex flex-col gap-4 px-[30px] pt-[40px] pb-[12px]">
+      <div className="flex flex-col gap-4 pr-[30px] pl-[30px] pb-[12px]">
         <ProjectInfoSection
           startDate={projectData.startDate}
           endDate={projectData.endDate}
@@ -258,14 +266,13 @@ export default function AIMasterPortfolioPage() {
           contribution={projectData.contribution}
         />
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col">
           <MasterPortfolioSection
             generationMethod={generationMethod}
             onMethodChange={setGenerationMethod}
           />
 
           {generationMethod === 'manual' && <ManualWriteSection />}
-
           {generationMethod === 'ai' && (
             <div className="w-[1492px] max-lg:w-[928px] h-auto rounded-[16px] bg-[#F8F8F8] shadow-[0_0_8px_rgba(0,0,0,0.25)] p-[40px] max-lg:px-[28px] py-[40px] flex flex-col gap-[28px] max-lg:gap-[53px]">
               {/* 상세 정보 */}
@@ -281,7 +288,7 @@ export default function AIMasterPortfolioPage() {
                 </div>
                 <button
                   onClick={handleCopyAll}
-                  className="absolute top-[8px] right-[8px] flex items-center justify-end max-lg:hidden"
+                  className="absolute top-[8px] right-[8px] justify-end maxx-lg:hidden"
                 >
                   <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
                 </button>
