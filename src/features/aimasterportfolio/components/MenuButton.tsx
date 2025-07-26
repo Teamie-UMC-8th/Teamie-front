@@ -8,7 +8,7 @@ export default function MenuButton() {
   const router = useRouter();
 
   return (
-    <div className="absolute top-0 right-[20px] relative ml-auto">
+    <div className="absolute top-0 right-[20px] relative ml-auto max-lg:w-[32px] max-lg:h-[32px]">
       {/* 메뉴 아이콘 버튼 */}
       <button onClick={() => setOpen(!open)} aria-label="메뉴 열기">
         <img src="/icons/menu-icon.svg" alt="메뉴" className="w-[36px] h-[36px]" />
