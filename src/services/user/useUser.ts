@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import axiosInstance from '@/lib/api/axiosInstance';
+import axiosInstance from '@/lib/axiosInstance';
 
 // 사용자 프로필 정보를 가져오는 훅
 interface UserProfile {
