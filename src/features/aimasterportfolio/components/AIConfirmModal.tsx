@@ -1,7 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 import Image from 'next/image';
 
 interface AIConfirmModalProps {
@@ -10,16 +8,7 @@ interface AIConfirmModalProps {
 }
 
 export default function AIConfirmModal({ onConfirm, onCancel }: AIConfirmModalProps) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    return () => setMounted(false);
-  }, []);
-
-  if (!mounted) return null;
-
-  return createPortal(
+  return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
       <div className="relative w-[498px] h-[264px] bg-[#F8F8F8] shadow-[0_0_15px_rgba(0,0,0,0.2)] rounded-[12px] px-[32px] pt-[60px] pb-[40px]">
         {/* 닫기 버튼 */}
@@ -43,12 +32,10 @@ export default function AIConfirmModal({ onConfirm, onCancel }: AIConfirmModalPr
           </span>
         </div>
 
-        {/* 설명 */}
         <p className="text-[14px] leading-[22px] text-[#898989] text-center mb-[32px]">
           AI 마스터 포트폴리오는 프로젝트별로 한 번만 생성할 수 있어요.
         </p>
 
-        {/* 버튼 그룹 */}
         <div className="flex justify-center gap-[28px]">
           <button
             onClick={onCancel}
@@ -66,7 +53,6 @@ export default function AIConfirmModal({ onConfirm, onCancel }: AIConfirmModalPr
           </button>
         </div>
       </div>
-    </div>,
-    document.body
+    </div>
   );
 }
