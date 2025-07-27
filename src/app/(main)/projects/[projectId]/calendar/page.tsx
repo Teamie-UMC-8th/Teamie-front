@@ -7,6 +7,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { useState, useEffect } from 'react';
 import Daypicker from '@/components/DayPicker';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 const locales = { 'en-US': enUS };
 
@@ -21,10 +22,11 @@ const localizer = dateFnsLocalizer({
 export default function TeamCalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   const handleDateClick = (date) => {
     console.log('Add project clicked for date:', date);
-    // 여기에 프로젝트 추가 로직을 구현하세요
+    router.push('/schedulePage'); //프로젝트 일정 페이지로 이동
   };
 
   useEffect(() => {
@@ -63,10 +65,15 @@ export default function TeamCalendarPage() {
         button.appendChild(img);
 
         // 클릭 이벤트
+        // button.addEventListener('click', (e) => {
+        //   e.stopPropagation();
+        //   const dateStr = cell.querySelector('.rbc-button-link')?.getAttribute('aria-label');
+        //   console.log('Clicked date:', dateStr);
+        //   handleDateClick(new Date());
+        // });
+
         button.addEventListener('click', (e) => {
           e.stopPropagation();
-          const dateStr = cell.querySelector('.rbc-button-link')?.getAttribute('aria-label');
-          console.log('Clicked date:', dateStr);
           handleDateClick(new Date());
         });
 
