@@ -7,7 +7,7 @@ export default function LeaderView() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <div className="w-full px-[255px] pt-[60px] max-lg:px-[128px]">
+    <div>
       {/* 제목 */}
       <h2
         className="
