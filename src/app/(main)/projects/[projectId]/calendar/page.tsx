@@ -101,26 +101,29 @@ export default function TeamCalendarPage() {
   }, [currentDate]); // currentDate가 변경될 때마다 재실행
 
   return (
-    <div className="flex flex-col items-center min-h-screen py-10 bg-gray-50">
+    <div className="flex flex-col items-start min-h-screen py-10">
+      <div className="w-full text-left">
+        <h1 className="text-2xl font-bold mb-4">팀 캘린더</h1>
+      </div>
       {/* 화살표 + 월 표시 */}
-      <div className="flex items-center justify-center gap-4 mb-4">
+      <div className="flex items-center justify-start gap-4 mb-4">
         <button
           onClick={() => setCurrentDate(subMonths(currentDate, 1))}
-          className="text-xl px-2 hover:text-blue-600"
+          className="text-lg px-2 hover:text-blue-600"
         >
           ◀
         </button>
-        <h2 className="text-2xl font-bold">{format(currentDate, 'yyyy MMMM', { locale: enUS })}</h2>
+        <h2 className="text-xl font-bold">{format(currentDate, 'yyyy MMMM', { locale: enUS })}</h2>
         <button
           onClick={() => setCurrentDate(addMonths(currentDate, 1))}
-          className="text-xl px-2 hover:text-blue-600"
+          className="text-lg px-2 hover:text-blue-600"
         >
           ▶
         </button>
       </div>
 
       {/* 캘린더 */}
-      <div className="w-full max-w-7xl bg-white rounded-lg shadow p-4">
+      <div className="w-full max-w-7xl bg-white rounded-lg p-4">
         <Calendar
           localizer={localizer}
           events={[]}
