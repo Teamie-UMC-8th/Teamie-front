@@ -6,6 +6,7 @@ import { enUS } from 'date-fns/locale/en-US';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { useState, useEffect } from 'react';
 import Daypicker from '@/components/DayPicker';
+import Image from 'next/image';
 
 const locales = { 'en-US': enUS };
 
@@ -101,67 +102,78 @@ export default function TeamCalendarPage() {
   }, [currentDate]); // currentDate가 변경될 때마다 재실행
 
   return (
-    <div className="flex flex-col items-start min-h-screen py-10">
-      <div className="w-full text-left">
-        <h1 className="text-2xl font-bold mb-4">팀 캘린더</h1>
-      </div>
-      {/* 화살표 + 월 표시 */}
-      <div className="flex items-center justify-start gap-4 mb-4">
-        <button
-          onClick={() => setCurrentDate(subMonths(currentDate, 1))}
-          className="text-lg px-2 hover:text-blue-600"
-        >
-          ◀
-        </button>
-        <h2 className="text-xl font-bold">{format(currentDate, 'yyyy MMMM', { locale: enUS })}</h2>
-        <button
-          onClick={() => setCurrentDate(addMonths(currentDate, 1))}
-          className="text-lg px-2 hover:text-blue-600"
-        >
-          ▶
-        </button>
-      </div>
+    <div className="flex flex-col items-center min-h-screen py-10">
+      {/* 전체 레이아웃 가운데 정렬 */}
+      <div className="w-full max-w-7xl">
+        <div className="w-full text-left">
+          <h1 className="text-2xl font-bold mb-4">팀 캘린더</h1>
+        </div>
+        <hr className="w-full border-t mb-8" style={{ borderColor: '#E7E7E7' }} />
 
-      {/* 캘린더 */}
-      <div className="w-full max-w-7xl bg-white rounded-lg p-4">
-        <Calendar
-          localizer={localizer}
-          events={[]}
-          startAccessor="start"
-          endAccessor="end"
-          date={currentDate}
-          onNavigate={(date) => setCurrentDate(date)}
-          toolbar={false}
-          culture="en-US"
-          views={['month']}
-          style={{ height: '60vh' }}
-          components={{
-            header: (props) => {
-              const dayName = format(props.date, 'eee', { locale: enUS });
-              const isSunday = props.label === 'Sun';
-              return (
-                <div className={`text-center font-semibold ${isSunday ? 'text-red-500' : ''}`}>
-                  {dayName}
-                </div>
-              );
-            },
-            dateCellWrapper: (props) => {
-              return (
-                <div
-                  className={
-                    (props.value.getMonth() !== currentDate.getMonth() ? 'bg-white ' : '') +
-                    ' text-left'
-                  }
-                >
-                  {props.children}
-                </div>
-              );
-            },
-          }}
-        />
+        {/* 화살표 + 월 표시 + 햄버거 버튼 */}
+        <div className="flex items-center justify-between w-full mb-6">
+          {/* 화살표와 월 표시 */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setCurrentDate(subMonths(currentDate, 1))}
+              className="text-lg px-2 hover:text-blue-600"
+            >
+              ◀
+            </button>
+            <h2 className="text-xl font-bold">
+              {format(currentDate, 'yyyy MMMM', { locale: enUS })}
+            </h2>
+            <button
+              onClick={() => setCurrentDate(addMonths(currentDate, 1))}
+              className="text-lg px-2 hover:text-blue-600"
+            >
+              ▶
+            </button>
+          </div>
+
+          {/* Hamburger Icon */}
+          <Image src="/icons/HamburgerButton.svg" alt="햄버거 버튼" width={36} height={36} />
+        </div>
+
+        {/* 캘린더 */}
+        <div className="w-full bg-white rounded-lg p-4">
+          <Calendar
+            localizer={localizer}
+            events={[]}
+            startAccessor="start"
+            endAccessor="end"
+            date={currentDate}
+            onNavigate={(date) => setCurrentDate(date)}
+            toolbar={false}
+            culture="en-US"
+            views={['month']}
+            style={{ height: '60vh' }}
+            components={{
+              header: (props) => {
+                const dayName = format(props.date, 'eee', { locale: enUS });
+                const isSunday = props.label === 'Sun';
+                return (
+                  <div className={`text-center font-semibold ${isSunday ? 'text-red-500' : ''}`}>
+                    {dayName}
+                  </div>
+                );
+              },
+              dateCellWrapper: (props) => {
+                return (
+                  <div
+                    className={
+                      (props.value.getMonth() !== currentDate.getMonth() ? 'bg-white ' : '') +
+                      ' text-left'
+                    }
+                  >
+                    {props.children}
+                  </div>
+                );
+              },
+            }}
+          />
+        </div>
       </div>
-      {/* Daypicker 컴포넌트 호출 */}
-      <div className="w-full flex justify-center"></div>
     </div>
   );
 }
