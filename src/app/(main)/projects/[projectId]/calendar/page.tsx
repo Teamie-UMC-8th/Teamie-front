@@ -20,6 +20,7 @@ const localizer = dateFnsLocalizer({
 
 export default function TeamCalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [open, setOpen] = useState(false);
 
   const handleDateClick = (date) => {
     console.log('Add project clicked for date:', date);
@@ -131,8 +132,37 @@ export default function TeamCalendarPage() {
             </button>
           </div>
 
-          {/* Hamburger Icon */}
-          <Image src="/icons/HamburgerButton.svg" alt="햄버거 버튼" width={36} height={36} />
+          {/* Hamburger Icon + 팝업 박스 */}
+          <div className="relative">
+            <button onClick={() => setOpen(!open)}>
+              <Image src="/icons/HamburgerButton.svg" alt="햄버거 버튼" width={36} height={36} />
+            </button>
+
+            {open && (
+              <div
+                className="absolute right-0 mt-2 w-[265px] h-[50px] bg-white rounded-lg flex items-center justify-between px-4"
+                style={{
+                  zIndex: 9999, // 달력을 가릴 수 있도록 z축 최상단
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15), 0 0 15px rgba(0, 0, 0, 0.1)',
+                }}
+              >
+                {/* 왼쪽 텍스트 */}
+                <span className="text-gray-800 font-medium text-base">회의 일정 수립</span>
+
+                {/* 오른쪽 영역 */}
+                <div
+                  className="flex items-center justify-center rounded-lg text-xs font-semibold"
+                  style={{
+                    width: '60px',
+                    height: '26px',
+                    backgroundColor: '#B6F5DF',
+                  }}
+                >
+                  진행중
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* 캘린더 */}
@@ -147,7 +177,7 @@ export default function TeamCalendarPage() {
             toolbar={false}
             culture="en-US"
             views={['month']}
-            style={{ height: '60vh' }}
+            style={{ height: '75vh' }}
             components={{
               header: (props) => {
                 const dayName = format(props.date, 'eee', { locale: enUS });
