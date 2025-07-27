@@ -11,7 +11,7 @@ export default function MenuButton() {
     <div className="absolute top-0 right-[20px] relative ml-auto max-lg:w-[32px] max-lg:h-[32px]">
       {/* 메뉴 아이콘 버튼 */}
       <button onClick={() => setOpen(!open)} aria-label="메뉴 열기">
-        <img src="/icons/menu-icon.svg" alt="메뉴" className="w-[36px] h-[36px]" />
+        <img src="/icons/menu-icon.svg" alt="메뉴" className="w-[36px] h-[36px] cursor-pointer" />
       </button>
 
       {/* 드롭다운 메뉴 */}
@@ -23,7 +23,7 @@ export default function MenuButton() {
           <div className="flex flex-col" onClick={() => setOpen(false)}>
             <button
               onClick={() => router.push('/mypage')}
-              className="px-[24px] py-[4px] text-[18px] text-left leading-[26px] font-normal text-black"
+              className="px-[24px] py-[4px] text-[18px] text-left leading-[26px] font-normal text-black cursor-pointer"
             >
               프로젝트 홈으로 이동
             </button>
@@ -32,7 +32,7 @@ export default function MenuButton() {
 
             <button
               onClick={() => router.push('/retrospect')}
-              className="px-[24px] py-[4px] text-[18px] text-left leading-[26px] font-normal text-black"
+              className="px-[24px] py-[4px] text-[18px] text-left leading-[26px] font-normal text-black cursor-pointer"
             >
               개인 회고로 이동
             </button>
