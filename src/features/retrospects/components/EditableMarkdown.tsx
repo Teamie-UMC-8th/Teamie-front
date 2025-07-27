@@ -29,12 +29,17 @@ export default function EditableMarkdown({ initialValue = "", onSave }: Props) {
         <textarea
           ref={textareaRef}
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={(e) => {
+            if (e.target.value.length <= 2000) {
+              setContent(e.target.value);
+            }
+          }}
           onBlur={handleBlur}
           className="w-full min-h-[344px] bg-white border border-[#BBBBBB] rounded-[12px]
                      p-[16px] text-[18px] leading-[26px] text-black font-[Pretendard] font-normal
                      resize-none box-border
                      max-lg:text-[16px] max-lg:leading-[24px] max-lg:min-h-[310px]"
+          maxLength={2000}
         />
       ) : (
         <div className="w-full min-h-[344px] bg-white border border-[#BBBBBB] rounded-[12px]
