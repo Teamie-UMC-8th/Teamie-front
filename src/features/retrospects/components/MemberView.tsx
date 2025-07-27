@@ -23,7 +23,7 @@ export function MemberView() {
   };
 
   return (
-    <div className="w-full px-[255px] pt-[60px] max-lg:px-[128px]">
+    <div>
       {/* 제목 */}
       <h2
         className="
