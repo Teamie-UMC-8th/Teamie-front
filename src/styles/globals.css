@@ -46,12 +46,11 @@
 
 /* 각 주간(week row)마다 가로줄 구분선 추가 */
 .rbc-month-row {
-  border-bottom: 1px solid #d1d5db !important; /* gray-300 */
+  border-bottom: 2px solid #bbbbbb !important; /* gray-300 */
 }
-
-/* 마지막 주간의 아래쪽 선은 제거 */
-.rbc-month-view .rbc-month-row:last-child {
-  border-bottom: none !important;
+.rbc-month-header {
+  border-bottom: 2px solid #bbbbbb !important;
+  padding-bottom: 20px;
 }
 
 /* 요일 헤더 글자 크기 및 weight 조정 */
