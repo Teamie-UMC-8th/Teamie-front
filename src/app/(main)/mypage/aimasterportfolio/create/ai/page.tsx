@@ -146,7 +146,6 @@ export default function AIMasterPortfolioCreatePage() {
       {showConfirmModal && (
         <AIConfirmModal
           onConfirm={() => {
-            setShowConfirmModal(true);
             router.push('/mypage/aimasterportfolio/final');
           }}
           onCancel={() => setShowConfirmModal(false)}
