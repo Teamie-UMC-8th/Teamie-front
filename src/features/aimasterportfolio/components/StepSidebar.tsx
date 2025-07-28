@@ -7,6 +7,7 @@ interface StepSidebarProps {
     id: number;
     title: string;
   }[];
+   goToStep: (step: number) => void;
 }
 
 export default function StepsSidebar({ steps, currentStep}: StepSidebarProps) {
