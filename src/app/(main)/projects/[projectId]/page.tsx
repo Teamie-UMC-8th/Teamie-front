@@ -15,6 +15,9 @@ export default function ProjectHomePage() {
   const [deleteConfirmModalOpen, setDeleteConfirmModalOpen] = useState(false);
   const [selectedDeleteIndex, setSelectedDeleteIndex] = useState<number | null>(null);
 
+  const [rulesText, setRulesText] = useState(''); // 우리팀 규칙 내용
+  const [isRulesModalOpen, setIsRulesModalOpen] = useState(false); // 전체보기 모달
+
   const handleSave = () => {
     if (newText.trim() === '') return; // 비어있으면 저장 안함
     setPostits((prev) => [...prev, newText]);
@@ -144,11 +147,18 @@ export default function ProjectHomePage() {
           <div className="flex flex-col">
             <div className="flex flex-row justify-between items-center">
               <h3 className="text-xl font-bold mb-2">우리팀의 규칙</h3>
-              <h3 className="text-xl font-normal mb-2 text-gray-600/70">+ 전체보기</h3>
+              <h3
+                className="text-xl font-normal mb-2 text-gray-600/70 cursor-pointer"
+                onClick={() => setIsRulesModalOpen(true)}
+              >
+                + 전체보기
+              </h3>
             </div>
             <textarea
               className="w-[688px] h-[232px] p-3 border border-[#BBBBBB] rounded-lg resize-none"
               placeholder="우리팀의 규칙을 작성해주세요..."
+              value={rulesText}
+              onChange={(e) => setRulesText(e.target.value)}
             />
           </div>
         </div>
@@ -302,6 +312,31 @@ export default function ProjectHomePage() {
                 >
                   삭제
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isRulesModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-opacity-40 z-50">
+            <div className="bg-white w-[815px] h-[500px] rounded-lg shadow-lg relative p-8">
+              {/* 닫기 버튼 */}
+              <Image
+                src="/icons/close.svg"
+                alt="Close"
+                width={24}
+                height={24}
+                className="absolute top-4 right-4 cursor-pointer"
+                onClick={() => setIsRulesModalOpen(false)}
+              />
+
+              {/* 제목 */}
+              <h2 className="text-xl font-bold mb-4">우리팀의 규칙 전체보기</h2>
+
+              {/* 내용 */}
+              <div className="w-full h-[400px] overflow-y-auto border border-[#BBBBBB] rounded-lg p-4 text-gray-700">
+                {/* 규칙 내용 - 필요에 따라 실제 state나 prop에서 가져와서 표시 */}
+                {rulesText.trim() === '' ? '아직 작성된 규칙이 없습니다.' : rulesText}
               </div>
             </div>
           </div>
