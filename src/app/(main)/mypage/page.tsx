@@ -7,9 +7,16 @@ import ToggleButton from '@/components/ToggleButton';
 import { useState } from 'react';
 import Projects from '@/features/mypage/components/Projects';
 import AddCorrectionButton from '@/features/mypage/components/AddCorrectionButton';
+import { useUser } from '@/services/user/useUser';
 
 export default function MyPage() {
   const { selected, setSelected } = useToggle();
+
+  const { data, isLoading, error } = useUser();
+
+  if (isLoading) return <div>로딩 중...</div>;
+  if (error) return <div>에러가 발생했어요.</div>;
+
   // Pro로 업그레이드 시에 만 토글이 보이도록 설정
   const [showToggle, setShowToggle] = useState(false);
 
@@ -42,7 +49,7 @@ export default function MyPage() {
             >
               <div className="relative">
                 <img
-                  src="icons/myprofile.svg"
+                  src={data?.imageUrl || 'icons/myprofile.svg'}
                   alt="Profile"
                   className="mt-[2.5rem] mb-[0.25rem] w-[7.8125rem] h-[7.8125rem]
                   max-lg:ml-[3.75rem] max-lg:mt-[3.75rem]"
@@ -58,7 +65,7 @@ export default function MyPage() {
                 className="text-black text-[1.375rem] font-semibold mb-[2.25rem]
               max-lg:ml-[6.25rem] max-lg:w-[6.25rem]"
               >
-                김티미
+                {data?.name}
               </div>
             </div>
 
@@ -75,7 +82,7 @@ export default function MyPage() {
               >
                 <img src="icons/UnivName.svg" alt="University" className="mr-[0.75rem]" />
                 <div className="text-[#898989] mr-[0.75rem]">학교:</div>
-                <div className="text-black">명지대학교</div>
+                <div className="text-black">{data?.school || '-'}</div>
               </div>
               <div
                 className="flex mb-[1.75rem]
@@ -83,7 +90,7 @@ export default function MyPage() {
               >
                 <img src="icons/major.svg" alt="major" className="mr-[0.75rem]" />
                 <div className="text-[#898989] mr-[0.75rem]">전공:</div>
-                <div className="text-black">컴퓨터공학</div>
+                <div className="text-black">{data?.major || '-'}</div>
               </div>
               <div
                 className="flex mb-[1.75rem]
@@ -91,12 +98,12 @@ export default function MyPage() {
               >
                 <img src="icons/email.svg" alt="email" className="mr-[0.75rem]" />
                 <div className="text-[#898989] mr-[0.75rem]">이메일:</div>
-                <div className="text-black">Hyunwoo@mju.ac.kr</div>
+                <div className="text-black">{data?.email}</div>
               </div>
               <div className="flex mb-[2.25rem]">
                 <img src="icons/ProjectCount.svg" alt="Project Count" className="mr-[0.75rem]" />
                 <div className="text-[#898989] mr-[0.75rem]">팀 프로젝트 진행 횟수:</div>
-                <div className="text-black">5</div>
+                <div className="text-black">{data?.projectNum}</div>
               </div>
             </div>
             <button className="cursor-pointer" onClick={() => setShowToggle(true)}>
