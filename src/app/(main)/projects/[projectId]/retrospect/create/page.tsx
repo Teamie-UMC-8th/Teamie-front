@@ -7,7 +7,7 @@ export default function PersonalRetroPage() {
   const [selectedTab, setSelectedTab] = useState<"team" | "personal">("personal");
 
   return (
-    <div>
+    <div className="w-full px-[128px] pt-[60px] max-lg:px-[32px]">
       <div className="w-full lg:max-w-[1415px] flex flex-col">
         {/* 제목 */}
         <h2 className="mb-[16px] font-[Pretendard] font-bold text-[24px] leading-[29px] tracking-[0.04em] whitespace-nowrap text-[#000000]
