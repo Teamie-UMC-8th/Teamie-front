@@ -89,7 +89,10 @@ export default function FileUploader() {
           isDragging ? 'border-[#81D7D4] bg-[#F0FBFB]' : 'border-[#BBBBBB]'
         } grid place-items-center cursor-pointer`}
       >
-        <img src="/icons/file-upload.svg" alt="파일 업로드" />
+        <div className="flex flex-col items-center">
+          <img src="/icons/file-upload.svg" alt="파일 업로드" className="w-[88px] h-[88px]" />
+          <div className="text-[#898989] text-[16px]">파일 업로드</div>
+        </div>
       </label>
       <input
         id="file-upload"
