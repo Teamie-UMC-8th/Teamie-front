@@ -1,6 +1,8 @@
 'use client';
 
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
+import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
+import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 import { format, parse, startOfWeek, getDay, addMonths, subMonths } from 'date-fns';
 import { enUS } from 'date-fns/locale/en-US';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -19,14 +21,70 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
+// DragAndDrop 기능이 추가된 Calendar 컴포넌트
+const DnDCalendar = withDragAndDrop(Calendar);
+
 export default function TeamCalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [open, setOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dropPosition, setDropPosition] = useState(null);
   const router = useRouter();
+
+  // 이벤트를 state로 관리
+  const [events, setEvents] = useState([
+    {
+      id: 1,
+      title: '프로젝트 회의',
+      start: new Date(2025, 6, 30, 10, 0), // 2025년 7월 30일 10시
+      end: new Date(2025, 6, 30, 11, 0),
+    },
+    {
+      id: 2,
+      title: '개발 마감',
+      start: new Date(2025, 6, 30, 13, 0),
+      end: new Date(2025, 6, 30, 14, 0),
+    },
+  ]);
 
   const handleDateClick = (date) => {
     console.log('Add project clicked for date:', date);
     router.push('/schedulePage'); //프로젝트 일정 페이지로 이동
+  };
+
+  // 드래그 시작 처리
+  const onDragStart = ({ event }) => {
+    console.log('Drag started:', event);
+    setIsDragging(true);
+  };
+
+  // 드래그 앤 드롭으로 이벤트 이동 처리
+  const onEventDrop = ({ event, start, end }) => {
+    console.log('Event dropped:', { event, start, end });
+
+    const updatedEvents = events.map((existingEvent) =>
+      existingEvent.id === event.id ? { ...existingEvent, start, end } : existingEvent
+    );
+
+    setEvents(updatedEvents);
+    setIsDragging(false);
+
+    // 여기서 서버에 업데이트 요청을 보낼 수 있습니다
+    // await updateEventOnServer(event.id, { start, end });
+  };
+
+  // 이벤트 크기 조정 처리 (시작/종료 시간 변경)
+  const onEventResize = ({ event, start, end }) => {
+    console.log('Event resized:', { event, start, end });
+
+    const updatedEvents = events.map((existingEvent) =>
+      existingEvent.id === event.id ? { ...existingEvent, start, end } : existingEvent
+    );
+
+    setEvents(updatedEvents);
+
+    // 여기서 서버에 업데이트 요청을 보낼 수 있습니다
+    // await updateEventOnServer(event.id, { start, end });
   };
 
   useEffect(() => {
@@ -64,14 +122,6 @@ export default function TeamCalendarPage() {
 
         button.appendChild(img);
 
-        // 클릭 이벤트
-        // button.addEventListener('click', (e) => {
-        //   e.stopPropagation();
-        //   const dateStr = cell.querySelector('.rbc-button-link')?.getAttribute('aria-label');
-        //   console.log('Clicked date:', dateStr);
-        //   handleDateClick(new Date());
-        // });
-
         button.addEventListener('click', (e) => {
           e.stopPropagation();
           handleDateClick(new Date());
@@ -107,7 +157,7 @@ export default function TeamCalendarPage() {
     const timer = setTimeout(addHoverButtons, 100);
 
     return () => clearTimeout(timer);
-  }, [currentDate]); // currentDate가 변경될 때마다 재실행
+  }, [currentDate, events]);
 
   return (
     <div className="flex flex-col items-center min-h-screen py-10">
@@ -174,9 +224,30 @@ export default function TeamCalendarPage() {
 
         {/* 캘린더 */}
         <div className="w-full bg-white rounded-lg p-4">
-          <Calendar
+          <style jsx>{`
+            .rbc-addons-dnd-over {
+              position: relative;
+            }
+            .rbc-addons-dnd-over::after {
+              content: '';
+              position: absolute;
+              bottom: 2px;
+              left: 2px;
+              right: 2px;
+              height: 3px;
+              background-color: #81d7d4;
+              z-index: 9999;
+              pointer-events: none;
+              border-radius: 1.5px;
+            }
+            .rbc-addons-dnd-row-body .rbc-addons-dnd-over::after {
+              top: auto;
+              bottom: 2px;
+            }
+          `}</style>
+          <DnDCalendar
             localizer={localizer}
-            events={[]}
+            events={events}
             startAccessor="start"
             endAccessor="end"
             date={currentDate}
@@ -185,6 +256,12 @@ export default function TeamCalendarPage() {
             culture="en-US"
             views={['month']}
             style={{ height: '75vh' }}
+            // 드래그 앤 드롭 관련 props
+            onEventDrop={onEventDrop}
+            onEventResize={onEventResize}
+            onDragStart={onDragStart}
+            resizable={true}
+            draggableAccessor={() => true} // 모든 이벤트를 드래그 가능하게 설정
             components={{
               header: (props) => {
                 const dayName = format(props.date, 'eee', { locale: enUS });
