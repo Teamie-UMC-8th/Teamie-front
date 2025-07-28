@@ -1,10 +1,33 @@
 'use client';
 
 import { useState } from 'react';
+import { useCreateProject } from '@/hooks/mutations/useCreateProject';
 
 export default function New() {
   const [inviteVisible, setInviteVisible] = useState(false);
   const [showCopyModal, setShowCopyModal] = useState(false);
+  const [projectName, setProjectName] = useState('');
+  const [inviteCode, setInviteCode] = useState('');
+
+  const createProjectMutation = useCreateProject(
+    (response) => {
+      if (response.isSuccess) {
+        setInviteCode(response.result.inviteCode);
+        setInviteVisible(true);
+      }
+    },
+    (error) => {
+      console.error('프로젝트 생성 오류:', error);
+    }
+  );
+
+  const handleCreateProject = () => {
+    if (!projectName.trim()) {
+      return;
+    }
+
+    createProjectMutation.mutate({ name: projectName });
+  };
 
   const handleRedirect = () => {
     window.alert('프로젝트로 이동');
@@ -14,8 +37,8 @@ export default function New() {
     const textToCopy = `💡 프로젝트에 참여해 주세요!
 아래 링크를 통해 참여를 수락하면, 
 바로 협업을 시작할 수 있어요.
-👉 참여하기: 참여 URL
-링크 유효기간: 날짜까지`;
+👉 참여 코드: ${inviteCode}
+링크 유효기간: 7일까지`;
 
     try {
       await navigator.clipboard.writeText(textToCopy);
@@ -23,7 +46,7 @@ export default function New() {
       setTimeout(() => {
         setShowCopyModal(false);
       }, 5000);
-    } catch (err) {
+    } catch {
       window.alert('텍스트 복사에 실패했습니다.');
     }
   };
@@ -42,22 +65,29 @@ export default function New() {
             프로젝트 명
           </div>
           <div className="flex justify-center gap-[1rem]">
-            {/*프로젝트 이름 입력*/}
+            {/* 프로젝트 이름 입력 */}
             <input
               placeholder="프로젝트 이름을 입력해주세요."
               className="lg:w-[27.5rem] lg:h-[3.125rem] w-[20.75rem] h-[3rem] border-[0.125rem] border-[#BBBBBB] rounded-[0.5rem] px-[1rem] py-[0.75rem] lg:text-[1.125rem] text-[1rem]"
+              value={projectName}
+              onChange={(e) => setProjectName(e.target.value)}
+              disabled={createProjectMutation.isPending}
             />
             <button
-              className="cursor-pointer self-center px-[0.75rem] py-[0.25rem] whitespace-nowrap bg-[#81D7D4] rounded-[0.25rem] text-white font-bold text-[1.125rem]"
-              onClick={() => setInviteVisible((prev) => !prev)}
+              className={`cursor-pointer self-center px-[0.75rem] py-[0.25rem] whitespace-nowrap bg-[#81D7D4] rounded-[0.25rem] text-white font-bold text-[1.125rem] ${
+                createProjectMutation.isPending ? 'bg-gray cursor-not-allowed' : ''
+              }`}
+              onClick={handleCreateProject}
+              disabled={createProjectMutation.isPending}
             >
-              + 생성하기
+              {/* 생성 중일 때는 버튼 비활성화되도록 색상 임의 설정 -> 추후 서버 온라인 시에 테스트 후 디자이너와 논의 & 수정 */}
+              {createProjectMutation.isPending ? '생성 중...' : '+ 생성하기'}
             </button>
           </div>
         </div>
       </main>
 
-      {inviteVisible && (
+      {inviteVisible && inviteCode && (
         <div className="flex items-center justify-center mt-[3.75rem]">
           <div className="flex flex-col items-cetner gap-[1rem]">
             <h2 className="px-[0.25rem] lg:text-[1.375rem] text-[1.25rem] font-semibold text-black">
@@ -75,9 +105,9 @@ export default function New() {
                   아래 링크를 통해 참여를 수락하면, <br />
                   바로 협업을 시작할 수 있어요.
                   <br />
-                  👉 참여하기: 참여 URL
+                  👉 참여 코드: <span className="font-bold text-[#81D7D4]">{inviteCode}</span>
                   <br />
-                  링크 유효기간: 날짜까지
+                  링크 유효기간: 7일까지
                 </p>
 
                 <button
