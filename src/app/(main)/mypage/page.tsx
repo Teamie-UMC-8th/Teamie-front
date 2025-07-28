@@ -7,7 +7,7 @@ import ToggleButton from '@/components/ToggleButton';
 import { useState } from 'react';
 import Projects from '@/features/mypage/components/Projects';
 import AddCorrectionButton from '@/features/mypage/components/AddCorrectionButton';
-import { useUser } from '@/services/user/useUser';
+import { useUser } from '@/hooks/mutations/useUser';
 
 export default function MyPage() {
   const { selected, setSelected } = useToggle();
