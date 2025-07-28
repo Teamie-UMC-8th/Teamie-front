@@ -1,8 +1,8 @@
 'use client';
 
+import { useMasterPortfolioList } from '@/hooks/mutations/useMasterPortfolio';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useMasterPortfolioList } from '@/services/masterportfolio/useMasterPortfolio';
 
 export default function Tailored() {
   const pathname = usePathname();
