@@ -9,6 +9,8 @@ export default function ProjectHomePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [postits, setPostits] = useState<string[]>([]); // 포스트잇 데이터 배열
   const [newText, setNewText] = useState(''); // 입력값
+  const [showCopyModal, setShowCopyModal] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
   const handleSave = () => {
     if (newText.trim() === '') return; // 비어있으면 저장 안함
@@ -25,6 +27,24 @@ export default function ProjectHomePage() {
 
   const handleBoardClick = () => {
     setIsModalOpen(true);
+  };
+
+  const handleCopyText = async () => {
+    const textToCopy = `💡 프로젝트에 참여해 주세요!
+아래 링크를 통해 참여를 수락하면, 
+바로 협업을 시작할 수 있어요.
+👉 참여하기: 참여 URL
+링크 유효기간: 날짜까지`;
+
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      setShowCopyModal(true);
+      setTimeout(() => {
+        setShowCopyModal(false);
+      }, 5000);
+    } catch (err) {
+      window.alert('텍스트 복사에 실패했습니다.');
+    }
   };
 
   return (
@@ -123,7 +143,10 @@ export default function ProjectHomePage() {
       <div className="flex flex-col">
         <div className="flex flex-row justify-between items-center">
           <h2 className="text-xl font-bold mb-5">팀원 프로필</h2>
-          <button className="w-[91px] h-[34px] bg-[#81D7D4] text-white rounded-[0.25rem] text-sm font-bold text-[1rem]">
+          <button
+            className="w-[91px] h-[34px] bg-[#81D7D4] text-white rounded-[0.25rem] text-sm font-bold text-[1rem]"
+            onClick={() => setIsInviteModalOpen(true)} // 팀원 추가 버튼 클릭 시 모달 열기
+          >
             팀원 추가
           </button>
         </div>
@@ -177,6 +200,52 @@ export default function ProjectHomePage() {
             >
               저장하기
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* 초대 모달 */}
+      {isInviteModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-opacity-40">
+          <div className="bg-[#FFFFFF] p-[2.5rem] border-[0.125rem] border-[#BBBBBB] rounded-[0.75rem] relative w-[600px]">
+            {/* 닫기 버튼 */}
+            <Image
+              src="/icons/close.svg"
+              alt="Close"
+              width={24}
+              height={24}
+              className="absolute top-4 right-4 cursor-pointer"
+              onClick={() => setIsInviteModalOpen(false)}
+            />
+
+            <div className="bg-[#F8F8F8] rounded-[0.75rem] relative">
+              <p className="lg:px-[7.5rem] px-[4.75rem] py-[2rem] lg:text-[1.125rem] text-[1rem] text-center">
+                💡 프로젝트에 참여해 주세요!
+                <br />
+                아래 링크를 통해 참여를 수락하면, <br />
+                바로 협업을 시작할 수 있어요.
+                <br />
+                👉 참여하기: 참여 URL
+                <br />
+                링크 유효기간: 날짜까지
+              </p>
+
+              <button
+                className="absolute top-[0.75rem] right-[0.75rem] cursor-pointer"
+                onClick={handleCopyText}
+              >
+                <img src="/icons/copy_url.svg" alt="copy_url" />
+              </button>
+
+              {/* 복사 완료 모달 */}
+              {showCopyModal && (
+                <div className="absolute bottom-[-1.25rem] left-1/2 transform -translate-x-1/2 z-50">
+                  <div className="bg-[#F8F8F8] text-[#505050] px-[1.25rem] py-[0.5rem] border-[0.09375rem] border-[#BBBBBB] rounded-[0.375rem] lg:text-[1.125rem] text-[1rem] whitespace-nowrap">
+                    초대 메세지가 복사되었습니다.
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
