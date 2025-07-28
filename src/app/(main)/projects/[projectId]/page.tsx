@@ -12,6 +12,9 @@ export default function ProjectHomePage() {
   const [showCopyModal, setShowCopyModal] = useState(false);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
+  const [deleteConfirmModalOpen, setDeleteConfirmModalOpen] = useState(false);
+  const [selectedDeleteIndex, setSelectedDeleteIndex] = useState<number | null>(null);
+
   const handleSave = () => {
     if (newText.trim() === '') return; // 비어있으면 저장 안함
     setPostits((prev) => [...prev, newText]);
@@ -73,7 +76,12 @@ export default function ProjectHomePage() {
                     width={20}
                     height={20}
                     className="absolute top-1 right-1 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
-                    onClick={(e) => handleDelete(idx, e)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setSelectedDeleteIndex(idx); // 삭제할 index 저장
+                      setDeleteConfirmModalOpen(true); // 삭제 확인 모달 열기
+                    }}
                   />
 
                   {/* 텍스트 */}
@@ -95,7 +103,12 @@ export default function ProjectHomePage() {
                     width={20}
                     height={20}
                     className="absolute top-1 right-1 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
-                    onClick={(e) => handleDelete(idx + 5, e)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setSelectedDeleteIndex(idx); // 삭제할 index 저장
+                      setDeleteConfirmModalOpen(true); // 삭제 확인 모달 열기
+                    }}
                   />
                   <div className="absolute inset-0 flex items-center justify-center text-center p-2 break-words">
                     {text}
@@ -245,6 +258,49 @@ export default function ProjectHomePage() {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteConfirmModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-opacity-40 z-50">
+          <div className="bg-white w-[460px] h-[214px] rounded-lg shadow-lg flex flex-col items-center justify-center relative">
+            <Image
+              src="/icons/close.svg"
+              alt="Close"
+              width={24}
+              height={24}
+              className="absolute top-4 right-4 cursor-pointer"
+              onClick={() => {
+                setDeleteConfirmModalOpen(false);
+                setSelectedDeleteIndex(null);
+              }}
+            />
+
+            <h2 className="text-lg font-bold mb-6">정말 삭제하시겠습니까?</h2>
+            <div className="flex gap-6">
+              <button
+                className="w-[120px] h-[40px] bg-white-300 border-1 border-black text-black rounded-lg"
+                onClick={() => {
+                  setDeleteConfirmModalOpen(false);
+                  setSelectedDeleteIndex(null);
+                }}
+              >
+                취소
+              </button>
+              <button
+                className="w-[120px] h-[40px] bg-white-300 border-1 border-black text-black rounded-lg"
+                onClick={(e) => {
+                  if (selectedDeleteIndex !== null) {
+                    handleDelete(selectedDeleteIndex, e);
+                  }
+                  setDeleteConfirmModalOpen(false);
+                  setSelectedDeleteIndex(null);
+                }}
+              >
+                삭제
+              </button>
             </div>
           </div>
         </div>
