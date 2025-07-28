@@ -47,27 +47,27 @@ export default function taskDetailPage() {
             <div className="text-[20px]">2025.01.01</div>
             <img src="/icons/deadline-calendar.svg" alt="마감기한" className="ml-[20px]" />
           </div>
-          {/* 담당자 */}
+          {/* 진행상태 */}
           <div
             className="flex items-center ml-[160px]
           max-lg:ml-[0px] max-lg:mt-[40px]"
           >
-            <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px]  mr-[28px]">
-              담당자
+            <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px]">
+              진행 상태
             </div>
-            <AddProfileButton />
+            <TaskDropdown />
           </div>
         </div>
 
-        {/* 진행 상태 */}
+        {/* 담당자 */}
         <div
           className="flex items-center ml-[40px] mt-[40px]
           max-lg:ml-[24px] max-lg:mt-[40px]"
         >
-          <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px]">
-            진행상태
+          <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px]  mr-[28px]">
+            담당자
           </div>
-          <TaskDropdown />
+          <AddProfileButton />
         </div>
 
         {/* 첨부파일 */}
