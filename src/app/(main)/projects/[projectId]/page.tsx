@@ -60,12 +60,22 @@ export default function ProjectHomePage() {
         </div>
       </div>
 
-      <h2 className="text-xl font-bold mb-5">팀원 프로필</h2>
-      <div className="flex flex-row gap-13 mb-8">
-        <MemberCard />
-        <MemberCard />
-        <MemberCard />
-        <MemberCard />
+      <div className="flex flex-col">
+        <div className="flex flex-row justify-between items-center">
+          <h2 className="text-xl font-bold mb-5">팀원 프로필</h2>
+          <button
+            className="w-[91px] h-[34px] bg-[#81D7D4] text-white rounded-[0.25rem] text-sm font-bold text-[1rem]"
+            //onClick={ () => alert('프로필 버튼 기능은 아직 구현되지 않음') }
+          >
+            팀원 추가
+          </button>
+        </div>
+        <div className="flex flex-row gap-13 mb-8">
+          <MemberCard />
+          <MemberCard />
+          <MemberCard />
+          <MemberCard />
+        </div>
       </div>
     </div>
   );
