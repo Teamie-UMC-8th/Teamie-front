@@ -19,7 +19,7 @@ interface PageInfo {
   hasNextPage: boolean;
 }
 
-// 마스터 포트폴리오 목록 응답 구조 타입 정의(마스터포트폴리오)
+// 마스터 포트폴리오 목록 응답 구조 타입 정의(마이페이지)
 interface MasterPortfolioListResponse {
   isSuccess: boolean;
   error: null;
@@ -41,7 +41,7 @@ interface MasterPortfolioDetail {
   category: string;
 }
 
-// 마스터 포트폴리오 상세 정보 응답 구조 타입 정의
+// 마스터 포트폴리오 상세 정보 응답 구조 타입 정의(마스터포트폴리오)
 interface MasterPortfolioDetailResponse {
   isSuccess: boolean;
   error: null;
@@ -59,7 +59,7 @@ export const fetchMasterPortfolioList = async (cursor?: string) => {
   return res.data.result;
 };
 
-// 마스터 포트폴리오 목록을 가져오는 훅(마스터포트폴리오)
+// 마스터 포트폴리오 목록을 가져오는 훅(공용)
 export const useMasterPortfolioList = (cursor?: string) => {
   return useQuery({
     queryKey: ['master-portfolios', cursor],
