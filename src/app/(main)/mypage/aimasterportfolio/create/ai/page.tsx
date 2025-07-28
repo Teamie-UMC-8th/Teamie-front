@@ -10,6 +10,8 @@ import Step2 from '@/features/aimasterportfolio/components/steps/Step2';
 import Step3 from '@/features/aimasterportfolio/components/steps/Step3';
 import { useRouter } from 'next/navigation';
 import AIConfirmModal from '@/features/aimasterportfolio/components/AIConfirmModal';
+import { useParams } from 'next/navigation';
+
 
 const AI_CREATE_STEPS = [
   {
@@ -40,9 +42,13 @@ const AI_CREATE_STEPS = [
 
 export default function AIMasterPortfolioCreatePage() {
   const router = useRouter();
+  const params = useParams();
+  const projectId = params.projectId as string;
   const { currentStep, goToStep } = useFunnel();
   const [scrollY, setScrollY] = useState(0);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -108,7 +114,7 @@ export default function AIMasterPortfolioCreatePage() {
                     className="rounded-[6px] border-[1.5px] border-[#898989] bg-[#FFF] p-[6px] px-[32px] cursor-pointer"
                     onClick={() => {
                       if (currentStep === 0) {
-                        router.push('/projects/${projectId}/retrospect/ai');
+                        router.push(`/projects/${projectId}/retrospect/ai`); 
                       } else {
                         goToStep(currentStep - 1);
                       }
