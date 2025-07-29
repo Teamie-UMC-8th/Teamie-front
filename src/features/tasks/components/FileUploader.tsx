@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
+import { useUploadTaskFile } from '@/hooks/mutations/useUploadFile';
+import { useParams } from 'next/navigation';
 
 export default function FileUploader() {
   // 업로드된 파일 목록을 상태로 관리
@@ -12,21 +14,36 @@ export default function FileUploader() {
   // 파일 카드 hover 상태 인덱스
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
+  const { taskId } = useParams();
+  const uploadMutation = useUploadTaskFile();
+
   // 파일 입력 변경 시 업로드된 파일을 상태에 추가
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const uploadedFiles = Array.from(e.target.files);
       setFiles((prev) => [...prev, ...uploadedFiles]);
+
+      uploadedFiles.forEach((file) => {
+        if (typeof taskId === 'string') {
+          uploadMutation.mutate({ taskId: Number(taskId), file });
+        }
+      });
     }
   };
 
-  // 드래그 앤 드롭으로 파일을 놓았을 때 파일을 상태에 추가
+  // 드래그 앤 드롭으로 파일을 놓았을 때 파일을 상태에 추가 및 업로드 트리거
   const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     setIsDragging(false);
     if (e.dataTransfer.files) {
       const droppedFiles = Array.from(e.dataTransfer.files);
       setFiles((prev) => [...prev, ...droppedFiles]);
+
+      droppedFiles.forEach((file) => {
+        if (typeof taskId === 'string') {
+          uploadMutation.mutate({ taskId: Number(taskId), file });
+        }
+      });
     }
   };
 
