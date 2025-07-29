@@ -1,12 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter, useParams } from 'next/navigation'; // ✅ 추가
 import ConfirmLeaveModal from './ConfirmLeaveModal';
 import FinalLeaveModal from './FinalLeaveModal';
 
 export function MemberView() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showFinalModal, setShowFinalModal] = useState(false);
+
+  const router = useRouter(); // ✅ 추가
+  const params = useParams(); // ✅ 추가
+  const projectId = params.projectId; // ✅ 현재 URL의 projectId 사용
 
   const handleLeaveClick = () => {
     setShowConfirmModal(true);
@@ -20,10 +25,11 @@ export function MemberView() {
   const handleFinalLeave = () => {
     setShowFinalModal(false);
     alert('이탈 완료!');
+    router.push(`/projects/${projectId}/retrospect/create`);
   };
 
   return (
-    <div className="w-full px-[255px] pt-[60px] max-lg:px-[128px]">
+    <div>
       {/* 제목 */}
       <h2
         className="
@@ -39,7 +45,7 @@ export function MemberView() {
       {/* 구분선 */}
       <hr className="w-full border-t-[2px] border-[#E7E7E7] rotate-180 mb-[195px]" />
 
-      {/* 카드 영역 (반응형 대응 완료) */}
+      {/* 카드 영역 */}
       <div
         className="
           flex gap-[100px] pl-[360px] pr-[361px]

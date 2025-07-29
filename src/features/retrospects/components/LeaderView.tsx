@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import ProjectEndModal from "./ProjectEndModal";
+import { useRouter } from "next/navigation";
 
 export default function LeaderView() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const router = useRouter();
+  const projectId = 123;
 
   return (
-    <div className="w-full px-[255px] pt-[60px] max-lg:px-[128px]">
+    <div>
       {/* 제목 */}
       <h2
         className="
@@ -74,6 +77,7 @@ export default function LeaderView() {
           onConfirm={() => {
             alert("프로젝트 종료!");
             setIsModalOpen(false);
+            router.push(`/projects/${projectId}/retrospect/create`);
           }}
           onCancel={() => setIsModalOpen(false)}
         />
