@@ -15,7 +15,7 @@ export interface TaskDetailResponse {
   result: {
     name: string;
     deadline: string; // 예: '2024-07-10 00:00:00'
-    status: 'ONGOING' | 'COMPLETE'; // 백엔드 기준 정의
+    status: 'BEFORE' | 'ONGOING' | 'COMPLETE'; // 백엔드 기준 정의
     memo: string;
     managers: Manager[];
     files: FileItem[];
@@ -27,7 +27,7 @@ export interface TaskDetailResponse {
 export interface UpdateTaskRequest {
   name: string;
   deadline: string; // 예: '2024-07-10 00:00:00'
-  status: 'ONGOING' | 'COMPLETE';
+  status: 'BEFORE' | 'ONGOING' | 'COMPLETE';
   memo: string;
   managerIds: number[];
   existingFileUrls: string[];
@@ -41,7 +41,7 @@ export interface UpdateTaskResponse {
   result: {
     name: string;
     deadline: string;
-    status: 'ONGOING' | 'COMPLETE';
+    status: 'BEFORE' | 'ONGOING' | 'COMPLETE';
     memo: string;
     managers: Manager[];
     stepId: number;
@@ -55,7 +55,7 @@ export interface DeleteTaskResponse {
   result: {
     name: string;
     deadline: string;
-    status: 'ONGOING' | 'COMPLETE';
+    status: 'BEFORE' | 'ONGOING' | 'COMPLETE';
     memo: string;
     managers: Manager[];
     stepId: number;

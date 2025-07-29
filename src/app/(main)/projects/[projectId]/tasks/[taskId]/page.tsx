@@ -8,6 +8,7 @@ import DeleteButton from '@/components/DeleteButton';
 import AddComment from '@/features/tasks/components/AddComment';
 import FileUploader from '@/features/tasks/components/FileUploader';
 import TaskDropdown from '@/features/tasks/components/TaskDropdown';
+import { useUpdateTaskDetail } from '@/hooks/mutations/useTaskDetail';
 
 export default function taskDetailPage() {
   const params = useParams();
@@ -18,6 +19,8 @@ export default function taskDetailPage() {
     queryFn: () => checkTaskDetail(taskId),
     enabled: !!taskId,
   });
+
+  const updateTaskMutation = useUpdateTaskDetail();
 
   return (
     <div>
@@ -67,7 +70,21 @@ export default function taskDetailPage() {
             <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px]">
               진행 상태
             </div>
-            <TaskDropdown />
+            <TaskDropdown
+              status={data?.result.status || 'BEFORE'}
+              onChange={(newStatus) => {
+                if (!data) return;
+                updateTaskMutation.mutate({
+                  taskId,
+                  data: {
+                    ...data.result,
+                    status: newStatus,
+                    managerIds: data.result.managers.map((m) => m.userId),
+                    existingFileUrls: data.result.files?.map((f) => f.fileUrl) ?? [],
+                  },
+                });
+              }}
+            />
           </div>
         </div>
 
