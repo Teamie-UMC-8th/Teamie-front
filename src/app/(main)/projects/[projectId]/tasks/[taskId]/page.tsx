@@ -14,6 +14,7 @@ import { useUpdateTaskDetail } from '@/hooks/mutations/useTaskDetail';
 export default function taskDetailPage() {
   const params = useParams();
   const taskId = Number(params.taskId);
+  const projectId = Number(params.projectId);
 
   const { data, isLoading } = useQuery({
     queryKey: ['taskDetail', taskId],
@@ -41,12 +42,17 @@ export default function taskDetailPage() {
         </div>
         <div className="max-lg:mr-[74px]">
           <DeleteButton
-            onDelete={() => {
-              // 삭제 로직 작성
+            onDelete={async () => {
+              try {
+                await fetch(`/api/v1/tasks/${taskId}`, {
+                  method: 'DELETE',
+                });
+                window.location.href = `/projects/${projectId}/dashboard`;
+              } catch (err) {
+                console.error(err);
+                alert('삭제 중 오류가 발생했습니다.');
+              }
             }}
-            modalTitle="이 업무를 정말 삭제하시겠습니까?"
-            confirmText="삭제"
-            cancelText="취소"
           />
         </div>
       </div>
