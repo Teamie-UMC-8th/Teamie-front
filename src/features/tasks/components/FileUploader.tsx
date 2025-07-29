@@ -9,6 +9,8 @@ export default function FileUploader() {
   const [isDragging, setIsDragging] = useState(false);
   // 파일 입력 요소에 대한 참조
   const inputRef = useRef<HTMLInputElement | null>(null);
+  // 파일 업로더에 Hover 효과를
+  const [isHover, setIsHover] = useState(false);
 
   // 파일 입력 변경 시 업로드된 파일을 상태에 추가
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,14 +87,29 @@ export default function FileUploader() {
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
-        className={`w-[207px] h-[160px] border-[2px] rounded-[6px] ${
-          isDragging ? 'border-[#81D7D4] bg-[#F0FBFB]' : 'border-[#BBBBBB]'
+        onMouseEnter={() => setIsHover(true)}
+        onMouseLeave={() => setIsHover(false)}
+        className={`relative w-[207px] h-[160px] border-[2px] rounded-[6px] ${
+          isDragging
+            ? 'border-[#81D7D4] bg-[#F0FBFB]'
+            : isHover
+              ? 'bg-[#00000014] border-[#BBBBBB]'
+              : 'border-[#BBBBBB]'
         } grid place-items-center cursor-pointer`}
       >
         <div className="flex flex-col items-center">
-          <img src="/icons/file-upload.svg" alt="파일 업로드" className="w-[88px] h-[88px]" />
+          <img
+            src={isHover ? '/icons/delete-file-icon.svg' : '/icons/file-upload.svg'}
+            alt="파일 업로드"
+            className="w-[88px] h-[88px]"
+          />
           <div className="text-[#898989] text-[16px]">파일 업로드</div>
         </div>
+        {isHover && (
+          <button type="button" className="absolute top-[8px] right-[8px]">
+            <img src="/icons/download-file-icon.svg" alt="다운로드" className="w-[20px] h-[20px]" />
+          </button>
+        )}
       </label>
       <input
         id="file-upload"
