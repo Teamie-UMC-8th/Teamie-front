@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { useUploadTaskFile } from '@/hooks/mutations/useUploadFile';
+import { useUploadTaskFile, useDeleteTaskFile } from '@/hooks/mutations/useUploadFile';
 import { useParams } from 'next/navigation';
+
+type UploadedFile = File & { serverId?: number };
 
 export default function FileUploader() {
   // 업로드된 파일 목록을 상태로 관리
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<UploadedFile[]>([]);
   // 드래그 상태를 나타내는 플래그
   const [isDragging, setIsDragging] = useState(false);
   // 파일 입력 요소에 대한 참조
@@ -16,16 +18,26 @@ export default function FileUploader() {
 
   const { taskId } = useParams();
   const uploadMutation = useUploadTaskFile();
+  const deleteMutation = useDeleteTaskFile();
 
   // 파일 입력 변경 시 업로드된 파일을 상태에 추가
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const uploadedFiles = Array.from(e.target.files);
+      const uploadedFiles: UploadedFile[] = Array.from(e.target.files);
       setFiles((prev) => [...prev, ...uploadedFiles]);
 
       uploadedFiles.forEach((file) => {
         if (typeof taskId === 'string') {
-          uploadMutation.mutate({ taskId: Number(taskId), file });
+          uploadMutation.mutate(
+            { taskId: Number(taskId), file },
+            {
+              onSuccess: (data) => {
+                setFiles((prev) =>
+                  prev.map((f) => (f === file ? { ...f, serverId: data.result.id } : f))
+                );
+              },
+            }
+          );
         }
       });
     }
@@ -36,12 +48,21 @@ export default function FileUploader() {
     e.preventDefault();
     setIsDragging(false);
     if (e.dataTransfer.files) {
-      const droppedFiles = Array.from(e.dataTransfer.files);
+      const droppedFiles: UploadedFile[] = Array.from(e.dataTransfer.files);
       setFiles((prev) => [...prev, ...droppedFiles]);
 
       droppedFiles.forEach((file) => {
         if (typeof taskId === 'string') {
-          uploadMutation.mutate({ taskId: Number(taskId), file });
+          uploadMutation.mutate(
+            { taskId: Number(taskId), file },
+            {
+              onSuccess: (data) => {
+                setFiles((prev) =>
+                  prev.map((f) => (f === file ? { ...f, serverId: data.result.id } : f))
+                );
+              },
+            }
+          );
         }
       });
     }
@@ -106,6 +127,7 @@ export default function FileUploader() {
                   alt="삭제 아이콘"
                   className="w-[20px] h-[20px] cursor-pointer"
                   onClick={() => {
+                    deleteMutation.mutate(file.serverId!);
                     setFiles((prev) => prev.filter((_, i) => i !== index));
                   }}
                 />

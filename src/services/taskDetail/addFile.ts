@@ -13,3 +13,7 @@ export const uploadTaskFile = async (taskId: number, file: File): Promise<Upload
 
   return response.data;
 };
+
+export const deleteTaskFile = async (taskFileId: number): Promise<void> => {
+  await axios.delete(`/api/v1/task-files/${taskFileId}`);
+};

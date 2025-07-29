@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { uploadTaskFile } from '@/services/taskDetail/addFile';
 import { UploadFileResponse } from '@/types/api/fileUploader';
+import { deleteTaskFile } from '@/services/taskDetail/addFile';
 
 export const useUploadTaskFile = () => {
   const queryClient = useQueryClient();
@@ -13,6 +14,18 @@ export const useUploadTaskFile = () => {
     },
     onError: (error) => {
       console.error('파일 업로드 실패:', error);
+    },
+  });
+};
+
+export const useDeleteTaskFile = () => {
+  return useMutation<void, Error, number>({
+    mutationFn: (taskFileId) => deleteTaskFile(taskFileId),
+    onSuccess: () => {
+      console.log('파일 삭제 성공');
+    },
+    onError: (error) => {
+      console.error('파일 삭제 실패:', error);
     },
   });
 };
