@@ -2,46 +2,45 @@
 
 import { useState } from 'react';
 
-const sampleProfiles = [
-  { id: 1, name: '김수빈', image: '/icons/profile-image.svg' },
-  { id: 2, name: '김수진', image: '/icons/profile-image.svg' },
-  { id: 3, name: '김태화', image: '/icons/profile-image.svg' },
-  { id: 4, name: '두현우', image: '/icons/profile-image.svg' },
-  { id: 5, name: '이예린', image: '/icons/profile-image.svg' },
-];
+interface Manager {
+  userId: number;
+  userName: string;
+}
 
-export default function AddProfileButton() {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [selectedProfiles, setSelectedProfiles] = useState<typeof sampleProfiles>([]);
-  const [profiles, setProfiles] = useState<typeof sampleProfiles>(sampleProfiles);
+interface AddProfileButtonProps {
+  profiles: Manager[];
+  onChange?: (selectedUserIds: number[]) => void;
+}
+
+export default function AddProfileButton({ profiles, onChange }: AddProfileButtonProps) {
+  const [selectedProfiles, setSelectedProfiles] = useState<Manager[]>([]);
+
+  const remainingProfiles = profiles.filter(
+    (p) => !selectedProfiles.find((s) => s.userId === p.userId)
+  );
 
   const toggleDropdown = () => setDropdownOpen((prev) => !prev);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  {
-    /* 프로필 선택 */
-  }
-  const handleSelect = (profile: (typeof sampleProfiles)[number]) => {
+  /* 프로필 선택 */
+  const handleSelect = (profile: Manager) => {
     const updated = [...selectedProfiles, profile].sort(
       (a, b) =>
-        sampleProfiles.findIndex((p) => p.id === a.id) -
-        sampleProfiles.findIndex((p) => p.id === b.id)
+        profiles.findIndex((p) => p.userId === a.userId) -
+        profiles.findIndex((p) => p.userId === b.userId)
     );
     setSelectedProfiles(updated);
-    setProfiles((prev) => prev.filter((p) => p.id !== profile.id));
+    onChange?.(updated.map((p) => p.userId));
+    setDropdownOpen(false);
   };
 
-  {
-    /* 프로필 제거 */
-  }
-  const handleRemove = (profile: (typeof sampleProfiles)[number]) => {
-    setSelectedProfiles((prev) => prev.filter((p) => p.id !== profile.id));
-    setProfiles((prev) =>
-      [...prev, profile].sort(
-        (a, b) =>
-          sampleProfiles.findIndex((p) => p.id === a.id) -
-          sampleProfiles.findIndex((p) => p.id === b.id)
-      )
-    );
+  /* 프로필 제거 */
+  const handleRemove = (profile: Manager) => {
+    setSelectedProfiles((prev) => {
+      const filtered = prev.filter((p) => p.userId !== profile.userId);
+      onChange?.(filtered.map((p) => p.userId));
+      return filtered;
+    });
   };
 
   return (
@@ -49,18 +48,18 @@ export default function AddProfileButton() {
       {/* 프로필 선택 */}
       {selectedProfiles.map((profile, index) => (
         <div
-          key={profile.id}
+          key={profile.userId}
           className={`flex items-center w-[95px] h-[36px] bg-white rounded-[30px] shadow-[1px_1px_4px_rgba(0,0,0,0.25)] cursor-pointer ${
             index === selectedProfiles.length - 1 ? 'mr-[23px]' : 'mr-[11px]'
           }`}
           onClick={() => handleRemove(profile)}
         >
           <img
-            src={profile.image}
-            alt={profile.name}
+            src="/icons/profile-image.svg"
+            alt={profile.userName}
             className="w-[28px] h-[28px] rounded-full ml-[5px] my-[4px]"
           />
-          <span className="ml-[8px] text-[16px]">{profile.name}</span>
+          <span className="ml-[8px] text-[16px]">{profile.userName}</span>
         </div>
       ))}
 
@@ -78,30 +77,35 @@ export default function AddProfileButton() {
         </button>
 
         {/* 드롭다운 메뉴 */}
-        {dropdownOpen && (
-          <div
-            className="absolute top-[44px] left-0 w-[111px] overflow-y-auto bg-white rounded-[6px] grid place-content-center z-20"
-            style={{
-              height: `${profiles.length * 50}px`, // 각 버튼 높이 36 + margin 6px 상하
-              boxShadow: '0px 0px 15px rgba(0, 0, 0, 0.2)',
-            }}
-          >
-            {profiles.map((profile) => (
+        <div
+          className="absolute top-[44px] left-0 w-[111px] overflow-y-auto bg-white rounded-[6px] grid place-content-center z-20"
+          style={{
+            display: dropdownOpen ? 'grid' : 'none',
+            height: `${Math.max(remainingProfiles.length * 50, 50)}px`,
+            boxShadow: '0px 0px 15px rgba(0, 0, 0, 0.2)',
+          }}
+        >
+          {remainingProfiles.length === 0 ? (
+            <div className="w-[95px] h-[36px] flex items-center justify-center text-gray-400 text-sm">
+              선택 가능 없음
+            </div>
+          ) : (
+            remainingProfiles.map((profile) => (
               <button
-                key={profile.id}
+                key={profile.userId}
                 onClick={() => handleSelect(profile)}
                 className="flex items-center w-[95px] h-[36px] bg-white rounded-[30px] shadow-[1px_1px_4px_rgba(0,0,0,0.25)] my-[6px] mx-[8px] cursor-pointer"
               >
                 <img
-                  src={profile.image}
-                  alt={profile.name}
+                  src="/icons/profile-image.svg"
+                  alt={profile.userName}
                   className="w-[28px] h-[28px] rounded-full ml-[5px] my-[4px]"
                 />
-                <span className="ml-[8px] text-[16px]">{profile.name}</span>
+                <span className="ml-[8px] text-[16px]">{profile.userName}</span>
               </button>
-            ))}
-          </div>
-        )}
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

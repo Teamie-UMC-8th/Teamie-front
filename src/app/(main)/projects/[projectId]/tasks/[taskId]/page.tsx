@@ -1,5 +1,6 @@
 'use client';
 import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 import { checkTaskDetail } from '@/services/taskDetail/checkTaskDetail';
 import { useParams } from 'next/navigation';
 import AddProfileButton from '@/components/AddProfileButton';
@@ -18,6 +19,14 @@ export default function taskDetailPage() {
     queryKey: ['taskDetail', taskId],
     queryFn: () => checkTaskDetail(taskId),
     enabled: !!taskId,
+  });
+
+  const { data: usersData } = useQuery({
+    queryKey: ['userList'],
+    queryFn: async () => {
+      const res = await axios.get('/api/v1/users');
+      return res.data.result;
+    },
   });
 
   const updateTaskMutation = useUpdateTaskDetail();
@@ -96,7 +105,20 @@ export default function taskDetailPage() {
           <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px]  mr-[28px]">
             담당자
           </div>
-          <AddProfileButton />
+          <AddProfileButton
+            profiles={usersData || []}
+            onChange={(newSelectedUserIds) => {
+              if (!data) return;
+              updateTaskMutation.mutate({
+                taskId,
+                data: {
+                  ...data.result,
+                  managerIds: newSelectedUserIds,
+                  existingFileUrls: data.result.files?.map((f) => f.fileUrl) ?? [],
+                },
+              });
+            }}
+          />
         </div>
 
         {/* 첨부파일 */}

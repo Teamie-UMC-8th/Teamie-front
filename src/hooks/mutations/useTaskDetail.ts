@@ -6,9 +6,6 @@ import {
 } from '@/services/taskDetail/checkTaskDetail';
 import { UpdateTaskRequest, UpdateTaskResponse, DeleteTaskResponse } from '@/types/api/taskDetail';
 
-// 조회용 쿼리는 일반적으로 useQuery로 처리하지만,
-// 필요한 경우 useMutation으로 lazy load도 가능
-
 export const useUpdateTaskDetail = () => {
   const queryClient = useQueryClient();
 
