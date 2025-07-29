@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useAddComment } from '@/hooks/mutations/useAddComment';
+import { useParams } from 'next/navigation';
 import useToggle from '../hooks/useToggle';
 import CommentMenuDropdown from './CommentDropdown';
 import EditComment from './EditComment';
@@ -17,12 +19,26 @@ export default function AddComment() {
   // 토글 제어
   const { isOn, toggle } = useToggle();
 
-  // 댓글 추가 함수
+  // 댓글 추가 함수 (서버에 전송)
+  const params = useParams();
+  const taskId = Number(params.taskId);
+  const { mutate: addCommentMutation } = useAddComment();
+
   const handleComment = () => {
     if (newComment.trim() === '') return;
 
-    setComments((prev) => [newComment, ...prev]); // 기존 댓글 앞에 추가: 최신 댓글이 위에 오도록 함
-    setNewComment(''); // 입력창 초기화
+    addCommentMutation(
+      { taskId, content: newComment },
+      {
+        onSuccess: (data) => {
+          setComments((prev) => [data.result.content, ...prev]);
+          setNewComment('');
+        },
+        onError: () => {
+          alert('댓글 추가에 실패했습니다.');
+        },
+      }
+    );
   };
 
   // 대댓글 작성 처리
