@@ -34,8 +34,17 @@ export default function PersonalSection() {
   };
 
   if (isLoading) {
-    return <div className="text-center">불러오는 중...</div>;
-  }
+  return (
+    <div className="space-y-4">
+      {[...Array(3)].map((_, idx) => (
+        <div
+          key={idx}
+          className="animate-pulse bg-gray-200 rounded-md h-[500px] w-full"
+        />
+      ))}
+    </div>
+  );
+}
 
   if (axios.isAxiosError(error) && error.response?.status === 404) {
     return (
