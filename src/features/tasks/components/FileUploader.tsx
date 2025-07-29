@@ -9,8 +9,8 @@ export default function FileUploader() {
   const [isDragging, setIsDragging] = useState(false);
   // 파일 입력 요소에 대한 참조
   const inputRef = useRef<HTMLInputElement | null>(null);
-  // 파일 업로더에 Hover 효과를
-  const [isHover, setIsHover] = useState(false);
+  // 파일 카드 hover 상태 인덱스
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   // 파일 입력 변경 시 업로드된 파일을 상태에 추가
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,34 +49,74 @@ export default function FileUploader() {
 
         // 파일 종류 / 파일 아이콘 구분
         let filePreview = '/icons/file-preview.svg';
-        let fileIcon = '/icons/file-icon.svg';
+        let fileIcon =
+          hoveredIndex === index ? '/icons/delete-file-icon.svg' : '/icons/file-icon.svg';
 
         if (ext === 'pdf') {
           filePreview = '/icons/pdf-file.svg';
-          fileIcon = '/icons/pdf-icon.svg';
+          fileIcon = hoveredIndex === index ? '/icons/delete-file-icon.svg' : '/icons/pdf-icon.svg';
         } else if (ext === 'txt') {
           filePreview = '/icons/txt-file.svg';
-          fileIcon = '/icons/txt-icon.svg';
+          fileIcon = hoveredIndex === index ? '/icons/delete-file-icon.svg' : '/icons/txt-icon.svg';
         } else if (ext === 'jpg') {
           filePreview = '/icons/jpg-file.svg';
-          fileIcon = '/icons/jpg-icon.svg';
+          fileIcon = hoveredIndex === index ? '/icons/delete-file-icon.svg' : '/icons/jpg-icon.svg';
         } else if (ext === 'png') {
           filePreview = '/icons/png-file.svg';
-          fileIcon = '/icons/png-icon.svg';
+          fileIcon = hoveredIndex === index ? '/icons/delete-file-icon.svg' : '/icons/png-icon.svg';
         }
 
         return (
           <div
             key={index}
-            className="w-[207px] h-[160px] border-[2px] rounded-[6px] border-[#BBBBBB] flex flex-col justify-between"
+            className={`w-[207px] h-[160px] border-[2px] rounded-[6px] border-[#BBBBBB] flex flex-col justify-between relative ${
+              hoveredIndex === index ? 'bg-[#00000014]' : ''
+            }`}
+            onMouseEnter={() => setHoveredIndex(index)}
+            onMouseLeave={() => setHoveredIndex(null)}
           >
             <div className="flex-1 flex items-center justify-center">
-              <img src={filePreview} alt={`${ext?.toUpperCase() || 'File'} 파일`} />
+              <img
+                src={filePreview}
+                alt={`${ext?.toUpperCase() || 'File'} 파일`}
+                className="w-[88px] h-[88px]"
+              />
             </div>
             <div className="border-t-[2px] border-[#BBBBBB] px-[12px] py-[5px] flex items-center gap-[8px]">
-              <img src={fileIcon} alt={`${ext?.toUpperCase() || 'File'} 아이콘`} />
+              {hoveredIndex === index ? (
+                <img
+                  src="/icons/delete-file-icon.svg"
+                  alt="삭제 아이콘"
+                  className="w-[20px] h-[20px] cursor-pointer"
+                  onClick={() => {
+                    setFiles((prev) => prev.filter((_, i) => i !== index));
+                  }}
+                />
+              ) : (
+                <img
+                  src={fileIcon}
+                  alt={`${ext?.toUpperCase() || 'File'} 아이콘`}
+                  className="w-[20px] h-[20px] cursor-pointer"
+                />
+              )}
               <p className="text-[16px] truncate">{file.name}</p>
             </div>
+            {hoveredIndex === index && (
+              <button
+                type="button"
+                className="absolute top-[8px] right-[8px] cursor-pointer"
+                onClick={() => {
+                  const url = URL.createObjectURL(file);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = file.name;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+              >
+                <img src="/icons/download-file-icon.svg" alt="다운로드" />
+              </button>
+            )}
           </div>
         );
       })}
@@ -87,29 +127,14 @@ export default function FileUploader() {
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
-        onMouseEnter={() => setIsHover(true)}
-        onMouseLeave={() => setIsHover(false)}
         className={`relative w-[207px] h-[160px] border-[2px] rounded-[6px] ${
-          isDragging
-            ? 'border-[#81D7D4] bg-[#F0FBFB]'
-            : isHover
-              ? 'bg-[#00000014] border-[#BBBBBB]'
-              : 'border-[#BBBBBB]'
+          isDragging ? 'border-[#81D7D4] bg-[#F0FBFB]' : 'border-[#BBBBBB]'
         } grid place-items-center cursor-pointer`}
       >
         <div className="flex flex-col items-center">
-          <img
-            src={isHover ? '/icons/delete-file-icon.svg' : '/icons/file-upload.svg'}
-            alt="파일 업로드"
-            className="w-[88px] h-[88px]"
-          />
+          <img src="/icons/file-upload.svg" alt="파일 업로드" className="w-[88px] h-[88px]" />
           <div className="text-[#898989] text-[16px]">파일 업로드</div>
         </div>
-        {isHover && (
-          <button type="button" className="absolute top-[8px] right-[8px]">
-            <img src="/icons/download-file-icon.svg" alt="다운로드" className="w-[20px] h-[20px]" />
-          </button>
-        )}
       </label>
       <input
         id="file-upload"
