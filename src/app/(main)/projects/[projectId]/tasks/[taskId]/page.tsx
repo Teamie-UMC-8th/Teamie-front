@@ -1,4 +1,7 @@
 'use client';
+import { useQuery } from '@tanstack/react-query';
+import { checkTaskDetail } from '@/services/taskDetail/checkTaskDetail';
+import { useParams } from 'next/navigation';
 import AddProfileButton from '@/components/AddProfileButton';
 import BackButton from '@/components/BackButton';
 import DeleteButton from '@/components/DeleteButton';
@@ -7,13 +10,22 @@ import FileUploader from '@/features/tasks/components/FileUploader';
 import TaskDropdown from '@/features/tasks/components/TaskDropdown';
 
 export default function taskDetailPage() {
+  const params = useParams();
+  const taskId = Number(params.taskId);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['taskDetail', taskId],
+    queryFn: () => checkTaskDetail(taskId),
+    enabled: !!taskId,
+  });
+
   return (
     <div>
       {/* 헤더 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <BackButton />
-          <h1 className="text-[24px] text-black font-semibold">빈 업무</h1>
+          <h1 className="text-[24px] text-black font-semibold">{data?.result.name || '빈 업무'}</h1>
         </div>
         <div className="max-lg:mr-[74px]">
           <DeleteButton
