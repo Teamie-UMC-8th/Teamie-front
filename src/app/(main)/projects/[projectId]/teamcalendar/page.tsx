@@ -48,6 +48,8 @@ import {
 } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import CalendarButton from "@/features/teamclendar/CalendarButton";
+import CustomDateCellWrapper from "@/features/teamclendar/CustomDateCellWrapper";
 
 const localizer = momentLocalizer(moment);
 
@@ -100,6 +102,7 @@ export default function TeamCalendar() {
           <img src="/icons/Vector-right.svg" alt="오른쪽으로 이동" className="w-[24px] h-[24px] cursor-pointer" />
 >>>>>>> 920ed2c (🎨 Design: 팀 캘린더 ui 구현)
         </button>
+        <CalendarButton/>
       </div>
 
       {/* 캘린더 */}
@@ -156,7 +159,7 @@ export default function TeamCalendar() {
         date={currentDate}
         onNavigate={() => {}}
         style={{ height: "calc(100vh - 300px)", backgroundColor: "white" }}
-        
+        components={{dateCellWrapper: CustomDateCellWrapper,}}
         popup
         toolbar={false}
         eventPropGetter={(event) => {
