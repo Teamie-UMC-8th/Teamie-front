@@ -1,0 +1,138 @@
+'use client';
+
+import { useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { useJoinProject } from '@/hooks/mutations/useJoinProject';
+
+export default function JoinProject() {
+  const params = useParams();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [projectInfo, setProjectInfo] = useState<any>(null);
+  const [isExpired, setIsExpired] = useState(false);
+  const [teamLeaderName, setTeamLeaderName] = useState<string>('');
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+
+  const inviteCode = params.inviteCode as string;
+
+  const joinProjectMutation = useJoinProject(
+    (response) => {
+      if (response.isSuccess) {
+        const projectId = response.result.project.id;
+        const projectName = response.result.project.name;
+
+        // 팀장 정보 찾기 (permission이 LEAD인 사용자)
+        const leader = response.result.users.find((user) => user.permission === 'LEAD');
+        const leaderName = leader?.name || '팀장';
+
+        setProjectInfo({
+          name: projectName,
+          projectId: projectId,
+        });
+        setTeamLeaderName(leaderName);
+        setShowWelcomeModal(true);
+        setIsLoading(false);
+
+        // 2초 후 프로젝트 페이지로 이동
+        setTimeout(() => {
+          router.push(`/projects/${projectId}`);
+        }, 2000);
+      } else {
+        // 에러 코드에 따라 만료 여부 판단
+        if (response.error?.errorCode === 'INVALID_INVITE_CODE') {
+          setIsExpired(true);
+          setTeamLeaderName('팀장');
+        } else {
+          setError(response.error?.reason || '프로젝트 참여에 실패했습니다.');
+        }
+        setIsLoading(false);
+      }
+    },
+    (error) => {
+      setError('프로젝트 참여에 실패했습니다. 초대 링크를 다시 확인해주세요.');
+      setIsLoading(false);
+    }
+  );
+
+  const handleAccept = () => {
+    setIsLoading(true);
+    setError(null);
+    joinProjectMutation.mutate(inviteCode);
+  };
+
+  // 유효기간 만료 상태
+  if (isExpired) {
+    return (
+      <div className="min-h-screen w-full bg-white flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4 p-8 text-center">
+          <h1 className="text-xl text-gray-800 mb-2">유효기간이 만료된 링크입니다.</h1>
+          <p className="text-lg text-gray-600">
+            {teamLeaderName}에게 새로운 링크를 요청 후, 프로젝트에 참여해주세요.
+          </p>
+          <button
+            onClick={() => router.push('/home')}
+            className="mt-6 px-6 py-3 bg-[#81D7D4] text-white rounded-lg hover:bg-[#6BC7C4] font-medium"
+          >
+            홈으로 돌아가기
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 일반 에러 상태
+  if (error) {
+    return (
+      <div className="min-h-screen w-full bg-white flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4 p-8">
+          <div className="text-red-500 text-xl mb-4">❌</div>
+          <p className="text-lg text-gray-800 text-center">{error}</p>
+          <button
+            onClick={() => router.push('/home')}
+            className="mt-4 px-6 py-2 bg-[#81D7D4] text-white rounded-lg hover:bg-[#6BC7C4]"
+          >
+            홈으로 돌아가기
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 정상 초대 상태
+  return (
+    <div className="min-h-screen w-full bg-white flex items-center justify-center">
+      <div className="flex flex-col items-center gap-6 p-8 text-center">
+        <h1 className="text-2xl font-bold text-gray-800">프로젝트에 참여하시겠습니까?</h1>
+        <p className="text-lg text-gray-600">팀장님이 함께 프로젝트를 진행하고 싶어해요!</p>
+        <button
+          onClick={handleAccept}
+          disabled={isLoading}
+          className={`px-8 py-3 text-white rounded-lg font-medium text-lg ${
+            isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#81D7D4] hover:bg-[#6BC7C4]'
+          }`}
+        >
+          {isLoading ? '처리 중...' : '수락'}
+        </button>
+      </div>
+
+      {/* 환영 모달 */}
+      {showWelcomeModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-lg">
+            <div className="flex flex-col items-center gap-4 text-center">
+              {/* 아이콘 placeholder */}
+              <div className="w-16 h-16 bg-gray-300 rounded-lg flex items-center justify-center">
+                <span className="text-gray-600 text-2xl">🎉</span>
+              </div>
+
+              <h2 className="text-xl font-bold text-gray-800">환영합니다!</h2>
+
+              <p className="text-lg text-gray-600">{projectInfo?.name}의 팀원이 되셨습니다.</p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
