@@ -11,7 +11,7 @@ export const menus: SidebarMenus = {
   ],
   projects: [
     { name: '프로젝트 홈', icon: '/icons/home.svg', path: '' },
-    { name: '팀 캘린더', icon: '/icons/team-calendar.svg', path: 'calendar' },
+    { name: '팀 캘린더', icon: '/icons/team-calendar.svg', path: 'teamcalendar' },
     { name: '업무 대시보드', icon: '/icons/dashboard.svg', path: 'dashboard' },
     { name: '자료실', icon: '/icons/files.svg', path: 'files' },
     { name: '회고', icon: '/icons/retrospect.svg', path: 'retrospect' },
