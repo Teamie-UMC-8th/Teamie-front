@@ -11,14 +11,13 @@ import { useUser } from '@/hooks/mutations/useUser';
 
 export default function MyPage() {
   const { selected, setSelected } = useToggle();
-
   const { data, isLoading, error } = useUser();
-
-  if (isLoading) return <div>로딩 중...</div>;
-  if (error) return <div>에러가 발생했어요.</div>;
 
   // Pro로 업그레이드 시에 만 토글이 보이도록 설정
   const [showToggle, setShowToggle] = useState(false);
+
+  if (isLoading) return <div>로딩 중...</div>;
+  if (error) return <div>에러가 발생했어요.</div>;
 
   return (
     <div>

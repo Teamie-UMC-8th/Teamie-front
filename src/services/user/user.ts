@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { UserProfile, UserResponse } from '@/types/api/user';
 import axiosInstance from '@/lib/axiosInstance';
 
 // 사용자 프로필 정보를 가져오는 함수

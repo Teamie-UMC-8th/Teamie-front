@@ -1,3 +1,4 @@
+import { UserProfile } from '@/types/api/user';
 import fetchUserProfile from '@/services/user/user';
 import { useQuery } from '@tanstack/react-query';
 
