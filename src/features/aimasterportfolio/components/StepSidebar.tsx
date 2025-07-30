@@ -14,11 +14,11 @@ export default function StepsSidebar({ steps, currentStep}: StepSidebarProps) {
   const router = useRouter();
 
   return (
-    <div className="w-[280px]  max-lg:w-full h-full max-lg:h-[108px] bg-white border-gray-200 flex flex-col p-6">
+    <div className="w-[280px]  max-lg:w-full h-full max-lg:h-[108px] shadow-lg bg-white border-gray-200 flex flex-col p-6">
       {/* 뒤로가기 */}
       <div
         className="flex items-center gap-2 justify-end mb-8 cursor-pointer hover:bg-gray-50 p-2 rounded
-        max-lg:justify-start max-lg:mb-4"
+        max-lg:justify-start max-lg:mb-2 max-lg:px-[2px] max-lg:py-[2px]"
         onClick={() => {
           router.push('/mypage/aimasterportfolio');
         }}
@@ -37,7 +37,7 @@ export default function StepsSidebar({ steps, currentStep}: StepSidebarProps) {
             <div key={step.id} className="relative max-lg:flex max-lg:items-center max-lg:gap-2">
               {/* 스텝 항목 */}
               <div
-                className="flex items-center gap-4 py-3 max-lg:py-[0.1px] select-none"
+                className="flex items-center gap-4 py-3 max-lg:py-[1px] select-none"
               >
                 <div
                   className={`w-[32px] max-lg:w-[28px] h-[32px] max-lg:h-[28px] rounded-full flex items-center justify-center text-white font-medium text-lg

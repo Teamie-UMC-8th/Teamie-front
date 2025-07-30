@@ -48,6 +48,7 @@ export default function AIMasterPortfolioCreatePage() {
   const [scrollY, setScrollY] = useState(0);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   
+  
 
 
   useEffect(() => {
@@ -66,7 +67,7 @@ export default function AIMasterPortfolioCreatePage() {
       <Portal as="aside" containerId="step-sidebar">
         <div
           className="fixed top-0 left-0 h-full bg-white shadow-lg z-1
-          max-lg:w-full max-lg:h-[168px]
+          max-lg:w-full max-lg:h-[108px]
           max-lg:border-none
           max-lg:justify-end"
           style={{ paddingTop: `${sidebarPaddingTop}px` }}
@@ -114,7 +115,7 @@ export default function AIMasterPortfolioCreatePage() {
                     className="rounded-[6px] border-[1.5px] border-[#898989] bg-[#FFF] p-[6px] px-[32px] cursor-pointer"
                     onClick={() => {
                       if (currentStep === 0) {
-                        router.push(`/projects/${projectId}/retrospect/ai`); 
+                        router.push(`/projects/${projectId}/retrospect/ai`);
                       } else {
                         goToStep(currentStep - 1);
                       }
