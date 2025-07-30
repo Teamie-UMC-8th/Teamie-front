@@ -88,6 +88,10 @@ export default function AIMasterPortfolioCreatePage() {
                     {currentStep === 2 && <Step3 />}
                   </div>
                   <Image
+<<<<<<< HEAD
+=======
+
+>>>>>>> 983e62c (🐛 Bug: merge 충돌 문제 해결)
                     className="absolute top-[0] left-[-6px] translate-x-[-50%] translate-y-[50%] "
 
                     src="/icons/spike-left.svg"
