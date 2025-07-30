@@ -44,9 +44,9 @@ export default function taskDetailPage() {
       <div className="flex flex-col">
         <div
           className="flex mt-[40px] ml-[40px] items-center gap-[160px] w-[1100px]
-        max-lg:flex-col max-lg:items-start max-lg:ml-[24px]"
+        max-lg:flex-col max-lg:items-start max-lg:ml-[24px] max-lg:gap-[40px]"
         >
-          {/* 마감 기한 */}
+          {/* 일자 */}
           <div className="flex items-center">
             <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] mr-[28px]">
               일자
@@ -54,6 +54,7 @@ export default function taskDetailPage() {
             <div className="text-[20px]">2025.01.01</div>
             <img src="/icons/deadline-calendar.svg" alt="마감기한" className="ml-[20px]" />
           </div>
+
           {/* 시작 시간 */}
           <div className="flex items-center">
             <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] mr-[28px]">
@@ -74,7 +75,7 @@ export default function taskDetailPage() {
         {/* 참석자 */}
         <div
           className="flex items-center ml-[40px] mt-[40px]
-          max-lg:ml-[0px]"
+          max-lg:ml-[24px]"
         >
           <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px]  mr-[28px]">
             참석자
@@ -92,7 +93,7 @@ export default function taskDetailPage() {
           </div>
           <textarea
             className="w-[1290px] min-w-[1109px] h-[84px] px-[20px] py-[16px] border-[2px] rounded-[6px] border-[#BBBBBB] ml-[28px] 
-          max-lg:w-[735px] max-lg:min-w-[735px]"
+          max-lg:w-[738px] max-lg:h-[72px] max-lg:min-w-[735px]"
           />
         </div>
 
@@ -112,7 +113,7 @@ export default function taskDetailPage() {
           </div>
           <textarea
             className="w-[1415px] h-[428px] px-[20px] py-[16px] border-[2px] rounded-[6px] border-[#BBBBBB] mt-[15px]
-          max-lg:w-[735px] max-lg:min-w-[735px]"
+          max-lg:w-[865px] max-lg:min-w-[369px]"
           />
         </div>
       </div>
