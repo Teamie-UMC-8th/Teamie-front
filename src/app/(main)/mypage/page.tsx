@@ -50,7 +50,7 @@ export default function MyPage() {
                 <img
                   src={data?.imageUrl || 'icons/myprofile.svg'}
                   alt="Profile"
-                  className="mt-[2.5rem] mb-[0.25rem] w-[7.8125rem] h-[7.8125rem]
+                  className="mt-[2.5rem] mb-[0.25rem] w-[125px] h-[125px] rounded-full object-cover
                   max-lg:ml-[3.75rem] max-lg:mt-[3.75rem]"
                 />
                 <button
