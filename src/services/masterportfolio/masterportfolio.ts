@@ -1,5 +1,8 @@
 import axiosInstance from '@/lib/axiosInstance';
-import { useQuery } from '@tanstack/react-query';
+import {
+  MasterPortfolioListResponse,
+  MasterPortfolioDetailResponse,
+} from '@/types/api/masterportfolio';
 import { AxiosResponse } from 'axios';
 
 // 마스터 포트폴리오 목록을 가져오는 함수(마이페이지)

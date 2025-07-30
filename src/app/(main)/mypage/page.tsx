@@ -48,7 +48,7 @@ export default function MyPage() {
             >
               <div className="relative">
                 <img
-                  src={data?.imageUrl || 'icons/myprofile.svg'}
+                  src={data?.imageUrl || '/icons/myprofile.svg'}
                   alt="Profile"
                   className="mt-[2.5rem] mb-[0.25rem] w-[125px] h-[125px] rounded-full object-cover
                   max-lg:ml-[3.75rem] max-lg:mt-[3.75rem]"
@@ -57,7 +57,7 @@ export default function MyPage() {
                   className="absolute bottom-[0.75rem] right-[0.625rem] cursor-pointer"
                   onClick={() => alert('사진 추가')}
                 >
-                  <img src="icons/camera-icon.svg" alt="카메라 아이콘" />
+                  <img src="/icons/camera-icon.svg" alt="카메라 아이콘" />
                 </button>
               </div>
               <div
@@ -79,7 +79,7 @@ export default function MyPage() {
                 className="flex mb-[1.75rem]
               max-lg:mb-[1.5rem] max-lg:w-[18.75rem]"
               >
-                <img src="icons/UnivName.svg" alt="University" className="mr-[0.75rem]" />
+                <img src="/icons/UnivName.svg" alt="University" className="mr-[0.75rem]" />
                 <div className="text-[#898989] mr-[0.75rem]">학교:</div>
                 <div className="text-black">{data?.school || '-'}</div>
               </div>
@@ -87,7 +87,7 @@ export default function MyPage() {
                 className="flex mb-[1.75rem]
               max-lg:mb-[1.5rem]"
               >
-                <img src="icons/major.svg" alt="major" className="mr-[0.75rem]" />
+                <img src="/icons/major.svg" alt="major" className="mr-[0.75rem]" />
                 <div className="text-[#898989] mr-[0.75rem]">전공:</div>
                 <div className="text-black">{data?.major || '-'}</div>
               </div>
@@ -95,12 +95,12 @@ export default function MyPage() {
                 className="flex mb-[1.75rem]
               max-lg:mb-[1.5rem]"
               >
-                <img src="icons/email.svg" alt="email" className="mr-[0.75rem]" />
+                <img src="/icons/email.svg" alt="email" className="mr-[0.75rem]" />
                 <div className="text-[#898989] mr-[0.75rem]">이메일:</div>
                 <div className="text-black">{data?.email}</div>
               </div>
               <div className="flex mb-[2.25rem]">
-                <img src="icons/ProjectCount.svg" alt="Project Count" className="mr-[0.75rem]" />
+                <img src="/icons/ProjectCount.svg" alt="Project Count" className="mr-[0.75rem]" />
                 <div className="text-[#898989] mr-[0.75rem]">팀 프로젝트 진행 횟수:</div>
                 <div className="text-black">{data?.projectNum}</div>
               </div>
@@ -108,7 +108,7 @@ export default function MyPage() {
             <button className="cursor-pointer" onClick={() => setShowToggle(true)}>
               {!showToggle && (
                 <img
-                  src="icons/Upgrade-pro.svg"
+                  src="/icons/Upgrade-pro.svg"
                   alt="UpgradePro"
                   className="mt-[2.5rem] ml-[133px]
                   max-lg:translate-x-[-42.5rem] max-lg:translate-y-[3.75rem]"
@@ -120,7 +120,7 @@ export default function MyPage() {
                 max-lg:translate-x-[-43.125rem] max-lg:translate-y-[4.375rem]"
                 >
                   <img
-                    src="icons/AddCredit.svg"
+                    src="/icons/AddCredit.svg"
                     alt="Credit 충전"
                     className="w-[7rem] h-[2.125rem] ml-[9.75rem] max-lg:hidden"
                   />
@@ -129,7 +129,11 @@ export default function MyPage() {
                   max-lg:w-[12.5rem]"
                   >
                     <div className="text-[1rem] text-black ml-[1.25rem]">잔여 Credit:</div>
-                    <img src="icons/AiIcon.svg" alt="AiIcon" className="ml-[0.5rem] mr-[0.25rem]" />
+                    <img
+                      src="/icons/AiIcon.svg"
+                      alt="AiIcon"
+                      className="ml-[0.5rem] mr-[0.25rem]"
+                    />
                     <div className="text-black text-[1rem]">100</div>
                   </div>
                 </div>
