@@ -43,7 +43,7 @@ export default function taskDetailPage() {
       {/* 업무 상세 정보 */}
       <div className="flex flex-col">
         <div
-          className="flex mt-[40px] ml-[40px] items-center gap-[160px]
+          className="flex mt-[40px] ml-[40px] items-center gap-[160px] w-[1100px]
         max-lg:flex-col max-lg:items-start max-lg:ml-[24px]"
         >
           {/* 마감 기한 */}
@@ -84,7 +84,7 @@ export default function taskDetailPage() {
 
         {/* 비고 */}
         <div
-          className="flex flex-row mt-[40px] ml-[40px]
+          className="flex flex-row mt-[40px] ml-[40px] w-[1415px]
         max-lg:ml-[24px]"
         >
           <div className="min-w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px]">
