@@ -208,7 +208,7 @@ export default function taskDetailPage() {
             value={memo || task.memo || ''}
             onChange={(e) => handleMemoChange(e.target.value, taskId, data)}
             placeholder="비고를 입력하세요..."
-            className="w-[1109px] min-w-[1109px] h-[84px] px-[20px] py-[16px] border-[2px] rounded-[6px] border-[#BBBBBB] ml-[28px] 
+            className="min-w-[1288px] h-[84px] px-[20px] py-[16px] border-[2px] rounded-[6px] border-[#BBBBBB] ml-[28px] 
           max-lg:w-[735px] max-lg:min-w-[735px] resize-none"
           />
         </div>
