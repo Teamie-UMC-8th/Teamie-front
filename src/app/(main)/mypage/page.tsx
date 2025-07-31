@@ -135,7 +135,7 @@ export default function MyPage() {
                       잔여 Credit:
                     </div>
                     <img
-                      src="/icons/AiIcon.svg"
+                      src="/icons/CreditIcon.svg"
                       alt="AiIcon"
                       className="ml-[0.5rem] mr-[0.25rem]"
                     />
