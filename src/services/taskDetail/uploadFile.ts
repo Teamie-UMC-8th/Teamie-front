@@ -38,9 +38,9 @@ export const uploadTaskFile = async (taskId: number, file: File): Promise<Upload
 };
 
 // 파일 삭제 함수
-export const deleteTaskFile = async (fileId: number): Promise<DeleteFileResponse> => {
+export const deleteTaskFile = async (taskFileId: number): Promise<DeleteFileResponse> => {
   try {
-    const response = await axiosInstance.delete(`/api/v1/files/${fileId}`);
+    const response = await axiosInstance.delete(`/api/v1/task-files/${taskFileId}`);
     return response.data;
   } catch (error: any) {
     console.error('파일 삭제 실패:', error);
@@ -48,7 +48,7 @@ export const deleteTaskFile = async (fileId: number): Promise<DeleteFileResponse
     // 개발 모드에서만 모의 데이터 사용
     if (process.env.NODE_ENV === 'development' && error.response?.status === 404) {
       console.warn('API가 준비되지 않아 모의 데이터를 사용합니다.');
-      return getMockDeleteFileResponse(fileId);
+      return getMockDeleteFileResponse(taskFileId);
     }
 
     // 실제 API 에러 응답 처리

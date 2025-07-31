@@ -23,8 +23,8 @@ export const useDeleteTaskFile = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (fileId: number) => deleteTaskFile(fileId),
-    onSuccess: (_data: DeleteFileResponse, fileId) => {
+    mutationFn: (taskFileId: number) => deleteTaskFile(taskFileId),
+    onSuccess: (_data: DeleteFileResponse, taskFileId) => {
       // 파일 삭제 성공 시 관련 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ['taskFiles'] });
     },

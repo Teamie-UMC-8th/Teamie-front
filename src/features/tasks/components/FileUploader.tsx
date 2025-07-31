@@ -144,7 +144,7 @@ export default function FileUploader() {
                     if (file.serverId) {
                       deleteMutation.mutate(file.serverId, {
                         onSuccess: (data) => {
-                          console.log('파일 삭제 성공:', data.result);
+                          console.log('파일 삭제 성공:', data.message);
                           setFiles((prev) => prev.filter((_, i) => i !== index));
                         },
                         onError: (error: any) => {
