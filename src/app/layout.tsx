@@ -35,7 +35,7 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
     if (isProtectedRoute && !isAuthenticated) {
       router.push('/login');
     } else if (isPublicRoute && isAuthenticated) {
-      router.push('/home/calendar');
+      router.push('/home/tasks');
     }
   }, [pathname, isAuthenticated, router]);
 
