@@ -2,22 +2,30 @@
 
 import { useState } from 'react';
 import { useCreateProject } from '@/hooks/mutations/useCreateProject';
+import { formatToKoreanDate } from '@/utils/formatDate';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function New() {
+  const router = useRouter();
   const [inviteVisible, setInviteVisible] = useState(false);
   const [showCopyModal, setShowCopyModal] = useState(false);
   const [projectName, setProjectName] = useState('');
   const [inviteCode, setInviteCode] = useState('');
+  const [expiresAt, setExpiresAt] = useState('');
 
   const createProjectMutation = useCreateProject(
     (response) => {
-      if (response.isSuccess) {
-        // 서버에서 전체 URL을 받으므로 inviteCode 부분만 추출
-        const fullUrl = response.result.inviteCode;
-        const inviteCodeMatch = fullUrl.match(/\/join\/([^\/]+)$/);
-        const extractedInviteCode = inviteCodeMatch ? inviteCodeMatch[1] : fullUrl;
-        setInviteCode(extractedInviteCode);
+      console.log('프로젝트 생성 응답:', response);
+
+      // 서버에서 inviteCode만 반환하므로 직접 사용
+      if (response.isSuccess && response.result?.inviteCode) {
+        const { inviteCode: code, expiresAt: expiryDate } = response.result;
+        setInviteCode(code);
+        setExpiresAt(expiryDate); // 만료일 상태 저장
         setInviteVisible(true);
+      } else {
+        console.error('응답 처리 실패: inviteCode를 찾을 수 없습니다.', response);
       }
     },
     (error) => {
@@ -34,7 +42,7 @@ export default function New() {
   };
 
   const handleRedirect = () => {
-    window.alert('프로젝트로 이동');
+    router.push(`/projects/${projectName}`);
   };
 
   const handleCopyText = async () => {
@@ -109,12 +117,15 @@ export default function New() {
                   아래 링크를 통해 참여를 수락하면, <br />
                   바로 협업을 시작할 수 있어요.
                   <br />
-                  👉 참여 링크:{' '}
-                  <span className="font-bold text-[#81D7D4]">
-                    {window.location.origin}/projects/join/{inviteCode}
-                  </span>
+                  👉 참여하기:{' '}
+                  <Link
+                    href={`/projects/join/${inviteCode}`}
+                    className="underline font-bold text-[#81D7D4]"
+                  >
+                    {projectName}
+                  </Link>
                   <br />
-                  링크 유효기간: 7일까지
+                  {expiresAt && `링크 유효기간: ${formatToKoreanDate(expiresAt)}`}
                 </p>
 
                 <button

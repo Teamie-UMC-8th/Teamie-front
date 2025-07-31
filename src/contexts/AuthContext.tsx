@@ -9,11 +9,11 @@ import React, {
   useMemo,
 } from 'react';
 import axiosInstance from '../lib/axiosInstance';
-import { User } from '@/types/api/user';
+import { UserProfile } from '@/types/api/user';
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: User | null; // 컨텍스트를 통해 user 정보에 접근할 수 있도록 추가
+  user: UserProfile | null; // 컨텍스트를 통해 user 정보에 접근할 수 있도록 추가
   logout: () => void;
 }
 
@@ -29,12 +29,12 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<User | null>(null); // 사용자 정보를 저장할 상태
+  const [user, setUser] = useState<UserProfile | null>(null); // 사용자 정보를 저장할 상태
 
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        const response = await axiosInstance.get<{ result: User }>('/api/v1/users/me');
+        const response = await axiosInstance.get<{ result: UserProfile }>('/api/v1/users/me');
 
         // API 호출이 성공하면, 인증된 것으로 간주하고 사용자 정보를 저장합니다.
         if (response.data && response.data.result) {
