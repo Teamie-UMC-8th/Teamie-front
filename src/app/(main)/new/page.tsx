@@ -4,9 +4,10 @@ import { useState } from 'react';
 import { useCreateProject } from '@/hooks/mutations/useCreateProject';
 import { formatToKoreanDate } from '@/utils/formatDate';
 import Link from 'next/link';
-import router from 'next/router';
+import { useRouter } from 'next/navigation';
 
 export default function New() {
+  const router = useRouter();
   const [inviteVisible, setInviteVisible] = useState(false);
   const [showCopyModal, setShowCopyModal] = useState(false);
   const [projectName, setProjectName] = useState('');
@@ -33,6 +34,10 @@ export default function New() {
   );
 
   const handleCreateProject = () => {
+    if (!projectName.trim()) {
+      return;
+    }
+
     createProjectMutation.mutate({ name: projectName });
   };
 

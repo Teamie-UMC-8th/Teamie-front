@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { postCreateProject } from '@/services/projects/createProject';
+import { postCreateProject } from '@/services/projects/useProject';
 import { CreateProjectReponse } from '@/types/api/project';
 
 export const useCreateProject = (
