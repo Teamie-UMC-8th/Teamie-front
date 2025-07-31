@@ -100,6 +100,7 @@ export default function AIMasterPortfolioCreatePage() {
                   </div>
                   <Image
                     className="absolute top-[0] left-[-6px] translate-x-[-50%] translate-y-[50%]"
+
                     src="/icons/spike-left.svg"
                     alt="spike-left"
                     width={30}
