@@ -12,7 +12,7 @@ export default function LoginPage() {
     // AuthProvider를 통해 이미 인증된 상태로 확인되면,
     // 사용자가 실수로 로그인 페이지에 접근했더라도 홈으로 보내줍니다.
     if (isAuthenticated) {
-      router.push('/home/calendar');
+      router.push('/home/tasks');
     }
   }, [isAuthenticated, router]);
 
