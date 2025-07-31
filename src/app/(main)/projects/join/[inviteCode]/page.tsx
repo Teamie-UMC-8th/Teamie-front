@@ -50,6 +50,7 @@ export default function JoinProject() {
         setProjectInfo({
           name: projectData.project.name,
           projectId: projectData.project.id,
+          projectLeader: projectData.project.leader,
         });
       }
     } else if (getProjectQuery.isError) {
