@@ -11,7 +11,7 @@ export default function Projects() {
   const { data } = useMasterPortfolioList();
 
   return (
-    <div className="grid grid-cols-2 gap-y-[24px]">
+    <div className="grid grid-cols-2 gap-[24px]">
       {data?.data.map((item) => (
         <Link href={`/mypage/aimasterportfolio/${item.portfolioId}`} key={item.portfolioId}>
           <button

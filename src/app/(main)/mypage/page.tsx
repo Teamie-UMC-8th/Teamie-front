@@ -149,30 +149,23 @@ export default function MyPage() {
 
         {/* 포트폴리오 */}
         <div
-          className="flex flex-col ml-[143px]
+          className="flex flex-col ml-[143px] mt-[-16px]
         max-lg:ml-[0rem] max-lg:mt-[5rem]"
         >
-          <div className={`flex items-center ${showToggle ? 'mb-[0.5rem]' : 'mb-[2.5rem]'}`}>
-            <div className="flex w-[1000px]">
-              <h2 className="text-[1.375rem] font-bold">포트폴리오</h2>
-              <div
-                className="flex items-center ml-[687px]
-              max-lg:ml-[608px]"
-              />
+          <div
+            className={`flex items-center justify-between ${showToggle ? 'mb-[1.4rem]' : 'mb-[2.4rem] mt-4'}`}
+          >
+            <h2 className="text-[1.375rem] font-bold ">포트폴리오</h2>
+            <div className="flex items-center gap-4">
               {/* AI 첨삭일 때만 + 버튼 표시 */}
               {showToggle && selected === 'ai' && <AddCorrectionButton />}
-              <div
-                className="translate-y-[-1.625rem]
-              max-lg:translate-x-[-1rem]"
-              >
-                {showToggle && (
-                  <ToggleButton
-                    leftLabel="프로젝트"
-                    rightLabel="AI 첨삭"
-                    onToggle={(isLeft) => setSelected(isLeft ? 'project' : 'ai')}
-                  />
-                )}
-              </div>
+              {showToggle && (
+                <ToggleButton
+                  leftLabel="프로젝트"
+                  rightLabel="AI 첨삭"
+                  onToggle={(isLeft) => setSelected(isLeft ? 'project' : 'ai')}
+                />
+              )}
             </div>
           </div>
 
