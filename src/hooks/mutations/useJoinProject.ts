@@ -1,13 +1,13 @@
 import { useMutation } from '@tanstack/react-query';
-import { getJoinProject } from '@/services/projects/joinProject';
-import { JoinProjectResponse } from '@/types/api/project';
+import { postJoinProject } from '@/services/projects/useProject';
+import { PostJoinProjectResponse } from '@/types/api/project';
 
 export const useJoinProject = (
-  onSuccess?: (response: JoinProjectResponse) => void,
+  onSuccess?: (response: PostJoinProjectResponse) => void,
   onError?: (error: any) => void
 ) => {
   return useMutation({
-    mutationFn: getJoinProject,
+    mutationFn: postJoinProject,
     onSuccess,
     onError,
   });
