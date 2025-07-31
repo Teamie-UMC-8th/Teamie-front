@@ -77,7 +77,7 @@ export default function MyPage() {
             >
               <div
                 className="flex mb-[1.75rem]
-              max-lg:mb-[1.5rem] max-lg:w-[18.75rem]"
+              max-lg:mb-[1.5rem] max-lg:w-[20rem]"
               >
                 <img src="/icons/UnivName.svg" alt="University" className="mr-[0.75rem]" />
                 <div className="text-[#898989] mr-[0.75rem]">학교:</div>
@@ -128,7 +128,12 @@ export default function MyPage() {
                     className="mt-[0.75rem] flex ml-[7.625rem]
                   max-lg:w-[12.5rem]"
                   >
-                    <div className="text-[1rem] text-black ml-[1.25rem]">잔여 Credit:</div>
+                    <div
+                      className="text-[1rem] text-black ml-[1.25rem]
+                    max-lg:ml-0"
+                    >
+                      잔여 Credit:
+                    </div>
                     <img
                       src="/icons/AiIcon.svg"
                       alt="AiIcon"
@@ -150,12 +155,15 @@ export default function MyPage() {
           <div className={`flex items-center ${showToggle ? 'mb-[0.5rem]' : 'mb-[2.5rem]'}`}>
             <div className="flex w-[1000px]">
               <h2 className="text-[1.375rem] font-bold">포트폴리오</h2>
-              <div className="flex items-center ml-[687px]"></div>
+              <div
+                className="flex items-center ml-[687px]
+              max-lg:ml-[608px]"
+              />
               {/* AI 첨삭일 때만 + 버튼 표시 */}
               {showToggle && selected === 'ai' && <AddCorrectionButton />}
               <div
                 className="translate-y-[-1.625rem]
-              max-lg:translate-x-[-3.625rem]"
+              max-lg:translate-x-[-1rem]"
               >
                 {showToggle && (
                   <ToggleButton
