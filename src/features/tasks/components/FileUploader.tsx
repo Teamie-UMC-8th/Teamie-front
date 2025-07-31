@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { useUploadTaskFile, useDeleteTaskFile } from '@/hooks/mutations/useUploadFile';
+import { useUploadTaskFile, useDeleteTaskFile } from '@/hooks/mutations/useFileUploadMutations';
 import { useParams } from 'next/navigation';
 
 type UploadedFile = File & { serverId?: number };
@@ -35,6 +35,13 @@ export default function FileUploader() {
                 setFiles((prev) =>
                   prev.map((f) => (f === file ? { ...f, serverId: data.result.id } : f))
                 );
+                console.log('파일 업로드 성공:', data.result);
+              },
+              onError: (error: any) => {
+                console.error('파일 업로드 실패:', error);
+                alert(error.message || '파일 업로드에 실패했습니다.');
+                // 실패한 파일 제거
+                setFiles((prev) => prev.filter((f) => f !== file));
               },
             }
           );
@@ -60,6 +67,13 @@ export default function FileUploader() {
                 setFiles((prev) =>
                   prev.map((f) => (f === file ? { ...f, serverId: data.result.id } : f))
                 );
+                console.log('파일 업로드 성공:', data.result);
+              },
+              onError: (error: any) => {
+                console.error('파일 업로드 실패:', error);
+                alert(error.message || '파일 업로드에 실패했습니다.');
+                // 실패한 파일 제거
+                setFiles((prev) => prev.filter((f) => f !== file));
               },
             }
           );
@@ -127,8 +141,21 @@ export default function FileUploader() {
                   alt="삭제 아이콘"
                   className="w-[20px] h-[20px] cursor-pointer"
                   onClick={() => {
-                    deleteMutation.mutate(file.serverId!);
-                    setFiles((prev) => prev.filter((_, i) => i !== index));
+                    if (file.serverId) {
+                      deleteMutation.mutate(file.serverId, {
+                        onSuccess: (data) => {
+                          console.log('파일 삭제 성공:', data.result);
+                          setFiles((prev) => prev.filter((_, i) => i !== index));
+                        },
+                        onError: (error: any) => {
+                          console.error('파일 삭제 실패:', error);
+                          alert(error.message || '파일 삭제에 실패했습니다.');
+                        },
+                      });
+                    } else {
+                      // 서버에 업로드되지 않은 파일은 바로 제거
+                      setFiles((prev) => prev.filter((_, i) => i !== index));
+                    }
                   }}
                 />
               ) : (
