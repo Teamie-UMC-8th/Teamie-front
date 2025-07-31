@@ -12,7 +12,11 @@ export default function New() {
   const createProjectMutation = useCreateProject(
     (response) => {
       if (response.isSuccess) {
-        setInviteCode(response.result.inviteCode);
+        // 서버에서 전체 URL을 받으므로 inviteCode 부분만 추출
+        const fullUrl = response.result.inviteCode;
+        const inviteCodeMatch = fullUrl.match(/\/join\/([^\/]+)$/);
+        const extractedInviteCode = inviteCodeMatch ? inviteCodeMatch[1] : fullUrl;
+        setInviteCode(extractedInviteCode);
         setInviteVisible(true);
       }
     },
@@ -37,7 +41,7 @@ export default function New() {
     const textToCopy = `💡 프로젝트에 참여해 주세요!
 아래 링크를 통해 참여를 수락하면, 
 바로 협업을 시작할 수 있어요.
-👉 참여 코드: ${inviteCode}
+👉 참여 링크: ${window.location.origin}/projects/join/${inviteCode}
 링크 유효기간: 7일까지`;
 
     try {
@@ -105,7 +109,10 @@ export default function New() {
                   아래 링크를 통해 참여를 수락하면, <br />
                   바로 협업을 시작할 수 있어요.
                   <br />
-                  👉 참여 코드: <span className="font-bold text-[#81D7D4]">{inviteCode}</span>
+                  👉 참여 링크:{' '}
+                  <span className="font-bold text-[#81D7D4]">
+                    {window.location.origin}/projects/join/{inviteCode}
+                  </span>
                   <br />
                   링크 유효기간: 7일까지
                 </p>

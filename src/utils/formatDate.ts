@@ -26,3 +26,19 @@ export const formatDateRange = (startDate: string, endDate: string): string => {
     return `${startDate}~${endDate}`;
   }
 };
+
+export const formatToKoreanDate = (dateString: string): string => {
+  if (!dateString) return '';
+
+  try {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // getMonth()는 0부터 시작합니다.
+    const day = date.getDate();
+
+    return `${year}년 ${month}월 ${day}일까지`;
+  } catch (error) {
+    console.error('Invalid date string:', dateString, error);
+    return '날짜 정보 없음';
+  }
+};
