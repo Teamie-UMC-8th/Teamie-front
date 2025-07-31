@@ -21,7 +21,7 @@ export const getJoinProject = async (
   params: GetJoinProjectRequest
 ): Promise<GetJoinProjectResponse> => {
   const { data } = await axiosInstance.get<GetJoinProjectResponse>(
-    `/api/v1/projects/join?inviteCode=${params.inviteCode}`
+    `/api/v1/projects/join/validate?inviteCode=${params.inviteCode}`
   );
   return data;
 };
