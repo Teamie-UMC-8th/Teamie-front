@@ -6,12 +6,10 @@ export interface CreateProjectReponse {
   isSuccess: boolean;
   error: string;
   result: {
-    result: {
-      id: string;
-      name: string;
-      inviteCode: string;
-      expiresAt: string;
-    };
+    id: string;
+    name: string;
+    inviteCode: string;
+    expiresAt: string;
   };
 }
 
