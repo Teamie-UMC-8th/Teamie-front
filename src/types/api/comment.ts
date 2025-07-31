@@ -1,14 +1,14 @@
+// 댓글 추가 API 요청 타입 정의
 export interface AddCommentRequest {
-  taskId: number;
   content: string;
 }
 
+// 댓글 추가 API 응답 타입 정의
 export interface AddCommentResponse {
   isSuccess: boolean;
-  error: null | string;
+  error: null;
   result: {
     commentId: number;
-    taskId: number;
     content: string;
   };
 }

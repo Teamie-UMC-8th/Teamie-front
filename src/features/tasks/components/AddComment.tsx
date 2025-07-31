@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAddComment } from '@/hooks/mutations/useAddComment';
+import { useAddComment } from '@/hooks/mutations/useCommentMutations';
 import { useParams } from 'next/navigation';
 import useToggle from '../hooks/useToggle';
 import CommentMenuDropdown from './CommentDropdown';
@@ -22,7 +22,7 @@ export default function AddComment() {
   // 댓글 추가 함수 (서버에 전송)
   const params = useParams();
   const taskId = Number(params.taskId);
-  const { mutate: addCommentMutation } = useAddComment();
+  const { mutate: addCommentMutation, isPending: isAddingComment } = useAddComment();
 
   const handleComment = () => {
     if (newComment.trim() === '') return;
@@ -31,11 +31,14 @@ export default function AddComment() {
       { taskId, content: newComment },
       {
         onSuccess: (data) => {
+          // 성공 시 댓글 목록에 추가
           setComments((prev) => [data.result.content, ...prev]);
           setNewComment('');
+          console.log('댓글 추가 성공:', data.result);
         },
-        onError: () => {
-          alert('댓글 추가에 실패했습니다.');
+        onError: (error: any) => {
+          console.error('댓글 추가 실패:', error);
+          alert(error.message || '댓글 추가에 실패했습니다.');
         },
       }
     );
@@ -83,14 +86,21 @@ export default function AddComment() {
           <input
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            className="p-[20px] w-[1109px]  h-[50px]  bg-white rounded-[8px] border-[2px] border-[#BBBBBB]
-            max-lg:w-[735px]"
-            placeholder="댓글을 작성하세요"
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && !isAddingComment) {
+                handleComment();
+              }
+            }}
+            disabled={isAddingComment}
+            className="p-[20px] w-[1109px] h-[50px] bg-white rounded-[8px] border-[2px] border-[#BBBBBB]
+            max-lg:w-[735px] disabled:opacity-50"
+            placeholder={isAddingComment ? '댓글을 추가하는 중...' : '댓글을 작성하세요'}
           />
 
           <button
             onClick={handleComment}
-            className="absolute right-[8px] top-1/2 -translate-y-1/2 w-[36px] h-[36px] cursor-pointer"
+            disabled={isAddingComment || newComment.trim() === ''}
+            className="absolute right-[8px] top-1/2 -translate-y-1/2 w-[36px] h-[36px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <img src="/icons/comment-enter.svg" alt="전송" />
           </button>
