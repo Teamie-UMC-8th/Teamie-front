@@ -9,7 +9,7 @@ import ReductionMark from '@/features/correction/components/ReductionMark';
 import ConcretizationMark from '@/features/correction/components/ConcretizationMark';
 import ConcretizationToggle from '@/features/correction/components/ConcretizationToggle';
 
-export default function tailoredPortfolio() {
+export default function TailoredPortfolio() {
   const [toggleROn, setRToggleOn] = useState(false);
   const [toggleCOn, setCToggleOn] = useState(false);
   return (
@@ -168,9 +168,9 @@ export default function tailoredPortfolio() {
               <p>
                 어려움과 극복 과정: 회원 간 친분 형성 후 공식 활동 참여율이 저하되는 문제가
                 발생했습니다. 이를 해결하기 위해 대외협력국과 협력하여 기업 연계 프로그램을 유치,
-                동아리에서만 가능한 '이력서 작성' 프로그램을 기획했습니다. 실제 기업의 피드백 기회를
-                제공한 결과, 해당 모임 참여율이 이전 대비 170% 증가했고 72건의 긍정 피드백을
-                확보했습니다.
+                동아리에서만 가능한 &apos;이력서 작성&apos; 프로그램을 기획했습니다. 실제 기업의
+                피드백 기회를 제공한 결과, 해당 모임 참여율이 이전 대비 170% 증가했고 72건의 긍정
+                피드백을 확보했습니다.
                 {/* TODO: 글 위에 마크 올리기 */}
                 {toggleROn && <ReductionMark />}
               </p>
@@ -247,9 +247,9 @@ export default function tailoredPortfolio() {
               <p>
                 어려움과 극복 과정: 회원 간 친분 형성 후 공식 활동 참여율이 저하되는 문제가
                 발생했습니다. 이를 해결하기 위해 대외협력국과 협력하여 기업 연계 프로그램을 유치,
-                동아리에서만 가능한 '이력서 작성' 프로그램을 기획했습니다. 실제 기업의 피드백 기회를
-                제공한 결과, 해당 모임 참여율이 이전 대비 170% 증가했고 72건의 긍정 피드백을
-                확보했습니다.
+                동아리에서만 가능한 &apos;이력서 작성&apos; 프로그램을 기획했습니다. 실제 기업의
+                피드백 기회를 제공한 결과, 해당 모임 참여율이 이전 대비 170% 증가했고 72건의 긍정
+                피드백을 확보했습니다.
                 {/* TODO: 글 위에 마크 올리기 */}
                 {toggleCOn && <ConcretizationMark />}
               </p>
@@ -326,9 +326,9 @@ export default function tailoredPortfolio() {
               <p>
                 어려움과 극복 과정: 회원 간 친분 형성 후 공식 활동 참여율이 저하되는 문제가
                 발생했습니다. 이를 해결하기 위해 대외협력국과 협력하여 기업 연계 프로그램을 유치,
-                동아리에서만 가능한 '이력서 작성' 프로그램을 기획했습니다. 실제 기업의 피드백 기회를
-                제공한 결과, 해당 모임 참여율이 이전 대비 170% 증가했고 72건의 긍정 피드백을
-                확보했습니다.
+                동아리에서만 가능한 &apos;이력서 작성&apos; 프로그램을 기획했습니다. 실제 기업의
+                피드백 기회를 제공한 결과, 해당 모임 참여율이 이전 대비 170% 증가했고 72건의 긍정
+                피드백을 확보했습니다.
                 {/* TODO: 글 위에 마크 올리기 */}
               </p>
             </div>
@@ -404,9 +404,9 @@ export default function tailoredPortfolio() {
               <p>
                 어려움과 극복 과정: 회원 간 친분 형성 후 공식 활동 참여율이 저하되는 문제가
                 발생했습니다. 이를 해결하기 위해 대외협력국과 협력하여 기업 연계 프로그램을 유치,
-                동아리에서만 가능한 '이력서 작성' 프로그램을 기획했습니다. 실제 기업의 피드백 기회를
-                제공한 결과, 해당 모임 참여율이 이전 대비 170% 증가했고 72건의 긍정 피드백을
-                확보했습니다.
+                동아리에서만 가능한 &apos;이력서 작성&apos; 프로그램을 기획했습니다. 실제 기업의
+                피드백 기회를 제공한 결과, 해당 모임 참여율이 이전 대비 170% 증가했고 72건의 긍정
+                피드백을 확보했습니다.
                 {/* TODO: 글 위에 마크 올리기 */}
               </p>
             </div>

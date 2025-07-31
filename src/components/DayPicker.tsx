@@ -10,15 +10,13 @@ const DayPicker = () => {
   return (
     <div className="w-[368px] h-[342px] max-w-sm mx-auto p-4 rounded-xl shadow-md bg-white font-pretendard">
       <Calendar
-        onChange={setValue}
+        onChange={(value) => setValue(value as Date)}
         value={value}
         prev2Label={null}
         next2Label={null}
         locale="en-US"
         // 월/년도 bold
-        navigationLabel={({ date, label, locale }) => (
-          <span className="font-bold text-lg">{label}</span>
-        )}
+        navigationLabel={({ label }) => <span className="font-bold text-lg">{label}</span>}
         // 요일 헤더는 bold 해제 (font-normal)
         formatShortWeekday={(locale, date) =>
           ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][date.getDay()]

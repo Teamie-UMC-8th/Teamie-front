@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
           setIsAuthenticated(false);
           setUser(null);
         }
-      } catch (error) {
+      } catch (_error) {
         // 401 Unauthorized 등 에러 발생 시, 비인증 상태로 처리합니다.
         setIsAuthenticated(false);
         setUser(null);

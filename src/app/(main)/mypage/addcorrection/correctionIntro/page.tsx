@@ -1,8 +1,6 @@
 'use client';
 
 import CorrectionRequestStartButton from '@/features/correction/components/CorrectionRequestStartButton';
-import CorrectionStartButton from '@/features/correction/components/CorrectionRequestStartButton';
-import Link from 'next/link';
 
 export default function CorrectionIntro() {
   /* TODO: Sidebar 제거 후 간격 재조정 */

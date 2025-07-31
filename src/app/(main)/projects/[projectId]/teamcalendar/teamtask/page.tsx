@@ -3,10 +3,6 @@
 import AddProfileButton from '@/components/AddProfileButton';
 import BackButton from '@/components/BackButton';
 import DeleteButton from '@/components/DeleteButton';
-import AddComment from '@/features/tasks/components/AddComment';
-import CommentToggle from '@/features/tasks/components/CommentToggle';
-import FileUploader from '@/features/tasks/components/FileUploader';
-import TaskDropdown from '@/features/tasks/components/TaskDropdown';
 
 export default function taskDetailPage() {
   return (

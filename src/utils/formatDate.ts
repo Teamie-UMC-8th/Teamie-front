@@ -21,7 +21,7 @@ export const formatDateRange = (startDate: string, endDate: string): string => {
     const endMonth = (end.getMonth() + 1).toString().padStart(2, '0');
 
     return `${startYear}.${startMonth}~${endYear}.${endMonth}`;
-  } catch (error) {
+  } catch (_error) {
     // 날짜 파싱에 실패하면 원본 문자열 반환
     return `${startDate}~${endDate}`;
   }

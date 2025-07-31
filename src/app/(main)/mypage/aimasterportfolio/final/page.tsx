@@ -4,7 +4,6 @@ import Image from 'next/image';
 import { useState, useRef } from 'react';
 
 import ManualWriteSection from '@/features/aimasterportfolio/components/ManualWriteSection';
-import AIGenerationSection from '@/features/aimasterportfolio/components/AIGenerationSection';
 import MenuButton from '@/features/aimasterportfolio/components/MenuButton';
 
 const CATEGORIES = [
@@ -174,7 +173,11 @@ function GenerationMethodSelector({
             aria-label={label}
           >
             {hasIcon && (
-              <img src="/icons/coin.svg" alt="AI 아이콘" className="w-[24px] h-[24px] object-contain" />
+              <img
+                src="/icons/coin.svg"
+                alt="AI 아이콘"
+                className="w-[24px] h-[24px] object-contain"
+              />
             )}
             {label}
           </button>

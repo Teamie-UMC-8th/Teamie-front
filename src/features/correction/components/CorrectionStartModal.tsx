@@ -1,5 +1,5 @@
 import { createPortal } from 'react-dom';
-import { JSX, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 type CorrectionStartButtonModalProps = {

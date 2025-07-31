@@ -1,6 +1,5 @@
-import { JSX, useState } from 'react';
+import { useState } from 'react';
 import CorrectionStartButtonModal from './CorrectionStartModal';
-import Link from 'next/link';
 
 type CorrectionRequestStartButtonProps = {
   onStart: () => void;

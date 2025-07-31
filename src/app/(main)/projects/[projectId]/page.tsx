@@ -1,5 +1,3 @@
-import DayPicker from '@/components/DayPicker';
-
 export default function ProjectHomePage() {
   return (
     <div>

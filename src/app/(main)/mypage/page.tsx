@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import useToggle from '@/features/mypage/hooks/useToggle';
 import Tailored from '@/features/mypage/components/Tailored';
 import ToggleButton from '@/components/ToggleButton';

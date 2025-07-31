@@ -1,8 +1,5 @@
-import ManualWriteSection from "@/features/aimasterportfolio/components/ManualWriteSection";
-import AIConfirmModal from "@/features/aimasterportfolio/components/AIConfirmModal";
+import ManualWriteSection from '@/features/aimasterportfolio/components/ManualWriteSection';
 
-export default function manual(){
-  return (
-    <ManualWriteSection/>
-  );
+export default function manual() {
+  return <ManualWriteSection />;
 }
