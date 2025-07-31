@@ -5,6 +5,7 @@ export default function ManualWriteSection() {
       {/* 상세 정보 */}
       <div className="flex w-full max-lg:flex-col max-lg:gap-[8px]">
         <div className=" w-full lg:flex-[0.6] h-[25px] text-left font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-black whitespace-nowrap max-lg:mt-[2px]">
+
           상세 정보
         </div>
         <textarea

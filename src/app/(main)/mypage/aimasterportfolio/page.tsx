@@ -210,11 +210,13 @@ function ProjectInfoSection({
   contribution: number;
 }) {
   return (
+
     <section className="flex items-center pb-[60px] max-lg:flex-col max-lg:items-start">
       <div className='flex flex-nowrap gap-[200px] max-lg:gap-[100px]'>
       <ProjectPeriod startDate={startDate} endDate={endDate} />
       <CategorySelector selected={category} onSelect={onCategoryChange} />
       </div>
+
       <div className='flex flex-wrap max-lg:mt-[60px] lg:ml-[200px]'>
       <ContributionBar percentage={contribution} />
       </div>
