@@ -27,26 +27,11 @@ export interface GetJoinProjectResponse {
     data: any;
   };
   result: {
-    project: {
+    project?: {
       id: string;
       name: string;
+      leader: string;
     };
-    users: Array<{
-      id: number;
-      name: string;
-      email: string;
-      school: string;
-      imageUrl: any;
-      tasks: Array<{
-        taskName: string;
-      }>;
-      permission: string;
-      role: string;
-    }>;
-    posts: Array<{
-      author: string;
-      content: string;
-    }>;
   };
 }
 
@@ -57,9 +42,7 @@ export interface PostJoinProjectRequest {
 export interface PostJoinProjectResponse {
   isSuccess: boolean;
   error: string | null;
-  result: {
-    message: string;
-    projectId: string;
-    projectName: string;
+  result?: {
+    message?: string;
   };
 }

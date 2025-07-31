@@ -22,18 +22,12 @@ export default function JoinProject() {
   const joinProjectMutation = useJoinProject(
     (response) => {
       if (response.isSuccess) {
-        const { projectId, projectName } = response.result;
-
-        setProjectInfo({
-          name: projectName,
-          projectId: projectId,
-        });
         setShowWelcomeModal(true);
         setIsLoading(false);
 
         // 2초 후 프로젝트 페이지로 이동
         setTimeout(() => {
-          router.push(`/projects/${projectId}`);
+          router.push(`/projects/${projectInfo.projectId}`);
         }, 2000);
       } else {
         setError(response.error || '프로젝트 참여에 실패했습니다.');
@@ -49,11 +43,45 @@ export default function JoinProject() {
 
   // GET 요청 결과 처리
   useEffect(() => {
-    if (getProjectQuery.isError) {
+    if (getProjectQuery.isSuccess && getProjectQuery.data) {
+      // 프로젝트 정보 설정
+      const projectData = getProjectQuery.data.result;
+      if (projectData.project) {
+        setProjectInfo({
+          name: projectData.project.name,
+          projectId: projectData.project.id,
+        });
+      }
+    } else if (getProjectQuery.isError) {
       console.error('초대코드 유효성 확인 오류:', getProjectQuery.error);
-      router.push('/home/tasks');
+
+      // 에러 응답에서 errorCode를 확인하여 처리 방식 결정
+      const errorResponse = getProjectQuery.error as any;
+      const errorCode = errorResponse?.response?.data?.error?.errorCode;
+      const errorReason = errorResponse?.response?.data?.error?.reason;
+
+      if (errorCode === 'ALREADY_JOINED') {
+        // 이미 참여한 프로젝트 - result에서 projectId를 추출하여 프로젝트 홈으로 리다이렉트
+        const projectId = errorResponse?.response?.data?.result?.projectId;
+        if (projectId) {
+          console.log('이미 참여한 프로젝트입니다. 프로젝트 홈으로 이동합니다.');
+          router.push(`/projects/${projectId}`);
+        } else {
+          console.error('projectId가 없습니다.');
+          router.push('/home/tasks');
+        }
+      } else {
+        // NOT_EXISTS 또는 CODE_EXPIRED - 에러 상태로 설정하여 에러 화면 표시
+        setError(errorReason || '초대 링크가 유효하지 않습니다.');
+      }
     }
-  }, [getProjectQuery.isError, getProjectQuery.error, router]);
+  }, [
+    getProjectQuery.isSuccess,
+    getProjectQuery.data,
+    getProjectQuery.isError,
+    getProjectQuery.error,
+    router,
+  ]);
 
   const handleAccept = () => {
     setIsLoading(true);
@@ -61,31 +89,19 @@ export default function JoinProject() {
     joinProjectMutation.mutate({ inviteCode });
   };
 
-  // 로딩 상태
   if (getProjectQuery.isLoading) {
-    return (
-      <div className="min-h-screen w-full bg-white flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4 p-8 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#81D7D4]"></div>
-          <p className="text-lg text-gray-600">초대 링크를 확인하고 있습니다...</p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
-  // 에러 상태
+  // 에러 상태 (잘못된 코드 또는 만료된 코드)
   if (error) {
     return (
       <div className="min-h-screen w-full bg-white flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 p-8">
-          <div className="text-red-500 text-xl mb-4">❌</div>
           <p className="text-lg text-gray-800 text-center">{error}</p>
-          <button
-            onClick={() => router.push('/home/tasks')}
-            className="mt-4 px-6 py-2 bg-[#81D7D4] text-white rounded-lg hover:bg-[#6BC7C4]"
-          >
-            홈으로 돌아가기
-          </button>
+          <p className="text-lg text-gray-800 text-center">
+            팀장에게 새로운 링크를 요청 후, 프로젝트에 참여해주세요.
+          </p>
         </div>
       </div>
     );
@@ -96,7 +112,9 @@ export default function JoinProject() {
     <div className="min-h-screen w-full bg-white flex items-center justify-center">
       <div className="flex flex-col items-center gap-6 p-8 text-center">
         <h1 className="text-2xl font-bold text-gray-800">프로젝트에 참여하시겠습니까?</h1>
-        <p className="text-lg text-gray-600">팀장님이 함께 프로젝트를 진행하고 싶어해요!</p>
+        <p className="text-lg text-gray-600">
+          {projectInfo.projectLeader}님이 함께 프로젝트를 진행하고 싶어해요!
+        </p>
         <button
           onClick={handleAccept}
           disabled={isLoading}
@@ -104,7 +122,7 @@ export default function JoinProject() {
             isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#81D7D4] hover:bg-[#6BC7C4]'
           }`}
         >
-          {isLoading ? '처리 중...' : '수락'}
+          수락
         </button>
       </div>
 
