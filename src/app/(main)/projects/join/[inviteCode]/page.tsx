@@ -5,12 +5,22 @@ import { useParams, useRouter } from 'next/navigation';
 import { useGetProject } from '@/hooks/queries/useGetProject';
 import { useJoinProject } from '@/hooks/mutations/useJoinProject';
 
+interface ProjectInfo {
+  name: string;
+  projectId: string;
+  projectLeader: string;
+}
+
 export default function JoinProject() {
   const params = useParams();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [projectInfo, setProjectInfo] = useState<any>(null);
+  const [projectInfo, setProjectInfo] = useState<ProjectInfo>({
+    name: '',
+    projectId: '',
+    projectLeader: '',
+  });
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   const inviteCode = params.inviteCode as string;
