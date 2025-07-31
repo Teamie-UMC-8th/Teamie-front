@@ -1,10 +1,11 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 import ManualWriteSection from '@/features/aimasterportfolio/components/ManualWriteSection';
-import AIGenerationSetion from '@/features/aimasterportfolio/components/AIGenerationSection';
+import AIGenerationSection from '@/features/aimasterportfolio/components/AIGenerationSection';
+import MenuButton from '@/features/aimasterportfolio/components/MenuButton';
 
 const CATEGORIES = [
   { label: '수업', color: '#BED9FB' },
@@ -26,12 +27,15 @@ type GenerationMethod = 'ai' | 'manual';
 
 function ProjectHeader({ title }: { title: string }) {
   return (
-    <header className="flex items-center gap-4">
-      <Image src="/icons/arrow-left.svg" alt="뒤로가기" width={24} height={24} />
-      <h1 className="font-[Pretendard] font-bold text-[22px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap">
-        {title}
-      </h1>
-    </header>
+    <div className="flex flex-col gap-[12px] px-[30px]">
+      <div className="flex items-center gap-[20px] max-lg:gap-[8px]">
+        <Image src="/icons/arrow-left.svg" alt="뒤로가기" width={24} height={24} />
+        <h1 className="font-[Pretendard] font-bold text-[22px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap gap-[1437px]">
+          {title}
+        </h1>
+        <MenuButton />
+      </div>
+    </div>
   );
 }
 
@@ -61,7 +65,7 @@ function CategorySelector({
   };
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-[28px]">
       <div className={STYLES.tag}>분류</div>
 
       <div className="relative">
@@ -72,7 +76,7 @@ function CategorySelector({
           aria-haspopup="listbox"
         >
           <div
-            className="w-[80px] h-[32px] rounded-[4px] px-[12px] py-[4px] text-black font-[Pretendard] text-[16px] leading-[26px] flex items-center justify-center whitespace-nowrap"
+            className="w-[80px] h-[32px] rounded-[4px] px-[12px] py-[4px] text-black font-[Pretendard] text-[16px] leading-[24px] flex items-center justify-center whitespace-nowrap"
             style={{ backgroundColor: selected.color }}
           >
             {selected.label}
@@ -94,7 +98,7 @@ function CategorySelector({
 
         {isOpen && (
           <ul
-            className="absolute top-[40px] left-0 z-10 bg-white border border-dashed border-[#B085E3] rounded-[8px] px-[12px] py-[10px] flex flex-col gap-[8px] w-[90px]"
+            className="absolute top-[40px] left-0 z-10 w-[104px] h-[216px] bg-white rounded-[8px] shadow-[0_0_15px_rgba(0,0,0,0.2)] px-[12px] py-[10px] flex flex-col gap-[8px]"
             role="listbox"
           >
             {CATEGORIES.map((option) => (
@@ -153,11 +157,7 @@ function GenerationMethodSelector({
   ];
 
   return (
-    <div
-      className="flex items-center gap-0 bg-white p-[4px] rounded-[8px] border border-[#e7e7e7]"
-      role="radiogroup"
-      aria-label="생성 방법 선택"
-    >
+    <div className="flex items-center gap-0 bg-white p-[4px] rounded-[8px] border border-[#e7e7e7]">
       {methods.map(({ id, label, hasIcon }) => {
         const isSelected = method === id;
         return (
@@ -174,10 +174,7 @@ function GenerationMethodSelector({
             aria-label={label}
           >
             {hasIcon && (
-              <div
-                className="w-[24px] h-[24px] bg-[#D9D9D9] flex items-center justify-center"
-                aria-hidden="true"
-              />
+              <img src="/icons/coin.svg" alt="AI 아이콘" className="w-[24px] h-[24px] object-contain" />
             )}
             {label}
           </button>
@@ -201,10 +198,14 @@ function ProjectInfoSection({
   contribution: number;
 }) {
   return (
-    <section className="flex items-center gap-4 justify-between pb-[60px]">
-      <ProjectPeriod startDate={startDate} endDate={endDate} />
-      <CategorySelector selected={category} onSelect={onCategoryChange} />
-      <ContributionBar percentage={contribution} />
+    <section className="flex items-center justify-between pb-[60px] max-lg:flex-col max-lg:items-start">
+      <div className="flex flex-nowrap gap-[200px] max-lg:gap-[100px]">
+        <ProjectPeriod startDate={startDate} endDate={endDate} />
+        <CategorySelector selected={category} onSelect={onCategoryChange} />
+      </div>
+      <div className="flex flex-wrap max-lg:mt-[60px] lg:ml-[200px]">
+        <ContributionBar percentage={contribution} />
+      </div>
     </section>
   );
 }
@@ -217,7 +218,7 @@ function MasterPortfolioSection({
   onMethodChange: (method: GenerationMethod) => void;
 }) {
   return (
-    <section className="flex items-center justify-between bg-[#E9F8F8] rounded-tl-[8px] rounded-tr-[8px] px-[24px] py-[8px] mr-[12px] ml-[12px]">
+    <section className="flex items-center justify-between w-[1460px] max-lg:w-[908px] h-[52px] bg-[#E9F8F8] rounded-tl-[8px] rounded-tr-[8px] px-[24px] py-[8px] mr-[12px] ml-[12px]">
       <h2 className="text-[20px] leading-[28px] font-semibold text-[#000000] font-[Pretendard]">
         마스터 포트폴리오
       </h2>
@@ -229,6 +230,10 @@ function MasterPortfolioSection({
 export default function AIMasterPortfolioPage() {
   const [generationMethod, setGenerationMethod] = useState<GenerationMethod>('ai');
   const [selectedCategory, setSelectedCategory] = useState<Category>(CATEGORIES[0]);
+  const detailRef = useRef<HTMLDivElement>(null);
+  const taskRef = useRef<HTMLDivElement>(null);
+  const resultRef = useRef<HTMLDivElement>(null);
+  const learnRef = useRef<HTMLDivElement>(null);
 
   const projectData = {
     title: '프로젝트 A',
@@ -237,13 +242,22 @@ export default function AIMasterPortfolioPage() {
     contribution: 74,
   };
 
+  const handleCopyAll = () => {
+    const detail = detailRef.current?.innerText ?? '';
+    const task = taskRef.current?.innerText ?? '';
+    const result = resultRef.current?.innerText ?? '';
+    const learn = learnRef.current?.innerText ?? '';
+    const fullText = `상세 정보:\n${detail}\n\n담당 업무:\n${task}\n\n주요 성과:\n${result}\n\n배운 점:\n${learn}`;
+    navigator.clipboard.writeText(fullText).then(() => alert('전체 내용이 복사되었습니다!'));
+  };
+
   return (
     <main className="flex flex-col gap-4 max-w-[1600px] mx-auto">
       <ProjectHeader title={projectData.title} />
 
-      <hr className="w-full h-[2px] bg-[#E7E7E7] border-0" />
+      <hr className="w-full h-[2px] bg-[#E7E7E7] border-0 m-0 mb-[60px]" />
 
-      <div className="flex flex-col gap-4 pr-[30px] pl-[30px] pt-[40px] pb-[12px]">
+      <div className="flex flex-col gap-4 pr-[30px] pl-[30px] pb-[12px]">
         <ProjectInfoSection
           startDate={projectData.startDate}
           endDate={projectData.endDate}
@@ -260,37 +274,63 @@ export default function AIMasterPortfolioPage() {
 
           {generationMethod === 'manual' && <ManualWriteSection />}
           {generationMethod === 'ai' && (
-            <div className="h-[804px] rounded-[16px] bg-[#F8F8F8] shadow-[0_0_8px_rgba(0,0,0,0.25)] p-[40px] flex flex-col items-start gap-[32px]">
+            <div className="w-[1492px] max-lg:w-[928px] h-auto rounded-[16px] bg-[#F8F8F8] shadow-[0_0_8px_rgba(0,0,0,0.25)] p-[40px] max-lg:px-[28px] py-[40px] flex flex-col gap-[28px] max-lg:gap-[53px]">
               {/* 상세 정보 */}
-              <div className="flex w-full">
-                <div className="w-full flex-[0.6] h-[25px] px-[18px] py-[6px] text-left font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-[#000000] whitespace-nowrap">
+              <div className="flex w-full max-lg:flex-col max-lg:gap-[8px] relative">
+                <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
                   상세 정보
                 </div>
-                <div className="w-full flex-[9.4] h-[162px] bg-[#FFFFFF] border-[1.5px] border-[#BBBBBB] rounded-[8px] font-[Pretendard] text-[18px] font-normal leading-[26px] text-black p-4" />
+                <div
+                  ref={detailRef}
+                  className="w-full lg:flex-[9.4] h-[162px] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 overflow-y-auto"
+                >
+                  {/* 상세 정보 내용을 여기에 */}
+                </div>
+                <button
+                  onClick={handleCopyAll}
+                  className="absolute top-[8px] right-[8px] justify-end max-lg:hidden"
+                >
+                  <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
+                </button>
               </div>
 
               {/* 담당 업무 */}
-              <div className="flex w-full">
-                <div className="w-full flex-[0.6] h-[25px] px-[18px] py-[6px] text-left font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-[#000000] whitespace-nowrap">
+              <div className="flex w-full max-lg:flex-col max-lg:gap-[8px]">
+                <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
                   담당 업무
                 </div>
-                <div className="w-full flex-[9.4] h-[162px] bg-[#FFFFFF] border-[1.5px] border-[#BBBBBB] rounded-[8px] font-[Pretendard] text-[18px] font-normal leading-[26px] text-black p-4" />
+                <div
+                  ref={taskRef}
+                  className="w-full lg:flex-[9.4] h-[162px] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 overflow-y-auto"
+                >
+                  {/* 담당 업무 내용을 여기에 */}
+                </div>
               </div>
 
               {/* 주요 성과 */}
-              <div className="flex w-full">
-                <div className="w-full flex-[0.6] h-[25px] px-[18px] py-[6px] text-left font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-[#000000] whitespace-nowrap">
+              <div className="flex w-full max-lg:flex-col max-lg:gap-[8px]">
+                <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
                   주요 성과
                 </div>
-                <div className="w-full flex-[9.4] h-[162px] bg-[#FFFFFF] border-[1.5px] border-[#BBBBBB] rounded-[8px] font-[Pretendard] text-[18px] font-normal leading-[26px] text-black p-4" />
+                <div
+                  ref={resultRef}
+                  className="w-full lg:flex-[9.4] h-[162px] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 overflow-y-auto"
+                >
+                  {/* 주요 성과 내용을 여기에 */}
+                </div>
               </div>
 
               {/* 배운 점 */}
-              <div className="flex w-full">
-                <div className="w-full flex-[0.6] h-[25px] px-[18px] py-[6px] text-left font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-[#000000] whitespace-nowrap">
+              <div className="flex w-full max-lg:flex-col max-lg:gap-[8px]">
+                <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
                   배운 점
                 </div>
-                <div className="w-full flex-[9.4] h-[162px] bg-[#FFFFFF] border-[1.5px] border-[#BBBBBB] rounded-[8px] font-[Pretendard] text-[18px] font-normal leading-[26px] text-black p-4" />
+                <div
+                  ref={learnRef}
+                  className="w-full lg:flex-[9.4] h-[162px] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 overflow-y-auto"
+                >
+                  {/* 배운 점 내용을 여기에 */}
+                </div>
               </div>
             </div>
           )}

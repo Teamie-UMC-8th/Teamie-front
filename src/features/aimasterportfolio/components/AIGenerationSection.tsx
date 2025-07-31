@@ -6,7 +6,7 @@ export default function AIGenerationSection() {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-[804px] rounded-[16px] bg-[#F8F8F8] shadow-[0_0_4px_rgba(0,0,0,0.20)] p-[40px] gap-[32px]">
+    <div className="flex flex-col items-center justify-center w-[1492px] max-lg:w-[928px] h-[804px] max-lg:h-[720spx] rounded-[16px] bg-[#F8F8F8] shadow-[0_0_4px_rgba(0,0,0,0.20)] p-[40px] gap-[32px]">
       <div className="w-[160px] h-[160px] bg-[#D9D9D9]" />
       <p className="w-[275px] h-[56px] font-[Pretendard] text-[20px] leading-[28px] font-semibold text-[#000000] text-center">
         Teamie의 AI, 티미와 함께 마스터 포트폴리오를 생성해보세요!
@@ -20,6 +20,3 @@ export default function AIGenerationSection() {
     </div>
   );
 }
-
-
-//시작하기 버튼 누르고 넘어가
