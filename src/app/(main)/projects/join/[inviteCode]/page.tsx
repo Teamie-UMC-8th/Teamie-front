@@ -57,13 +57,13 @@ export default function JoinProject() {
       console.error('초대코드 유효성 확인 오류:', getProjectQuery.error);
 
       // 에러 응답에서 errorCode를 확인하여 처리 방식 결정
-      const errorResponse = getProjectQuery.error as any;
-      const errorCode = errorResponse?.response?.data?.error?.errorCode;
-      const errorReason = errorResponse?.response?.data?.error?.reason;
+      const errorResponse = getProjectQuery.error;
+      const errorCode = errorResponse.response?.data?.error?.errorCode;
+      const errorReason = errorResponse.response?.data?.error?.reason;
 
       if (errorCode === 'ALREADY_JOINED') {
         // 이미 참여한 프로젝트 - result에서 projectId를 추출하여 프로젝트 홈으로 리다이렉트
-        const projectId = errorResponse?.response?.data?.result?.projectId;
+        const projectId = errorResponse?.response?.data?.result?.project?.id;
         if (projectId) {
           console.log('이미 참여한 프로젝트입니다. 프로젝트 홈으로 이동합니다.');
           router.push(`/projects/${projectId}`);

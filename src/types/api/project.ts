@@ -22,7 +22,7 @@ export interface GetJoinProjectResponse {
   error: {
     errorCode: string;
     reason: string;
-    data: any;
+    data: null;
   };
   result: {
     project?: {
