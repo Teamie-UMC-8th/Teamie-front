@@ -4,11 +4,9 @@ import { UploadFileResponse } from '@/types/api/fileUploader';
 import { deleteTaskFile } from '@/services/taskDetail/addFile';
 
 export const useUploadTaskFile = () => {
-  const queryClient = useQueryClient();
-
   return useMutation<UploadFileResponse, Error, { taskId: number; file: File }>({
     mutationFn: ({ taskId, file }) => uploadTaskFile(taskId, file),
-    onSuccess: (data, variables) => {
+    onSuccess: (data) => {
       // 필요 시 캐시 무효화 등의 로직 추가 가능
       console.log('파일 업로드 성공:', data);
     },
