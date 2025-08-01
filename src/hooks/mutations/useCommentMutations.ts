@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { addComment } from '@/services/taskDetail/addComment';
 import { AddCommentResponse } from '@/types/api/comment';
-import { getMockAddCommentResponse } from '@/constants/commentMockData';
 
 // 댓글 추가 mutation
 export const useAddComment = () => {
@@ -29,7 +28,7 @@ export const useUpdateComment = () => {
       // 실제 API가 준비되면 여기에 구현
       return Promise.resolve({ commentId, content });
     },
-    onSuccess: (_data, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['taskComments'] });
     },
     onError: (error: Error) => {
@@ -47,7 +46,7 @@ export const useDeleteComment = () => {
       // 실제 API가 준비되면 여기에 구현
       return Promise.resolve({ commentId });
     },
-    onSuccess: (_data, commentId) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['taskComments'] });
     },
     onError: (error: Error) => {
