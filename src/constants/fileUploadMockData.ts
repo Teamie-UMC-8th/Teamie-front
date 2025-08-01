@@ -11,7 +11,7 @@ export const getMockUploadFileResponse = (taskId: number, file: File): UploadFil
 });
 
 // 파일 삭제 모의 응답 데이터
-export const getMockDeleteFileResponse = (taskFileId: number): DeleteFileResponse => ({
+export const getMockDeleteFileResponse = (): DeleteFileResponse => ({
   message: '업무 파일이 삭제되었습니다.',
 });
 

@@ -1,7 +1,7 @@
 import { TaskDetailResponse } from '@/types/api/taskDetail';
 
 // 모의 데이터
-const getMockTaskData = (taskId: number): TaskDetailResponse => ({
+const getMockTaskData = (): TaskDetailResponse => ({
   isSuccess: true,
   error: null,
   result: {
