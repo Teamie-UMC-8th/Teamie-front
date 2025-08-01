@@ -4,10 +4,10 @@ import Link from 'next/dist/client/link';
 
 export default function Tailored() {
   return (
-    <div className="flex">
+    <div className="grid grid-cols-2 gap-[24px] max-lg:grid-cols-2">
       <Link href="/mypage/tailoredportfolio">
         <button
-          className="bg-[#F8F8F8] w-[465px] h-[192px] rounded-[8px] grid justify-center mr-[24px] cursor-pointer
+          className="bg-[#F8F8F8] w-[465px] h-[192px] rounded-[8px] grid justify-center cursor-pointer
           max-lg:w-[421px] max-lg:h-[180px]"
           style={{ boxShadow: '0px 0px 4px 0px #00000033' }}
         >

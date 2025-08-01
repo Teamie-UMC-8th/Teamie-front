@@ -5,7 +5,7 @@ import Link from 'next/link';
 export default function AiLoadingPage() {
   return (
     <div
-      className="ml-[80px]
+      className="ml-[300px]
     max-lg:ml-[24px]"
     >
       <div className="flex flex-col items-center">
@@ -18,6 +18,7 @@ export default function AiLoadingPage() {
         <div
           className="w-[1359px] h-[800px] bg-[#F8F8F8] rounded-[16px] relative
         max-lg:w-[928px] max-lg:h-[878px]"
+          style={{ boxShadow: '0px 0px 10px 0px #00000033' }}
         >
           <div
             className="flex items-start ml-[60px] mt-[32px]
@@ -102,14 +103,6 @@ export default function AiLoadingPage() {
                 className="absolute top-[36px] left-[52px] cursor-pointer"
               />
             </Link>
-          </div>
-          <div className="relative ml-[1068px] mt-[20px]">
-            <img src="/icons/NextPageBubble.svg" alt="다음으로 말풍선" />
-            <img
-              src="/icons/NextPageOff.svg"
-              alt="다음으로"
-              className="absolute top-[36px] left-[52px]"
-            />
           </div>
         </div>
       </div>

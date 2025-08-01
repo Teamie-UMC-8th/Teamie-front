@@ -6,7 +6,7 @@ import Link from 'next/link';
 export default function ProjectSelect() {
   return (
     <div
-      className="ml-[80px]
+      className="ml-[300px]
     max-lg:ml-[24px]"
     >
       <div className="flex flex-col items-center">
@@ -19,6 +19,7 @@ export default function ProjectSelect() {
         <div
           className="w-[1359px] h-[970px] bg-[#F8F8F8] rounded-[16px] relative
         max-lg:w-[928px] max-lg:h-[947px]"
+          style={{ boxShadow: '0px 0px 10px 0px #00000033' }}
         >
           <div
             className="flex items-start ml-[60px] mt-[32px]
@@ -56,7 +57,7 @@ export default function ProjectSelect() {
                   <p>의 프로젝트까지 선택 가능해요.</p>
                 </div>
                 <div
-                  className="border border-[#898989] rounded-[12px] w-[1008px] h-[506px] mt-[24px] px-[24px] py-[24px]
+                  className="border border-[#898989] rounded-[12px] w-[1008px] h-[506px] mt-[24px] px-[24px] py-[24px] overflow-y-auto
                 max-lg:mt-[50px] max-lg:w-[521px] max-lg:h-[512px] max-lg:px-[28px] max-lg:py-[24px] max-lg:ml-[57px]"
                 >
                   <Projects />
