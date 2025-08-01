@@ -20,7 +20,8 @@ export const fetchMasterPortfolioList = async (cursor?: string) => {
 // 마스터 포트폴리오 상세 정보를 가져오는 함수(마스터포트폴리오)
 export const fetchMasterPortfolioDetail = async (projectId: number) => {
   const res: AxiosResponse<MasterPortfolioDetailResponse> = await axiosInstance.get(
-    `/api/v1/master-portfolios/${projectId}`
+    //`/api/v1/master-portfolios/${projectId}`
+    `/api/v1/master-portfolios/247`
   );
   return res.data.result;
 };
@@ -30,7 +31,8 @@ export const postMasterPortfolioQuestions = async (
   projectId: number
 ): Promise<MasterPortfolioQuestionResponse['result']> => {
   const res: AxiosResponse<MasterPortfolioQuestionResponse> = await axiosInstance.post(
-    `/api/v1/master-portfolios/${projectId}/questions`
+    //`/api/v1/master-portfolios/${projectId}/questions`
+    `/api/v1/master-portfolios/247/questions`
   );
   return res.data.result;
 };

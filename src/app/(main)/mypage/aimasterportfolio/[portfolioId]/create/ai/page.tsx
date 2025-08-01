@@ -11,7 +11,7 @@ import Step3 from '@/features/aimasterportfolio/components/steps/Step3';
 import { useRouter } from 'next/navigation';
 import AIConfirmModal from '@/features/aimasterportfolio/components/AIConfirmModal';
 import { useParams } from 'next/navigation';
-
+import { usePostMasterPortfolioQuestions } from '@/hooks/mutations/useMasterPortfolio'; // ✅ 추가
 
 const AI_CREATE_STEPS = [
   {
@@ -19,7 +19,11 @@ const AI_CREATE_STEPS = [
     title: '개인 회고 작성',
     buttons: {
       sub: '개인 회고로 이동',
-      main: <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">다음으로 →</span>,
+      main: (
+        <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">
+          다음으로 →
+        </span>
+      ),
     },
   },
   {
@@ -27,7 +31,11 @@ const AI_CREATE_STEPS = [
     title: '회의록 선택',
     buttons: {
       sub: '← 이전으로',
-      main: <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">다음으로 →</span>,
+      main: (
+        <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">
+          다음으로 →
+        </span>
+      ),
     },
   },
   {
@@ -35,7 +43,11 @@ const AI_CREATE_STEPS = [
     title: '추가 질문',
     buttons: {
       sub: '임시저장',
-      main: <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">AI 마스터 포트폴리오 생성하기</span>,
+      main: (
+        <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">
+          AI 마스터 포트폴리오 생성하기
+        </span>
+      ),
     },
   },
 ];
@@ -43,14 +55,12 @@ const AI_CREATE_STEPS = [
 export default function AIMasterPortfolioCreatePage() {
   const router = useRouter();
   const params = useParams();
-  const projectId = params.projectId as string;
+  const projectId = params.portfolioId as string;
   const { currentStep, goToStep } = useFunnel();
   const [scrollY, setScrollY] = useState(0);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  
-  
 
-
+  const { mutate } = usePostMasterPortfolioQuestions();
   useEffect(() => {
     const handleScroll = () => {
       setScrollY(window.scrollY);
@@ -61,6 +71,22 @@ export default function AIMasterPortfolioCreatePage() {
   }, []);
 
   const sidebarPaddingTop = Math.max(0, 56 - scrollY);
+
+  const handleMainButtonClick = () => {
+    if (currentStep === 2) {
+      mutate(Number(projectId), {
+        onSuccess: () => {
+          setShowConfirmModal(true);
+        },
+        onError: (error) => {
+          console.error('질문 생성 실패:', error);
+          alert('질문 생성 중 오류가 발생했습니다.');
+        },
+      });
+    } else {
+      goToStep(currentStep + 1);
+    }
+  };
 
   return (
     <>
@@ -91,16 +117,17 @@ export default function AIMasterPortfolioCreatePage() {
 
                 {/* 첫번째 버블 */}
                 <div className="relative w-full h-full">
-                  <div className="w-full h-full bg-white border-none rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.10)] 
+                  <div
+                    className="w-full h-full bg-white border-none rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.10)] 
                   p-[50px] max-lg:px-[36px] max-lg:py-[32px]
-                  max-lg:text-[16px] max-lg:leading-[24px]">
+                  max-lg:text-[16px] max-lg:leading-[24px]"
+                  >
                     {currentStep === 0 && <Step1 />}
                     {currentStep === 1 && <Step2 />}
                     {currentStep === 2 && <Step3 />}
                   </div>
                   <Image
                     className="absolute top-[0] left-[-6px] translate-x-[-50%] translate-y-[50%]"
-
                     src="/icons/spike-left.svg"
                     alt="spike-left"
                     width={30}
@@ -127,13 +154,7 @@ export default function AIMasterPortfolioCreatePage() {
 
                   <button
                     className="rounded-[6px] border-[1px] border-[#81D7D4] bg-[#81D7D4] p-[6px] px-[32px] text-[#FFF] cursor-pointer"
-                    onClick={() => {
-                      if (currentStep === 2) {
-                        setShowConfirmModal(true);
-                      } else {
-                        goToStep(currentStep + 1);
-                      }
-                    }}
+                    onClick={handleMainButtonClick}
                   >
                     {AI_CREATE_STEPS[currentStep].buttons.main}
                   </button>
@@ -154,7 +175,7 @@ export default function AIMasterPortfolioCreatePage() {
       {showConfirmModal && (
         <AIConfirmModal
           onConfirm={() => {
-            router.push('/mypage/aimasterportfolio/final');
+            router.push(`/mypage/aimasterportfolio/${projectId}/final`);
           }}
           onCancel={() => setShowConfirmModal(false)}
         />
