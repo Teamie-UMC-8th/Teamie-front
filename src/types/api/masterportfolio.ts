@@ -32,9 +32,9 @@ export interface MasterPortfolioDetail {
   assignedTask: string;
   keyAchievement: string;
   insight: string;
-  contributionRate: number;
-  mainTask: string;
-  category: string;
+  contributionRate?: number; //
+  mainTask?: string;
+  category?: string;
 }
 
 // 마스터 포트폴리오 상세 정보 응답 구조 타입 정의(마스터포트폴리오)
@@ -42,4 +42,20 @@ export interface MasterPortfolioDetailResponse {
   isSuccess: boolean;
   error: null;
   result: MasterPortfolioDetail;
+}
+
+// 마스터 포트폴리오 질문 생성 타입 정의(마스터포트폴리오)
+export interface MasterPortfolioQuestion {
+  questionId: number;
+  question: string;
+  questionType: string;
+  answer: string;
+  reason: string;
+}
+
+// 마스터 포트폴리오 질문 생성 응답 정의 타입 정의(마스터포트폴리오)
+export interface MasterPortfolioQuestionResponse {
+  isSuccess: boolean;
+  error: null;
+  result: MasterPortfolioQuestion[];
 }

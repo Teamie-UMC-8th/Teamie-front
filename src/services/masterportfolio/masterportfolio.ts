@@ -2,6 +2,7 @@ import axiosInstance from '@/lib/axiosInstance';
 import {
   MasterPortfolioListResponse,
   MasterPortfolioDetailResponse,
+  MasterPortfolioQuestionResponse,
 } from '@/types/api/masterportfolio';
 import { AxiosResponse } from 'axios';
 
@@ -20,6 +21,16 @@ export const fetchMasterPortfolioList = async (cursor?: string) => {
 export const fetchMasterPortfolioDetail = async (projectId: number) => {
   const res: AxiosResponse<MasterPortfolioDetailResponse> = await axiosInstance.get(
     `/api/v1/master-portfolios/${projectId}`
+  );
+  return res.data.result;
+};
+
+// 마스터 포트폴리오 질문 생성 API
+export const postMasterPortfolioQuestions = async (
+  projectId: number
+): Promise<MasterPortfolioQuestionResponse['result']> => {
+  const res: AxiosResponse<MasterPortfolioQuestionResponse> = await axiosInstance.post(
+    `/api/v1/master-portfolios/${projectId}/questions`
   );
   return res.data.result;
 };
