@@ -1,11 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import {
-  checkTaskDetail,
-  updateTaskDetail,
-  deleteTaskDetail,
-} from '@/services/taskDetail/checkTaskDetail';
+import { updateTaskDetail, deleteTaskDetail } from '@/services/taskDetail/checkTaskDetail';
 import {
   UpdateTaskRequest,
   UpdateTaskResponse,
@@ -95,11 +91,11 @@ export const useTaskDeleteHandler = () => {
 
       // 대시보드로 이동
       router.push(`/projects/${projectId}/dashboard`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('삭제 실패:', err);
 
       // 구체적인 에러 메시지 표시
-      const errorMessage = err.message || '삭제 중 오류가 발생했습니다.';
+      const errorMessage = err instanceof Error ? err.message : '삭제 중 오류가 발생했습니다.';
       alert(errorMessage);
     }
   };
