@@ -24,14 +24,10 @@ export default function AddProfileButton({ profiles, onChange }: AddProfileButto
 
   /* 프로필 선택 */
   const handleSelect = (profile: Manager) => {
-    const updated = [...selectedProfiles, profile].sort(
-      (a, b) =>
-        profiles.findIndex((p) => p.userId === a.userId) -
-        profiles.findIndex((p) => p.userId === b.userId)
-    );
+    const updated = [...selectedProfiles, profile];
     setSelectedProfiles(updated);
     onChange?.(updated.map((p) => p.userId));
-    setDropdownOpen(false);
+    // 드롭다운을 닫지 않도록 setDropdownOpen(false) 제거
   };
 
   /* 프로필 제거 */
