@@ -1,22 +1,35 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const STATUS_OPTIONS = [
-  { label: '시작 전', color: 'bg-[#E7E7E7]' },
-  { label: '진행 중', color: 'bg-[#B6F5DF]' },
-  { label: '완료', color: 'bg-[#A1C2ED]' },
-];
+  { label: '시작 전', value: 'BEFORE', color: 'bg-[#E7E7E7]' },
+  { label: '진행 중', value: 'ONGOING', color: 'bg-[#B6F5DF]' },
+  { label: '완료', value: 'COMPLETE', color: 'bg-[#A1C2ED]' },
+] as const;
 
-export default function TaskDropdown() {
-  const [selected, setSelected] = useState(STATUS_OPTIONS[0]); // '시작 전' 초기값
+interface TaskDropdownProps {
+  status: 'BEFORE' | 'ONGOING' | 'COMPLETE';
+  onChange?: (status: 'BEFORE' | 'ONGOING' | 'COMPLETE') => void;
+}
+
+export default function TaskDropdown({ status, onChange }: TaskDropdownProps) {
+  const [selected, setSelected] = useState(
+    () => STATUS_OPTIONS.find((s) => s.value === status) || STATUS_OPTIONS[0]
+  );
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    const match = STATUS_OPTIONS.find((s) => s.value === status);
+    if (match) setSelected(match);
+  }, [status]);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
   const handleSelect = (option: (typeof STATUS_OPTIONS)[number]) => {
     setSelected(option);
     setIsOpen(false);
+    onChange?.(option.value);
   };
 
   return (
@@ -29,8 +42,6 @@ export default function TaskDropdown() {
         >
           {selected.label}
         </button>
-
-        {/* 드롭다운 아이콘 */}
         <img
           src="/icons/drop-down.svg"
           alt="드롭다운"

@@ -17,7 +17,7 @@ export default function PersonalSection() {
   useEffect(() => {
     console.log('params:', params);
     console.log('projectId:', projectId);
-  }, [params]);
+  }, [params, projectId]);
 
   const handleSave = (
     field: 'collaborationProfile' | 'memorableExperience' | 'strengthsAndGrowth',

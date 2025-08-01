@@ -1,5 +1,5 @@
-import { useState } from "react";
-import DeleteButtonModal from "./DeleteButtonModal";
+import { useState } from 'react';
+import DeleteButtonModal from './DeleteButtonModal';
 
 type DeleteButtonProps = {
   onDelete: () => void;
@@ -11,10 +11,10 @@ type DeleteButtonProps = {
 
 export default function DeleteButton({
   onDelete,
-  modalTitle = "이 일정을 정말 삭제하시겠습니까?",
-  confirmText = "예",
-  cancelText = "아니오",
-  className = "",
+  modalTitle = '이 일정을 정말 삭제하시겠습니까?',
+  confirmText = '예',
+  cancelText = '아니오',
+  className = '',
 }: DeleteButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
