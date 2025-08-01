@@ -8,10 +8,11 @@ import { formatDateRange } from '@/utils/formatDate';
 export default function Projects() {
   const pathname = usePathname();
   const isAnalyzeFinPage = pathname === '/mypage/addcorrection/projectSelect';
+  const isMyPage = pathname === '/mypage';
   const { data } = useMasterPortfolioList();
 
   return (
-    <div className="grid grid-cols-2 gap-[24px] max-lg:grid-cols-1">
+    <div className={`grid grid-cols-2 gap-[24px] ${!isMyPage ? 'max-lg:grid-cols-1' : ''}`}>
       {data?.data.map((item) => (
         <Link href={`/mypage/aimasterportfolio/${item.portfolioId}`} key={item.portfolioId}>
           <button
