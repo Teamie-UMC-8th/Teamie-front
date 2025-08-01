@@ -1,8 +1,7 @@
 'use client';
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
-import { checkTaskDetail } from '@/services/taskDetail/checkTaskDetail';
 import { useParams } from 'next/navigation';
+import { checkTaskDetail } from '@/services/taskDetail/checkTaskDetail';
 import AddProfileButton from '@/components/AddProfileButton';
 import BackButton from '@/components/BackButton';
 import DeleteButton from '@/components/DeleteButton';
@@ -17,7 +16,7 @@ import {
 import { getMockUserList } from '@/constants/taskDetailMockData';
 import axiosInstance from '@/lib/axiosInstance';
 
-export default function taskDetailPage() {
+export default function TaskDetailPage() {
   const params = useParams();
   const taskId = Number(params.taskId);
   const projectId = Number(params.projectId);
@@ -50,8 +49,8 @@ export default function taskDetailPage() {
   });
 
   const updateTaskMutation = useUpdateTaskDetail();
-  const { handleDelete, isDeleting } = useTaskDeleteHandler();
-  const { memo, setMemo, handleMemoChange, isUpdating } = useTaskMemoHandler();
+  const { handleDelete } = useTaskDeleteHandler();
+  const { memo, handleMemoChange } = useTaskMemoHandler();
 
   // 로딩 상태 처리
   if (isLoading) {
