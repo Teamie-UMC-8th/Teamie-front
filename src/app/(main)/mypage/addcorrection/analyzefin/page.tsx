@@ -25,7 +25,7 @@ export default function Analyzefin() {
           max-lg:ml-[32px] max-lg:mt-[8px]"
           >
             <img
-              src="/icons/AiLogo.svg"
+              src="/icons/AiCharacter.svg"
               alt="AI 로고"
               className="translate-y-[34px]
             max-lg:w-[60px] max-lg:h-[60px] max-lg:translate-y-[32px]"

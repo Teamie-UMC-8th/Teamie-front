@@ -42,7 +42,7 @@ export default function CorrectionStartButtonModal({
         <div className="w-[251px] grid place-items-center">
           <div className="flex items-start">
             <img
-              src="/icons/CorrectionModalIcon.svg"
+              src="/icons/CreditIcon.svg"
               alt="첨삭 모달 아이콘"
               className="mt-[2px] mr-[12px]"
             />
