@@ -32,7 +32,7 @@ export default function AddComment() {
           setNewComment('');
           console.log('댓글 추가 성공:', data.result);
         },
-        onError: (error: any) => {
+        onError: (error: Error) => {
           console.error('댓글 추가 실패:', error);
           alert(error.message || '댓글 추가에 실패했습니다.');
         },
