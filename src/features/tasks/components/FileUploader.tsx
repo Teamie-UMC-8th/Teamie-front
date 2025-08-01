@@ -37,7 +37,7 @@ export default function FileUploader() {
                 );
                 console.log('파일 업로드 성공:', data.result);
               },
-              onError: (error: any) => {
+              onError: (error: Error) => {
                 console.error('파일 업로드 실패:', error);
                 alert(error.message || '파일 업로드에 실패했습니다.');
                 // 실패한 파일 제거
@@ -69,7 +69,7 @@ export default function FileUploader() {
                 );
                 console.log('파일 업로드 성공:', data.result);
               },
-              onError: (error: any) => {
+              onError: (error: Error) => {
                 console.error('파일 업로드 실패:', error);
                 alert(error.message || '파일 업로드에 실패했습니다.');
                 // 실패한 파일 제거
@@ -147,7 +147,7 @@ export default function FileUploader() {
                           console.log('파일 삭제 성공:', data.message);
                           setFiles((prev) => prev.filter((_, i) => i !== index));
                         },
-                        onError: (error: any) => {
+                        onError: (error: Error) => {
                           console.error('파일 삭제 실패:', error);
                           alert(error.message || '파일 삭제에 실패했습니다.');
                         },
