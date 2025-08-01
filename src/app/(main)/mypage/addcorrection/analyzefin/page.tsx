@@ -18,6 +18,7 @@ export default function Analyzefin() {
         <div
           className="w-[1359px] h-[800px] bg-[#F8F8F8] rounded-[16px] relative
         max-lg:w-[928px] max-lg:h-[878px]"
+          style={{ boxShadow: '0px 0px 10px 0px #00000033' }}
         >
           <div
             className="flex items-start ml-[60px] mt-[32px]
