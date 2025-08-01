@@ -5,6 +5,7 @@ import { useCreateProject } from '@/hooks/mutations/useCreateProject';
 import { formatToKoreanDate } from '@/utils/formatDate';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useThrottle } from '@/hooks/useThrottle';
 
 export default function New() {
   const router = useRouter();
@@ -13,6 +14,9 @@ export default function New() {
   const [projectName, setProjectName] = useState('');
   const [inviteCode, setInviteCode] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
+
+  // 1초 throttle 적용
+  const throttledCreateProject = useThrottle(1000);
 
   const createProjectMutation = useCreateProject(
     (response) => {
@@ -38,7 +42,10 @@ export default function New() {
       return;
     }
 
-    createProjectMutation.mutate({ name: projectName });
+    // throttle 적용하여 중복 요청 방지
+    throttledCreateProject(() => {
+      createProjectMutation.mutate({ name: projectName });
+    });
   };
 
   const handleRedirect = () => {
