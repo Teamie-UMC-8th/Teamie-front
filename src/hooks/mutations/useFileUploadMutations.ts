@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { uploadTaskFile, deleteTaskFile } from '@/services/taskDetail/uploadFile';
-import { UploadFileResponse, DeleteFileResponse } from '@/types/api/fileUpload';
+import { UploadFileResponse } from '@/types/api/fileUpload';
 
 // 파일 업로드 mutation
 export const useUploadTaskFile = () => {

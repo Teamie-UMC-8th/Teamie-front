@@ -40,7 +40,7 @@ export const checkTaskDetail = async (taskId: number): Promise<TaskDetailRespons
       'status' in error.response &&
       error.response.status === 404
     ) {
-      const errorData = (error.response as any).data;
+      const errorData = (error.response as { data?: { error?: { reason?: string } } }).data;
       if (errorData?.error?.reason) {
         throw new Error(errorData.error.reason);
       }

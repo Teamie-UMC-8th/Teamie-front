@@ -76,7 +76,7 @@ export default function taskDetailPage() {
           <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px]  mr-[28px]">
             참석자
           </div>
-          <AddProfileButton />
+          <AddProfileButton profiles={[]} />
         </div>
 
         {/* 비고 */}
@@ -105,7 +105,7 @@ export default function taskDetailPage() {
             <div className="border-l-[2px] border-[#898989] h-[22px]" />
             <p className="text-[18px] ml-[12px] mr-[12px]">기록자</p>
             <div className="border-l-[2px] border-[#898989] h-[22px] mr-[12px]" />
-            <AddProfileButton />
+            <AddProfileButton profiles={[]} />
           </div>
           <textarea
             className="w-[1415px] h-[428px] px-[20px] py-[16px] border-[2px] rounded-[6px] border-[#BBBBBB] mt-[15px]
