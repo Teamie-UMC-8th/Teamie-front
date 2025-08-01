@@ -1,4 +1,3 @@
-// 마스터 포트폴리오 관련 타입 정의(마이페이지)
 export interface MasterPortfolio {
   portfolioId: number;
   projectName: string;
@@ -9,13 +8,11 @@ export interface MasterPortfolio {
   mainTask: string;
 }
 
-// API 응답 구조 타입 정의(마이페이지)
 export interface PageInfo {
   nextCursor: string | null;
   hasNextPage: boolean;
 }
 
-// 마스터 포트폴리오 목록 응답 구조 타입 정의(마이페이지)
 export interface MasterPortfolioListResponse {
   isSuccess: boolean;
   error: null;
@@ -25,26 +22,39 @@ export interface MasterPortfolioListResponse {
   };
 }
 
-// 마스터 포트폴리오 상세 정보 타입 정의(마스터포트폴리오)
+export enum PortfolioCategory {
+  COURSE = 'COURSE', // 수업
+  CLUB = 'CLUB', // 동아리
+  ACTIVITY = 'ACTIVITY', // 대외활동
+  PROJECT = 'PROJECT', // 프로젝트
+  OTHER = 'OTHER', // 기타
+}
+
 export interface MasterPortfolioDetail {
   id: number;
   detailInfo: string;
   assignedTask: string;
   keyAchievement: string;
   insight: string;
-  contributionRate?: number; //
-  mainTask?: string;
-  category?: string;
+  contributionRate: number;
+  category: PortfolioCategory;
 }
 
-// 마스터 포트폴리오 상세 정보 응답 구조 타입 정의(마스터포트폴리오)
 export interface MasterPortfolioDetailResponse {
   isSuccess: boolean;
   error: null;
   result: MasterPortfolioDetail;
 }
 
-// 마스터 포트폴리오 질문 생성 타입 정의(마스터포트폴리오)
+export interface PatchMasterPortfolioRequest {
+  detailInfo: string;
+  assignedTask: string;
+  keyAchievement: string;
+  insight: string;
+  contributionRate: number;
+  category: PortfolioCategory;
+}
+
 export interface MasterPortfolioQuestion {
   questionId: number;
   question: string;
@@ -53,7 +63,6 @@ export interface MasterPortfolioQuestion {
   reason: string;
 }
 
-// 마스터 포트폴리오 질문 생성 응답 정의 타입 정의(마스터포트폴리오)
 export interface MasterPortfolioQuestionResponse {
   isSuccess: boolean;
   error: null;

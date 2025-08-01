@@ -36,3 +36,34 @@ export const postMasterPortfolioQuestions = async (
   );
   return res.data.result;
 };
+
+// 마스터 포트폴리오 결과 조회 API
+export const getMasterPortfolioDetail = async (
+  projectId: number
+): Promise<MasterPortfolioDetailResponse['result']> => {
+  const res: AxiosResponse<MasterPortfolioDetailResponse> = await axiosInstance.get(
+    `/api/v1/master-portfolios/${projectId}`
+  );
+  return res.data.result;
+};
+
+//마스터 포트폴리오 업데이트 API
+export interface PatchMasterPortfolioRequest {
+  detailInfo: string;
+  assignedTask: string;
+  keyAchievement: string;
+  insight: string;
+  contributionRate: number;
+  category: 'PROJECT' | 'CLUB' | 'OUTSIDE' | 'CLASS' | 'OTHER'; // API에 맞게 enum 값
+}
+
+export const patchMasterPortfolio = async (
+  projectId: number,
+  data: PatchMasterPortfolioRequest
+): Promise<MasterPortfolioDetailResponse['result']> => {
+  const response: AxiosResponse<MasterPortfolioDetailResponse> = await axiosInstance.patch(
+    `/api/v1/master-portfolios/${projectId}`,
+    data
+  );
+  return response.data.result;
+};
