@@ -8,6 +8,9 @@ export const patchPersonalRetro = async ({
   projectId: number;
   data: PersonalRetro;
 }) => {
-  const response = await axiosInstance.patch(`/api/v1/projects/${projectId}/personal-recalls`, data);
+  const response = await axiosInstance.patch(
+    `/api/v1/projects/${projectId}/personal-recalls`,
+    data
+  );
   return response.data;
 };
