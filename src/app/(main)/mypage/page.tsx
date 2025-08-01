@@ -110,7 +110,7 @@ export default function MyPage() {
                   src="/icons/Upgrade-pro.svg"
                   alt="UpgradePro"
                   className="mt-[2.5rem] ml-[133px]
-                  max-lg:translate-x-[-42.5rem] max-lg:translate-y-[3.75rem]"
+                  max-lg:translate-x-[-43.8rem] max-lg:translate-y-[3.75rem]"
                 />
               )}
               {showToggle && (
@@ -148,14 +148,12 @@ export default function MyPage() {
 
         {/* 포트폴리오 */}
         <div
-          className="flex flex-col ml-[143px] mt-[-16px]
+          className="flex flex-col ml-[143px] mt-[0px]
         max-lg:ml-[0rem] max-lg:mt-[5rem]"
         >
-          <div
-            className={`flex items-center justify-between ${showToggle ? 'mb-[1.4rem]' : 'mb-[2.4rem] mt-4'}`}
-          >
+          <div className="flex items-center justify-between mb-[2.5rem]">
             <h2 className="text-[1.375rem] font-bold ">포트폴리오</h2>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 h-[20px]">
               {/* AI 첨삭일 때만 + 버튼 표시 */}
               {showToggle && selected === 'ai' && <AddCorrectionButton />}
               {showToggle && (
