@@ -6,7 +6,7 @@ import Link from 'next/link';
 export default function ProjectSelect() {
   return (
     <div
-      className="ml-[80px]
+      className="ml-[300px]
     max-lg:ml-[24px]"
     >
       <div className="flex flex-col items-center">

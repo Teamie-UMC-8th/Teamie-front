@@ -6,7 +6,7 @@ export default function CorrectionIntro() {
   /* TODO: Sidebar 제거 후 간격 재조정 */
   return (
     <div
-      className="ml-[80px]
+      className="ml-[300px]
     max-lg:ml-[24px]"
     >
       <div className="flex flex-col items-center">
@@ -19,6 +19,7 @@ export default function CorrectionIntro() {
         <div
           className="w-[1359px] h-[800px] bg-[#F8F8F8] rounded-[16px] relative
         max-lg:w-[928px] max-lg:h-[878px]"
+          style={{ boxShadow: '0px 0px 10px 0px #00000033' }}
         >
           <div
             className="flex items-start ml-[60px] mt-[32px]
