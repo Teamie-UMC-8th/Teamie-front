@@ -20,6 +20,19 @@ export default function AIGenerationSection() {
       >
         시작하기
       </button>
+      <textarea
+  placeholder="기여도를 입력해주세요."
+  className="
+    w-[205px] h-[42px]
+    px-[20px] py-[8px]
+    border-[1.5px] border-[#BBBBBB]
+    rounded-[6px]
+    bg-[#F8F8F8]
+    text-lg text-gray-700
+    placeholder-gray-500
+    resize-none
+  "
+    />
     </div>
   );
 }
