@@ -1,4 +1,65 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import PostIt from '@/features/projectHome/components/PostIt';
+import PostItModal from '@/features/projectHome/components/PostItModal';
+import Portal from '@/components/Portal';
+
+interface PostItData {
+  id: string;
+  content: string;
+  createdAt: number;
+}
+
 export default function ProjectHomePage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [postIts, setPostIts] = useState<PostItData[]>([]);
+
+  // 48시간 후 자동 삭제 체크
+  useEffect(() => {
+    const checkExpiredPostIts = () => {
+      const now = Date.now();
+      const fortyEightHours = 48 * 60 * 60 * 1000; // 48시간을 밀리초로
+
+      setPostIts((prevPostIts) =>
+        prevPostIts.filter((postIt) => {
+          const timeElapsed = now - postIt.createdAt;
+          return timeElapsed < fortyEightHours;
+        })
+      );
+    };
+
+    // 초기 체크
+    checkExpiredPostIts();
+
+    // 1분마다 체크
+    const interval = setInterval(checkExpiredPostIts, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleBoardClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleSavePostIt = (content: string) => {
+    const newPostIt: PostItData = {
+      id: Date.now().toString(),
+      content: content,
+      createdAt: Date.now(),
+    };
+    setPostIts([...postIts, newPostIt]);
+    setIsModalOpen(false);
+  };
+
+  const handleDeletePostIt = (id: string) => {
+    setPostIts(postIts.filter((postIt) => postIt.id !== id));
+  };
+
   return (
     <div>
       {/* 헤더 */}
@@ -14,10 +75,35 @@ export default function ProjectHomePage() {
         <div className="flex-col">
           <p className="text-[22px] font-semibold">게시판</p>
           <div
-            className="w-[920px] h-[344px] border-[2px] border-[#BBBBBB] mt-[24px] rounded-[8px] px-[48px] py-[36px] gap-x-[48px] gap-y-[32px]
+            className="w-[920px] h-[344px] border-[2px] border-[#BBBBBB] mt-[24px] rounded-[8px] px-[48px] py-[36px] gap-x-[48px] gap-y-[32px] relative cursor-pointer
           max-lg:w-[862px] max-lg:h-[344px]"
+            onClick={handleBoardClick}
           >
-            <img src="/icons/Post-it.svg" alt="게시판 포스트잇" className="relative" />
+            <div className="relative w-full h-full">
+              {postIts.map((postIt, index) => {
+                const row = Math.floor(index / 5);
+                const col = index % 5;
+                const leftOffset = row === 1 ? 32 : 0;
+
+                return (
+                  <div
+                    key={postIt.id}
+                    className="absolute"
+                    style={{
+                      left: `${leftOffset + col * (120 + 48)}px`,
+                      top: `${row * (120 + 32)}px`,
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <PostIt
+                      content={postIt.content}
+                      onDelete={() => handleDeletePostIt(postIt.id)}
+                      createdAt={postIt.createdAt}
+                    />
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
         <div className="flex-col">
@@ -117,6 +203,12 @@ export default function ProjectHomePage() {
           </div>
         </div>
       </div>
+
+      {isModalOpen && (
+        <Portal>
+          <PostItModal onClose={handleCloseModal} onSave={handleSavePostIt} />
+        </Portal>
+      )}
     </div>
   );
 }

@@ -1,15 +1,122 @@
 'use client';
 
-export default function PostIt() {
+import { useState, useEffect } from 'react';
+import PostItModal from './PostItModal';
+import Portal from '@/components/Portal';
+import DeleteButtonModal from '@/components/DeleteButtonModal';
+
+interface PostItProps {
+  content?: string;
+  onDelete?: () => void;
+  createdAt?: number;
+}
+
+export default function PostIt({ content = '', onDelete, createdAt }: PostItProps) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [postItContent, setPostItContent] = useState(content);
+  const [timeLeft, setTimeLeft] = useState<string>('');
+
+  // 남은 시간 계산
+  useEffect(() => {
+    if (!createdAt) return;
+
+    const updateTimeLeft = () => {
+      const now = Date.now();
+      const timeElapsed = now - createdAt;
+      const fortyEightHours = 48 * 60 * 60 * 1000;
+      const remainingTime = fortyEightHours - timeElapsed;
+
+      if (remainingTime <= 0) {
+        setTimeLeft('만료됨');
+        if (onDelete) {
+          onDelete();
+        }
+        return;
+      }
+
+      const hours = Math.floor(remainingTime / (60 * 60 * 1000));
+      const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
+
+      if (hours > 0) {
+        setTimeLeft(`${hours}시간 ${minutes}분`);
+      } else {
+        setTimeLeft(`${minutes}분`);
+      }
+    };
+
+    updateTimeLeft();
+    const interval = setInterval(updateTimeLeft, 60000); // 1분마다 업데이트
+
+    return () => clearInterval(interval);
+  }, [createdAt, onDelete]);
+
+  const handlePostItClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleSaveContent = (newContent: string) => {
+    setPostItContent(newContent);
+    setIsModalOpen(false);
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (onDelete) {
+      onDelete();
+    }
+    setIsDeleteModalOpen(false);
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteModalOpen(false);
+  };
+
   return (
-    <div>
-      <img src="/icons/Post-it.svg" alt="게시판 포스트잇" className="absolute" />
-      <img
-        src="/icons/delete_steps.svg"
-        alt="삭제 아이콘"
-        className="relative w-[16px] h-[16px] cursor-pointer ml-[100px] translate-y-[4px]"
-        onClick={() => {}}
-      />
-    </div>
+    <>
+      <div onClick={handlePostItClick} className="cursor-pointer">
+        <img
+          src="/icons/Post-it.svg"
+          alt="게시판 포스트잇"
+          className="absolute flex flex-col items-center"
+        />
+        <div className="flex items-center translate-y-[4px]">
+          <p className="w-[8px] h-[8px] rounded-full bg-[#898989] relative ml-[56px]" />
+          <img
+            src="/icons/delete_steps.svg"
+            alt="삭제 아이콘"
+            className="relative w-[16px] h-[16px] cursor-pointer ml-[36px] right-[4px]"
+            onClick={handleDeleteClick}
+          />
+        </div>
+        <div className="relative w-[100px] h-[88px] ml-[11px] mt-[8px] text-[14px] whitespace-pre-wrap overflow-hidden">
+          {postItContent || content}
+        </div>
+      </div>
+
+      {isModalOpen && (
+        <Portal>
+          <PostItModal onClose={handleCloseModal} onSave={handleSaveContent} />
+        </Portal>
+      )}
+
+      {isDeleteModalOpen && (
+        <DeleteButtonModal
+          title="포스트잇을 삭제하시겠습니까?"
+          confirmText="삭제"
+          cancelText="취소"
+          onConfirm={handleConfirmDelete}
+          onCancel={handleCancelDelete}
+        />
+      )}
+    </>
   );
 }
