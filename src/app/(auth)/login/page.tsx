@@ -19,7 +19,17 @@ export default function LoginPage() {
   const handleLogin = () => {
     // 백엔드의 카카오 소셜 로그인 시작점으로 리디렉션합니다.
     const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-    window.location.href = `${backendUrl}/auth/kakao`;
+
+    // 환경에 따라 다른 URL 사용
+    const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+
+    if (isLocalhost) {
+      // 로컬 환경에서는 redirect_url 파라미터 추가
+      window.location.href = `${backendUrl}/auth/kakao?redirect_url=http://localhost:3000/`;
+    } else {
+      // 배포 환경에서는 기본 URL 사용
+      window.location.href = `${backendUrl}/auth/kakao`;
+    }
   };
 
   // 아직 인증되지 않은 사용자에게만 이 페이지가 보여집니다.
