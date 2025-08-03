@@ -31,20 +31,27 @@ export default function Navbar() {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
 
-      // 드롭다운 메뉴 영역만 확인 (navbar 영역은 제외)
+      // 드롭다운 메뉴 영역 확인
       const dropdownMenus = document.querySelectorAll('[data-dropdown-menu]');
       const isClickInsideDropdown = Array.from(dropdownMenus).some((menu) => menu.contains(target));
 
-      // 드롭다운 메뉴 영역 밖을 클릭한 경우 (navbar 포함)
-      if (!isClickInsideDropdown) {
+      // 트리거 버튼인지 확인 (드롭다운을 토글하는 버튼들)
+      const isTriggerButton = (target as Element).closest('[data-dropdown-trigger]') !== null;
+
+      // navbar 영역 확인
+      const navbar = navbarRef.current;
+      const isClickInsideNavbar = navbar?.contains(target);
+
+      // 드롭다운 메뉴 영역 밖을 클릭하고, 트리거 버튼이 아닌 경우에만 닫기
+      if (!isClickInsideDropdown && (!isClickInsideNavbar || !isTriggerButton)) {
         setOpenMenu(null);
         setIsProfileDropdownOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('click', handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('click', handleClickOutside);
     };
   }, []);
 
@@ -112,6 +119,7 @@ export default function Navbar() {
                 onToggle={() => toggleMenu(key)}
                 trigger={
                   <button
+                    data-dropdown-trigger
                     className={`flex items-center cursor-pointer whitespace-nowrap ${
                       openMenu === key ? 'text-[#81D7D4]' : 'text-black'
                     }`}
@@ -161,7 +169,7 @@ export default function Navbar() {
             isOpen={isProfileDropdownOpen}
             onToggle={toggleProfileDropdown}
             trigger={
-              <button className="flex items-center">
+              <button data-dropdown-trigger className="flex items-center">
                 <img src="/icons/profile.svg" alt="프로필" className="cursor-pointer" />
               </button>
             }
