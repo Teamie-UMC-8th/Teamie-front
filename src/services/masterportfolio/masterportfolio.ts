@@ -4,6 +4,7 @@ import {
   MasterPortfolioDetailResponse,
   PostMasterPortfolioQuestionRequest,
   PostMasterPortfolioQuestionResponse,
+  MasterPortfolioGeneratedResponse,
 } from '@/types/api/masterportfolio';
 import { AxiosResponse } from 'axios';
 
@@ -39,4 +40,10 @@ export const fetchMasterPortfolioDetail = async (projectId: number) => {
   return res.data.result;
 };
 
-
+//생성 결과 조회
+export const getMasterPortfolioGeneratedResult = async (
+  portfolioId: number
+): Promise<MasterPortfolioGeneratedResponse> => {
+  const response = await axiosInstance.get(`/api/v1/master-portfolios/${portfolioId}/generation-result`);
+  return response.data;
+};

@@ -73,3 +73,15 @@ export interface MasterPortfolioDetailResponse {
 //api 5번
 
 
+export interface MasterPortfolioGeneratedResult {
+  detailInfo: string;
+  assignedTask: string;
+  keyAchievement: string;
+  insight: string;
+}
+
+export interface MasterPortfolioGeneratedResponse {
+  isSuccess: boolean;
+  error: null;
+  result: MasterPortfolioGeneratedResult;
+}
