@@ -39,18 +39,20 @@ export default function Dropdown({
           className={`absolute mt-[0.75rem] bg-white rounded-[0.5rem] shadow-[0_0_15px_rgba(0,0,0,0.2)] z-20 ${dropdownClassName}`}
         >
           {items.map((item, index) => (
-            <li
-              key={index}
-              className="mx-[0.5rem] border-b-[0.125rem] border-[#BBBBBB] last:border-none"
-            >
+            <li key={index} className="mx-[0.25rem] my-[0.25rem]">
               <Link
                 href={item.href}
                 onClick={onToggle}
-                className="block pl-[0.75rem] pr-[9.375rem] py-[0.75rem] text-[#505050] text-[1.125rem] whitespace-nowrap flex items-center"
+                className="block hover:bg-[#E7E7E7] px-[1rem] py-[0.5rem] w-[15rem] text-[#505050] text-[1.125rem] whitespace-nowrap flex items-center"
               >
-                {item.icon && <img src={item.icon} alt="" className="mr-[0.75rem]" />}
+                {item.icon && (
+                  <img src={item.icon} alt="" className="hover:bg-[#E7E7E7] mr-[0.75rem]" />
+                )}
                 {item.label}
               </Link>
+              {index < items.length - 1 && (
+                <div className="mx-[0.25rem] mt-[0.25rem] h-[0.125rem] bg-[#BBBBBB]"></div>
+              )}
             </li>
           ))}
         </ul>
