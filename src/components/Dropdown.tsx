@@ -17,6 +17,7 @@ interface DropdownProps {
   items: DropdownItem[];
   className?: string;
   dropdownClassName?: string;
+  width?: string;
 }
 
 export default function Dropdown({
@@ -26,6 +27,7 @@ export default function Dropdown({
   items,
   className = '',
   dropdownClassName = '',
+  width = 'w-[16rem]',
 }: DropdownProps) {
   return (
     <div className={`relative ${className}`}>
@@ -43,7 +45,7 @@ export default function Dropdown({
               <Link
                 href={item.href}
                 onClick={onToggle}
-                className="block hover:bg-[#E7E7E7] px-[1rem] py-[0.5rem] w-[15rem] text-[#505050] text-[1.125rem] whitespace-nowrap flex items-center"
+                className={`block hover:bg-[#E7E7E7] px-[1rem] py-[0.5rem] ${width} text-[#505050] text-[1.125rem] whitespace-nowrap flex items-center`}
               >
                 {item.icon && (
                   <img src={item.icon} alt="" className="hover:bg-[#E7E7E7] mr-[0.75rem]" />

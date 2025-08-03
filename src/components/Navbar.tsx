@@ -134,6 +134,13 @@ export default function Navbar() {
                   </button>
                 }
                 items={dropdownItems}
+                width={
+                  key === 'home'
+                    ? 'w-[16.563rem]'
+                    : key === 'projects'
+                      ? 'w-[24.125rem]'
+                      : 'w-[16.563rem]'
+                }
               />
             );
           })}
@@ -172,6 +179,7 @@ export default function Navbar() {
             ]}
             className="mr-[1rem]"
             dropdownClassName="right-[0.25rem] top-[2rem]"
+            width="w-[16.563rem]"
           />
         </div>
       </div>
