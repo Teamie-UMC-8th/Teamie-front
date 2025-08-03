@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { menus } from '@/constants/menus';
 import { getHomeUrl } from '@/utils/url';
 import { mockProjects } from '@/constants/mockData';
@@ -12,7 +13,9 @@ export default function Navbar() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [isUpgraded, setIsUpgraded] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<string>('나의 프로젝트');
   const navbarRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
 
   const toggleMenu = (menuKey: string) => {
     setOpenMenu((prev) => (prev === menuKey ? null : menuKey));
@@ -25,6 +28,19 @@ export default function Navbar() {
     // 다른 드롭다운이 열려있으면 닫기
     setOpenMenu(null);
   };
+
+  const handleProjectSelect = (projectName: string) => {
+    setSelectedProject(projectName);
+    setOpenMenu(null);
+  };
+
+  // 경로 변경 시 프로젝트 페이지가 아니면 selectedProject 리셋
+  useEffect(() => {
+    const isProjectPage = pathname.startsWith('/projects/');
+    if (!isProjectPage) {
+      setSelectedProject('나의 프로젝트');
+    }
+  }, [pathname]);
 
   // 바깥 클릭 시 드롭다운 닫기
   useEffect(() => {
@@ -106,6 +122,7 @@ export default function Navbar() {
                 ? mockProjects.map((project) => ({
                     label: project.name,
                     href: `/projects/${project.id}`,
+                    onClick: () => handleProjectSelect(project.name),
                   }))
                 : menus[key].map((item) => ({
                     label: item.name,
@@ -124,7 +141,9 @@ export default function Navbar() {
                       openMenu === key ? 'text-[#81D7D4]' : 'text-black'
                     }`}
                   >
-                    <span className="font-normal text-[1.125rem]">{label}</span>
+                    <span className="font-normal text-[1.125rem]">
+                      {key === 'projects' ? selectedProject : label}
+                    </span>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className={`ml-[0.125rem] w-[1.5rem] h-[1.5rem] ${openMenu === key ? 'rotate-180' : ''}`}

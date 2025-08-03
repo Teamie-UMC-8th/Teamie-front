@@ -8,6 +8,7 @@ interface DropdownItem {
   href: string;
   icon?: string;
   divider?: boolean;
+  onClick?: () => void;
 }
 
 interface DropdownProps {
@@ -44,7 +45,10 @@ export default function Dropdown({
             <li key={index} className="mx-[0.25rem] my-[0.25rem]">
               <Link
                 href={item.href}
-                onClick={onToggle}
+                onClick={() => {
+                  onToggle();
+                  item.onClick?.();
+                }}
                 className={`block hover:bg-[#E7E7E7] px-[1rem] py-[0.5rem] ${width} text-[#505050] text-[1.125rem] whitespace-nowrap flex items-center`}
               >
                 {item.icon && (
