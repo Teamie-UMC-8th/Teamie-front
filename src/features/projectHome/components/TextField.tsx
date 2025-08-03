@@ -17,16 +17,29 @@ export default function TextField({
   placeholder,
   value,
   onChange,
-  maxLength = 300,
+  maxLength = 430,
   showFullViewButton = false,
   onFullViewClick,
 }: TextFieldProps) {
+  const [isFocused, setIsFocused] = useState(false);
+
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
     if (newValue.length <= maxLength) {
       onChange(newValue);
     }
   };
+
+  const handleFocus = () => {
+    setIsFocused(true);
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+  };
+
+  // 보여줄 텍스트 결정 (입력 중이면 전체, 아니면 240글자로 제한)
+  const displayValue = isFocused ? value : value.slice(0, 240);
 
   return (
     <div>
@@ -39,11 +52,18 @@ export default function TextField({
         )}
       </div>
       <textarea
-        className="w-[688px] h-[232px] border-[2px] border-[#BBBBBB] rounded-[8px] text-[20px] px-[24px] py-[18px] mt-[24px]
-        max-lg:w-[862px] max-lg:h-[220px] resize-none"
+        className="w-[688px] h-[232px] border-[2px] border-[#BBBBBB] rounded-[8px] text-[18px] px-[30px] py-[18px] mt-[24px]
+        max-lg:w-[862px] max-lg:h-[220px] resize-none [&::-webkit-scrollbar]:hidden"
+        style={{
+          lineHeight: '32px',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+        }}
         placeholder={placeholder}
-        value={value}
+        value={displayValue}
         onChange={handleChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
         maxLength={maxLength}
       />
     </div>

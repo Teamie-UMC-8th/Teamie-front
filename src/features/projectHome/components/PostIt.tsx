@@ -52,7 +52,7 @@ export default function PostIt({ content = '', onDelete, createdAt }: PostItProp
   }, [createdAt, onDelete]);
 
   const handlePostItClick = () => {
-    setIsModalOpen(true);
+    // PostIt 클릭 시 아무 일도 일어나지 않음
   };
 
   const handleCloseModal = () => {
@@ -82,7 +82,7 @@ export default function PostIt({ content = '', onDelete, createdAt }: PostItProp
 
   return (
     <>
-      <div onClick={handlePostItClick} className="cursor-pointer">
+      <div onClick={handlePostItClick} className="cursor-pointer group">
         <img
           src="/icons/Post-it.svg"
           alt="게시판 포스트잇"
@@ -93,7 +93,7 @@ export default function PostIt({ content = '', onDelete, createdAt }: PostItProp
           <img
             src="/icons/delete_steps.svg"
             alt="삭제 아이콘"
-            className="relative w-[16px] h-[16px] cursor-pointer ml-[36px] right-[4px]"
+            className="relative w-[16px] h-[16px] ml-[36px] right-[4px] opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
             onClick={handleDeleteClick}
           />
         </div>
@@ -109,13 +109,15 @@ export default function PostIt({ content = '', onDelete, createdAt }: PostItProp
       )}
 
       {isDeleteModalOpen && (
-        <DeleteButtonModal
-          title="포스트잇을 삭제하시겠습니까?"
-          confirmText="삭제"
-          cancelText="취소"
-          onConfirm={handleConfirmDelete}
-          onCancel={handleCancelDelete}
-        />
+        <Portal>
+          <DeleteButtonModal
+            title="포스트잇을 삭제하시겠습니까?"
+            confirmText="삭제"
+            cancelText="취소"
+            onConfirm={handleConfirmDelete}
+            onCancel={handleCancelDelete}
+          />
+        </Portal>
       )}
     </>
   );

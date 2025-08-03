@@ -40,7 +40,7 @@ export default function TextFieldModal({ type, content, onClose, onSave }: TextF
         />
         <p className="text-[20px] font-semibold mb-[16px]">{getTitle()}</p>
         <textarea
-          className="w-[736px] h-[334px] border border-[#BBBBBB] rounded-[6px] px-[32px] py-[24px] resize-none text-[18px]"
+          className="w-[736px] h-[334px] border border-[#BBBBBB] rounded-[6px] px-[32px] py-[24px] resize-none text-[16px] focus:outline-none focus:border-black "
           value={editedContent}
           onChange={(e) => setEditedContent(e.target.value)}
           maxLength={300}

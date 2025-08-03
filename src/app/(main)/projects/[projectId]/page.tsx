@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import PostIt from '@/features/projectHome/components/PostIt';
 import PostItModal from '@/features/projectHome/components/PostItModal';
+import TextFieldModal from '@/features/projectHome/components/TextFieldModal';
+import TextField from '@/features/projectHome/components/TextField';
 import Portal from '@/components/Portal';
 
 interface PostItData {
@@ -13,7 +15,11 @@ interface PostItData {
 
 export default function ProjectHomePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isTextFieldModalOpen, setIsTextFieldModalOpen] = useState(false);
+  const [textFieldModalType, setTextFieldModalType] = useState<'goal' | 'rules'>('goal');
   const [postIts, setPostIts] = useState<PostItData[]>([]);
+  const [teamGoal, setTeamGoal] = useState('');
+  const [teamRules, setTeamRules] = useState('');
 
   // 48시간 후 자동 삭제 체크
   useEffect(() => {
@@ -60,6 +66,23 @@ export default function ProjectHomePage() {
     setPostIts(postIts.filter((postIt) => postIt.id !== id));
   };
 
+  const handleShowFullText = (type: 'goal' | 'rules') => {
+    setTextFieldModalType(type);
+    setIsTextFieldModalOpen(true);
+  };
+
+  const handleCloseTextFieldModal = () => {
+    setIsTextFieldModalOpen(false);
+  };
+
+  const handleSaveTextFieldModal = (content: string) => {
+    if (textFieldModalType === 'goal') {
+      setTeamGoal(content);
+    } else {
+      setTeamRules(content);
+    }
+  };
+
   return (
     <div>
       {/* 헤더 */}
@@ -75,14 +98,14 @@ export default function ProjectHomePage() {
         <div className="flex-col">
           <p className="text-[22px] font-semibold">게시판</p>
           <div
-            className="w-[920px] h-[344px] border-[2px] border-[#BBBBBB] mt-[24px] rounded-[8px] px-[48px] py-[36px] gap-x-[48px] gap-y-[32px] relative cursor-pointer
+            className="w-[1415px] h-[344px] border-[2px] border-[#BBBBBB] mt-[24px] rounded-[8px] px-[48px] py-[36px] gap-x-[48px] gap-y-[32px] relative cursor-pointer
           max-lg:w-[862px] max-lg:h-[344px]"
             onClick={handleBoardClick}
           >
             <div className="relative w-full h-full">
               {postIts.map((postIt, index) => {
-                const row = Math.floor(index / 5);
-                const col = index % 5;
+                const row = Math.floor(index / 8);
+                const col = index % 8;
                 const leftOffset = row === 1 ? 32 : 0;
 
                 return (
@@ -90,7 +113,7 @@ export default function ProjectHomePage() {
                     key={postIt.id}
                     className="absolute"
                     style={{
-                      left: `${leftOffset + col * (120 + 48)}px`,
+                      left: `${leftOffset + col * (120 + 46)}px`,
                       top: `${row * (120 + 32)}px`,
                     }}
                     onClick={(e) => e.stopPropagation()}
@@ -106,41 +129,30 @@ export default function ProjectHomePage() {
             </div>
           </div>
         </div>
-        <div className="flex-col">
-          <p className="text-[22px] font-semibold">업데이트</p>
-          <div
-            className="w-[466px] h-[344px] border-[2px] border-[#BBBBBB] mt-[24px] rounded-[8px]
-          max-lg:w-[862px] max-lg:h-[266px]"
-          ></div>
-        </div>
       </div>
       {/* 팀 목표, 규칙 */}
       <div
         className="flex mt-[80px] gap-[42px]
       max-lg:flex-col max-lg:ml-[24px]"
       >
-        <div>
-          <p className="text-[22px] font-semibold">우리 팀의 목표</p>
-          <textarea
-            className="w-[688px] h-[232px] border-[2px] border-[#BBBBBB] rounded-[8px] text-[20px] px-[32px] py-[20px] mt-[24px]
-            max-lg:w-[862px] max-lg:h-[220px]"
-            placeholder="우리 팀의 목표를 작성하세요"
-          />
-        </div>
-        <div>
-          <div
-            className="flex justify-between
-          max-lg:w-[860px]"
-          >
-            <p className="text-[22px] font-semibold">우리 팀의 규칙</p>
-            <button className="text-[18px] text-[#898989] cursor-pointer">+ 전체보기</button>
-          </div>
-          <textarea
-            className="w-[688px] h-[232px] border-[2px] border-[#BBBBBB] rounded-[8px] text-[20px] px-[32px] py-[20px] mt-[24px]
-            max-lg:w-[862px] max-lg:h-[220px]"
-            placeholder="우리 팀의 규칙을 작성하세요"
-          />
-        </div>
+        <TextField
+          title="우리 팀의 목표"
+          placeholder="우리 팀의 목표를 작성하세요"
+          value={teamGoal}
+          onChange={setTeamGoal}
+          maxLength={300}
+          showFullViewButton={teamGoal.length >= 222}
+          onFullViewClick={() => handleShowFullText('goal')}
+        />
+        <TextField
+          title="우리 팀의 규칙"
+          placeholder="우리 팀의 규칙을 작성하세요"
+          value={teamRules}
+          onChange={setTeamRules}
+          maxLength={300}
+          showFullViewButton={teamRules.length >= 222}
+          onFullViewClick={() => handleShowFullText('rules')}
+        />
       </div>
       {/* 팀원 프로필 */}
       <div
@@ -204,10 +216,15 @@ export default function ProjectHomePage() {
         </div>
       </div>
 
-      {isModalOpen && (
-        <Portal>
-          <PostItModal onClose={handleCloseModal} onSave={handleSavePostIt} />
-        </Portal>
+      {isModalOpen && <PostItModal onClose={handleCloseModal} onSave={handleSavePostIt} />}
+
+      {isTextFieldModalOpen && (
+        <TextFieldModal
+          type={textFieldModalType}
+          content={textFieldModalType === 'goal' ? teamGoal : teamRules}
+          onClose={handleCloseTextFieldModal}
+          onSave={handleSaveTextFieldModal}
+        />
       )}
     </div>
   );
