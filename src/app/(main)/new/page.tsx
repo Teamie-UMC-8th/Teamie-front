@@ -94,13 +94,12 @@ export default function New() {
             />
             <button
               className={`cursor-pointer self-center px-[0.75rem] py-[0.25rem] whitespace-nowrap bg-[#81D7D4] rounded-[0.25rem] text-white font-bold text-[1.125rem] ${
-                createProjectMutation.isPending ? 'bg-gray cursor-not-allowed' : ''
+                createProjectMutation.isPending ? 'bg-[#BAE5E4] cursor-not-allowed' : ''
               }`}
               onClick={handleCreateProject}
               disabled={createProjectMutation.isPending}
             >
-              {/* 생성 중일 때는 버튼 비활성화되도록 색상 임의 설정 -> 추후 서버 온라인 시에 테스트 후 디자이너와 논의 & 수정 */}
-              {createProjectMutation.isPending ? '생성 중...' : '+ 생성하기'}
+              생성하기
             </button>
           </div>
         </div>
