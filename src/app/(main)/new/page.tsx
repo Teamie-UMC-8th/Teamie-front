@@ -57,7 +57,7 @@ export default function New() {
 아래 링크를 통해 참여를 수락하면, 
 바로 협업을 시작할 수 있어요.
 👉 참여 링크: ${window.location.origin}/projects/join/${inviteCode}
-링크 유효기간: 7일까지`;
+링크 유효기간: ${expiresAt}`;
 
     try {
       await navigator.clipboard.writeText(textToCopy);
