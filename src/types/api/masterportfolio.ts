@@ -27,6 +27,30 @@ export interface MasterPortfolioListResponse {
 }
 //api 1번
 
+
+export interface PostMasterPortfolioQuestionRequest {
+  recordIdList: number[];
+}
+
+export interface MasterPortfolioQuestion {
+  questionId: number;
+  questionTitle: string;
+  questionType: 'YES_NO';
+  answer: string;
+  reason: string;
+}
+
+export interface PostMasterPortfolioQuestionResponse {
+  isSuccess: boolean;
+  error: null;
+  result: MasterPortfolioQuestion[];
+}
+
+
+
+
+
+
 // 마스터 포트폴리오 상세 정보 타입 정의(마스터포트폴리오)
 export interface MasterPortfolioDetail {
   result: any;
@@ -49,21 +73,3 @@ export interface MasterPortfolioDetailResponse {
 //api 5번
 
 
-// 마스터 포트폴리오 질문 생성 타입 정의(마스터포트폴리오)
-export interface MasterPortfolioQuestion {
-  questionId: number;
-  question: string;
-  questionType: string;
-  answer: string;
-  reason: string;
-}
-
-
-// 마스터 포트폴리오 질문 생성 응답 정의 타입 정의(마스터포트폴리오)
-export interface MasterPortfolioQuestionResponse {
-  isSuccess: boolean;
-  error: null;
-  result: MasterPortfolioQuestion[];
-}
-
-//api 2번

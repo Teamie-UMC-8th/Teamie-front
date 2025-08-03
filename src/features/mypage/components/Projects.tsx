@@ -1,6 +1,6 @@
 'use client';
 
-import { useMasterPortfolioList } from '@/hooks/mutations/usePatchMasterPortfolio';
+import { useMasterPortfolioList } from '@/hooks/queries/useGetMasterPortfolio';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { formatDateRange } from '@/utils/formatDate';
@@ -16,10 +16,7 @@ export default function Projects() {
       {data?.data.map((item) => (
         <Link
           key={item.portfolioId}
-          href={{
-            pathname: `/mypage/aimasterportfolio/${item.portfolioId}`,
-            query: { projectId: item.projectId },
-          }}
+          href={`/mypage/aimasterportfolio/${item.portfolioId}`}
         >
           <button
             className={`bg-[#F8F8F8] w-[465px] h-[192px] rounded-[8px] grid justify-center cursor-pointer

@@ -1,7 +1,6 @@
 import {
   fetchMasterPortfolioDetail,
   fetchMasterPortfolioList,
-  postMasterPortfolioQuestions,
 } from '@/services/masterportfolio/masterportfolio';
 import { useQuery, useMutation } from '@tanstack/react-query';
 
