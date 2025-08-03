@@ -5,6 +5,7 @@ import PostIt from '@/features/projectHome/components/PostIt';
 import PostItModal from '@/features/projectHome/components/PostItModal';
 import TextFieldModal from '@/features/projectHome/components/TextFieldModal';
 import TextField from '@/features/projectHome/components/TextField';
+import TeamMemberCard from '@/features/projectHome/components/TeamMemberCard';
 import Portal from '@/components/Portal';
 
 interface PostItData {
@@ -169,51 +170,13 @@ export default function ProjectHomePage() {
           </button>
         </div>
         {/* 프로필 카드 */}
-        <div
-          className="w-[315px] h-[409px] rounded-[12px] bg-white mt-[24px] flex-col py-[36px] px-[40px]
-          max-lg:ml-[142px] max-lg:w-[580px] max-lg:h-[241px]"
-          style={{ boxShadow: '0px 0px 10px 0px #00000033' }}
-        >
-          <div className="max-lg:flex">
-            <div>
-              <img
-                src="/icons/myprofile.svg"
-                alt="Profile"
-                className="w-[125px] h-[125px] ml-[55px]
-          max-lg:ml-[20px]"
-              />
-
-              <div
-                className="flex items-center ml-[73px]
-          max-lg:ml-[38px]"
-              >
-                <img src="/icons/Leader-Icon.svg" alt="리더 아이콘" />
-                <div className="font-semibold text-[22px] ml-[8px]">김티미</div>
-              </div>
-            </div>
-            <div
-              className="w-[235px] h-[248px] flex-col mt-[18px]
-            max-lg:mt-0 max-lg:ml-[80px]"
-            >
-              <div className="flex items-center py-[6px]">
-                <img src="/icons/UnivName.svg" alt="University" className="mr-[0.75rem]" />
-                <div className="text-black text-[18px]">명지대학교</div>
-              </div>
-              <div className="flex items-center py-[6px]">
-                <img src="/icons/email.svg" alt="email" className="mr-[0.75rem]" />
-                <div className="text-black text-[18px]">Hyunwoo@mju.ac.kr</div>
-              </div>
-              <div className="flex items-center py-[6px]">
-                <img src="/icons/PlanIcon.svg" alt="기획" className="mr-[0.75rem]" />
-                <div className="text-black text-[18px]">기획</div>
-              </div>
-              <div className="flex items-center py-[6px]">
-                <img src="/icons/Duties.svg" alt="담당 업무" className="mr-[0.75rem]" />
-                <div className="text-black text-[18px]">담당 업무</div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <TeamMemberCard
+          name="김티미"
+          university="명지대학교"
+          email="Hyunwoo@mju.ac.kr"
+          role="기획"
+          isLeader={true}
+        />
       </div>
 
       {isModalOpen && <PostItModal onClose={handleCloseModal} onSave={handleSavePostIt} />}
