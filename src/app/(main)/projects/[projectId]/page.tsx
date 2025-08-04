@@ -131,6 +131,16 @@ export default function ProjectHomePage() {
     setSelectedMemberId(null);
   };
 
+  const handleUpdateTeamMember = (
+    memberId: number,
+    field: 'university' | 'role',
+    value: string
+  ) => {
+    setTeamMembers((prev) =>
+      prev.map((member) => (member.id === memberId ? { ...member, [field]: value } : member))
+    );
+  };
+
   const handleJoinProject = () => {
     // 로그인 사용자 정보 (실제로는 AuthContext에서 가져와야 함)
     const newMember = {
@@ -245,6 +255,7 @@ export default function ProjectHomePage() {
               role={member.role}
               isLeader={member.isLeader}
               onClick={() => !member.isLeader && handleChangeLeader(member.id)}
+              onUpdate={(field, value) => handleUpdateTeamMember(member.id, field, value)}
             />
           ))}
         </div>

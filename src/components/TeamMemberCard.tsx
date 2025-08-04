@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 interface TeamMemberCardProps {
   name: string;
   university: string;
@@ -8,6 +10,7 @@ interface TeamMemberCardProps {
   isLeader?: boolean;
   onJoinClick?: () => void;
   onClick?: () => void;
+  onUpdate?: (field: 'university' | 'role', value: string) => void;
 }
 
 export default function TeamMemberCard({
@@ -18,7 +21,37 @@ export default function TeamMemberCard({
   isLeader = false,
   onJoinClick,
   onClick,
+  onUpdate,
 }: TeamMemberCardProps) {
+  const [editingField, setEditingField] = useState<'university' | 'role' | null>(null);
+  const [editValue, setEditValue] = useState('');
+
+  const handleFieldClick = (field: 'university' | 'role', currentValue: string) => {
+    setEditingField(field);
+    setEditValue(currentValue);
+  };
+
+  const handleSave = () => {
+    if (editingField && onUpdate) {
+      onUpdate(editingField, editValue);
+    }
+    setEditingField(null);
+    setEditValue('');
+  };
+
+  const handleCancel = () => {
+    setEditingField(null);
+    setEditValue('');
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    } else if (e.key === 'Escape') {
+      handleCancel();
+    }
+  };
+
   return (
     <div
       className="w-[316px] h-[368px] rounded-[12px] bg-white mt-[24px] flex-col py-[36px] px-[40px] cursor-pointer
@@ -51,7 +84,27 @@ export default function TeamMemberCard({
         >
           <div className="flex items-center py-[6px]">
             <img src="/icons/UnivName.svg" alt="University" className="mr-[0.75rem]" />
-            <div className="text-black text-[18px]">{university}</div>
+            {editingField === 'university' ? (
+              <input
+                type="text"
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                onBlur={handleSave}
+                onKeyDown={handleKeyPress}
+                className="text-black text-[18px] border border-gray-300 rounded px-1 py-0.5 focus:outline-none focus:border-black cursor-pointer"
+                autoFocus
+              />
+            ) : (
+              <div
+                className="text-black text-[18px] cursor-pointer hover:bg-gray-100 px-1 py-0.5 rounded"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleFieldClick('university', university);
+                }}
+              >
+                {university}
+              </div>
+            )}
           </div>
           <div className="flex items-center py-[6px]">
             <img src="/icons/email.svg" alt="email" className="mr-[0.75rem]" />
@@ -59,7 +112,27 @@ export default function TeamMemberCard({
           </div>
           <div className="flex items-center py-[6px]">
             <img src="/icons/PlanIcon.svg" alt="기획" className="mr-[0.75rem]" />
-            <div className="text-black text-[18px]">{role}</div>
+            {editingField === 'role' ? (
+              <input
+                type="text"
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                onBlur={handleSave}
+                onKeyDown={handleKeyPress}
+                className="text-black text-[18px] border border-gray-300 rounded px-1 py-0.5 focus:outline-none focus:border-black cursor-pointer"
+                autoFocus
+              />
+            ) : (
+              <div
+                className="text-black text-[18px] cursor-pointer hover:bg-gray-100 px-1 py-0.5 rounded"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleFieldClick('role', role);
+                }}
+              >
+                {role}
+              </div>
+            )}
           </div>
         </div>
       </div>
