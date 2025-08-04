@@ -3,12 +3,14 @@ import { useState, useEffect } from 'react';
 import {
   getProjectHome,
   updateProject,
+  createPostIt,
   transformUsersToTeamMembers,
   filterExpiredPostIts,
 } from '@/services/ProjectHome/projectHome';
 import {
   ProjectHomeResponse,
   UpdateProjectRequest,
+  CreatePostItRequest,
   PostItData,
   TeamMember,
 } from '@/types/api/projectHome';
@@ -50,6 +52,26 @@ export const useUpdateProject = (projectId: number) => {
 };
 
 /**
+ * 포스트잇을 생성하는 mutation 훅
+ * @param projectId - 프로젝트 ID
+ * @returns 포스트잇 생성 mutation 함수와 상태
+ */
+export const useCreatePostIt = (projectId: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (postItData: CreatePostItRequest) => createPostIt(projectId, postItData),
+    onSuccess: () => {
+      // 포스트잇 관련 쿼리를 무효화하여 데이터 업데이트
+      queryClient.invalidateQueries({ queryKey: ['postIts', projectId] });
+    },
+    onError: (error) => {
+      console.error('포스트잇 생성 실패:', error);
+    },
+  });
+};
+
+/**
  * ProjectHomePage에서 사용하는 상태와 핸들러들을 관리하는 커스텀 훅
  * @param projectId - 프로젝트 ID
  * @returns ProjectHomePage에서 필요한 상태와 핸들러들
@@ -57,6 +79,7 @@ export const useUpdateProject = (projectId: number) => {
 export const useProjectHomeState = (projectId: number) => {
   const { data: projectHomeData, isLoading, error } = useProjectHome(projectId);
   const updateProjectMutation = useUpdateProject(projectId);
+  const createPostItMutation = useCreatePostIt(projectId);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTextFieldModalOpen, setIsTextFieldModalOpen] = useState(false);
@@ -122,12 +145,35 @@ export const useProjectHomeState = (projectId: number) => {
    * PostIt 저장 핸들러
    */
   const handleSavePostIt = (content: string) => {
-    const newPostIt: PostItData = {
-      id: Date.now().toString(),
-      content: content,
-      createdAt: Date.now(),
-    };
-    setPostIts([...postIts, newPostIt]);
+    // API를 통해 포스트잇 생성
+    createPostItMutation.mutate(
+      { content },
+      {
+        onSuccess: (data) => {
+          if (data.isSuccess && data.result) {
+            // 성공 시 로컬 상태에도 추가
+            const newPostIt: PostItData = {
+              id: data.result.id.toString(),
+              content: data.result.content,
+              createdAt: new Date(data.result.createdAt).getTime(),
+            };
+            setPostIts([...postIts, newPostIt]);
+          }
+        },
+        onError: (error) => {
+          console.error('포스트잇 생성 실패:', error);
+          // 에러 시에도 로컬에 추가 (개발 환경)
+          if (process.env.NODE_ENV === 'development') {
+            const newPostIt: PostItData = {
+              id: Date.now().toString(),
+              content: content,
+              createdAt: Date.now(),
+            };
+            setPostIts([...postIts, newPostIt]);
+          }
+        },
+      }
+    );
     setIsModalOpen(false);
   };
 
@@ -278,5 +324,7 @@ export const useProjectHomeState = (projectId: number) => {
     // 상태 설정 함수
     setTeamGoal,
     setTeamRules,
+    // mutation 상태
+    createPostItMutation,
   };
 };

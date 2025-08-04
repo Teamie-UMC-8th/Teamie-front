@@ -1,4 +1,4 @@
-import { ProjectHomeResponse, PostItData } from '@/types/api/projectHome';
+import { ProjectHomeResponse, PostItData, CreatePostItResponse } from '@/types/api/projectHome';
 
 /**
  * 프로젝트 홈 API 응답을 위한 mock 데이터
@@ -113,77 +113,77 @@ export const projectHomeMockData: ProjectHomeResponse = {
         school: '명지대학교',
         imageUrl: '/icons/myprofile.svg',
         permission: 'LEADER',
-        role: '프로젝트 매니저',
+        role: '기획',
         tasks: [],
       },
       {
         id: 2,
-        name: '이개발',
+        name: '김수진',
         email: 'lee@example.com',
-        school: '서울대학교',
+        school: '중앙대학교',
         imageUrl: '/icons/myprofile.svg',
         permission: 'MEMBER',
-        role: '프론트엔드 개발자',
+        role: '디자이너',
         tasks: [],
       },
       {
         id: 3,
-        name: '박디자인',
+        name: '두현우',
         email: 'park@example.com',
-        school: '홍익대학교',
+        school: '명지대학교',
         imageUrl: '/icons/myprofile.svg',
         permission: 'MEMBER',
-        role: 'UI/UX 디자이너',
+        role: 'FE 개발자',
         tasks: [],
       },
       {
         id: 4,
-        name: '최백엔드',
+        name: '김태화',
         email: 'choi@example.com',
-        school: '연세대학교',
+        school: '가천대학교',
         imageUrl: '/icons/myprofile.svg',
         permission: 'MEMBER',
-        role: '백엔드 개발자',
+        role: 'FE 개발자',
         tasks: [],
       },
       {
         id: 5,
-        name: '정테스트',
+        name: '이예린',
         email: 'jung@example.com',
-        school: '고려대학교',
+        school: '가천대학교',
         imageUrl: '/icons/myprofile.svg',
         permission: 'MEMBER',
-        role: 'QA 엔지니어',
+        role: 'FE 개발자',
         tasks: [],
       },
       {
         id: 6,
-        name: '한기획',
+        name: '강효인',
         email: 'han@example.com',
-        school: '성균관대학교',
+        school: '중앙대학교',
         imageUrl: '/icons/myprofile.svg',
         permission: 'MEMBER',
-        role: '기획자',
+        role: 'BE 개발자',
         tasks: [],
       },
       {
         id: 7,
-        name: '윤마케팅',
+        name: '김채연',
         email: 'yoon@example.com',
         school: '중앙대학교',
         imageUrl: '/icons/myprofile.svg',
         permission: 'MEMBER',
-        role: '마케팅 담당자',
+        role: 'BE 개발자',
         tasks: [],
       },
       {
         id: 8,
-        name: '강운영',
+        name: '강성경',
         email: 'kang@example.com',
-        school: '경희대학교',
+        school: '중앙대학교',
         imageUrl: '/icons/myprofile.svg',
         permission: 'MEMBER',
-        role: '운영 담당자',
+        role: 'BE 개발자',
         tasks: [],
       },
     ],
@@ -235,6 +235,47 @@ export const postItMockData: PostItData[] = [
     createdAt: Date.now() - 1000 * 60 * 60 * 20, // 20시간 전
   },
 ];
+
+/**
+ * 포스트잇 생성 성공 mock 데이터
+ */
+export const createPostItSuccessMockData: CreatePostItResponse = {
+  isSuccess: true,
+  error: null,
+  result: {
+    id: 1,
+    userId: 1,
+    content: '이것은 포스트잇 내용입니다.',
+    projectId: 544844,
+    createdAt: '2025-07-14T20:35:00.000Z',
+  },
+};
+
+/**
+ * 포스트잇 생성 실패 mock 데이터 (프로젝트 없음)
+ */
+export const createPostItNotFoundMockData: CreatePostItResponse = {
+  isSuccess: false,
+  error: {
+    errorCode: 'PROJECT_NOT_FOUND',
+    reason: '프로젝트를 찾을 수 없습니다.',
+    data: null,
+  },
+  result: null,
+};
+
+/**
+ * 포스트잇 생성 실패 mock 데이터 (개수 초과)
+ */
+export const createPostItExceededMockData: CreatePostItResponse = {
+  isSuccess: false,
+  error: {
+    errorCode: 'POSTS_EXCEEDED',
+    reason: '포스트잇은 14개까지 생성될 수 있습니다.',
+    data: null,
+  },
+  result: null,
+};
 
 /**
  * 에러 응답 mock 데이터

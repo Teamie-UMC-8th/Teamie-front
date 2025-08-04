@@ -64,6 +64,37 @@ export interface UpdateProjectResponse {
 }
 
 /**
+ * 포스트잇 생성 요청 타입
+ */
+export interface CreatePostItRequest {
+  content: string;
+}
+
+/**
+ * 포스트잇 정보 타입
+ */
+export interface PostItInfo {
+  id: number;
+  userId: number;
+  content: string;
+  projectId: number;
+  createdAt: string;
+}
+
+/**
+ * 포스트잇 생성 API 응답 타입
+ */
+export interface CreatePostItResponse {
+  isSuccess: boolean;
+  error: {
+    errorCode: string;
+    reason: string;
+    data: any;
+  } | null;
+  result: PostItInfo | null;
+}
+
+/**
  * 프로젝트 홈 API 에러 타입
  */
 export interface ProjectHomeError {

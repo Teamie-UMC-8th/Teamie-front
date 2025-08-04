@@ -3,6 +3,8 @@ import {
   ProjectHomeResponse,
   UpdateProjectRequest,
   UpdateProjectResponse,
+  CreatePostItRequest,
+  CreatePostItResponse,
   ProjectUser,
   TeamMember,
 } from '@/types/api/projectHome';
@@ -48,6 +50,36 @@ export const updateProject = async (
   const response = await axiosInstance.patch<UpdateProjectResponse>(
     `/api/v1/projects/${projectId}`,
     updateData
+  );
+  return response.data;
+};
+
+/**
+ * 포스트잇을 생성하는 API
+ */
+export const createPostIt = async (
+  projectId: number,
+  postItData: CreatePostItRequest
+): Promise<CreatePostItResponse> => {
+  // 개발 환경에서는 mock 응답 사용
+  if (process.env.NODE_ENV === 'development') {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return {
+      isSuccess: true,
+      error: null,
+      result: {
+        id: Date.now(),
+        userId: 1,
+        content: postItData.content,
+        projectId: projectId,
+        createdAt: new Date().toISOString(),
+      },
+    };
+  }
+
+  const response = await axiosInstance.post<CreatePostItResponse>(
+    `/api/v1/projects/${projectId}/posts`,
+    postItData
   );
   return response.data;
 };
