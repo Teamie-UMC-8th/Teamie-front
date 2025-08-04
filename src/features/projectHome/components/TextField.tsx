@@ -7,6 +7,7 @@ interface TextFieldProps {
   placeholder: string;
   value: string;
   onChange: (value: string) => void;
+  onBlur?: () => void;
   maxLength?: number;
   showFullViewButton?: boolean;
   onFullViewClick?: () => void;
@@ -17,6 +18,7 @@ export default function TextField({
   placeholder,
   value,
   onChange,
+  onBlur,
   maxLength = 430,
   showFullViewButton = false,
   onFullViewClick,
@@ -36,6 +38,7 @@ export default function TextField({
 
   const handleBlur = () => {
     setIsFocused(false);
+    onBlur?.();
   };
 
   // 보여줄 텍스트 결정 (입력 중이면 전체, 아니면 240글자로 제한)

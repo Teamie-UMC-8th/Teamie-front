@@ -10,6 +10,8 @@ import {
   ChangeLeaderResponse,
   UpdateProfileRequest,
   UpdateProfileResponse,
+  JoinProjectRequest,
+  JoinProjectResponse,
   ProjectUser,
   TeamMember,
 } from '@/types/api/projectHome';
@@ -121,24 +123,29 @@ export const updateProject = async (
   updateData: UpdateProjectRequest
 ): Promise<UpdateProjectResponse> => {
   try {
+    console.log('프로젝트 수정 요청:', { projectId, updateData });
+
+    // 권한 확인 없이 바로 프로젝트 수정 API 호출
     const response = await axiosInstance.patch<UpdateProjectResponse>(
       `/api/v1/projects/${projectId}`,
       updateData
     );
+    console.log('프로젝트 수정 성공:', response.data);
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error('프로젝트 수정 API 호출 실패:', error);
-    // API 호출 실패 시 mock 응답 반환
-    return {
-      isSuccess: true,
-      error: null,
-      result: {
-        project: {
-          ...projectHomeMockData.result!.project,
-          ...updateData,
-        },
-      },
-    };
+
+    // 403 오류인 경우 권한 문제로 처리
+    if (error.response?.status === 403) {
+      console.error('403 Forbidden: 프로젝트 수정 권한이 없습니다.');
+      console.error('가능한 원인:');
+      console.error('1. 현재 사용자가 프로젝트 멤버가 아닙니다.');
+      console.error('2. 프로젝트 수정 권한이 부족합니다.');
+      console.error('3. 프로젝트가 존재하지 않습니다.');
+    }
+
+    // 실제 오류를 확인하기 위해 mock 응답 제거
+    throw error;
   }
 };
 
@@ -221,38 +228,17 @@ export const changeLeader = async (
   leaderData: ChangeLeaderRequest
 ): Promise<ChangeLeaderResponse> => {
   try {
-    // 현재 사용자 정보 확인
     console.log('팀장 변경 요청:', {
       projectId,
       newLeaderId: leaderData.newLeaderId,
     });
 
-    // 현재 사용자의 권한 확인을 위해 프로젝트 정보 조회
-    const projectInfo = await axiosInstance.get(`/api/v1/projects/${projectId}`);
-    console.log('현재 프로젝트 정보:', projectInfo.data);
-
-    // 현재 사용자가 팀장인지 확인
-    const currentUser = projectInfo.data.result?.project?.users?.find(
-      (user: any) => user.permission === 'LEADER'
-    );
-
-    if (!currentUser) {
-      console.error('현재 사용자가 팀장이 아닙니다. 팀장만 팀장을 변경할 수 있습니다.');
-      return {
-        isSuccess: false,
-        error: {
-          errorCode: 'FORBIDDEN_USER_FOR_UPDATE',
-          reason: '팀장만 팀장을 변경할 수 있습니다.',
-          data: null,
-        },
-        result: null,
-      };
-    }
-
+    // 권한 확인 없이 바로 팀장 변경 API 호출
     const response = await axiosInstance.patch<ChangeLeaderResponse>(
       `/api/v1/projects/${projectId}/leader`,
       leaderData
     );
+    console.log('팀장 변경 성공:', response.data);
     return response.data;
   } catch (error: any) {
     console.error('팀장 변경 API 호출 실패:', error);
@@ -266,15 +252,8 @@ export const changeLeader = async (
       console.error('3. 프로젝트에 대한 권한이 부족합니다.');
     }
 
-    // API 호출 실패 시 mock 응답 반환
-    return {
-      isSuccess: true,
-      error: null,
-      result: {
-        newLeaderId: leaderData.newLeaderId,
-        permission: 'LEAD',
-      },
-    };
+    // 실제 오류를 확인하기 위해 mock 응답 제거
+    throw error;
   }
 };
 
@@ -299,6 +278,33 @@ export const updateProfile = async (
       error: null,
       result: {},
     };
+  }
+};
+
+/**
+ * 프로젝트 참여 API
+ */
+export const joinProject = async (joinData: JoinProjectRequest): Promise<JoinProjectResponse> => {
+  try {
+    console.log('프로젝트 참여 요청:', joinData);
+
+    const response = await axiosInstance.post<JoinProjectResponse>(
+      '/api/v1/projects/join',
+      joinData
+    );
+
+    console.log('프로젝트 참여 성공:', response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error('프로젝트 참여 API 호출 실패:', error);
+
+    if (error.response?.status === 403) {
+      console.error('403 Forbidden: 프로젝트 참여 권한이 없습니다.');
+    } else if (error.response?.status === 404) {
+      console.error('404 Not Found: 프로젝트를 찾을 수 없습니다.');
+    }
+
+    throw error;
   }
 };
 

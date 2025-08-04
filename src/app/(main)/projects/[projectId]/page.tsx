@@ -48,6 +48,8 @@ export default function ProjectHomePage() {
     // 상태 설정 함수
     setTeamGoal,
     setTeamRules,
+    // API mutations
+    updateProjectMutation,
   } = useProjectHomeState(projectId);
 
   // 로딩 상태 처리
@@ -126,7 +128,20 @@ export default function ProjectHomePage() {
           value={teamGoal}
           onChange={(value) => {
             setTeamGoal(value);
-            // API 호출하여 팀 목표 업데이트
+          }}
+          onBlur={() => {
+            // 포커스 아웃 시 API 호출하여 팀 목표 업데이트
+            updateProjectMutation.mutate(
+              { goal: teamGoal },
+              {
+                onSuccess: (data) => {
+                  console.log('팀 목표 업데이트 성공:', data);
+                },
+                onError: (error) => {
+                  console.error('팀 목표 업데이트 실패:', error);
+                },
+              }
+            );
           }}
           maxLength={300}
           showFullViewButton={teamGoal.length >= 222}
@@ -138,7 +153,20 @@ export default function ProjectHomePage() {
           value={teamRules}
           onChange={(value) => {
             setTeamRules(value);
-            // API 호출하여 팀 규칙 업데이트
+          }}
+          onBlur={() => {
+            // 포커스 아웃 시 API 호출하여 팀 규칙 업데이트
+            updateProjectMutation.mutate(
+              { rule: teamRules },
+              {
+                onSuccess: (data) => {
+                  console.log('팀 규칙 업데이트 성공:', data);
+                },
+                onError: (error) => {
+                  console.error('팀 규칙 업데이트 실패:', error);
+                },
+              }
+            );
           }}
           maxLength={300}
           showFullViewButton={teamRules.length >= 222}
@@ -172,7 +200,7 @@ export default function ProjectHomePage() {
               email={member.email}
               role={member.role}
               isLeader={member.isLeader}
-              onClick={() => !member.isLeader && handleChangeLeader(member.id)}
+              onClick={() => handleChangeLeader(member.id)}
               onUpdate={(field, value) => handleUpdateTeamMember(member.id, field, value)}
             />
           ))}

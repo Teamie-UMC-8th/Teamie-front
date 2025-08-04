@@ -462,5 +462,6 @@ export const useProjectHomeState = (projectId: number) => {
     deletePostItMutation,
     changeLeaderMutation,
     updateProfileMutation,
+    updateProjectMutation,
   };
 };

@@ -186,3 +186,25 @@ export interface TeamMember {
   role: string;
   isLeader: boolean;
 }
+
+/**
+ * 프로젝트 참여 요청 타입
+ */
+export interface JoinProjectRequest {
+  projectId: number;
+}
+
+/**
+ * 프로젝트 참여 API 응답 타입
+ */
+export interface JoinProjectResponse {
+  isSuccess: boolean;
+  error: {
+    errorCode: string;
+    reason: string;
+    data: any;
+  } | null;
+  result: {
+    message: string;
+  } | null;
+}
