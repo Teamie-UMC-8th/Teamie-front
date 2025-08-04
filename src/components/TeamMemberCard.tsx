@@ -5,8 +5,9 @@ interface TeamMemberCardProps {
   university: string;
   email: string;
   role: string;
-  duties: string;
   isLeader?: boolean;
+  onJoinClick?: () => void;
+  onClick?: () => void;
 }
 
 export default function TeamMemberCard({
@@ -14,30 +15,34 @@ export default function TeamMemberCard({
   university,
   email,
   role,
-  duties,
   isLeader = false,
+  onJoinClick,
+  onClick,
 }: TeamMemberCardProps) {
   return (
     <div
-      className="w-[315px] h-[409px] rounded-[12px] bg-white mt-[24px] flex-col py-[36px] px-[40px]
+      className="w-[316px] h-[368px] rounded-[12px] bg-white mt-[24px] flex-col py-[36px] px-[40px] cursor-pointer
       max-lg:ml-[142px] max-lg:w-[580px] max-lg:h-[241px]"
       style={{ boxShadow: '0px 0px 10px 0px #00000033' }}
+      onClick={onClick}
     >
       <div className="max-lg:flex">
-        <div>
+        <div className="flex flex-col items-center">
           <img
             src="/icons/myprofile.svg"
             alt="Profile"
-            className="w-[125px] h-[125px] ml-[55px]
+            className="w-[125px] h-[125px]
       max-lg:ml-[20px]"
           />
 
           <div
-            className="flex items-center ml-[73px]
+            className="flex items-center mt-[8px]
       max-lg:ml-[38px]"
           >
-            {isLeader && <img src="/icons/Leader-Icon.svg" alt="리더 아이콘" />}
-            <div className="font-semibold text-[22px] ml-[8px]">{name}</div>
+            {isLeader && (
+              <img src="/icons/Leader-Icon.svg" alt="리더 아이콘" className="mr-[8px]" />
+            )}
+            <div className="font-semibold text-[22px]">{name}</div>
           </div>
         </div>
         <div
@@ -55,10 +60,6 @@ export default function TeamMemberCard({
           <div className="flex items-center py-[6px]">
             <img src="/icons/PlanIcon.svg" alt="기획" className="mr-[0.75rem]" />
             <div className="text-black text-[18px]">{role}</div>
-          </div>
-          <div className="flex items-center py-[6px]">
-            <img src="/icons/Duties.svg" alt="담당 업무" className="mr-[0.75rem]" />
-            <div className="text-black text-[18px]">{duties}</div>
           </div>
         </div>
       </div>

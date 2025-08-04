@@ -5,7 +5,9 @@ import PostIt from '@/features/projectHome/components/PostIt';
 import PostItModal from '@/features/projectHome/components/PostItModal';
 import TextFieldModal from '@/features/projectHome/components/TextFieldModal';
 import TextField from '@/features/projectHome/components/TextField';
-import TeamMemberCard from '@/features/projectHome/components/TeamMemberCard';
+import TeamMemberCard from '@/components/TeamMemberCard';
+import AddTeamProfileModal from '@/features/projectHome/components/AddTeamProfileModal';
+import ChangeLeaderModal from '@/features/projectHome/components/ChangeLeaderModal';
 import Portal from '@/components/Portal';
 
 interface PostItData {
@@ -17,10 +19,24 @@ interface PostItData {
 export default function ProjectHomePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTextFieldModalOpen, setIsTextFieldModalOpen] = useState(false);
+  const [isAddTeamModalOpen, setIsAddTeamModalOpen] = useState(false);
+  const [isChangeLeaderModalOpen, setIsChangeLeaderModalOpen] = useState(false);
+  const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
   const [textFieldModalType, setTextFieldModalType] = useState<'goal' | 'rules'>('goal');
   const [postIts, setPostIts] = useState<PostItData[]>([]);
   const [teamGoal, setTeamGoal] = useState('');
   const [teamRules, setTeamRules] = useState('');
+  const [teamMembers, setTeamMembers] = useState([
+    {
+      id: 1,
+      name: '김티미',
+      university: '명지대학교',
+      email: 'Hyunwoo@mju.ac.kr',
+      role: '기획',
+      duties: '담당 업무',
+      isLeader: true,
+    },
+  ]);
 
   // 48시간 후 자동 삭제 체크
   useEffect(() => {
@@ -82,6 +98,52 @@ export default function ProjectHomePage() {
     } else {
       setTeamRules(content);
     }
+  };
+
+  const handleAddTeamMember = () => {
+    setIsAddTeamModalOpen(true);
+  };
+
+  const handleCloseAddTeamModal = () => {
+    setIsAddTeamModalOpen(false);
+  };
+
+  const handleChangeLeader = (memberId: number) => {
+    setSelectedMemberId(memberId);
+    setIsChangeLeaderModalOpen(true);
+  };
+
+  const handleConfirmChangeLeader = () => {
+    if (selectedMemberId) {
+      setTeamMembers((prev) =>
+        prev.map((member) => ({
+          ...member,
+          isLeader: member.id === selectedMemberId,
+        }))
+      );
+    }
+    setIsChangeLeaderModalOpen(false);
+    setSelectedMemberId(null);
+  };
+
+  const handleCloseChangeLeaderModal = () => {
+    setIsChangeLeaderModalOpen(false);
+    setSelectedMemberId(null);
+  };
+
+  const handleJoinProject = () => {
+    // 로그인 사용자 정보 (실제로는 AuthContext에서 가져와야 함)
+    const newMember = {
+      id: Date.now(),
+      name: '이름',
+      university: '학교',
+      email: 'new@example.com',
+      role: '역할',
+      duties: '담당 업무',
+      isLeader: false,
+    };
+
+    setTeamMembers([...teamMembers, newMember]);
   };
 
   return (
@@ -165,29 +227,62 @@ export default function ProjectHomePage() {
         max-lg:w-[860px] max-lg:mt-[70px]"
         >
           <p className="font-semibold text-[22px]">팀원 프로필</p>
-          <button className="w-[91px] h-[34px] px-[12px] py-[4px] text-white bg-[#81D7D4] rounded-[4px] font-bold cursor-pointer">
+          <button
+            className="w-[91px] h-[34px] px-[12px] py-[4px] text-white bg-[#81D7D4] rounded-[4px] font-bold cursor-pointer"
+            onClick={handleAddTeamMember}
+          >
             팀원 추가
           </button>
         </div>
         {/* 프로필 카드 */}
-        <TeamMemberCard
-          name="김티미"
-          university="명지대학교"
-          email="Hyunwoo@mju.ac.kr"
-          role="기획"
-          isLeader={true}
-        />
+        <div className="grid grid-cols-4 gap-x-[52px] gap-y-[48px] mt-[24px]">
+          {teamMembers.map((member) => (
+            <TeamMemberCard
+              key={member.id}
+              name={member.name}
+              university={member.university}
+              email={member.email}
+              role={member.role}
+              isLeader={member.isLeader}
+              onClick={() => !member.isLeader && handleChangeLeader(member.id)}
+            />
+          ))}
+        </div>
       </div>
 
       {isModalOpen && <PostItModal onClose={handleCloseModal} onSave={handleSavePostIt} />}
 
       {isTextFieldModalOpen && (
-        <TextFieldModal
-          type={textFieldModalType}
-          content={textFieldModalType === 'goal' ? teamGoal : teamRules}
-          onClose={handleCloseTextFieldModal}
-          onSave={handleSaveTextFieldModal}
-        />
+        <Portal>
+          <TextFieldModal
+            type={textFieldModalType}
+            content={textFieldModalType === 'goal' ? teamGoal : teamRules}
+            onClose={handleCloseTextFieldModal}
+            onSave={handleSaveTextFieldModal}
+          />
+        </Portal>
+      )}
+
+      {isAddTeamModalOpen && (
+        <Portal>
+          <AddTeamProfileModal
+            onClose={handleCloseAddTeamModal}
+            projectName="프로젝트명"
+            inviteCode="INVITE123"
+            expiresAt="2024-12-31"
+            onJoinClick={handleJoinProject}
+          />
+        </Portal>
+      )}
+
+      {isChangeLeaderModalOpen && (
+        <Portal>
+          <ChangeLeaderModal
+            onClose={handleCloseChangeLeaderModal}
+            onConfirm={handleConfirmChangeLeader}
+            memberName={teamMembers.find((m) => m.id === selectedMemberId)?.name || ''}
+          />
+        </Portal>
       )}
     </div>
   );
