@@ -71,24 +71,6 @@ export const getProjectHome = async (projectId: number): Promise<ProjectHomeResp
       return projectHomeMockData;
     }
 
-    // 사용자의 프로젝트 목록 확인
-    const userProjects = await getUserProjects();
-    if (userProjects) {
-      console.log('사용자가 접근 가능한 프로젝트 목록:', userProjects);
-
-      // 현재 프로젝트 ID가 사용자의 프로젝트 목록에 있는지 확인
-      const hasAccess = userProjects.result?.projects?.some(
-        (project: any) => project.id === projectId
-      );
-
-      if (!hasAccess) {
-        console.error(`프로젝트 ID ${projectId}에 대한 접근 권한이 없습니다.`);
-        console.error('초대코드를 통해 프로젝트에 참여해야 합니다.');
-        console.error('초대 링크: /projects/join/{inviteCode}');
-        return projectHomeMockData;
-      }
-    }
-
     // 프로젝트 ID가 유효한지 확인 (1보다 작으면 테스트용 ID 사용)
     if (projectId < 1) {
       console.warn(`유효하지 않은 프로젝트 ID: ${projectId}. 테스트용 ID 1을 사용합니다.`);
