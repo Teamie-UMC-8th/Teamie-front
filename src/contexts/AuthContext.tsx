@@ -13,7 +13,7 @@ import { UserProfile } from '@/types/api/user';
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: UserProfile;
+  user: UserProfile | null;
   logout: () => void;
 }
 
@@ -64,15 +64,10 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     }
   };
 
-  // user가 없으면 렌더링하지 않음 (AuthWrapper에서 처리됨)
-  if (!user) {
-    return null;
-  }
-
   const value = useMemo(
     () => ({
       isAuthenticated,
-      user, // user가 null이 아님을 조건부 렌더링으로 보장
+      user,
       logout,
     }),
     [isAuthenticated, user, logout]

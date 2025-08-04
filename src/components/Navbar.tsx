@@ -117,10 +117,10 @@ export default function Navbar() {
               );
             }
 
-            // 드롭다운 아이템 생성
+            // 프로젝트 드롭다운이면 user가 없으면 빈 배열 반환
             const dropdownItems =
               key === 'projects'
-                ? user.projects.map((project) => ({
+                ? (user?.projects || []).map((project) => ({
                     label: project.name,
                     href: `/projects/${project.id}`,
                     onClick: () => handleProjectSelect(project.name),
