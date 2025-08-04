@@ -35,7 +35,7 @@ export default function LoginPage() {
   // 아직 인증되지 않은 사용자에게만 이 페이지가 보여집니다.
   // (인증된 사용자는 위 useEffect에 의해 리디렉션됩니다.)
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-b from-white via-white to-[#B6F5DF]">
+    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-b from-white via-white to-[#B6F5DF]/50">
       <div className="flex flex-col items-start lg:gap-[1.813rem] gap-[1.5rem]">
         <p className="lg:text-[1.875rem] text-[1.5rem] font-bold text-black">
           나의 팀워크가 모이는 곳,
