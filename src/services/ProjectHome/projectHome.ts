@@ -8,6 +8,8 @@ import {
   DeletePostItResponse,
   ChangeLeaderRequest,
   ChangeLeaderResponse,
+  UpdateProfileRequest,
+  UpdateProfileResponse,
   ProjectUser,
   TeamMember,
 } from '@/types/api/projectHome';
@@ -135,6 +137,30 @@ export const changeLeader = async (
   const response = await axiosInstance.patch<ChangeLeaderResponse>(
     `/api/v1/projects/${projectId}/leader`,
     leaderData
+  );
+  return response.data;
+};
+
+/**
+ * 프로필 카드를 수정하는 API
+ */
+export const updateProfile = async (
+  projectId: number,
+  profileData: UpdateProfileRequest
+): Promise<UpdateProfileResponse> => {
+  // 개발 환경에서는 mock 응답 사용
+  if (process.env.NODE_ENV === 'development') {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return {
+      isSuccess: true,
+      error: null,
+      result: {},
+    };
+  }
+
+  const response = await axiosInstance.patch<UpdateProfileResponse>(
+    `/api/v1/projects/${projectId}/profile`,
+    profileData
   );
   return response.data;
 };

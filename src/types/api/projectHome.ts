@@ -133,6 +133,27 @@ export interface ChangeLeaderResponse {
 }
 
 /**
+ * 프로필 카드 수정 요청 타입
+ */
+export interface UpdateProfileRequest {
+  id: string;
+  role: string;
+}
+
+/**
+ * 프로필 카드 수정 API 응답 타입
+ */
+export interface UpdateProfileResponse {
+  isSuccess: boolean;
+  error: {
+    errorCode: string;
+    reason: string;
+    data: any;
+  } | null;
+  result: Record<string, any>;
+}
+
+/**
  * 프로젝트 홈 API 에러 타입
  */
 export interface ProjectHomeError {

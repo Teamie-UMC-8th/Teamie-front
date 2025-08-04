@@ -4,6 +4,7 @@ import {
   CreatePostItResponse,
   DeletePostItResponse,
   ChangeLeaderResponse,
+  UpdateProfileResponse,
 } from '@/types/api/projectHome';
 
 /**
@@ -382,6 +383,41 @@ export const changeLeaderNotMemberMockData: ChangeLeaderResponse = {
     data: null,
   },
   result: null,
+};
+
+/**
+ * 프로필 카드 수정 성공 mock 데이터
+ */
+export const updateProfileSuccessMockData: UpdateProfileResponse = {
+  isSuccess: true,
+  error: null,
+  result: {},
+};
+
+/**
+ * 프로필 카드 수정 실패 mock 데이터 (권한 없음)
+ */
+export const updateProfileForbiddenMockData: UpdateProfileResponse = {
+  isSuccess: false,
+  error: {
+    errorCode: 'NOT_YOUR_PROFILE',
+    reason: '자신의 프로필만 수정할 수 있습니다.',
+    data: null,
+  },
+  result: {} as Record<string, any>,
+};
+
+/**
+ * 프로필 카드 수정 실패 mock 데이터 (프로젝트 없음)
+ */
+export const updateProfileNotFoundMockData: UpdateProfileResponse = {
+  isSuccess: false,
+  error: {
+    errorCode: 'PROJECT_NOT_FOUND',
+    reason: '프로젝트를 찾을 수 없습니다.',
+    data: null,
+  },
+  result: {} as Record<string, any>,
 };
 
 /**

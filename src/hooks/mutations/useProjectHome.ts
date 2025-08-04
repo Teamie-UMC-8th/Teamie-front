@@ -6,6 +6,7 @@ import {
   createPostIt,
   deletePostIt,
   changeLeader,
+  updateProfile,
   transformUsersToTeamMembers,
   filterExpiredPostIts,
 } from '@/services/ProjectHome/projectHome';
@@ -14,6 +15,7 @@ import {
   UpdateProjectRequest,
   CreatePostItRequest,
   ChangeLeaderRequest,
+  UpdateProfileRequest,
   PostItData,
   TeamMember,
 } from '@/types/api/projectHome';
@@ -115,6 +117,26 @@ export const useChangeLeader = (projectId: number) => {
 };
 
 /**
+ * 프로필 카드를 수정하는 mutation 훅
+ * @param projectId - 프로젝트 ID
+ * @returns 프로필 카드 수정 mutation 함수와 상태
+ */
+export const useUpdateProfile = (projectId: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (profileData: UpdateProfileRequest) => updateProfile(projectId, profileData),
+    onSuccess: () => {
+      // 프로젝트 홈 데이터를 다시 불러와서 캐시 업데이트
+      queryClient.invalidateQueries({ queryKey: ['projectHome', projectId] });
+    },
+    onError: (error) => {
+      console.error('프로필 카드 수정 실패:', error);
+    },
+  });
+};
+
+/**
  * ProjectHomePage에서 사용하는 상태와 핸들러들을 관리하는 커스텀 훅
  * @param projectId - 프로젝트 ID
  * @returns ProjectHomePage에서 필요한 상태와 핸들러들
@@ -125,6 +147,7 @@ export const useProjectHomeState = (projectId: number) => {
   const createPostItMutation = useCreatePostIt(projectId);
   const deletePostItMutation = useDeletePostIt(projectId);
   const changeLeaderMutation = useChangeLeader(projectId);
+  const updateProfileMutation = useUpdateProfile(projectId);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTextFieldModalOpen, setIsTextFieldModalOpen] = useState(false);
@@ -352,8 +375,35 @@ export const useProjectHomeState = (projectId: number) => {
     field: 'university' | 'role',
     value: string
   ) => {
-    setTeamMembers((prev) =>
-      prev.map((member) => (member.id === memberId ? { ...member, [field]: value } : member))
+    // API를 통해 프로필 카드 수정
+    updateProfileMutation.mutate(
+      {
+        id: memberId.toString(),
+        role: field === 'role' ? value : '',
+      },
+      {
+        onSuccess: (data) => {
+          if (data.isSuccess) {
+            // 성공 시 로컬 상태 업데이트
+            setTeamMembers((prev) =>
+              prev.map((member) =>
+                member.id === memberId ? { ...member, [field]: value } : member
+              )
+            );
+          }
+        },
+        onError: (error) => {
+          console.error('프로필 카드 수정 실패:', error);
+          // 에러 시에도 로컬 상태 업데이트 (개발 환경)
+          if (process.env.NODE_ENV === 'development') {
+            setTeamMembers((prev) =>
+              prev.map((member) =>
+                member.id === memberId ? { ...member, [field]: value } : member
+              )
+            );
+          }
+        },
+      }
     );
   };
 
@@ -411,5 +461,6 @@ export const useProjectHomeState = (projectId: number) => {
     createPostItMutation,
     deletePostItMutation,
     changeLeaderMutation,
+    updateProfileMutation,
   };
 };
