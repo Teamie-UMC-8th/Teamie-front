@@ -53,14 +53,20 @@ export default function JoinProject() {
 
   // GET 요청 결과 처리
   useEffect(() => {
+    // 로딩 중이거나 이미 처리된 경우 중복 처리 방지
+    if (getProjectQuery.isLoading || getProjectQuery.isFetching) {
+      return;
+    }
+
     if (getProjectQuery.isSuccess && getProjectQuery.data) {
+      console.log('초대코드 유효성 확인 성공:', getProjectQuery.data);
       // 프로젝트 정보 설정
-      const projectData = getProjectQuery.data.result;
-      if (projectData.project) {
+      const projectData = getProjectQuery.data as any;
+      if (projectData.result?.project) {
         setProjectInfo({
-          name: projectData.project.name,
-          projectId: projectData.project.id,
-          projectLeader: projectData.project.leader,
+          name: projectData.result.project.name,
+          projectId: projectData.result.project.id,
+          projectLeader: projectData.result.project.leader,
         });
       }
     } else if (getProjectQuery.isError) {
@@ -96,6 +102,8 @@ export default function JoinProject() {
     getProjectQuery.data,
     getProjectQuery.isError,
     getProjectQuery.error,
+    getProjectQuery.isLoading,
+    getProjectQuery.isFetching,
     router,
   ]);
 

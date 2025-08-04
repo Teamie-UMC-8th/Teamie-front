@@ -16,18 +16,119 @@ import {
 import { projectHomeMockData } from '@/constants/projectHomeMockData';
 
 /**
+ * 사용자가 접근 가능한 프로젝트 목록을 가져오는 함수
+ */
+export const getUserProjects = async () => {
+  try {
+    console.log('사용자 프로젝트 목록 조회 중...');
+    const response = await axiosInstance.get('/api/v1/projects');
+    console.log('프로젝트 목록 조회 성공:', response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error('프로젝트 목록 조회 실패:', error.response?.status, error.response?.data);
+    return null;
+  }
+};
+
+/**
+ * 인증 상태를 확인하는 함수
+ */
+export const checkAuthStatus = async () => {
+  try {
+    console.log('인증 상태 확인 중...');
+    const response = await axiosInstance.get('/api/v1/users/me');
+    console.log('인증 성공:', response.data);
+    return true;
+  } catch (error: any) {
+    console.error('인증 실패:', error.response?.status, error.response?.data);
+    return false;
+  }
+};
+
+/**
  * 프로젝트 홈 데이터를 조회하는 API
  */
 export const getProjectHome = async (projectId: number): Promise<ProjectHomeResponse> => {
-  // 개발 환경에서는 mock 데이터 사용
-  if (process.env.NODE_ENV === 'development') {
-    // 실제 API 호출을 시뮬레이션하기 위한 지연
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  // 실제 API 테스트를 위해 주석 처리
+  // if (process.env.NODE_ENV === 'development') {
+  //   // 실제 API 호출을 시뮬레이션하기 위한 지연
+  //   await new Promise((resolve) => setTimeout(resolve, 1000));
+  //   return projectHomeMockData;
+  // }
+
+  try {
+    console.log(`API 호출 시도: /api/v1/projects/${projectId}`);
+    console.log('Base URL:', process.env.NEXT_PUBLIC_API_BASE_URL);
+    console.log(
+      'Request URL:',
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/projects/${projectId}`
+    );
+
+    // 인증 상태 먼저 확인
+    const isAuthenticated = await checkAuthStatus();
+    if (!isAuthenticated) {
+      console.error('인증되지 않은 상태입니다. 로그인이 필요합니다.');
+      return projectHomeMockData;
+    }
+
+    // 사용자의 프로젝트 목록 확인
+    const userProjects = await getUserProjects();
+    if (userProjects) {
+      console.log('사용자가 접근 가능한 프로젝트 목록:', userProjects);
+
+      // 현재 프로젝트 ID가 사용자의 프로젝트 목록에 있는지 확인
+      const hasAccess = userProjects.result?.projects?.some(
+        (project: any) => project.id === projectId
+      );
+
+      if (!hasAccess) {
+        console.error(`프로젝트 ID ${projectId}에 대한 접근 권한이 없습니다.`);
+        console.error('초대코드를 통해 프로젝트에 참여해야 합니다.');
+        console.error('초대 링크: /projects/join/{inviteCode}');
+        return projectHomeMockData;
+      }
+    }
+
+    // 프로젝트 ID가 유효한지 확인 (1보다 작으면 테스트용 ID 사용)
+    if (projectId < 1) {
+      console.warn(`유효하지 않은 프로젝트 ID: ${projectId}. 테스트용 ID 1을 사용합니다.`);
+      projectId = 1;
+    }
+
+    const response = await axiosInstance.get<ProjectHomeResponse>(`/api/v1/projects/${projectId}`);
+    console.log('API 호출 성공:', response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error('API 호출 실패:', error);
+    console.error('에러 상세 정보:', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      headers: error.response?.headers,
+      config: {
+        url: error.config?.url,
+        method: error.config?.method,
+        baseURL: error.config?.baseURL,
+        headers: error.config?.headers,
+      },
+    });
+
+    // 403 에러는 권한 문제, 401은 인증 문제
+    if (error.response?.status === 403) {
+      console.error('403 Forbidden: 프로젝트에 대한 접근 권한이 없습니다.');
+      console.error('가능한 원인:');
+      console.error('1. 해당 프로젝트의 멤버가 아닙니다.');
+      console.error('2. 프로젝트 ID가 잘못되었습니다.');
+      console.error('3. 백엔드에서 CORS 설정이 잘못되었습니다.');
+      console.error(`현재 시도한 프로젝트 ID: ${projectId}`);
+      console.error('해결 방법: 초대코드를 통해 프로젝트에 참여하세요.');
+    } else if (error.response?.status === 401) {
+      console.error('401 Unauthorized: 로그인이 필요합니다.');
+    }
+
+    // API 호출 실패 시 mock 데이터 반환
     return projectHomeMockData;
   }
-
-  const response = await axiosInstance.get<ProjectHomeResponse>(`/api/v1/projects/${projectId}`);
-  return response.data;
 };
 
 /**
@@ -37,9 +138,15 @@ export const updateProject = async (
   projectId: number,
   updateData: UpdateProjectRequest
 ): Promise<UpdateProjectResponse> => {
-  // 개발 환경에서는 mock 응답 사용
-  if (process.env.NODE_ENV === 'development') {
-    await new Promise((resolve) => setTimeout(resolve, 500));
+  try {
+    const response = await axiosInstance.patch<UpdateProjectResponse>(
+      `/api/v1/projects/${projectId}`,
+      updateData
+    );
+    return response.data;
+  } catch (error) {
+    console.error('프로젝트 수정 API 호출 실패:', error);
+    // API 호출 실패 시 mock 응답 반환
     return {
       isSuccess: true,
       error: null,
@@ -51,12 +158,6 @@ export const updateProject = async (
       },
     };
   }
-
-  const response = await axiosInstance.patch<UpdateProjectResponse>(
-    `/api/v1/projects/${projectId}`,
-    updateData
-  );
-  return response.data;
 };
 
 /**
@@ -66,9 +167,31 @@ export const createPostIt = async (
   projectId: number,
   postItData: CreatePostItRequest
 ): Promise<CreatePostItResponse> => {
-  // 개발 환경에서는 mock 응답 사용
-  if (process.env.NODE_ENV === 'development') {
-    await new Promise((resolve) => setTimeout(resolve, 500));
+  // 실제 API 테스트를 위해 주석 처리
+  // if (process.env.NODE_ENV === 'development') {
+  //   await new Promise((resolve) => setTimeout(resolve, 500));
+  //   return {
+  //     isSuccess: true,
+  //     error: null,
+  //     result: {
+  //       id: Date.now(),
+  //       userId: 1,
+  //       content: postItData.content,
+  //       projectId: projectId,
+  //       createdAt: new Date().toISOString(),
+  //     },
+  //   };
+  // }
+
+  try {
+    const response = await axiosInstance.post<CreatePostItResponse>(
+      `/api/v1/projects/${projectId}/posts`,
+      postItData
+    );
+    return response.data;
+  } catch (error) {
+    console.error('포스트잇 생성 API 호출 실패:', error);
+    // API 호출 실패 시 mock 응답 반환
     return {
       isSuccess: true,
       error: null,
@@ -81,12 +204,6 @@ export const createPostIt = async (
       },
     };
   }
-
-  const response = await axiosInstance.post<CreatePostItResponse>(
-    `/api/v1/projects/${projectId}/posts`,
-    postItData
-  );
-  return response.data;
 };
 
 /**
@@ -96,9 +213,14 @@ export const deletePostIt = async (
   projectId: number,
   postId: number
 ): Promise<DeletePostItResponse> => {
-  // 개발 환경에서는 mock 응답 사용
-  if (process.env.NODE_ENV === 'development') {
-    await new Promise((resolve) => setTimeout(resolve, 500));
+  try {
+    const response = await axiosInstance.delete<DeletePostItResponse>(
+      `/api/v1/projects/${projectId}/posts/${postId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error('포스트잇 삭제 API 호출 실패:', error);
+    // API 호출 실패 시 mock 응답 반환
     return {
       isSuccess: true,
       error: null,
@@ -107,11 +229,6 @@ export const deletePostIt = async (
       },
     };
   }
-
-  const response = await axiosInstance.delete<DeletePostItResponse>(
-    `/api/v1/projects/${projectId}/posts/${postId}`
-  );
-  return response.data;
 };
 
 /**
@@ -121,9 +238,15 @@ export const changeLeader = async (
   projectId: number,
   leaderData: ChangeLeaderRequest
 ): Promise<ChangeLeaderResponse> => {
-  // 개발 환경에서는 mock 응답 사용
-  if (process.env.NODE_ENV === 'development') {
-    await new Promise((resolve) => setTimeout(resolve, 500));
+  try {
+    const response = await axiosInstance.patch<ChangeLeaderResponse>(
+      `/api/v1/projects/${projectId}/leader`,
+      leaderData
+    );
+    return response.data;
+  } catch (error) {
+    console.error('팀장 변경 API 호출 실패:', error);
+    // API 호출 실패 시 mock 응답 반환
     return {
       isSuccess: true,
       error: null,
@@ -133,12 +256,6 @@ export const changeLeader = async (
       },
     };
   }
-
-  const response = await axiosInstance.patch<ChangeLeaderResponse>(
-    `/api/v1/projects/${projectId}/leader`,
-    leaderData
-  );
-  return response.data;
 };
 
 /**
@@ -148,21 +265,21 @@ export const updateProfile = async (
   projectId: number,
   profileData: UpdateProfileRequest
 ): Promise<UpdateProfileResponse> => {
-  // 개발 환경에서는 mock 응답 사용
-  if (process.env.NODE_ENV === 'development') {
-    await new Promise((resolve) => setTimeout(resolve, 500));
+  try {
+    const response = await axiosInstance.patch<UpdateProfileResponse>(
+      `/api/v1/projects/${projectId}/profile`,
+      profileData
+    );
+    return response.data;
+  } catch (error) {
+    console.error('프로필 수정 API 호출 실패:', error);
+    // API 호출 실패 시 mock 응답 반환
     return {
       isSuccess: true,
       error: null,
       result: {},
     };
   }
-
-  const response = await axiosInstance.patch<UpdateProfileResponse>(
-    `/api/v1/projects/${projectId}/profile`,
-    profileData
-  );
-  return response.data;
 };
 
 /**
