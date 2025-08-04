@@ -8,12 +8,12 @@ import React, {
   PropsWithChildren,
   useMemo,
 } from 'react';
-import axiosInstance from '../lib/axiosInstance';
+import { useUser, useUserProjects } from '@/hooks/mutations/useUser';
 import { UserProfile } from '@/types/api/user';
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: UserProfile | null; // 컨텍스트를 통해 user 정보에 접근할 수 있도록 추가
+  user: UserProfile;
   logout: () => void;
 }
 
@@ -29,52 +29,53 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<UserProfile | null>(null); // 사용자 정보를 저장할 상태
+  const { data: userData, error: userError } = useUser();
+  const { data: projects = [] } = useUserProjects(!!userData);
+
+  // 사용자 정보와 프로젝트 정보를 합친 완전한 user 객체 (UI용)
+  const user = useMemo(() => {
+    if (userData) {
+      return {
+        ...userData,
+        projects: projects || [],
+      };
+    }
+    return null;
+  }, [userData, projects]);
 
   useEffect(() => {
-    const checkAuthStatus = async () => {
-      try {
-        const response = await axiosInstance.get<{ result: UserProfile }>('/api/v1/users/me');
-
-        // API 호출이 성공하면, 인증된 것으로 간주하고 사용자 정보를 저장합니다.
-        if (response.data && response.data.result) {
-          setIsAuthenticated(true);
-          setUser(response.data.result);
-        } else {
-          // 비정상적인 응답 처리
-          setIsAuthenticated(false);
-          setUser(null);
-        }
-      } catch (error) {
-        // 401 Unauthorized 등 에러 발생 시, 비인증 상태로 처리합니다.
-        console.error('Auth check failed:', error);
-        setIsAuthenticated(false);
-        setUser(null);
-      }
-    };
-
-    checkAuthStatus();
-  }, []);
+    // 인증 검사는 userData 기준으로 (프로젝트 정보와 무관)
+    if (userData && !userError) {
+      setIsAuthenticated(true);
+    } else if (userError) {
+      setIsAuthenticated(false);
+    }
+  }, [userData, userError]);
 
   const logout = async () => {
     try {
-      await axiosInstance.post('/auth/logout'); // 백엔드에 로그아웃 API가 있다면 호출
+      // 로그아웃 API 호출 (필요한 경우)
+      // await axiosInstance.post('/auth/logout');
     } catch (error) {
       console.error('Logout request failed:', error);
     } finally {
       setIsAuthenticated(false);
-      setUser(null); // 로그아웃 시 사용자 정보도 비웁니다.
       window.location.href = '/login';
     }
   };
 
+  // user가 없으면 렌더링하지 않음 (AuthWrapper에서 처리됨)
+  if (!user) {
+    return null;
+  }
+
   const value = useMemo(
     () => ({
       isAuthenticated,
-      user,
+      user, // user가 null이 아님을 조건부 렌더링으로 보장
       logout,
     }),
-    [isAuthenticated, user]
+    [isAuthenticated, user, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
