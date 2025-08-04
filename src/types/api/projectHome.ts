@@ -95,6 +95,21 @@ export interface CreatePostItResponse {
 }
 
 /**
+ * 포스트잇 삭제 API 응답 타입
+ */
+export interface DeletePostItResponse {
+  isSuccess: boolean;
+  error: {
+    errorCode: string;
+    reason: string;
+    data: any;
+  } | null;
+  result: {
+    message: string;
+  } | null;
+}
+
+/**
  * 프로젝트 홈 API 에러 타입
  */
 export interface ProjectHomeError {

@@ -5,6 +5,7 @@ import {
   UpdateProjectResponse,
   CreatePostItRequest,
   CreatePostItResponse,
+  DeletePostItResponse,
   ProjectUser,
   TeamMember,
 } from '@/types/api/projectHome';
@@ -80,6 +81,31 @@ export const createPostIt = async (
   const response = await axiosInstance.post<CreatePostItResponse>(
     `/api/v1/projects/${projectId}/posts`,
     postItData
+  );
+  return response.data;
+};
+
+/**
+ * 포스트잇을 삭제하는 API
+ */
+export const deletePostIt = async (
+  projectId: number,
+  postId: number
+): Promise<DeletePostItResponse> => {
+  // 개발 환경에서는 mock 응답 사용
+  if (process.env.NODE_ENV === 'development') {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return {
+      isSuccess: true,
+      error: null,
+      result: {
+        message: '포스트잇이 성공적으로 삭제되었습니다.',
+      },
+    };
+  }
+
+  const response = await axiosInstance.delete<DeletePostItResponse>(
+    `/api/v1/projects/${projectId}/posts/${postId}`
   );
   return response.data;
 };

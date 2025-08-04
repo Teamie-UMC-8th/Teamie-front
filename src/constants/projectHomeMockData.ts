@@ -1,4 +1,9 @@
-import { ProjectHomeResponse, PostItData, CreatePostItResponse } from '@/types/api/projectHome';
+import {
+  ProjectHomeResponse,
+  PostItData,
+  CreatePostItResponse,
+  DeletePostItResponse,
+} from '@/types/api/projectHome';
 
 /**
  * 프로젝트 홈 API 응답을 위한 mock 데이터
@@ -272,6 +277,56 @@ export const createPostItExceededMockData: CreatePostItResponse = {
   error: {
     errorCode: 'POSTS_EXCEEDED',
     reason: '포스트잇은 14개까지 생성될 수 있습니다.',
+    data: null,
+  },
+  result: null,
+};
+
+/**
+ * 포스트잇 삭제 성공 mock 데이터
+ */
+export const deletePostItSuccessMockData: DeletePostItResponse = {
+  isSuccess: true,
+  error: null,
+  result: {
+    message: '포스트잇이 성공적으로 삭제되었습니다.',
+  },
+};
+
+/**
+ * 포스트잇 삭제 실패 mock 데이터 (권한 없음)
+ */
+export const deletePostItForbiddenMockData: DeletePostItResponse = {
+  isSuccess: false,
+  error: {
+    errorCode: 'NOT_POST_AUTHOR',
+    reason: '포스트잇 작성자만 삭제할 수 있습니다.',
+    data: null,
+  },
+  result: null,
+};
+
+/**
+ * 포스트잇 삭제 실패 mock 데이터 (프로젝트 없음)
+ */
+export const deletePostItNotFoundMockData: DeletePostItResponse = {
+  isSuccess: false,
+  error: {
+    errorCode: 'PROJECT_NOT_FOUND',
+    reason: '프로젝트를 찾을 수 없습니다.',
+    data: null,
+  },
+  result: null,
+};
+
+/**
+ * 포스트잇 삭제 실패 mock 데이터 (서버 에러)
+ */
+export const deletePostItServerErrorMockData: DeletePostItResponse = {
+  isSuccess: false,
+  error: {
+    errorCode: 'REDIS_DATA_PARSE_ERROR',
+    reason: 'Redis에서 데이터를 파싱하는 중 오류가 발생했습니다.',
     data: null,
   },
   result: null,

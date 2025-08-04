@@ -4,6 +4,7 @@ import {
   getProjectHome,
   updateProject,
   createPostIt,
+  deletePostIt,
   transformUsersToTeamMembers,
   filterExpiredPostIts,
 } from '@/services/ProjectHome/projectHome';
@@ -72,6 +73,26 @@ export const useCreatePostIt = (projectId: number) => {
 };
 
 /**
+ * 포스트잇을 삭제하는 mutation 훅
+ * @param projectId - 프로젝트 ID
+ * @returns 포스트잇 삭제 mutation 함수와 상태
+ */
+export const useDeletePostIt = (projectId: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (postId: number) => deletePostIt(projectId, postId),
+    onSuccess: () => {
+      // 포스트잇 관련 쿼리를 무효화하여 데이터 업데이트
+      queryClient.invalidateQueries({ queryKey: ['postIts', projectId] });
+    },
+    onError: (error) => {
+      console.error('포스트잇 삭제 실패:', error);
+    },
+  });
+};
+
+/**
  * ProjectHomePage에서 사용하는 상태와 핸들러들을 관리하는 커스텀 훅
  * @param projectId - 프로젝트 ID
  * @returns ProjectHomePage에서 필요한 상태와 핸들러들
@@ -80,6 +101,7 @@ export const useProjectHomeState = (projectId: number) => {
   const { data: projectHomeData, isLoading, error } = useProjectHome(projectId);
   const updateProjectMutation = useUpdateProject(projectId);
   const createPostItMutation = useCreatePostIt(projectId);
+  const deletePostItMutation = useDeletePostIt(projectId);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTextFieldModalOpen, setIsTextFieldModalOpen] = useState(false);
@@ -181,7 +203,22 @@ export const useProjectHomeState = (projectId: number) => {
    * PostIt 삭제 핸들러
    */
   const handleDeletePostIt = (id: string) => {
-    setPostIts(postIts.filter((postIt) => postIt.id !== id));
+    // API를 통해 포스트잇 삭제
+    deletePostItMutation.mutate(parseInt(id), {
+      onSuccess: (data) => {
+        if (data.isSuccess) {
+          // 성공 시 로컬 상태에서도 제거
+          setPostIts(postIts.filter((postIt) => postIt.id !== id));
+        }
+      },
+      onError: (error) => {
+        console.error('포스트잇 삭제 실패:', error);
+        // 에러 시에도 로컬에서 제거 (개발 환경)
+        if (process.env.NODE_ENV === 'development') {
+          setPostIts(postIts.filter((postIt) => postIt.id !== id));
+        }
+      },
+    });
   };
 
   /**
@@ -326,5 +363,6 @@ export const useProjectHomeState = (projectId: number) => {
     setTeamRules,
     // mutation 상태
     createPostItMutation,
+    deletePostItMutation,
   };
 };
