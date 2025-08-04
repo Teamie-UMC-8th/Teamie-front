@@ -233,7 +233,7 @@ export const useProjectHomeState = (projectId: number) => {
           // 에러 시에도 로컬에 추가 (개발 환경)
           if (process.env.NODE_ENV === 'development') {
             const newPostIt: PostItData = {
-              id: Date.now().toString(),
+              id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
               content: content,
               createdAt: Date.now(),
             };

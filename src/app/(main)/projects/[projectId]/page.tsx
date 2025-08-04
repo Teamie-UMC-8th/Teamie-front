@@ -95,7 +95,7 @@ export default function ProjectHomePage() {
 
                 return (
                   <div
-                    key={postIt.id}
+                    key={`${postIt.id}-${index}`}
                     className="absolute"
                     style={{
                       left: `${leftOffset + col * (120 + 46)}px`,

@@ -221,13 +221,51 @@ export const changeLeader = async (
   leaderData: ChangeLeaderRequest
 ): Promise<ChangeLeaderResponse> => {
   try {
+    // 현재 사용자 정보 확인
+    console.log('팀장 변경 요청:', {
+      projectId,
+      newLeaderId: leaderData.newLeaderId,
+    });
+
+    // 현재 사용자의 권한 확인을 위해 프로젝트 정보 조회
+    const projectInfo = await axiosInstance.get(`/api/v1/projects/${projectId}`);
+    console.log('현재 프로젝트 정보:', projectInfo.data);
+
+    // 현재 사용자가 팀장인지 확인
+    const currentUser = projectInfo.data.result?.project?.users?.find(
+      (user: any) => user.permission === 'LEADER'
+    );
+
+    if (!currentUser) {
+      console.error('현재 사용자가 팀장이 아닙니다. 팀장만 팀장을 변경할 수 있습니다.');
+      return {
+        isSuccess: false,
+        error: {
+          errorCode: 'FORBIDDEN_USER_FOR_UPDATE',
+          reason: '팀장만 팀장을 변경할 수 있습니다.',
+          data: null,
+        },
+        result: null,
+      };
+    }
+
     const response = await axiosInstance.patch<ChangeLeaderResponse>(
       `/api/v1/projects/${projectId}/leader`,
       leaderData
     );
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error('팀장 변경 API 호출 실패:', error);
+
+    // 403 오류인 경우 권한 문제로 처리
+    if (error.response?.status === 403) {
+      console.error('403 Forbidden: 팀장 변경 권한이 없습니다.');
+      console.error('가능한 원인:');
+      console.error('1. 현재 사용자가 팀장이 아닙니다.');
+      console.error('2. newLeaderId가 유효하지 않습니다.');
+      console.error('3. 프로젝트에 대한 권한이 부족합니다.');
+    }
+
     // API 호출 실패 시 mock 응답 반환
     return {
       isSuccess: true,

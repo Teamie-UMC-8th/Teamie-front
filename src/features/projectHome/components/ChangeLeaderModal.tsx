@@ -4,12 +4,14 @@ interface ChangeLeaderModalProps {
   onClose: () => void;
   onConfirm: () => void;
   memberName: string;
+  isCurrentUserLeader?: boolean;
 }
 
 export default function ChangeLeaderModal({
   onClose,
   onConfirm,
   memberName,
+  isCurrentUserLeader = false,
 }: ChangeLeaderModalProps) {
   return (
     <Portal>

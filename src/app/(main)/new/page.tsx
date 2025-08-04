@@ -40,6 +40,11 @@ export default function New() {
 
         // 프로젝트 목록 갱신 - 서버에서 최신 데이터 가져오기
         queryClient.invalidateQueries({ queryKey: ['user', 'projects'] });
+
+        // 프로젝트 홈 데이터도 갱신하여 팀장 권한 확인
+        queryClient.invalidateQueries({ queryKey: ['projectHome', projectId] });
+
+        console.log('프로젝트 생성 완료. 생성자가 팀장으로 설정됩니다.');
       } else {
         console.error('응답 처리 실패: inviteCode를 찾을 수 없습니다.', response);
         setErrorMessage('프로젝트 생성에 실패하였습니다.\n잠시 후 다시 시도해 주세요.');
