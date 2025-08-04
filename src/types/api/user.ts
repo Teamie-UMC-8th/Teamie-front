@@ -25,7 +25,5 @@ export interface UserResponse {
 export interface UserProjectsResponse {
   isSuccess: boolean;
   error: null;
-  result: {
-    projects: UserProject[];
-  };
+  result: UserProject[];
 }

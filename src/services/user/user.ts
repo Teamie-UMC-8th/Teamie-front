@@ -10,5 +10,5 @@ export default async function fetchUserProfile(): Promise<UserProfile> {
 // 사용자가 속한 프로젝트 정보를 가져오는 함수
 export async function fetchUserProjects(): Promise<UserProject[]> {
   const { data } = await axiosInstance.get<UserProjectsResponse>('/api/v1/users/projects');
-  return data.result.projects || [];
+  return data.result || [];
 }
