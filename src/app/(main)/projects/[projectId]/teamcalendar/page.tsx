@@ -10,6 +10,7 @@ import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import CalendarButton from "@/features/teamclendar/CalendarButton";
 import CustomDateCellWrapper from "@/features/teamclendar/CustomDateCellWrapper";
+import { useParams } from "next/navigation";
 
 const localizer = momentLocalizer(moment);
 
@@ -28,6 +29,8 @@ const events = [
 
 export default function TeamCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date(2025, 4, 1));
+  const params = useParams();
+  const projectId = params.projectId?.toString(); // '123' 등으로 변환
 
   const handlePrevMonth = () => {
     const newDate = moment(currentDate).subtract(1, "month").toDate();
@@ -53,7 +56,7 @@ export default function TeamCalendar() {
       </div>
 
       {/* 월 네비게이션 */}
-      <div className="flex justify-start items-center gap-3 font-semibold text-[20px] leading-[29px] text-black mb-[47px]">
+      <div className="flex justify-start items-center gap- font-semibold text-[20px] leading-[29px] text-black mb-[47px]">
         <button onClick={handlePrevMonth}>
           <img src="/icons/Vector-left.svg" alt="왼쪽으로 이동" className="w-[24px] h-[24px] cursor-pointer" />
         </button>
@@ -61,7 +64,7 @@ export default function TeamCalendar() {
         <button onClick={handleNextMonth}>
           <img src="/icons/Vector-right.svg" alt="오른쪽으로 이동" className="w-[24px] h-[24px] cursor-pointer" />
         </button>
-        <CalendarButton/>
+        <CalendarButton />
       </div>
 
       {/* 캘린더 */}
@@ -75,14 +78,17 @@ export default function TeamCalendar() {
         date={currentDate}
         onNavigate={() => {}}
         style={{ height: "calc(100vh - 300px)", backgroundColor: "white" }}
-        components={{dateCellWrapper: CustomDateCellWrapper,}}
+        components={{
+          dateCellWrapper: (props) => (
+            <CustomDateCellWrapper {...props} projectId={projectId} />
+          ),
+        }}
         popup
         toolbar={false}
         eventPropGetter={(event) => {
-          let backgroundColor = "#B6F5DF"; // 기본 색상
-
+          let backgroundColor = "#B6F5DF";
           if (event.title === "업무 A 0차 마감") {
-            backgroundColor = "#DAF3F3"; // 연하늘색
+            backgroundColor = "#DAF3F3";
           }
 
           return {

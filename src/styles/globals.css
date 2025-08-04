@@ -1,12 +1,6 @@
 @import 'tailwindcss';
 
 /* 요일 헤더 간 눈금선 제거 */
-.rbc-month-view .rbc-month-header .rbc-header {
-  border-right: none !important;
-  border-left: none !important;
-}
-
-/* 마지막 요일(SAT)의 오른쪽 선도 제거 */
 .rbc-month-view .rbc-month-header .rbc-header:last-child {
   border-right: none !important;
 }
@@ -18,14 +12,16 @@
 
 
 .rbc-month-row .rbc-date-cell {
-  border-right: none !important;
   border-left: none !important;
-}
-.rbc-month-row .rbc-date-cell:last-child {
   border-right: none !important;
 }
+
 .rbc-month-row .rbc-date-cell:first-child {
   border-left: none !important;
+}
+
+.rbc-month-row .rbc-date-cell:last-child {
+  border-right: none !important;
 }
 
 /* 캘린더 전체 border 제거 */
@@ -39,7 +35,8 @@
 .rbc-month-header {
   border: none !important;
   box-shadow: none !important;
-}
+  overflow: visible !important; /*가장 자리 호버 추가*/
+} 
 
 /* 각 주간(week row)마다 가로줄 구분선 추가 */
 .rbc-month-row {
@@ -90,3 +87,8 @@
 .rbc-day-bg.rbc-today {
   background-color: transparent !important;
 } 
+
+
+.rbc-calendar {
+  width: 1424px; /* 또는 고정하고 싶으면 width: 1440px */
+}

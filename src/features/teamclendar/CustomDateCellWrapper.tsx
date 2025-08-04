@@ -1,22 +1,37 @@
+// CustomDateCellWrapper.tsx
+
 "use client";
 
 import { ReactNode, useState } from "react";
+import { useRouter } from "next/navigation";
 
-export default function CustomDateCellWrapper({ children }: { children: ReactNode }) {
+interface CustomDateCellWrapperProps {
+  children: ReactNode;
+  value: Date;
+  projectId: string | undefined; // ✅ 이거 추가!
+}
+
+export default function CustomDateCellWrapper({ children, value, projectId }: CustomDateCellWrapperProps) {
   const [hovered, setHovered] = useState(false);
+  const router = useRouter();
+
+  const handleClick = () => {
+    if (projectId) {
+      router.push(`/projects/${projectId}/teamcalendar/teamtask`);
+    }
+  };
 
   return (
     <div
-      className={`relative w-full h-full transition-all duration-200 rounded-[4px] ${
-        hovered ? "shadow-[0_0_10px_rgba(0,0,0,0.25)]" : ""
-      }`}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {/* 날짜 셀 내용 */}
+  className={`relative w-full h-full transition-all duration-200 rounded-[4px] z-[10] overflow-visible ${
+    hovered ? "shadow-[0_0_10px_rgba(0,0,0,0.25)] cursor-pointer" : ""
+  }`}
+  onMouseEnter={() => setHovered(true)}
+  onMouseLeave={() => setHovered(false)}
+>
       {children}
 
-      {/* 플러스 버튼 (hover 상태 유지되게 감싸줌) */}
+      {/* 플러스 버튼 */}
       <div
         className="absolute top-[8px] right-[8px]"
         onMouseEnter={() => setHovered(true)}
@@ -24,8 +39,8 @@ export default function CustomDateCellWrapper({ children }: { children: ReactNod
       >
         {hovered && (
           <button
-            className="flex items-center justify-center rounded-[4px]"
-            onClick={() => alert("일정 추가")}
+            className="flex items-center justify-center rounded-[4px] cursor-pointer"
+            onClick={handleClick}
           >
             <img
               src="/icons/AddProject.svg"
