@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import PostIt from '@/features/projectHome/components/PostIt';
 import PostItModal from '@/features/projectHome/components/PostItModal';
 import TextFieldModal from '@/features/projectHome/components/TextFieldModal';
@@ -9,152 +9,64 @@ import TeamMemberCard from '@/components/TeamMemberCard';
 import AddTeamProfileModal from '@/features/projectHome/components/AddTeamProfileModal';
 import ChangeLeaderModal from '@/features/projectHome/components/ChangeLeaderModal';
 import Portal from '@/components/Portal';
-
-interface PostItData {
-  id: string;
-  content: string;
-  createdAt: number;
-}
+import { useProjectHomeState } from '@/hooks/mutations/useProjectHome';
 
 export default function ProjectHomePage() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isTextFieldModalOpen, setIsTextFieldModalOpen] = useState(false);
-  const [isAddTeamModalOpen, setIsAddTeamModalOpen] = useState(false);
-  const [isChangeLeaderModalOpen, setIsChangeLeaderModalOpen] = useState(false);
-  const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
-  const [textFieldModalType, setTextFieldModalType] = useState<'goal' | 'rules'>('goal');
-  const [postIts, setPostIts] = useState<PostItData[]>([]);
-  const [teamGoal, setTeamGoal] = useState('');
-  const [teamRules, setTeamRules] = useState('');
-  const [teamMembers, setTeamMembers] = useState([
-    {
-      id: 1,
-      name: '김티미',
-      university: '명지대학교',
-      email: 'Hyunwoo@mju.ac.kr',
-      role: '기획',
-      duties: '담당 업무',
-      isLeader: true,
-    },
-  ]);
+  const params = useParams();
+  const projectId = Number(params.projectId);
 
-  // 48시간 후 자동 삭제 체크
-  useEffect(() => {
-    const checkExpiredPostIts = () => {
-      const now = Date.now();
-      const fortyEightHours = 48 * 60 * 60 * 1000; // 48시간을 밀리초로
+  const {
+    // 상태
+    projectHomeData,
+    isLoading,
+    error,
+    isModalOpen,
+    isTextFieldModalOpen,
+    isAddTeamModalOpen,
+    isChangeLeaderModalOpen,
+    selectedMemberId,
+    textFieldModalType,
+    postIts,
+    teamGoal,
+    teamRules,
+    teamMembers,
+    // 핸들러
+    handleBoardClick,
+    handleCloseModal,
+    handleSavePostIt,
+    handleDeletePostIt,
+    handleShowFullText,
+    handleCloseTextFieldModal,
+    handleSaveTextFieldModal,
+    handleAddTeamMember,
+    handleCloseAddTeamModal,
+    handleChangeLeader,
+    handleConfirmChangeLeader,
+    handleCloseChangeLeaderModal,
+    handleUpdateTeamMember,
+    handleJoinProject,
+    // 상태 설정 함수
+    setTeamGoal,
+    setTeamRules,
+  } = useProjectHomeState(projectId);
 
-      setPostIts((prevPostIts) =>
-        prevPostIts.filter((postIt) => {
-          const timeElapsed = now - postIt.createdAt;
-          return timeElapsed < fortyEightHours;
-        })
-      );
-    };
-
-    // 초기 체크
-    checkExpiredPostIts();
-
-    // 1분마다 체크
-    const interval = setInterval(checkExpiredPostIts, 60000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleBoardClick = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleSavePostIt = (content: string) => {
-    const newPostIt: PostItData = {
-      id: Date.now().toString(),
-      content: content,
-      createdAt: Date.now(),
-    };
-    setPostIts([...postIts, newPostIt]);
-    setIsModalOpen(false);
-  };
-
-  const handleDeletePostIt = (id: string) => {
-    setPostIts(postIts.filter((postIt) => postIt.id !== id));
-  };
-
-  const handleShowFullText = (type: 'goal' | 'rules') => {
-    setTextFieldModalType(type);
-    setIsTextFieldModalOpen(true);
-  };
-
-  const handleCloseTextFieldModal = () => {
-    setIsTextFieldModalOpen(false);
-  };
-
-  const handleSaveTextFieldModal = (content: string) => {
-    if (textFieldModalType === 'goal') {
-      setTeamGoal(content);
-    } else {
-      setTeamRules(content);
-    }
-  };
-
-  const handleAddTeamMember = () => {
-    setIsAddTeamModalOpen(true);
-  };
-
-  const handleCloseAddTeamModal = () => {
-    setIsAddTeamModalOpen(false);
-  };
-
-  const handleChangeLeader = (memberId: number) => {
-    setSelectedMemberId(memberId);
-    setIsChangeLeaderModalOpen(true);
-  };
-
-  const handleConfirmChangeLeader = () => {
-    if (selectedMemberId) {
-      setTeamMembers((prev) =>
-        prev.map((member) => ({
-          ...member,
-          isLeader: member.id === selectedMemberId,
-        }))
-      );
-    }
-    setIsChangeLeaderModalOpen(false);
-    setSelectedMemberId(null);
-  };
-
-  const handleCloseChangeLeaderModal = () => {
-    setIsChangeLeaderModalOpen(false);
-    setSelectedMemberId(null);
-  };
-
-  const handleUpdateTeamMember = (
-    memberId: number,
-    field: 'university' | 'role',
-    value: string
-  ) => {
-    setTeamMembers((prev) =>
-      prev.map((member) => (member.id === memberId ? { ...member, [field]: value } : member))
+  // 로딩 상태 처리
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-lg">로딩 중...</div>
+      </div>
     );
-  };
+  }
 
-  const handleJoinProject = () => {
-    // 로그인 사용자 정보 (실제로는 AuthContext에서 가져와야 함)
-    const newMember = {
-      id: Date.now(),
-      name: '이름',
-      university: '학교',
-      email: 'new@example.com',
-      role: '역할',
-      duties: '담당 업무',
-      isLeader: false,
-    };
-
-    setTeamMembers([...teamMembers, newMember]);
-  };
+  // 에러 상태 처리
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-lg text-red-500">프로젝트를 불러오는 중 오류가 발생했습니다.</div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -212,7 +124,10 @@ export default function ProjectHomePage() {
           title="우리 팀의 목표"
           placeholder="우리 팀의 목표를 작성하세요"
           value={teamGoal}
-          onChange={setTeamGoal}
+          onChange={(value) => {
+            setTeamGoal(value);
+            // API 호출하여 팀 목표 업데이트
+          }}
           maxLength={300}
           showFullViewButton={teamGoal.length >= 222}
           onFullViewClick={() => handleShowFullText('goal')}
@@ -221,7 +136,10 @@ export default function ProjectHomePage() {
           title="우리 팀의 규칙"
           placeholder="우리 팀의 규칙을 작성하세요"
           value={teamRules}
-          onChange={setTeamRules}
+          onChange={(value) => {
+            setTeamRules(value);
+            // API 호출하여 팀 규칙 업데이트
+          }}
           maxLength={300}
           showFullViewButton={teamRules.length >= 222}
           onFullViewClick={() => handleShowFullText('rules')}
