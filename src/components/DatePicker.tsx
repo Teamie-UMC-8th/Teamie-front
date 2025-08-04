@@ -61,19 +61,20 @@ export default function DatePicker({
       });
     }
 
-    // 정확히 5주(35일)로 제한
-    const totalDaysNeeded = 35; // 5주 * 7일
-    const remainingDays = Math.max(0, totalDaysNeeded - days.length);
-
-    for (let i = 1; i <= remainingDays; i++) {
+    // 다음 달의 날들로 완성
+    for (let i = 1; i <= 42 - days.length; i++) {
       days.push({
         date: new Date(year, month + 1, i),
         isCurrentMonth: false,
       });
     }
 
-    // 만약 35일을 초과한다면 35일까지만 잘라내기
-    return days.slice(0, 35);
+    // 실제로 필요한 주 수 계산 (이전 달 날짜 + 현재 달 날짜)
+    const totalDays = days.length;
+    const totalWeeks = Math.ceil(totalDays / 7);
+    const totalDaysNeeded = totalWeeks * 7;
+
+    return days.slice(0, totalDaysNeeded);
   };
 
   const formatDate = (date: Date) => {
@@ -97,6 +98,11 @@ export default function DatePicker({
   };
 
   const days = getDaysInMonth(currentMonth);
+
+  // 현재 달의 주 수 계산
+  const totalWeeks = Math.ceil(days.length / 7);
+  const containerHeight = totalWeeks === 5 ? 'h-[342px]' : 'h-[382px]';
+
   const monthNames = [
     'Jan',
     'Feb',
@@ -116,7 +122,7 @@ export default function DatePicker({
     <div className="relative" ref={dropdownRef}>
       {isOpen && (
         <div
-          className="absolute mt-8 left-[-32px] bg-white rounded-lg z-50 w-[368px] h-[342px]"
+          className={`absolute mt-8 left-[-32px] bg-white rounded-lg z-50 w-[368px] ${containerHeight}`}
           style={{ boxShadow: '0px 0px 15px 0px #00000033' }}
         >
           {/* 헤더 */}
@@ -164,7 +170,7 @@ export default function DatePicker({
                 className={`
                   w-8 h-8 text-[18px] rounded-full flex items-center justify-center transition-colors
                   ${!day.isCurrentMonth ? 'text-gray-400' : 'text-black'}
-                  ${day.date.getDay() === 0 ? 'text-red-500' : ''}
+                  ${day.isCurrentMonth && day.date.getDay() === 0 ? 'text-red-500' : ''}
                   ${
                     selectedDate &&
                     day.date.getDate() === selectedDate.getDate() &&
