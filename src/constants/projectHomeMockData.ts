@@ -3,6 +3,7 @@ import {
   PostItData,
   CreatePostItResponse,
   DeletePostItResponse,
+  ChangeLeaderResponse,
 } from '@/types/api/projectHome';
 
 /**
@@ -327,6 +328,57 @@ export const deletePostItServerErrorMockData: DeletePostItResponse = {
   error: {
     errorCode: 'REDIS_DATA_PARSE_ERROR',
     reason: 'Redis에서 데이터를 파싱하는 중 오류가 발생했습니다.',
+    data: null,
+  },
+  result: null,
+};
+
+/**
+ * 팀장 변경 성공 mock 데이터
+ */
+export const changeLeaderSuccessMockData: ChangeLeaderResponse = {
+  isSuccess: true,
+  error: null,
+  result: {
+    newLeaderId: 2,
+    permission: 'LEAD',
+  },
+};
+
+/**
+ * 팀장 변경 실패 mock 데이터 (자기 자신 지정)
+ */
+export const changeLeaderSelfAssignMockData: ChangeLeaderResponse = {
+  isSuccess: false,
+  error: {
+    errorCode: 'FORBIDDEN_SELF_ASSIGN',
+    reason: '자기 자신을 팀장으로 지목할 수 없습니다.',
+    data: null,
+  },
+  result: null,
+};
+
+/**
+ * 팀장 변경 실패 mock 데이터 (프로젝트 없음)
+ */
+export const changeLeaderNotFoundMockData: ChangeLeaderResponse = {
+  isSuccess: false,
+  error: {
+    errorCode: 'PROJECT_NOT_FOUND',
+    reason: '프로젝트를 찾을 수 없습니다.',
+    data: null,
+  },
+  result: null,
+};
+
+/**
+ * 팀장 변경 실패 mock 데이터 (멤버가 아님)
+ */
+export const changeLeaderNotMemberMockData: ChangeLeaderResponse = {
+  isSuccess: false,
+  error: {
+    errorCode: 'ASIGNEE_NOT_MEMBER',
+    reason: '해당 사람은 프로젝트 멤버가 아닙니다.',
     data: null,
   },
   result: null,

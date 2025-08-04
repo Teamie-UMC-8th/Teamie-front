@@ -110,6 +110,29 @@ export interface DeletePostItResponse {
 }
 
 /**
+ * 팀장 변경 요청 타입
+ */
+export interface ChangeLeaderRequest {
+  newLeaderId: number;
+}
+
+/**
+ * 팀장 변경 API 응답 타입
+ */
+export interface ChangeLeaderResponse {
+  isSuccess: boolean;
+  error: {
+    errorCode: string;
+    reason: string;
+    data: any;
+  } | null;
+  result: {
+    newLeaderId: number;
+    permission: string;
+  } | null;
+}
+
+/**
  * 프로젝트 홈 API 에러 타입
  */
 export interface ProjectHomeError {

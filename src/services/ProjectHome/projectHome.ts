@@ -6,6 +6,8 @@ import {
   CreatePostItRequest,
   CreatePostItResponse,
   DeletePostItResponse,
+  ChangeLeaderRequest,
+  ChangeLeaderResponse,
   ProjectUser,
   TeamMember,
 } from '@/types/api/projectHome';
@@ -106,6 +108,33 @@ export const deletePostIt = async (
 
   const response = await axiosInstance.delete<DeletePostItResponse>(
     `/api/v1/projects/${projectId}/posts/${postId}`
+  );
+  return response.data;
+};
+
+/**
+ * 팀장을 변경하는 API
+ */
+export const changeLeader = async (
+  projectId: number,
+  leaderData: ChangeLeaderRequest
+): Promise<ChangeLeaderResponse> => {
+  // 개발 환경에서는 mock 응답 사용
+  if (process.env.NODE_ENV === 'development') {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return {
+      isSuccess: true,
+      error: null,
+      result: {
+        newLeaderId: leaderData.newLeaderId,
+        permission: 'LEAD',
+      },
+    };
+  }
+
+  const response = await axiosInstance.patch<ChangeLeaderResponse>(
+    `/api/v1/projects/${projectId}/leader`,
+    leaderData
   );
   return response.data;
 };

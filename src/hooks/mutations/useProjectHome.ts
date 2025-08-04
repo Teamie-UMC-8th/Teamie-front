@@ -5,6 +5,7 @@ import {
   updateProject,
   createPostIt,
   deletePostIt,
+  changeLeader,
   transformUsersToTeamMembers,
   filterExpiredPostIts,
 } from '@/services/ProjectHome/projectHome';
@@ -12,6 +13,7 @@ import {
   ProjectHomeResponse,
   UpdateProjectRequest,
   CreatePostItRequest,
+  ChangeLeaderRequest,
   PostItData,
   TeamMember,
 } from '@/types/api/projectHome';
@@ -93,6 +95,26 @@ export const useDeletePostIt = (projectId: number) => {
 };
 
 /**
+ * 팀장을 변경하는 mutation 훅
+ * @param projectId - 프로젝트 ID
+ * @returns 팀장 변경 mutation 함수와 상태
+ */
+export const useChangeLeader = (projectId: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (leaderData: ChangeLeaderRequest) => changeLeader(projectId, leaderData),
+    onSuccess: () => {
+      // 프로젝트 홈 데이터를 다시 불러와서 캐시 업데이트
+      queryClient.invalidateQueries({ queryKey: ['projectHome', projectId] });
+    },
+    onError: (error) => {
+      console.error('팀장 변경 실패:', error);
+    },
+  });
+};
+
+/**
  * ProjectHomePage에서 사용하는 상태와 핸들러들을 관리하는 커스텀 훅
  * @param projectId - 프로젝트 ID
  * @returns ProjectHomePage에서 필요한 상태와 핸들러들
@@ -102,6 +124,7 @@ export const useProjectHomeState = (projectId: number) => {
   const updateProjectMutation = useUpdateProject(projectId);
   const createPostItMutation = useCreatePostIt(projectId);
   const deletePostItMutation = useDeletePostIt(projectId);
+  const changeLeaderMutation = useChangeLeader(projectId);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTextFieldModalOpen, setIsTextFieldModalOpen] = useState(false);
@@ -279,11 +302,34 @@ export const useProjectHomeState = (projectId: number) => {
    */
   const handleConfirmChangeLeader = () => {
     if (selectedMemberId) {
-      setTeamMembers((prev) =>
-        prev.map((member) => ({
-          ...member,
-          isLeader: member.id === selectedMemberId,
-        }))
+      // API를 통해 팀장 변경
+      changeLeaderMutation.mutate(
+        { newLeaderId: selectedMemberId },
+        {
+          onSuccess: (data) => {
+            if (data.isSuccess && data.result) {
+              // 성공 시 로컬 상태 업데이트
+              setTeamMembers((prev) =>
+                prev.map((member) => ({
+                  ...member,
+                  isLeader: member.id === selectedMemberId,
+                }))
+              );
+            }
+          },
+          onError: (error) => {
+            console.error('팀장 변경 실패:', error);
+            // 에러 시에도 로컬 상태 업데이트 (개발 환경)
+            if (process.env.NODE_ENV === 'development') {
+              setTeamMembers((prev) =>
+                prev.map((member) => ({
+                  ...member,
+                  isLeader: member.id === selectedMemberId,
+                }))
+              );
+            }
+          },
+        }
       );
     }
     setIsChangeLeaderModalOpen(false);
@@ -364,5 +410,6 @@ export const useProjectHomeState = (projectId: number) => {
     // mutation 상태
     createPostItMutation,
     deletePostItMutation,
+    changeLeaderMutation,
   };
 };
