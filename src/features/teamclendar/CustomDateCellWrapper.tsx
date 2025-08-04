@@ -17,7 +17,7 @@ export default function CustomDateCellWrapper({ children, value, projectId }: Cu
 
   const handleClick = () => {
     if (projectId) {
-      router.push(`/projects/${projectId}/teamcalendar/teamtask`);
+      router.push(`/projects/${projectId}/tasks/create`);
     }
   };
 

@@ -1,52 +1,40 @@
 "use client";
 
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   Calendar as BigCalendar,
   momentLocalizer,
   Views,
 } from "react-big-calendar";
-import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
-import "react-big-calendar/lib/css/react-big-calendar.css";
-import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import moment from "moment";
+import "react-big-calendar/lib/css/react-big-calendar.css";
 import CalendarButton from "@/features/teamclendar/CalendarButton";
 import CustomDateCellWrapper from "@/features/teamclendar/CustomDateCellWrapper";
-import { useParams } from "next/navigation";
-import CustomEvent from "@/features/teamclendar/CustomEvent";
+import { useGetCalendarPlans } from "@/hooks/queries/useGetTeamCalendar";
 
 const localizer = momentLocalizer(moment);
 
-// ✅ 이벤트 타입 정의
-interface CalendarEvent {
-  id: string;
-  title: string;
-  start: Date;
-  end: Date;
-}
-
-const DnDCalendar = withDragAndDrop<CalendarEvent>(BigCalendar);
-
 export default function TeamCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
-
-  const [events, setEvents] = useState<CalendarEvent[]>([
-    {
-      id: "1",
-      title: "정기 회의",
-      start: new Date(2025, 7, 30, 10, 0),
-      end: new Date(2025, 7, 30, 11, 0),
-    },
-    {
-      id: "2",
-      title: "UMC 8기 프로젝트 TEAMIE 킥오프 회의",
-      start: new Date(2025, 7, 1, 10, 0),
-      end: new Date(2025, 7, 1, 11, 0),
-    },
-  ]);
-
+  const router = useRouter();
   const params = useParams();
   const projectId = params.projectId?.toString();
+
+  const { data: calendarData, isLoading } = useGetCalendarPlans(projectId ?? "");
+
+  const events = calendarData?.flatMap((entry: { list: any; }) =>
+    (entry.list ?? []).map((plan: { planId: any; title: any; startTime: string | number | Date; endTime: string | number | Date; }) => ({
+      id: String(plan.planId),
+      title: plan.title,
+      start: new Date(plan.startTime),
+      end: new Date(plan.endTime),
+    }))
+  ) || [];
+
+  const handleEventClick = (event: any) => {
+    router.push(`/projects/${projectId}/tasks/${event.id}`);
+  };
 
   const handlePrevMonth = () => {
     const newDate = moment(currentDate).subtract(1, "month").toDate();
@@ -58,29 +46,15 @@ export default function TeamCalendar() {
     setCurrentDate(newDate);
   };
 
-  // ✅ 오류 없는 드래그 핸들러
-  const handleEventDrop = ({
-    event,
-    start,
-    end,
-  }: {
-    event: CalendarEvent;
-    start: Date | string;
-    end: Date | string;
-  }) => {
-    const updatedEvents = events.map((e) =>
-      e.id === event.id
-        ? {
-            ...e,
-            start: new Date(start),
-            end: new Date(end),
-          }
-        : e
-    );
-    setEvents(updatedEvents);
-  };
-
   const formattedTitle = moment(currentDate).format("YYYY년 M월");
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[500px] text-lg">
+        일정 불러오는 중...
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -108,13 +82,14 @@ export default function TeamCalendar() {
       </div>
 
       {/* 캘린더 */}
-      <DnDCalendar
+      <BigCalendar
+        onSelectEvent={handleEventClick}
         localizer={localizer}
         events={events}
         defaultView={Views.MONTH}
         views={[Views.MONTH]}
-        startAccessor={(event) => event.start}
-        endAccessor={(event) => event.end}
+        startAccessor="start"
+        endAccessor="end"
         date={currentDate}
         onNavigate={() => {}}
         style={{ height: "calc(100vh - 300px)", backgroundColor: "white" }}
@@ -123,35 +98,8 @@ export default function TeamCalendar() {
             <CustomDateCellWrapper {...props} projectId={projectId} />
           ),
         }}
-        draggableAccessor={() => true}
-        onEventDrop={handleEventDrop}
         popup
         toolbar={false}
-        eventPropGetter={(event) => {
-          let backgroundColor = "#B6F5DF";
-          if (event.title === "업무 A 0차 마감") {
-            backgroundColor = "#DAF3F3";
-          }
-
-          return {
-            style: {
-              backgroundColor,
-              borderRadius: "4px",
-              padding: "4px 22px",
-              color: "#000000",
-              fontSize: "16px",
-              fontWeight: 400,
-              lineHeight: "24px",
-              fontFamily: "Pretendard, sans-serif",
-              border: "none",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "auto",
-              textAlign: "center",
-            },
-          };
-        }}
       />
     </div>
   );
