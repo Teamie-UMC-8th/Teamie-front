@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { menus } from '@/constants/menus';
 import { getHomeUrl } from '@/utils/url';
-import { mockProjects } from '@/constants/mockData';
+import { useAuth } from '@/contexts/AuthContext';
 import { SidebarMenus } from '@/types/sidebar';
 import Dropdown from './Dropdown';
 
@@ -16,6 +16,7 @@ export default function Navbar() {
   const [selectedProject, setSelectedProject] = useState<string>('나의 프로젝트');
   const navbarRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const { user } = useAuth(); // AuthContext에서 사용자 정보 가져오기
 
   const toggleMenu = (menuKey: string) => {
     setOpenMenu((prev) => (prev === menuKey ? null : menuKey));
@@ -119,7 +120,7 @@ export default function Navbar() {
             // 드롭다운 아이템 생성
             const dropdownItems =
               key === 'projects'
-                ? mockProjects.map((project) => ({
+                ? user.projects.map((project) => ({
                     label: project.name,
                     href: `/projects/${project.id}`,
                     onClick: () => handleProjectSelect(project.name),
