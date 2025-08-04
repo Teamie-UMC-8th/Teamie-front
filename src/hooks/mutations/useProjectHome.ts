@@ -417,7 +417,7 @@ export const useProjectHomeState = (projectId: number) => {
       name: '이름',
       university: '학교',
       email: 'new@example.com',
-      role: '역할',
+      role: '',
       isLeader: false,
     };
 
