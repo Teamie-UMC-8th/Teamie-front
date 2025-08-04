@@ -21,15 +21,20 @@ export default function CalendarButton() {
           shadow-[0_0_15px_rgba(0,0,0,0.2)] py-[12px]"
         >
           <div className=" whitespace-nowrap flex flex-col" onClick={() => setOpen(false)}>
-            <button
-              onClick={() => router.push('/project/[projectId]/teamcalendar/teamtask')} // 이거 경로 수정하면 돼요!
-              className="pl-[20px] pr-[12px] py-[4px] text-[18px] text-left leading-[26px] font-normal text-black cursor-pointer"
-            >
-              회의 일정 수립
-               <span className="ml-[70px] px-[10px] py-[2px] bg-[#B6F5DF] text-[#505050] text-[13px] rounded-full">
-                 진행 중
-                </span>
-            </button>
+          <button
+  onClick={() => router.push('/project/[projectId]/teamcalendar/teamtask')}
+  className=" text-[18px] leading-[26px] font-normal text-black cursor-pointer flex items-center w-full text-left
+  ml-[20px] gap-[70px]"
+>
+  <span>회의 일정 수립</span>
+  <span
+    className=" w-[60px] h-[26px] px-[10px] py-[2px] bg-[#B6F5DF] text-[#505050] text-[14px] rounded-full
+    flex items-center justify-center"
+  >
+    진행 중
+  </span>
+</button>
+
           </div>
         </div>
       )}
