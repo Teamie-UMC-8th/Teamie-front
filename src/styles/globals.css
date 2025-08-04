@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 
+
 /* 요일 헤더 간 눈금선 제거 */
 .rbc-month-view .rbc-month-header .rbc-header:last-child {
   border-right: none !important;
@@ -88,7 +89,16 @@
   background-color: transparent !important;
 } 
 
+/* 이벤트가 많은 날도 자동 높이 확장 허용 */
+.rbc-month-row {
+  height: auto !important;
+}
 
-.rbc-calendar {
-  width: 1424px; /* 또는 고정하고 싶으면 width: 1440px */
+/* 이벤트 박스 내부 줄바꿈 허용 */
+.rbc-event-content {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  display: block !important;
+  word-break: keep-all !important;  
 }

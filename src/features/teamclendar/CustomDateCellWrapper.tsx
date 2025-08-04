@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 interface CustomDateCellWrapperProps {
   children: ReactNode;
   value: Date;
-  projectId: string | undefined; // ✅ 이거 추가!
+  projectId: string | undefined;
 }
 
 export default function CustomDateCellWrapper({ children, value, projectId }: CustomDateCellWrapperProps) {

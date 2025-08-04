@@ -8,7 +8,7 @@ export default function CalendarButton() {
   const router = useRouter();
 
   return (
-    <div className="relative ml-auto max-lg:w-[32px] max-lg:h-[32px]">
+    <div className="relative ml-auto w-[32px] h-[32px] lg:w-[36px] lg:h-[36px]">
       {/* 메뉴 아이콘 버튼 */}
       <button onClick={() => setOpen(!open)} aria-label="메뉴 열기">
         <img src="/icons/menu-icon.svg" alt="햄버거" className="cursor-pointer" />
