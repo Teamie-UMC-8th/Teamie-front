@@ -6,11 +6,14 @@ import { formatToKoreanDate } from '@/utils/formatDate';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useThrottle } from '@/hooks/useThrottle';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function New() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [inviteVisible, setInviteVisible] = useState(false);
   const [showCopyModal, setShowCopyModal] = useState(false);
+  const [projectId, setProjectId] = useState('');
   const [projectName, setProjectName] = useState('');
   const [inviteCode, setInviteCode] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
@@ -24,10 +27,14 @@ export default function New() {
 
       // 서버에서 inviteCode만 반환하므로 직접 사용
       if (response.isSuccess && response.result?.inviteCode) {
-        const { inviteCode: code, expiresAt: expiryDate } = response.result;
+        const { id: projectId, name, inviteCode: code, expiresAt: expiryDate } = response.result;
+        setProjectId(projectId);
         setInviteCode(code);
         setExpiresAt(expiryDate); // 만료일 상태 저장
         setInviteVisible(true);
+
+        // 프로젝트 목록 갱신 - 서버에서 최신 데이터 가져오기
+        queryClient.invalidateQueries({ queryKey: ['user', 'projects'] });
       } else {
         console.error('응답 처리 실패: inviteCode를 찾을 수 없습니다.', response);
       }
@@ -49,7 +56,7 @@ export default function New() {
   };
 
   const handleRedirect = () => {
-    router.push(`/projects/${projectName}`);
+    router.push(`/projects/${projectId}`);
   };
 
   const handleCopyText = async () => {
@@ -57,7 +64,7 @@ export default function New() {
 아래 링크를 통해 참여를 수락하면, 
 바로 협업을 시작할 수 있어요.
 👉 참여 링크: ${window.location.origin}/projects/join/${inviteCode}
-링크 유효기간: 7일까지`;
+링크 유효기간: ${expiresAt}`;
 
     try {
       await navigator.clipboard.writeText(textToCopy);
@@ -94,13 +101,12 @@ export default function New() {
             />
             <button
               className={`cursor-pointer self-center px-[0.75rem] py-[0.25rem] whitespace-nowrap bg-[#81D7D4] rounded-[0.25rem] text-white font-bold text-[1.125rem] ${
-                createProjectMutation.isPending ? 'bg-gray cursor-not-allowed' : ''
+                createProjectMutation.isPending ? 'bg-[#BAE5E4] cursor-not-allowed' : ''
               }`}
               onClick={handleCreateProject}
               disabled={createProjectMutation.isPending}
             >
-              {/* 생성 중일 때는 버튼 비활성화되도록 색상 임의 설정 -> 추후 서버 온라인 시에 테스트 후 디자이너와 논의 & 수정 */}
-              {createProjectMutation.isPending ? '생성 중...' : '+ 생성하기'}
+              생성하기
             </button>
           </div>
         </div>

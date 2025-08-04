@@ -1,19 +1,76 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { menus } from '@/constants/menus';
 import { getHomeUrl } from '@/utils/url';
-import { mockProjects } from '@/constants/mockData';
+import { useAuth } from '@/contexts/AuthContext';
 import { SidebarMenus } from '@/types/sidebar';
-import ProfileDropdown from './ProfileDropdown';
+import Dropdown from './Dropdown';
 
 export default function Navbar() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [isUpgraded, setIsUpgraded] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<string>('나의 프로젝트');
+  const navbarRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+  const { user } = useAuth(); // AuthContext에서 사용자 정보 가져오기
 
   const toggleMenu = (menuKey: string) => {
     setOpenMenu((prev) => (prev === menuKey ? null : menuKey));
+    // 다른 드롭다운이 열려있으면 닫기
+    setIsProfileDropdownOpen(false);
   };
+
+  const toggleProfileDropdown = () => {
+    setIsProfileDropdownOpen((prev) => !prev);
+    // 다른 드롭다운이 열려있으면 닫기
+    setOpenMenu(null);
+  };
+
+  const handleProjectSelect = (projectName: string) => {
+    setSelectedProject(projectName);
+    setOpenMenu(null);
+  };
+
+  // 경로 변경 시 프로젝트 페이지가 아니면 selectedProject 리셋
+  useEffect(() => {
+    const isProjectPage = pathname.startsWith('/projects/');
+    if (!isProjectPage) {
+      setSelectedProject('나의 프로젝트');
+    }
+  }, [pathname]);
+
+  // 바깥 클릭 시 드롭다운 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      // 드롭다운 메뉴 영역 확인
+      const dropdownMenus = document.querySelectorAll('[data-dropdown-menu]');
+      const isClickInsideDropdown = Array.from(dropdownMenus).some((menu) => menu.contains(target));
+
+      // 트리거 버튼인지 확인 (드롭다운을 토글하는 버튼들)
+      const isTriggerButton = (target as Element).closest('[data-dropdown-trigger]') !== null;
+
+      // navbar 영역 확인
+      const navbar = navbarRef.current;
+      const isClickInsideNavbar = navbar?.contains(target);
+
+      // 드롭다운 메뉴 영역 밖을 클릭하고, 트리거 버튼이 아닌 경우에만 닫기
+      if (!isClickInsideDropdown && (!isClickInsideNavbar || !isTriggerButton)) {
+        setOpenMenu(null);
+        setIsProfileDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
 
   type MenuKey = keyof SidebarMenus;
 
@@ -29,11 +86,14 @@ export default function Navbar() {
   ];
 
   const upgradeButtonClick = () => {
-    window.alert('업그레이드 버튼 클릭 ^____^');
+    setIsUpgraded((prev) => !prev);
   };
 
   return (
-    <nav className="w-full border-b-[0.125rem] border-[#E7E7E7] bg-white h-[3.625rem] z-10 relative">
+    <nav
+      className="w-full border-b-[0.125rem] border-[#E7E7E7] bg-white h-[3.625rem] z-10 relative"
+      ref={navbarRef}
+    >
       <div className="flex items-center h-full px-[1.313rem] min-w-[1024px]">
         {/* 로고 */}
         <img
@@ -44,76 +104,74 @@ export default function Navbar() {
 
         {/* 왼쪽 고정 영역 */}
         <div className="flex items-center gap-[3.75rem] shrink-0">
-          {menuConfigs.map(({ label, key, urlFn, isDirectLink }) => (
-            <div key={key} className="relative">
-              {isDirectLink ? (
+          {menuConfigs.map(({ label, key, urlFn, isDirectLink }) => {
+            if (isDirectLink) {
+              return (
                 <Link
+                  key={key}
                   href="/new"
                   className="flex items-center cursor-pointer whitespace-nowrap text-black hover:text-[#81D7D4]"
                 >
                   <span className="font-normal text-[1.125rem]">{label}</span>
                 </Link>
-              ) : (
-                <button
-                  onClick={() => toggleMenu(key)}
-                  className={`flex items-center cursor-pointer whitespace-nowrap ${
-                    openMenu === key ? 'text-[#81D7D4]' : 'text-black'
-                  }`}
-                >
-                  <span className="font-normal text-[1.125rem]">{label}</span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className={`ml-[0.125rem] w-[1.5rem] h-[1.5rem] ${openMenu === key ? 'rotate-180' : ''}`}
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M7 10L12 15L17 10"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      fill="none"
-                    />
-                  </svg>
-                </button>
-              )}
+              );
+            }
 
-              {/* 드롭다운 */}
-              {!isDirectLink && openMenu === key && (
-                <ul className="absolute mt-[0.75rem] bg-white rounded-[0.5rem] shadow-[0_0_15px_rgba(0,0,0,0.2)] z-20">
-                  {key === 'projects'
-                    ? mockProjects.map((project) => (
-                        <li
-                          key={project.id}
-                          className="mx-[0.5rem] border-b-[0.125rem] border-[#BBBBBB] last:border-none"
-                        >
-                          <Link
-                            href={`/projects/${project.id}`}
-                            onClick={() => setOpenMenu(null)}
-                            className="block pl-[0.75rem] pr-[9.375rem] py-[0.75rem] text-[#505050] text-[1.125rem] whitespace-nowrap"
-                          >
-                            {project.name}
-                          </Link>
-                        </li>
-                      ))
-                    : menus[key].map((item) => (
-                        <li
-                          key={item.path}
-                          className="mx-[0.5rem] border-b-[0.125rem] border-[#BBBBBB] last:border-none"
-                        >
-                          <Link
-                            href={urlFn!(item.path)}
-                            onClick={() => setOpenMenu(null)}
-                            className="block pl-[0.75rem] pr-[9.375rem] py-[0.75rem] text-[#505050] text-[1.125rem] whitespace-nowrap"
-                          >
-                            {item.name}
-                          </Link>
-                        </li>
-                      ))}
-                </ul>
-              )}
-            </div>
-          ))}
+            // 프로젝트 드롭다운이면 user가 없으면 빈 배열 반환
+            const dropdownItems =
+              key === 'projects'
+                ? (user?.projects || []).map((project) => ({
+                    label: project.name,
+                    href: `/projects/${project.id}`,
+                    onClick: () => handleProjectSelect(project.name),
+                  }))
+                : menus[key].map((item) => ({
+                    label: item.name,
+                    href: urlFn!(item.path),
+                  }));
+
+            return (
+              <Dropdown
+                key={key}
+                isOpen={openMenu === key}
+                onToggle={() => toggleMenu(key)}
+                trigger={
+                  <button
+                    data-dropdown-trigger
+                    className={`flex items-center cursor-pointer whitespace-nowrap ${
+                      openMenu === key ? 'text-[#81D7D4]' : 'text-black'
+                    }`}
+                  >
+                    <span className="font-normal text-[1.125rem]">
+                      {key === 'projects' ? selectedProject : label}
+                    </span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className={`ml-[0.125rem] w-[1.5rem] h-[1.5rem] ${openMenu === key ? 'rotate-180' : ''}`}
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M7 10L12 15L17 10"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        fill="none"
+                      />
+                    </svg>
+                  </button>
+                }
+                items={dropdownItems}
+                width={
+                  key === 'home'
+                    ? 'w-[16.563rem]'
+                    : key === 'projects'
+                      ? 'w-[24.125rem]'
+                      : 'w-[16.563rem]'
+                }
+              />
+            );
+          })}
         </div>
 
         {/* 길이 조절되는 부분*/}
@@ -122,12 +180,35 @@ export default function Navbar() {
         {/* 오른쪽 고정 영역 */}
         <div className="flex items-center gap-[2.25rem] shrink-0 mr-[0.563rem]">
           <button
-            className="w-[8.938rem] h-[2rem] bg-[#81D7D4] text-white rounded-[0.25rem] text-sm font-bold text-[1rem]"
+            className="bg-[#81D7D4] text-white rounded-[0.25rem] text-sm font-bold text-[1rem] px-[0.75rem] py-[0.25rem] cursor-pointer"
             onClick={upgradeButtonClick}
           >
-            PRO로 업그레이드
+            {isUpgraded ? 'Credit 충전' : 'PRO로 업그레이드'}
           </button>
-          <ProfileDropdown />
+          <Dropdown
+            isOpen={isProfileDropdownOpen}
+            onToggle={toggleProfileDropdown}
+            trigger={
+              <button data-dropdown-trigger className="flex items-center">
+                <img src="/icons/profile.svg" alt="프로필" className="cursor-pointer" />
+              </button>
+            }
+            items={[
+              {
+                label: '마이페이지',
+                href: '/mypage',
+                icon: '/icons/myPage-dropdown.svg',
+              },
+              {
+                label: '로그아웃',
+                href: '/login',
+                icon: '/icons/logout.svg',
+              },
+            ]}
+            className="mr-[1rem]"
+            dropdownClassName="right-[0.25rem] top-[2rem]"
+            width="w-[16.563rem]"
+          />
         </div>
       </div>
     </nav>
