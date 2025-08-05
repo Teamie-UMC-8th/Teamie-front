@@ -1,10 +1,31 @@
 'use client';
 
+import { useState } from 'react';
 import AddProfileButton from '@/components/AddProfileButton';
 import BackButton from '@/components/BackButton';
 import DeleteButton from '@/components/DeleteButton';
+import DatePicker from '@/components/DatePicker';
 
 export default function taskDetailPage() {
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date(2025, 0, 1));
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+
+  const formatDate = (date: Date | null) => {
+    if (!date) return '';
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}.${month}.${day}`;
+  };
+
+  const handleDateChange = (date: Date) => {
+    setSelectedDate(date);
+  };
+
+  const toggleDatePicker = () => {
+    setIsDatePickerOpen(!isDatePickerOpen);
+  };
+
   return (
     <div>
       {/* 헤더 */}
@@ -43,12 +64,28 @@ export default function taskDetailPage() {
         max-lg:flex-col max-lg:items-start max-lg:ml-[24px] max-lg:gap-[40px]"
         >
           {/* 일자 */}
-          <div className="flex items-center">
+          <div className="flex items-center relative">
             <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] mr-[28px]">
               일자
             </div>
-            <div className="text-[20px]">2025.01.01</div>
-            <img src="/icons/deadline-calendar.svg" alt="마감기한" className="ml-[20px]" />
+            <div
+              className="text-[20px] cursor-pointer flex items-center"
+              onClick={toggleDatePicker}
+            >
+              {formatDate(selectedDate)}
+            </div>
+            <img
+              src="/icons/deadline-calendar.svg"
+              alt="마감기한"
+              className="ml-[20px] cursor-pointer"
+              onClick={toggleDatePicker}
+            />
+            <DatePicker
+              selectedDate={selectedDate}
+              onDateChange={handleDateChange}
+              isOpen={isDatePickerOpen}
+              onToggle={toggleDatePicker}
+            />
           </div>
 
           {/* 시작 시간 */}
