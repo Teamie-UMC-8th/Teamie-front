@@ -8,6 +8,7 @@ import Projects from '@/features/mypage/components/Projects';
 import AddCorrectionButton from '@/features/mypage/components/AddCorrectionButton';
 import { useUser } from '@/hooks/mutations/useUser';
 import ProfileImageUpload from '@/features/mypage/components/ProfileImageUpload';
+import EditableField from '@/features/mypage/components/EditableField';
 
 export default function MyPage() {
   const { selected, setSelected } = useToggle();
@@ -20,6 +21,16 @@ export default function MyPage() {
     // 여기서 서버에 이미지를 업로드하는 로직을 추가할 수 있습니다
     console.log('Selected file:', file);
     // TODO: API 호출하여 서버에 이미지 업로드
+  };
+
+  const handleSchoolChange = (newSchool: string) => {
+    console.log('School changed to:', newSchool);
+    // TODO: API 호출하여 서버에 학교 정보 업데이트
+  };
+
+  const handleMajorChange = (newMajor: string) => {
+    console.log('Major changed to:', newMajor);
+    // TODO: API 호출하여 서버에 전공 정보 업데이트
   };
 
   if (isLoading) return <div>로딩 중...</div>;
@@ -74,33 +85,33 @@ export default function MyPage() {
               className="flex flex-col items-start ml-[3.75rem] text-[1.125rem]
             max-lg:mt-[4.625rem] "
             >
+              <EditableField
+                value={data?.school || ''}
+                placeholder="학교를 입력해주세요."
+                onSave={handleSchoolChange}
+                icon="/icons/UnivName.svg"
+                label="학교"
+                className="mb-[1.75rem] max-lg:mb-[1.5rem] max-lg:w-[20rem]"
+              />
+              <EditableField
+                value={data?.major || ''}
+                placeholder="전공을 입력해주세요."
+                onSave={handleMajorChange}
+                icon="/icons/major.svg"
+                label="전공"
+                className="mb-[1.75rem] max-lg:mb-[1.5rem]"
+              />
               <div
-                className="flex mb-[1.75rem]
-              max-lg:mb-[1.5rem] max-lg:w-[20rem]"
-              >
-                <img src="/icons/UnivName.svg" alt="University" className="mr-[0.75rem]" />
-                <div className="text-[#898989] mr-[0.75rem]">학교:</div>
-                <div className="text-black">{data?.school || '-'}</div>
-              </div>
-              <div
-                className="flex mb-[1.75rem]
-              max-lg:mb-[1.5rem]"
-              >
-                <img src="/icons/major.svg" alt="major" className="mr-[0.75rem]" />
-                <div className="text-[#898989] mr-[0.75rem]">전공:</div>
-                <div className="text-black">{data?.major || '-'}</div>
-              </div>
-              <div
-                className="flex mb-[1.75rem]
+                className="flex items-center mb-[1.75rem]
               max-lg:mb-[1.5rem]"
               >
                 <img src="/icons/email.svg" alt="email" className="mr-[0.75rem]" />
-                <div className="text-[#898989] mr-[0.75rem]">이메일:</div>
+                <div className="text-[#505050] mr-[0.75rem]">이메일:</div>
                 <div className="text-black">{data?.email}</div>
               </div>
-              <div className="flex mb-[2.25rem]">
+              <div className="flex items-center mb-[2.25rem]">
                 <img src="/icons/ProjectCount.svg" alt="Project Count" className="mr-[0.75rem]" />
-                <div className="text-[#898989] mr-[0.75rem]">팀 프로젝트 진행 횟수:</div>
+                <div className="text-[#505050] mr-[0.75rem]">팀 프로젝트 진행 횟수:</div>
                 <div className="text-black">{data?.projectNum}</div>
               </div>
             </div>
