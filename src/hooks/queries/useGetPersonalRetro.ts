@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchPersonalRetro } from '@/services/PersonalRecalls/check';
+import { fetchPersonalRetro } from '@/services/personalRecalls/check';
 
 export const useGetPersonalRetro = (projectId: number) => {
   return useQuery({
