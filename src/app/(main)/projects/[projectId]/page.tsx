@@ -1,4 +1,92 @@
+'use client';
+
+import { useParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import PostIt from '@/features/projectHome/components/PostIt';
+import PostItModal from '@/features/projectHome/components/PostItModal';
+import TextFieldModal from '@/features/projectHome/components/TextFieldModal';
+import TextField from '@/features/projectHome/components/TextField';
+import TeamMemberCard from '@/components/TeamMemberCard';
+import AddTeamProfileModal from '@/features/projectHome/components/AddTeamProfileModal';
+import ChangeLeaderModal from '@/features/projectHome/components/ChangeLeaderModal';
+import Portal from '@/components/Portal';
+import { useProjectHomeState } from '@/hooks/mutations/useProjectHome';
+import axiosInstance from '@/lib/axiosInstance';
+
 export default function ProjectHomePage() {
+  const params = useParams();
+  const projectId = Number(params.projectId);
+  const [currentUserEmail, setCurrentUserEmail] = useState<string>('');
+
+  const {
+    // 상태
+    isLoading,
+    error,
+    isModalOpen,
+    isTextFieldModalOpen,
+    isAddTeamModalOpen,
+    isChangeLeaderModalOpen,
+    selectedMemberId,
+    textFieldModalType,
+    postIts,
+    teamGoal,
+    teamRules,
+    teamMembers,
+    // 핸들러
+    handleBoardClick,
+    handleCloseModal,
+    handleSavePostIt,
+    handleDeletePostIt,
+    handleShowFullText,
+    handleCloseTextFieldModal,
+    handleSaveTextFieldModal,
+    handleAddTeamMember,
+    handleCloseAddTeamModal,
+    handleChangeLeader,
+    handleConfirmChangeLeader,
+    handleCloseChangeLeaderModal,
+    handleUpdateTeamMember,
+    handleJoinProject,
+    // 상태 설정 함수
+    setTeamGoal,
+    setTeamRules,
+    // API mutations
+    updateProjectMutation,
+  } = useProjectHomeState(projectId);
+
+  // 현재 사용자 이메일 가져오기
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await axiosInstance.get('/api/v1/users/me');
+        if (response.data.isSuccess && response.data.result) {
+          setCurrentUserEmail(response.data.result.email);
+        }
+      } catch (error) {
+        console.error('현재 사용자 정보 가져오기 실패:', error);
+      }
+    };
+    fetchCurrentUser();
+  }, []);
+
+  // 로딩 상태 처리
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-lg">로딩 중...</div>
+      </div>
+    );
+  }
+
+  // 에러 상태 처리
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-lg text-red-500">프로젝트를 불러오는 중 오류가 발생했습니다.</div>
+      </div>
+    );
+  }
+
   return (
     <div>
       {/* 헤더 */}
@@ -14,18 +102,36 @@ export default function ProjectHomePage() {
         <div className="flex-col">
           <p className="text-[22px] font-semibold">게시판</p>
           <div
-            className="w-[920px] h-[344px] border-[2px] border-[#BBBBBB] mt-[24px] rounded-[8px] px-[48px] py-[36px] gap-x-[48px] gap-y-[32px]
+            className="w-[1415px] h-[344px] border-[2px] border-[#BBBBBB] mt-[24px] rounded-[8px] px-[48px] py-[36px] gap-x-[48px] gap-y-[32px] relative cursor-pointer
           max-lg:w-[862px] max-lg:h-[344px]"
+            onClick={handleBoardClick}
           >
-            <img src="/icons/Post-it.svg" alt="게시판 포스트잇" className="relative" />
+            <div className="relative w-full h-full">
+              {postIts.map((postIt, index) => {
+                const row = Math.floor(index / 8);
+                const col = index % 8;
+                const leftOffset = row === 1 ? 32 : 0;
+
+                return (
+                  <div
+                    key={`${postIt.id}-${index}`}
+                    className="absolute"
+                    style={{
+                      left: `${leftOffset + col * (120 + 46)}px`,
+                      top: `${row * (120 + 32)}px`,
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <PostIt
+                      content={postIt.content}
+                      onDelete={() => handleDeletePostIt(postIt.id)}
+                      createdAt={postIt.createdAt}
+                    />
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
-        <div className="flex-col">
-          <p className="text-[22px] font-semibold">업데이트</p>
-          <div
-            className="w-[466px] h-[344px] border-[2px] border-[#BBBBBB] mt-[24px] rounded-[8px]
-          max-lg:w-[862px] max-lg:h-[266px]"
-          ></div>
         </div>
       </div>
       {/* 팀 목표, 규칙 */}
@@ -33,28 +139,80 @@ export default function ProjectHomePage() {
         className="flex mt-[80px] gap-[42px]
       max-lg:flex-col max-lg:ml-[24px]"
       >
-        <div>
-          <p className="text-[22px] font-semibold">우리 팀의 목표</p>
-          <textarea
-            className="w-[688px] h-[232px] border-[2px] border-[#BBBBBB] rounded-[8px] text-[20px] px-[32px] py-[20px] mt-[24px]
-            max-lg:w-[862px] max-lg:h-[220px]"
-            placeholder="우리 팀의 목표를 작성하세요"
-          />
-        </div>
-        <div>
-          <div
-            className="flex justify-between
-          max-lg:w-[860px]"
-          >
-            <p className="text-[22px] font-semibold">우리 팀의 규칙</p>
-            <button className="text-[18px] text-[#898989] cursor-pointer">+ 전체보기</button>
-          </div>
-          <textarea
-            className="w-[688px] h-[232px] border-[2px] border-[#BBBBBB] rounded-[8px] text-[20px] px-[32px] py-[20px] mt-[24px]
-            max-lg:w-[862px] max-lg:h-[220px]"
-            placeholder="우리 팀의 규칙을 작성하세요"
-          />
-        </div>
+        <TextField
+          title="우리 팀의 목표"
+          placeholder="우리 팀의 목표를 작성하세요"
+          value={teamGoal}
+          onChange={(value) => {
+            setTeamGoal(value);
+          }}
+          disabled={
+            !teamMembers.some((member) => member.isLeader && member.email === currentUserEmail)
+          }
+          onBlur={() => {
+            // 현재 사용자가 팀장인지 확인
+            const currentUser = teamMembers.find(
+              (member) => member.isLeader && member.email === currentUserEmail
+            );
+            if (currentUser) {
+              // 팀장인 경우에만 API 호출
+              updateProjectMutation.mutate(
+                { goal: teamGoal },
+                {
+                  onSuccess: (data) => {
+                    console.log('팀 목표 업데이트 성공:', data);
+                  },
+                  onError: (error) => {
+                    console.error('팀 목표 업데이트 실패:', error);
+                    console.log('로컬 상태는 유지됩니다.');
+                  },
+                }
+              );
+            } else {
+              console.log('팀장이 아니므로 팀 목표 수정을 건너뜁니다.');
+            }
+          }}
+          maxLength={300}
+          showFullViewButton={teamGoal.length >= 222}
+          onFullViewClick={() => handleShowFullText('goal')}
+        />
+        <TextField
+          title="우리 팀의 규칙"
+          placeholder="우리 팀의 규칙을 작성하세요"
+          value={teamRules}
+          onChange={(value) => {
+            setTeamRules(value);
+          }}
+          disabled={
+            !teamMembers.some((member) => member.isLeader && member.email === currentUserEmail)
+          }
+          onBlur={() => {
+            // 현재 사용자가 팀장인지 확인
+            const currentUser = teamMembers.find(
+              (member) => member.isLeader && member.email === currentUserEmail
+            );
+            if (currentUser) {
+              // 팀장인 경우에만 API 호출
+              updateProjectMutation.mutate(
+                { rule: teamRules },
+                {
+                  onSuccess: (data) => {
+                    console.log('팀 규칙 업데이트 성공:', data);
+                  },
+                  onError: (error) => {
+                    console.error('팀 규칙 업데이트 실패:', error);
+                    console.log('로컬 상태는 유지됩니다.');
+                  },
+                }
+              );
+            } else {
+              console.log('팀장이 아니므로 팀 규칙 수정을 건너뜁니다.');
+            }
+          }}
+          maxLength={300}
+          showFullViewButton={teamRules.length >= 222}
+          onFullViewClick={() => handleShowFullText('rules')}
+        />
       </div>
       {/* 팀원 프로필 */}
       <div
@@ -66,57 +224,63 @@ export default function ProjectHomePage() {
         max-lg:w-[860px] max-lg:mt-[70px]"
         >
           <p className="font-semibold text-[22px]">팀원 프로필</p>
-          <button className="w-[91px] h-[34px] px-[12px] py-[4px] text-white bg-[#81D7D4] rounded-[4px] font-bold cursor-pointer">
+          <button
+            className="w-[91px] h-[34px] px-[12px] py-[4px] text-white bg-[#81D7D4] rounded-[4px] font-bold cursor-pointer"
+            onClick={handleAddTeamMember}
+          >
             팀원 추가
           </button>
         </div>
         {/* 프로필 카드 */}
-        <div
-          className="w-[315px] h-[409px] rounded-[12px] bg-white mt-[24px] flex-col py-[36px] px-[40px]
-          max-lg:ml-[142px] max-lg:w-[580px] max-lg:h-[241px]"
-          style={{ boxShadow: '0px 0px 10px 0px #00000033' }}
-        >
-          <div className="max-lg:flex">
-            <div>
-              <img
-                src="/icons/myprofile.svg"
-                alt="Profile"
-                className="w-[125px] h-[125px] ml-[55px]
-          max-lg:ml-[20px]"
-              />
-
-              <div
-                className="flex items-center ml-[73px]
-          max-lg:ml-[38px]"
-              >
-                <img src="/icons/Leader-Icon.svg" alt="리더 아이콘" />
-                <div className="font-semibold text-[22px] ml-[8px]">김티미</div>
-              </div>
-            </div>
-            <div
-              className="w-[235px] h-[248px] flex-col mt-[18px]
-            max-lg:mt-0 max-lg:ml-[80px]"
-            >
-              <div className="flex items-center py-[6px]">
-                <img src="/icons/UnivName.svg" alt="University" className="mr-[0.75rem]" />
-                <div className="text-black text-[18px]">명지대학교</div>
-              </div>
-              <div className="flex items-center py-[6px]">
-                <img src="/icons/email.svg" alt="email" className="mr-[0.75rem]" />
-                <div className="text-black text-[18px]">Hyunwoo@mju.ac.kr</div>
-              </div>
-              <div className="flex items-center py-[6px]">
-                <img src="/icons/PlanIcon.svg" alt="기획" className="mr-[0.75rem]" />
-                <div className="text-black text-[18px]">기획</div>
-              </div>
-              <div className="flex items-center py-[6px]">
-                <img src="/icons/Duties.svg" alt="담당 업무" className="mr-[0.75rem]" />
-                <div className="text-black text-[18px]">담당 업무</div>
-              </div>
-            </div>
-          </div>
+        <div className="grid grid-cols-4 gap-x-[52px] gap-y-[48px] mt-[24px]">
+          {teamMembers.map((member) => (
+            <TeamMemberCard
+              key={member.id}
+              name={member.name}
+              university={member.university}
+              email={member.email}
+              role={member.role}
+              isLeader={member.isLeader}
+              onClick={() => handleChangeLeader(member.id)}
+              onUpdate={(field, value) => handleUpdateTeamMember(member.id, field, value)}
+            />
+          ))}
         </div>
       </div>
+
+      {isModalOpen && <PostItModal onClose={handleCloseModal} onSave={handleSavePostIt} />}
+
+      {isTextFieldModalOpen && (
+        <Portal>
+          <TextFieldModal
+            type={textFieldModalType}
+            content={textFieldModalType === 'goal' ? teamGoal : teamRules}
+            onClose={handleCloseTextFieldModal}
+            onSave={handleSaveTextFieldModal}
+          />
+        </Portal>
+      )}
+
+      {isAddTeamModalOpen && (
+        <Portal>
+          <AddTeamProfileModal
+            onClose={handleCloseAddTeamModal}
+            projectName="프로젝트명"
+            inviteCode="INVITE123"
+            expiresAt="2024-12-31"
+            onJoinClick={handleJoinProject}
+          />
+        </Portal>
+      )}
+
+      {isChangeLeaderModalOpen && (
+        <Portal>
+          <ChangeLeaderModal
+            onClose={handleCloseChangeLeaderModal}
+            onConfirm={handleConfirmChangeLeader}
+          />
+        </Portal>
+      )}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 export interface CreateProjectRequest {
   name: string;
+  permission?: string; // 생성자의 권한 (LEAD로 설정)
 }
 
 export interface CreateProjectReponse {

@@ -15,9 +15,9 @@ interface AddProfileButtonProps {
 export default function AddProfileButton({ profiles, onChange }: AddProfileButtonProps) {
   const [selectedProfiles, setSelectedProfiles] = useState<Manager[]>([]);
 
-  const remainingProfiles = profiles.filter(
-    (p) => !selectedProfiles.find((s) => s.userId === p.userId)
-  );
+  const remainingProfiles = profiles
+    .filter((p) => !selectedProfiles.find((s) => s.userId === p.userId))
+    .sort((a, b) => a.userName.localeCompare(b.userName, 'ko'));
 
   const toggleDropdown = () => setDropdownOpen((prev) => !prev);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -37,6 +37,7 @@ export default function AddProfileButton({ profiles, onChange }: AddProfileButto
       onChange?.(filtered.map((p) => p.userId));
       return filtered;
     });
+    setDropdownOpen(false); // 드롭다운을 닫음
   };
 
   return (
@@ -73,20 +74,16 @@ export default function AddProfileButton({ profiles, onChange }: AddProfileButto
         </button>
 
         {/* 드롭다운 메뉴 */}
-        <div
-          className="absolute top-[44px] left-0 w-[111px] overflow-y-auto bg-white rounded-[6px] grid place-content-center z-20"
-          style={{
-            display: dropdownOpen ? 'grid' : 'none',
-            height: `${Math.max(remainingProfiles.length * 50, 50)}px`,
-            boxShadow: '0px 0px 15px rgba(0, 0, 0, 0.2)',
-          }}
-        >
-          {remainingProfiles.length === 0 ? (
-            <div className="w-[95px] h-[36px] flex items-center justify-center text-gray-400 text-sm">
-              선택 가능 없음
-            </div>
-          ) : (
-            remainingProfiles.map((profile) => (
+        {remainingProfiles.length > 0 && (
+          <div
+            className="absolute top-[44px] left-0 w-[111px] overflow-y-auto bg-white rounded-[6px] grid place-content-center z-20"
+            style={{
+              display: dropdownOpen ? 'grid' : 'none',
+              height: `${Math.max(remainingProfiles.length * 50, 50)}px`,
+              boxShadow: '0px 0px 15px rgba(0, 0, 0, 0.2)',
+            }}
+          >
+            {remainingProfiles.map((profile) => (
               <button
                 key={profile.userId}
                 onClick={() => handleSelect(profile)}
@@ -99,9 +96,9 @@ export default function AddProfileButton({ profiles, onChange }: AddProfileButto
                 />
                 <span className="ml-[8px] text-[16px]">{profile.userName}</span>
               </button>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

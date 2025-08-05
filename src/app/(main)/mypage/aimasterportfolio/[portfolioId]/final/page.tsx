@@ -28,7 +28,7 @@ type GenerationMethod = 'ai' | 'manual';
 
 export default function AIMasterPortfolioPage() {
   const [generationMethod, setGenerationMethod] = useState<GenerationMethod>('ai');
-  const [selectedCategory, setSelectedCategory] = useState<Category>(CATEGORIES[0]);
+  const [selectedCategory] = useState<Category>(CATEGORIES[0]);
   const detailRef = useRef<HTMLDivElement>(null);
   const taskRef = useRef<HTMLDivElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
@@ -36,7 +36,7 @@ export default function AIMasterPortfolioPage() {
 
   const params = useParams();
   const projectId = Number(params.projectId);
-  const { data: portfolioDetail, isLoading } = useMasterPortfolioDetail(projectId);
+  const { data: portfolioDetail } = useMasterPortfolioDetail(projectId);
 
   const projectData = {
     title: '프로젝트 A',

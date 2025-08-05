@@ -11,6 +11,7 @@ export interface UserProfile {
   major: string | null;
   email: string;
   projectNum: number;
+  permission: string; // 사용자 권한 (LEAD, MEMBER 등)
   projects: UserProject[]; // 사용자가 속한 프로젝트 목록
 }
 
