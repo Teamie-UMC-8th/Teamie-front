@@ -1,14 +1,21 @@
 'use client';
 
 import { useState } from 'react';
+import { useParams } from 'next/navigation';
 import AddProfileButton from '@/components/AddProfileButton';
 import BackButton from '@/components/BackButton';
 import DeleteButton from '@/components/DeleteButton';
 import DatePicker from '@/components/DatePicker';
 import TimePicker from '@/components/TimePicker';
+import RemindMessageModal from '@/features/teamTask/components/RemindMessageModal';
 import { projectHomeMockData } from '@/constants/projectHomeMockData';
+import RemindMessageButton from '@/features/teamTask/components/RemindMessageButton';
 
 export default function taskDetailPage() {
+  const params = useParams();
+  const projectId = params.projectId as string;
+  const planId = params.planId as string;
+
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date(2025, 0, 1));
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [selectedTime, setSelectedTime] = useState<{
@@ -22,6 +29,9 @@ export default function taskDetailPage() {
   });
   const [isTimePickerOpen, setIsTimePickerOpen] = useState(false);
   const [selectedAttendees, setSelectedAttendees] = useState<number[]>([]);
+  const [isRemindModalOpen, setIsRemindModalOpen] = useState(false);
+  const [location, setLocation] = useState('');
+  const [scheduleName, setScheduleName] = useState('빈 일정');
 
   // mockdata에서 사용자 정보 가져오기
   const availableProfiles =
@@ -57,6 +67,14 @@ export default function taskDetailPage() {
     return `${hour}:${minute}`;
   };
 
+  // 모달용 날짜 형식 (MM.DD)
+  const formatDateForModal = (date: Date | null) => {
+    if (!date) return '';
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${month}.${day}`;
+  };
+
   const handleDateChange = (date: Date) => {
     setSelectedDate(date);
   };
@@ -71,6 +89,10 @@ export default function taskDetailPage() {
 
   const toggleTimePicker = () => {
     setIsTimePickerOpen(!isTimePickerOpen);
+  };
+
+  const toggleRemindModal = () => {
+    setIsRemindModalOpen(!isRemindModalOpen);
   };
 
   return (
@@ -97,11 +119,7 @@ export default function taskDetailPage() {
         {/* 구분선 */}
         <div className="border-[#E7E7E7] border-[1px] w-full" />
         {/* 리마인드 메세지 */}
-        <div className="flex justify-end mt-[12px]">
-          <div className="bg-[#81D7D4] w-[138px] h-[34px] rounded-[4px] text-white font-bold px-[12px] py-[4px] text-[18px] cursor-pointer">
-            리마인드 메세지
-          </div>
-        </div>
+        <RemindMessageButton onClick={toggleRemindModal} />
       </div>
 
       {/* 업무 상세 정보 */}
@@ -167,6 +185,8 @@ export default function taskDetailPage() {
             <input
               type="text"
               placeholder="장소를 입력해주세요."
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
               className="text-[20px] border-none outline-none bg-transparent w-[174px] placeholder:text-[#898989]"
             />
           </div>
@@ -217,6 +237,22 @@ export default function taskDetailPage() {
           />
         </div>
       </div>
+      <RemindMessageModal
+        isOpen={isRemindModalOpen}
+        onClose={toggleRemindModal}
+        scheduleName={scheduleName}
+        date={
+          selectedDate
+            ? `${selectedDate.getFullYear()}-${(selectedDate.getMonth() + 1).toString().padStart(2, '0')}-${selectedDate.getDate().toString().padStart(2, '0')}`
+            : ''
+        }
+        time={formatTime(selectedTime)}
+        attendees={selectedAttendees
+          .map((id) => availableProfiles.find((profile) => profile.userId === id)?.userName || '')
+          .filter((name) => name !== '')}
+        location={location}
+        detailUrl={`/projects/${projectId}/teamcalendar/${planId}/${scheduleName}`}
+      />
     </div>
   );
 }
