@@ -9,5 +9,6 @@ export const useGetProject = (params: GetJoinProjectRequest) => {
     queryKey: ['getProject', params.inviteCode],
     queryFn: () => getJoinProject(params),
     enabled: !!params.inviteCode,
+    retry: false, // 재시도 비활성화
   });
 };
