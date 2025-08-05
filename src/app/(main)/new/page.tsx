@@ -17,6 +17,7 @@ export default function New() {
   const [projectName, setProjectName] = useState('');
   const [inviteCode, setInviteCode] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   // 1초 throttle 적용
   const throttledCreateProject = useThrottle(1000);
@@ -24,6 +25,9 @@ export default function New() {
   const createProjectMutation = useCreateProject(
     (response) => {
       console.log('프로젝트 생성 응답:', response);
+
+      // 에러 메시지 초기화
+      setErrorMessage('');
 
       // 서버에서 inviteCode만 반환하므로 직접 사용
       if (response.isSuccess && response.result?.inviteCode) {
@@ -37,10 +41,12 @@ export default function New() {
         queryClient.invalidateQueries({ queryKey: ['user', 'projects'] });
       } else {
         console.error('응답 처리 실패: inviteCode를 찾을 수 없습니다.', response);
+        setErrorMessage('프로젝트 생성에 실패하였습니다.\n잠시 후 다시 시도해 주세요.');
       }
     },
     (error) => {
       console.error('프로젝트 생성 오류:', error);
+      setErrorMessage('프로젝트 생성에 실패하였습니다.\n잠시 후 다시 시도해 주세요.');
     }
   );
 
@@ -48,6 +54,9 @@ export default function New() {
     if (!projectName.trim()) {
       return;
     }
+
+    // 에러 메시지 초기화
+    setErrorMessage('');
 
     // throttle 적용하여 중복 요청 방지
     throttledCreateProject(() => {
@@ -109,6 +118,13 @@ export default function New() {
               생성하기
             </button>
           </div>
+
+          {/* 에러 메시지 표시 */}
+          {errorMessage && (
+            <div className="text-[#FF0000] self-center text-[1.125rem] text-center mt-[8rem] whitespace-pre-line">
+              {errorMessage}
+            </div>
+          )}
         </div>
       </main>
 
