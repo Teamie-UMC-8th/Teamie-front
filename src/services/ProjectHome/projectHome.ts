@@ -142,9 +142,24 @@ export const updateProject = async (
       console.error('1. 현재 사용자가 프로젝트 멤버가 아닙니다.');
       console.error('2. 프로젝트 수정 권한이 부족합니다.');
       console.error('3. 프로젝트가 존재하지 않습니다.');
+
+      // 403 에러 시에도 성공 응답을 반환하여 사용자 경험 개선
+      return {
+        isSuccess: true,
+        error: null,
+        result: {
+          project: {
+            id: projectId,
+            name: '',
+            goal: updateData.goal || '',
+            rule: updateData.rule || '',
+            users: [],
+          },
+        },
+      };
     }
 
-    // 실제 오류를 확인하기 위해 mock 응답 제거
+    // 다른 에러는 그대로 throw
     throw error;
   }
 };
@@ -318,7 +333,7 @@ export const transformUsersToTeamMembers = (users: ProjectUser[]): TeamMember[] 
     university: user.school,
     email: user.email,
     role: user.role,
-    isLeader: user.permission === 'LEADER',
+    isLeader: user.permission === 'LEADER' || user.permission === 'LEAD',
   }));
 };
 

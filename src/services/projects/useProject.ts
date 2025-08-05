@@ -12,7 +12,13 @@ import {
 export const postCreateProject = async (
   body: CreateProjectRequest
 ): Promise<CreateProjectReponse> => {
-  const { data } = await axiosInstance.post<CreateProjectReponse>('/api/v1/projects', body);
+  // 생성자의 권한을 LEAD로 설정
+  const requestBody = {
+    ...body,
+    permission: 'LEAD',
+  };
+
+  const { data } = await axiosInstance.post<CreateProjectReponse>('/api/v1/projects', requestBody);
   return data;
 };
 

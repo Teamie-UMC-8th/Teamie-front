@@ -1,6 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import PostIt from '@/features/projectHome/components/PostIt';
 import PostItModal from '@/features/projectHome/components/PostItModal';
 import TextFieldModal from '@/features/projectHome/components/TextFieldModal';
@@ -10,10 +11,12 @@ import AddTeamProfileModal from '@/features/projectHome/components/AddTeamProfil
 import ChangeLeaderModal from '@/features/projectHome/components/ChangeLeaderModal';
 import Portal from '@/components/Portal';
 import { useProjectHomeState } from '@/hooks/mutations/useProjectHome';
+import axiosInstance from '@/lib/axiosInstance';
 
 export default function ProjectHomePage() {
   const params = useParams();
   const projectId = Number(params.projectId);
+  const [currentUserEmail, setCurrentUserEmail] = useState<string>('');
 
   const {
     // 상태
@@ -51,6 +54,21 @@ export default function ProjectHomePage() {
     // API mutations
     updateProjectMutation,
   } = useProjectHomeState(projectId);
+
+  // 현재 사용자 이메일 가져오기
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await axiosInstance.get('/api/v1/users/me');
+        if (response.data.isSuccess && response.data.result) {
+          setCurrentUserEmail(response.data.result.email);
+        }
+      } catch (error) {
+        console.error('현재 사용자 정보 가져오기 실패:', error);
+      }
+    };
+    fetchCurrentUser();
+  }, []);
 
   // 로딩 상태 처리
   if (isLoading) {
@@ -129,19 +147,31 @@ export default function ProjectHomePage() {
           onChange={(value) => {
             setTeamGoal(value);
           }}
+          disabled={
+            !teamMembers.some((member) => member.isLeader && member.email === currentUserEmail)
+          }
           onBlur={() => {
-            // 포커스 아웃 시 API 호출하여 팀 목표 업데이트
-            updateProjectMutation.mutate(
-              { goal: teamGoal },
-              {
-                onSuccess: (data) => {
-                  console.log('팀 목표 업데이트 성공:', data);
-                },
-                onError: (error) => {
-                  console.error('팀 목표 업데이트 실패:', error);
-                },
-              }
+            // 현재 사용자가 팀장인지 확인
+            const currentUser = teamMembers.find(
+              (member) => member.isLeader && member.email === currentUserEmail
             );
+            if (currentUser) {
+              // 팀장인 경우에만 API 호출
+              updateProjectMutation.mutate(
+                { goal: teamGoal },
+                {
+                  onSuccess: (data) => {
+                    console.log('팀 목표 업데이트 성공:', data);
+                  },
+                  onError: (error) => {
+                    console.error('팀 목표 업데이트 실패:', error);
+                    console.log('로컬 상태는 유지됩니다.');
+                  },
+                }
+              );
+            } else {
+              console.log('팀장이 아니므로 팀 목표 수정을 건너뜁니다.');
+            }
           }}
           maxLength={300}
           showFullViewButton={teamGoal.length >= 222}
@@ -154,19 +184,31 @@ export default function ProjectHomePage() {
           onChange={(value) => {
             setTeamRules(value);
           }}
+          disabled={
+            !teamMembers.some((member) => member.isLeader && member.email === currentUserEmail)
+          }
           onBlur={() => {
-            // 포커스 아웃 시 API 호출하여 팀 규칙 업데이트
-            updateProjectMutation.mutate(
-              { rule: teamRules },
-              {
-                onSuccess: (data) => {
-                  console.log('팀 규칙 업데이트 성공:', data);
-                },
-                onError: (error) => {
-                  console.error('팀 규칙 업데이트 실패:', error);
-                },
-              }
+            // 현재 사용자가 팀장인지 확인
+            const currentUser = teamMembers.find(
+              (member) => member.isLeader && member.email === currentUserEmail
             );
+            if (currentUser) {
+              // 팀장인 경우에만 API 호출
+              updateProjectMutation.mutate(
+                { rule: teamRules },
+                {
+                  onSuccess: (data) => {
+                    console.log('팀 규칙 업데이트 성공:', data);
+                  },
+                  onError: (error) => {
+                    console.error('팀 규칙 업데이트 실패:', error);
+                    console.log('로컬 상태는 유지됩니다.');
+                  },
+                }
+              );
+            } else {
+              console.log('팀장이 아니므로 팀 규칙 수정을 건너뜁니다.');
+            }
           }}
           maxLength={300}
           showFullViewButton={teamRules.length >= 222}

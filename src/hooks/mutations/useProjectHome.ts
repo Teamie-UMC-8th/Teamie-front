@@ -19,7 +19,8 @@ import {
   PostItData,
   TeamMember,
 } from '@/types/api/projectHome';
-import { postItMockData } from '@/constants/projectHomeMockData';
+
+import axiosInstance from '@/lib/axiosInstance';
 
 /**
  * 프로젝트 홈 데이터를 조회하는 쿼리 훅
@@ -142,6 +143,7 @@ export const useUpdateProfile = (projectId: number) => {
  * @returns ProjectHomePage에서 필요한 상태와 핸들러들
  */
 export const useProjectHomeState = (projectId: number) => {
+  const queryClient = useQueryClient();
   const { data: projectHomeData, isLoading, error } = useProjectHome(projectId);
   const updateProjectMutation = useUpdateProject(projectId);
   const createPostItMutation = useCreatePostIt(projectId);
@@ -168,17 +170,90 @@ export const useProjectHomeState = (projectId: number) => {
       setTeamRules(project.rule || '');
 
       // API 사용자 데이터를 TeamMember 형식으로 변환
-      const members = transformUsersToTeamMembers(project.users);
-      setTeamMembers(members);
+      const members = transformUsersToTeamMembers(projectHomeData.result.users);
+
+      // 기존 팀원이 없을 때만 설정 (로컬 상태 보존)
+      if (teamMembers.length === 0) {
+        setTeamMembers(members);
+        console.log('API에서 가져온 팀원들:', members);
+      } else {
+        console.log('기존 팀원 유지, API 데이터로 덮어쓰지 않음');
+      }
+    }
+  }, [projectHomeData, teamMembers.length]);
+
+  // 프로젝트 생성 후 생성자의 프로필 카드를 바로 추가
+  useEffect(() => {
+    const addCreatorProfile = async () => {
+      // 프로젝트 홈 데이터가 있고 사용자가 없거나 1명인 경우 (새로 생성된 프로젝트)
+      if (projectHomeData?.result?.users && projectHomeData.result.users.length <= 1) {
+        try {
+          // 현재 사용자 정보 가져오기 (axiosInstance 사용)
+          const userResponse = await axiosInstance.get('/api/v1/users/me');
+          const userData = userResponse.data;
+
+          if (userData.isSuccess && userData.result) {
+            const currentUser = userData.result;
+
+            // 이미 존재하는지 확인
+            const existingUser = projectHomeData.result.users.find(
+              (user: any) => user.email === currentUser.email
+            );
+
+            if (!existingUser) {
+              // 생성자의 프로필 카드 추가 (permission을 LEAD로 설정)
+              const creatorMember: TeamMember = {
+                id: Date.now(), // 임시 ID
+                name: currentUser.name || '생성자',
+                university: currentUser.school || '',
+                email: currentUser.email,
+                role: '',
+                isLeader: currentUser.permission === 'LEAD' || currentUser.permission === 'LEADER', // permission이 LEAD 또는 LEADER인 경우 팀장
+              };
+
+              console.log('생성자 프로필 카드 추가:', creatorMember);
+              console.log('사용자 권한:', currentUser.permission);
+
+              setTeamMembers((prev) => {
+                // 이미 추가되어 있는지 확인
+                const alreadyExists = prev.some((member) => member.email === creatorMember.email);
+                if (!alreadyExists) {
+                  return [...prev, creatorMember];
+                }
+                return prev;
+              });
+            }
+          }
+        } catch (error) {
+          console.error('생성자 프로필 추가 실패:', error);
+          // 에러 시에도 기본 생성자 정보 추가 (LEAD 권한으로 설정)
+          const defaultCreatorMember: TeamMember = {
+            id: Date.now(),
+            name: '프로젝트 생성자',
+            university: '학교',
+            email: 'creator@example.com',
+            role: '',
+            isLeader: true, // 생성자는 기본적으로 LEAD 권한
+          };
+
+          console.log('기본 생성자 프로필 카드 추가:', defaultCreatorMember);
+
+          setTeamMembers((prev) => {
+            const alreadyExists = prev.some((member) => member.isLeader);
+            if (!alreadyExists) {
+              return [...prev, defaultCreatorMember];
+            }
+            return prev;
+          });
+        }
+      }
+    };
+
+    // 프로젝트 홈 데이터가 있고 사용자가 1명 이하인 경우 실행
+    if (projectHomeData?.result?.users && projectHomeData.result.users.length <= 1) {
+      addCreatorProfile();
     }
   }, [projectHomeData]);
-
-  // 개발 환경에서 초기 PostIt 데이터 설정
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development' && postIts.length === 0) {
-      setPostIts(postItMockData);
-    }
-  }, [postIts.length]);
 
   // 48시간 후 자동 삭제 체크
   useEffect(() => {
@@ -338,6 +413,9 @@ export const useProjectHomeState = (projectId: number) => {
                   isLeader: member.id === selectedMemberId,
                 }))
               );
+
+              // 프로젝트 홈 데이터 갱신은 제거 (로컬 상태 보존)
+              console.log('팀장 변경 성공, 로컬 상태만 업데이트');
             }
           },
           onError: (error) => {
@@ -411,16 +489,17 @@ export const useProjectHomeState = (projectId: number) => {
    * 프로젝트 참여 핸들러
    */
   const handleJoinProject = () => {
-    // 로그인 사용자 정보 (실제로는 AuthContext에서 가져와야 함)
+    // 새로운 팀원 추가 (더 나은 기본값 사용)
     const newMember = {
       id: Date.now(),
-      name: '이름',
+      name: '이름 ',
       university: '학교',
       email: 'new@example.com',
       role: '',
       isLeader: false,
     };
 
+    console.log('새 팀원 추가:', newMember);
     setTeamMembers([...teamMembers, newMember]);
   };
 

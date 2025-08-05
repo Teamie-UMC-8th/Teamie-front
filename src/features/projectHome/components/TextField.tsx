@@ -11,6 +11,7 @@ interface TextFieldProps {
   maxLength?: number;
   showFullViewButton?: boolean;
   onFullViewClick?: () => void;
+  disabled?: boolean;
 }
 
 export default function TextField({
@@ -22,6 +23,7 @@ export default function TextField({
   maxLength = 430,
   showFullViewButton = false,
   onFullViewClick,
+  disabled = false,
 }: TextFieldProps) {
   const [isFocused, setIsFocused] = useState(false);
 
@@ -55,19 +57,20 @@ export default function TextField({
         )}
       </div>
       <textarea
-        className="w-[688px] h-[232px] border-[2px] border-[#BBBBBB] rounded-[8px] text-[18px] px-[30px] py-[18px] mt-[24px]
-        max-lg:w-[862px] max-lg:h-[220px] resize-none [&::-webkit-scrollbar]:hidden"
+        className={`w-[688px] h-[232px] border-[2px] border-[#BBBBBB] rounded-[8px] text-[18px] px-[30px] py-[18px] mt-[24px]
+        max-lg:w-[862px] max-lg:h-[220px] resize-none [&::-webkit-scrollbar]:hidden`}
         style={{
           lineHeight: '32px',
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
         }}
-        placeholder={placeholder}
+        placeholder={disabled ? '팀장만 수정할 수 있습니다.' : placeholder}
         value={displayValue}
         onChange={handleChange}
         onFocus={handleFocus}
         onBlur={handleBlur}
         maxLength={maxLength}
+        disabled={disabled}
       />
     </div>
   );
