@@ -6,6 +6,7 @@ import BackButton from '@/components/BackButton';
 import DeleteButton from '@/components/DeleteButton';
 import DatePicker from '@/components/DatePicker';
 import TimePicker from '@/components/TimePicker';
+import { projectHomeMockData } from '@/constants/projectHomeMockData';
 
 export default function taskDetailPage() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date(2025, 0, 1));
@@ -20,6 +21,18 @@ export default function taskDetailPage() {
     period: 'PM',
   });
   const [isTimePickerOpen, setIsTimePickerOpen] = useState(false);
+  const [selectedAttendees, setSelectedAttendees] = useState<number[]>([]);
+
+  // mockdata에서 사용자 정보 가져오기
+  const availableProfiles =
+    projectHomeMockData.result?.project.users.map((user) => ({
+      userId: user.id,
+      userName: user.name,
+    })) || [];
+
+  const handleAttendeesChange = (selectedUserIds: number[]) => {
+    setSelectedAttendees(selectedUserIds);
+  };
 
   const formatDate = (date: Date | null) => {
     if (!date) return '';
@@ -167,7 +180,7 @@ export default function taskDetailPage() {
           <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px]  mr-[28px]">
             참석자
           </div>
-          <AddProfileButton profiles={[]} />
+          <AddProfileButton profiles={availableProfiles} onChange={handleAttendeesChange} />
         </div>
 
         {/* 비고 */}
@@ -196,7 +209,7 @@ export default function taskDetailPage() {
             <div className="border-l-[2px] border-[#898989] h-[22px]" />
             <p className="text-[18px] ml-[12px] mr-[12px]">기록자</p>
             <div className="border-l-[2px] border-[#898989] h-[22px] mr-[12px]" />
-            <AddProfileButton profiles={[]} />
+            <AddProfileButton profiles={availableProfiles} onChange={handleAttendeesChange} />
           </div>
           <textarea
             className="w-[1415px] h-[428px] px-[20px] py-[16px] border-[2px] rounded-[6px] border-[#BBBBBB] mt-[15px]
