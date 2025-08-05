@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Calendar as BigCalendar,
   momentLocalizer,
@@ -21,29 +21,43 @@ export default function TeamCalendar() {
   const params = useParams();
   const projectId = params.projectId?.toString();
 
-  const { data: calendarData, isLoading } = useGetCalendarPlans(projectId ?? "");
+  //  현재 보고 있는 달의 첫 날 ~ 마지막 날 계산
+  const startDate = useMemo(
+    () => moment(currentDate).startOf("month").toISOString(),
+    [currentDate]
+  );
+  const endDate = useMemo(
+    () => moment(currentDate).endOf("month").toISOString(),
+    [currentDate]
+  );
 
-  const events = calendarData?.flatMap((entry: { list: any; }) =>
-    (entry.list ?? []).map((plan: { planId: any; title: any; startTime: string | number | Date; endTime: string | number | Date; }) => ({
+  //  API 요청: startDate, endDate 추가
+  const { data: calendarData, isLoading } = useGetCalendarPlans(
+    projectId ?? "",
+    startDate,
+    endDate
+  );
+
+  const events =
+  calendarData?.result.flatMap((entry) =>
+    (entry.list ?? []).map((plan) => ({
       id: String(plan.planId),
       title: plan.title,
-      start: new Date(plan.startTime),
-      end: new Date(plan.endTime),
+      start: new Date(plan.startDate),
+      end: new Date(plan.endDate),
     }))
   ) || [];
 
   const handleEventClick = (event: any) => {
-    router.push(`/projects/${projectId}/tasks/${event.id}`);
+    router.push(`/projects/${projectId}/teamcalendar/${event.id}/teamtask`);
   };
 
   const handlePrevMonth = () => {
-    const newDate = moment(currentDate).subtract(1, "month").toDate();
-    setCurrentDate(newDate);
+    setCurrentDate(moment(currentDate).subtract(1, "month").toDate());
   };
 
   const handleNextMonth = () => {
-    const newDate = moment(currentDate).add(1, "month").toDate();
-    setCurrentDate(newDate);
+    setCurrentDate(moment(currentDate).add(1, "month").toDate());
   };
 
   const formattedTitle = moment(currentDate).format("YYYY년 M월");
@@ -95,7 +109,12 @@ export default function TeamCalendar() {
         style={{ height: "calc(100vh - 300px)", backgroundColor: "white" }}
         components={{
           dateCellWrapper: (props) => (
-            <CustomDateCellWrapper {...props} projectId={projectId} />
+            <CustomDateCellWrapper
+  {...props}
+  projectId={projectId}
+  startDate={startDate}
+  endDate={endDate}
+/>
           ),
         }}
         popup
