@@ -5,10 +5,21 @@ import AddProfileButton from '@/components/AddProfileButton';
 import BackButton from '@/components/BackButton';
 import DeleteButton from '@/components/DeleteButton';
 import DatePicker from '@/components/DatePicker';
+import TimePicker from '@/components/TimePicker';
 
 export default function taskDetailPage() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date(2025, 0, 1));
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [selectedTime, setSelectedTime] = useState<{
+    hour: number;
+    minute: number;
+    period: 'AM' | 'PM';
+  }>({
+    hour: 6,
+    minute: 0,
+    period: 'PM',
+  });
+  const [isTimePickerOpen, setIsTimePickerOpen] = useState(false);
 
   const formatDate = (date: Date | null) => {
     if (!date) return '';
@@ -18,12 +29,35 @@ export default function taskDetailPage() {
     return `${year}.${month}.${day}`;
   };
 
+  const formatTime = (time: { hour: number; minute: number; period: 'AM' | 'PM' }) => {
+    let hour24 = time.hour;
+
+    // PM인 경우 12를 더하고, AM이고 12시인 경우 0으로 변경
+    if (time.period === 'PM' && time.hour !== 12) {
+      hour24 = time.hour + 12;
+    } else if (time.period === 'AM' && time.hour === 12) {
+      hour24 = 0;
+    }
+
+    const hour = hour24.toString().padStart(2, '0');
+    const minute = time.minute.toString().padStart(2, '0');
+    return `${hour}:${minute}`;
+  };
+
   const handleDateChange = (date: Date) => {
     setSelectedDate(date);
   };
 
   const toggleDatePicker = () => {
     setIsDatePickerOpen(!isDatePickerOpen);
+  };
+
+  const handleTimeChange = (time: { hour: number; minute: number; period: 'AM' | 'PM' }) => {
+    setSelectedTime(time);
+  };
+
+  const toggleTimePicker = () => {
+    setIsTimePickerOpen(!isTimePickerOpen);
   };
 
   return (
@@ -76,7 +110,7 @@ export default function taskDetailPage() {
             </div>
             <img
               src="/icons/deadline-calendar.svg"
-              alt="마감기한"
+              alt="TimePicker"
               className="ml-[20px] cursor-pointer"
               onClick={toggleDatePicker}
             />
@@ -89,19 +123,39 @@ export default function taskDetailPage() {
           </div>
 
           {/* 시작 시간 */}
-          <div className="flex items-center">
+          <div className="flex items-center relative">
             <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] mr-[28px]">
               시작 시간
             </div>
-            <div className="text-[20px]">18:00</div>
-            <img src="/icons/timePicker.svg" alt="타임 피커" className="ml-[20px]" />
+            <div
+              className="text-[20px] w-[60px] cursor-pointer flex items-center"
+              onClick={toggleTimePicker}
+            >
+              {formatTime(selectedTime)}
+            </div>
+            <img
+              src="/icons/timePicker.svg"
+              alt="타임 피커"
+              className="ml-[16px] cursor-pointer"
+              onClick={toggleTimePicker}
+            />
+            <TimePicker
+              selectedTime={selectedTime}
+              onTimeChange={handleTimeChange}
+              isOpen={isTimePickerOpen}
+              onToggle={toggleTimePicker}
+            />
           </div>
           {/* 마감 기한 */}
           <div className="flex items-center">
             <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] mr-[28px]">
               장소
             </div>
-            <div className="text-[20px]">000관 000호</div>
+            <input
+              type="text"
+              placeholder="장소를 입력해주세요."
+              className="text-[20px] border-none outline-none bg-transparent w-[174px] placeholder:text-[#898989]"
+            />
           </div>
         </div>
 
