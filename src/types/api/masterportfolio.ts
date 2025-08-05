@@ -1,4 +1,6 @@
+// 마스터 포트폴리오 관련 타입 정의(마이페이지)
 export interface MasterPortfolio {
+  projectId: string | number | bigint | boolean | readonly (string | number | bigint | boolean)[] | null | undefined;
   portfolioId: number;
   projectName: string;
   category: string;
@@ -8,11 +10,13 @@ export interface MasterPortfolio {
   mainTask: string;
 }
 
+// API 응답 구조 타입 정의(마이페이지)
 export interface PageInfo {
   nextCursor: string | null;
   hasNextPage: boolean;
 }
 
+// 마스터 포트폴리오 목록 응답 구조 타입 정의(마이페이지)
 export interface MasterPortfolioListResponse {
   isSuccess: boolean;
   error: null;
@@ -21,51 +25,63 @@ export interface MasterPortfolioListResponse {
     pageInfo: PageInfo;
   };
 }
+//api 1번
 
-export enum PortfolioCategory {
-  COURSE = 'COURSE', // 수업
-  CLUB = 'CLUB', // 동아리
-  ACTIVITY = 'ACTIVITY', // 대외활동
-  PROJECT = 'PROJECT', // 프로젝트
-  OTHER = 'OTHER', // 기타
+
+export interface PostMasterPortfolioQuestionRequest {
+  recordIdList: number[];
 }
 
+export interface MasterPortfolioQuestion {
+  questionId: number;
+  questionTitle: string;
+  questionType: 'YES_NO';
+  answer: string;
+  reason: string;
+}
+
+export interface PostMasterPortfolioQuestionResponse {
+  isSuccess: boolean;
+  error: null;
+  result: MasterPortfolioQuestion[];
+}
+
+
+
+
+
+
+// 마스터 포트폴리오 상세 정보 타입 정의(마스터포트폴리오)
 export interface MasterPortfolioDetail {
+  result: any;
   id: number;
   detailInfo: string;
   assignedTask: string;
   keyAchievement: string;
   insight: string;
-  contributionRate: number;
-  category: PortfolioCategory;
-  projectId:number;
+  contributionRate?: number; //
+  mainTask?: string;
+  category?: string;
 }
 
+// 마스터 포트폴리오 상세 정보 응답 구조 타입 정의(마스터포트폴리오)
 export interface MasterPortfolioDetailResponse {
   isSuccess: boolean;
   error: null;
   result: MasterPortfolioDetail;
 }
+//api 5번
 
-export interface PatchMasterPortfolioRequest {
+
+export interface MasterPortfolioGeneratedResult {
   detailInfo: string;
   assignedTask: string;
   keyAchievement: string;
   insight: string;
-  contributionRate: number;
-  category: PortfolioCategory;
 }
 
-export interface MasterPortfolioQuestion {
-  questionId: number;
-  question: string;
-  questionType: string;
-  answer: string;
-  reason: string;
-}
-
-export interface MasterPortfolioQuestionResponse {
+export interface MasterPortfolioGeneratedResponse {
   isSuccess: boolean;
   error: null;
-  result: MasterPortfolioQuestion[];
+  result: MasterPortfolioGeneratedResult;
 }

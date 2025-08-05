@@ -8,10 +8,9 @@ import Image from 'next/image';
 import Step1 from '@/features/aimasterportfolio/components/steps/Step1';
 import Step2 from '@/features/aimasterportfolio/components/steps/Step2';
 import Step3 from '@/features/aimasterportfolio/components/steps/Step3';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import AIConfirmModal from '@/features/aimasterportfolio/components/AIConfirmModal';
-import { useParams } from 'next/navigation';
-import { usePostMasterPortfolioQuestions } from '@/hooks/mutations/useMasterPortfolio'; // ✅ 추가
+import { usePostMasterPortfolioQuestions } from '@/hooks/mutations/usePatchMasterPortfolio';
 
 const AI_CREATE_STEPS = [
   {
@@ -19,11 +18,7 @@ const AI_CREATE_STEPS = [
     title: '개인 회고 작성',
     buttons: {
       sub: '개인 회고로 이동',
-      main: (
-        <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">
-          다음으로 →
-        </span>
-      ),
+      main: <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">다음으로 →</span>,
     },
   },
   {
@@ -31,11 +26,7 @@ const AI_CREATE_STEPS = [
     title: '회의록 선택',
     buttons: {
       sub: '← 이전으로',
-      main: (
-        <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">
-          다음으로 →
-        </span>
-      ),
+      main: <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">다음으로 →</span>,
     },
   },
   {
@@ -43,11 +34,7 @@ const AI_CREATE_STEPS = [
     title: '추가 질문',
     buttons: {
       sub: '임시저장',
-      main: (
-        <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">
-          AI 마스터 포트폴리오 생성하기
-        </span>
-      ),
+      main: <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">AI 마스터 포트폴리오 생성하기</span>,
     },
   },
 ];
@@ -55,17 +42,15 @@ const AI_CREATE_STEPS = [
 export default function AIMasterPortfolioCreatePage() {
   const router = useRouter();
   const params = useParams();
-  const projectId = params.portfolioId as string;
+  const portfolioId = params.portfolioId as string;
   const { currentStep, goToStep } = useFunnel();
   const [scrollY, setScrollY] = useState(0);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const { mutate } = usePostMasterPortfolioQuestions();
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
 
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -74,15 +59,16 @@ export default function AIMasterPortfolioCreatePage() {
 
   const handleMainButtonClick = () => {
     if (currentStep === 2) {
-      mutate(Number(projectId), {
-        onSuccess: () => {
-          setShowConfirmModal(true);
-        },
-        onError: (error) => {
-          console.error('질문 생성 실패:', error);
-          alert('질문 생성 중 오류가 발생했습니다.');
-        },
-      });
+      mutate(
+        { portfolioId: Number(portfolioId), recordIdList: [] },
+        {
+          onSuccess: () => setShowConfirmModal(true),
+          onError: (error) => {
+            console.error('질문 생성 실패:', error);
+            alert('질문 생성 중 오류가 발생했습니다.');
+          },
+        }
+      );
     } else {
       goToStep(currentStep + 1);
     }
@@ -114,14 +100,8 @@ export default function AIMasterPortfolioCreatePage() {
             <div className="flex flex-col gap-[40px] items-end">
               <div className="flex items-start gap-[40px] w-full">
                 <div className="w-[80px] max-lg:w-[60px] h-[80px] max-lg:h-[60px] bg-[#D9D9D9] mt-[24px]" />
-
-                {/* 첫번째 버블 */}
                 <div className="relative w-full h-full">
-                  <div
-                    className="w-full h-full bg-white border-none rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.10)] 
-                  p-[50px] max-lg:px-[36px] max-lg:py-[32px]
-                  max-lg:text-[16px] max-lg:leading-[24px]"
-                  >
+                  <div className="w-full h-full bg-white border-none rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.10)] p-[50px] max-lg:px-[36px] max-lg:py-[32px] max-lg:text-[16px] max-lg:leading-[24px]">
                     {currentStep === 0 && <Step1 />}
                     {currentStep === 1 && <Step2 />}
                     {currentStep === 2 && <Step3 />}
@@ -136,14 +116,13 @@ export default function AIMasterPortfolioCreatePage() {
                 </div>
               </div>
 
-              {/* 두번째 버블 */}
               <div className="relative w-fit h-full">
                 <div className="w-fit h-full bg-white border-none rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.10)] px-[34px] py-[24px] flex gap-[16px]">
                   <button
                     className="rounded-[6px] border-[1.5px] border-[#898989] bg-[#FFF] p-[6px] px-[32px] cursor-pointer"
                     onClick={() => {
                       if (currentStep === 0) {
-                        router.push(`/projects/${projectId}/retrospect/ai`);
+                        router.push(`/projects/${portfolioId}/retrospect/ai`);
                       } else {
                         goToStep(currentStep - 1);
                       }
@@ -175,7 +154,7 @@ export default function AIMasterPortfolioCreatePage() {
       {showConfirmModal && (
         <AIConfirmModal
           onConfirm={() => {
-            router.push(`/mypage/aimasterportfolio/${projectId}/final`);
+            router.push(`/mypage/aimasterportfolio/${portfolioId}/final`);
           }}
           onCancel={() => setShowConfirmModal(false)}
         />

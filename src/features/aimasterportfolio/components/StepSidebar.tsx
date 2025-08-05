@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 interface StepSidebarProps {
   currentStep: number;
@@ -12,6 +12,8 @@ interface StepSidebarProps {
 
 export default function StepsSidebar({ steps, currentStep}: StepSidebarProps) {
   const router = useRouter();
+  const params = useParams();
+  const portfolioId = params.portfolioId as string;
 
   return (
     <div className="w-[280px]  max-lg:w-full h-full max-lg:h-[108px] shadow-lg bg-white border-gray-200 flex flex-col p-6">
@@ -20,7 +22,7 @@ export default function StepsSidebar({ steps, currentStep}: StepSidebarProps) {
         className="flex items-center gap-2 justify-end mb-8 cursor-pointer hover:bg-gray-50 p-2 rounded
         max-lg:justify-start max-lg:mb-2 max-lg:px-[2px] max-lg:py-[2px]"
         onClick={() => {
-          router.push('/mypage/aimasterportfolio');
+          router.push(`/mypage/aimasterportfolio/${portfolioId}`);
         }}
       >
         <Image src="/icons/arrow-left.svg" alt="뒤로가기" width={24} height={24} />

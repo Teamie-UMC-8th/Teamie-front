@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 
 import ManualWriteSection from '@/features/aimasterportfolio/components/ManualWriteSection';
 import MenuButton from '@/features/aimasterportfolio/components/MenuButton';
-import { useMasterPortfolioDetail } from '@/hooks/queries/useMasterPortfolio';
+import { useMasterPortfolioDetail } from '@/hooks/queries/useGetMasterPortfolio';
 
 const CATEGORIES = [
   { label: '수업', color: '#BED9FB' },

@@ -1,7 +1,7 @@
 import {
   fetchMasterPortfolioDetail,
   fetchMasterPortfolioList,
-  postMasterPortfolioQuestions,
+   getMasterPortfolioGeneratedResult,
 } from '@/services/masterportfolio/masterportfolio';
 import { useQuery, useMutation } from '@tanstack/react-query';
 
@@ -24,9 +24,11 @@ export const useMasterPortfolioDetail = (projectId: number) => {
   });
 };
 
-// 마스터 포트폴리오 질문 생성 훅
-export const usePostMasterPortfolioQuestions = () => {
-  return useMutation({
-    mutationFn: (projectId: number) => postMasterPortfolioQuestions(projectId),
+ export const useGetMasterPortfolioGeneratedResult = (portfolioId: number) => {
+  return useQuery({
+    queryKey: ['masterPortfolioGeneratedResult', portfolioId],
+    queryFn: () => getMasterPortfolioGeneratedResult(portfolioId),
+    staleTime: 1000 * 60 * 5,
+    enabled: !!portfolioId, // portfolioId가 존재할 때만 요청
   });
 };
