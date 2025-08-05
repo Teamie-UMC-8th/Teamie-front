@@ -8,6 +8,8 @@ import AIGenerationSection from '@/features/aimasterportfolio/components/AIGener
 import MenuButton from '@/features/aimasterportfolio/components/MenuButton';
 import BackButton from '@/components/BackButton';
 import { CATEGORY_MAP, CATEGORY_LIST, CategoryKey } from '@/constants/category';
+import ContributionSlider from '@/components/ContributionSlider';
+
 
 
 const STYLES = {
@@ -84,21 +86,6 @@ function CategorySelector({ selected, onSelect }: { selected: CategoryKey; onSel
   );
 }
 
-function ContributionBar({ percentage }: { percentage: number }) {
-  return (
-    <div className="flex items-center gap-4">
-      <div className={STYLES.tag}>기여도</div>
-      <div className="flex items-center gap-[28px]">
-        <div className="w-[299px] h-[20px] bg-[#FFFFFF] border border-[#BBBBBB] rounded-[3px] overflow-hidden">
-          <div className="h-full bg-[#81D7D4] transition-all duration-300" style={{ width: `${percentage}%` }} />
-        </div>
-        <span className="w-[42px] h-[28px] text-[#000000] font-[Pretendard] text-[20px] font-normal leading-[28px] tracking-[0.04em] text-center">
-          {percentage}%
-        </span>
-      </div>
-    </div>
-  );
-}
 
 function GenerationMethodSelector({ method, onMethodChange }: { method: GenerationMethod; onMethodChange: (method: GenerationMethod) => void }) {
   const methods = [
@@ -129,7 +116,8 @@ export default function MasterPortfolioDetail() {
   const portfolioId = Number(params.portfolioId);
   const { data, isLoading, error } = useMasterPortfolioDetail(portfolioId);
   const [generationMethod, setGenerationMethod] = useState<GenerationMethod>('ai');
-  const [selectedCategory, setSelectedCategory] = useState<CategoryKey>('COURSE');
+  const [selectedCategory, setSelectedCategory] = useState<CategoryKey>('ACTIVITY');
+  const [contribution, setContribution] = useState(50);
 
   if (isLoading) return <div>포트폴리오 상세 정보를 불러오는 중...</div>;
   if (error) return <div>포트폴리오 상세 정보를 불러오는데 실패했습니다.</div>;
@@ -153,7 +141,7 @@ export default function MasterPortfolioDetail() {
             <CategorySelector selected={selectedCategory} onSelect={setSelectedCategory} />
           </div>
           <div className="flex flex-wrap max-lg:mt-[60px] lg:ml-[200px]">
-            <ContributionBar percentage={projectData.contribution} />
+            <ContributionSlider value={contribution} onChange={setContribution} />
           </div>
         </section>
 
@@ -165,7 +153,7 @@ export default function MasterPortfolioDetail() {
             <GenerationMethodSelector method={generationMethod} onMethodChange={setGenerationMethod} />
           </section>
           {generationMethod === 'manual' && <ManualWriteSection />}
-          {generationMethod === 'ai' && <AIGenerationSection contribution={40} />}
+          {generationMethod === 'ai' && <AIGenerationSection contribution={contribution} />}
         </section>
       </div>
     </main>
