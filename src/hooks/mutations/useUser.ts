@@ -1,5 +1,9 @@
 import { UserProfile, UserProject } from '@/types/api/user';
-import fetchUserProfile, { fetchUserProjects, updateUserProfile } from '@/services/user/user';
+import fetchUserProfile, {
+  fetchUserProjects,
+  updateUserProfile,
+  updateMainTask,
+} from '@/services/user/user';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 // 기본 사용자 정보만 가져오는 훅
@@ -33,6 +37,23 @@ export const useUpdateUserProfile = () => {
     },
     onError: (error) => {
       console.error('프로필 업데이트 실패:', error);
+    },
+  });
+};
+
+// 주요 업무 수정 훅
+export const useUpdateMainTask = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ portfolioId, mainTask }: { portfolioId: number; mainTask: string }) =>
+      updateMainTask(portfolioId, { mainTask }),
+    onSuccess: (updatedProject) => {
+      // 성공 시 프로젝트 목록 캐시 업데이트
+      queryClient.invalidateQueries({ queryKey: ['masterPortfolioList'] });
+    },
+    onError: (error) => {
+      console.error('주요 업무 업데이트 실패:', error);
     },
   });
 };

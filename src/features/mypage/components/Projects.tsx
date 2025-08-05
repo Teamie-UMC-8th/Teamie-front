@@ -1,6 +1,7 @@
 'use client';
 
-import { useMasterPortfolioList } from '@/hooks/queries/useGetMasterPortfolio';
+import { useMasterPortfolioList } from '@/hooks/mutations/useMasterPortfolio';
+import { useUpdateMainTask } from '@/hooks/mutations/useUser';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { formatDateRange } from '@/utils/formatDate';
@@ -11,6 +12,7 @@ export default function Projects() {
   const isAnalyzeFinPage = pathname === '/mypage/addcorrection/projectSelect';
   const isMyPage = pathname === '/mypage';
   const { data } = useMasterPortfolioList();
+  const updateMainTask = useUpdateMainTask();
 
   const [editingTask, setEditingTask] = useState<number | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -22,9 +24,19 @@ export default function Projects() {
   };
 
   const handleTaskSave = (portfolioId: number) => {
-    // TODO: API 호출하여 서버에 업데이트
-    console.log('Task updated for portfolio:', portfolioId, 'New value:', editValue);
-    setEditingTask(null);
+    updateMainTask.mutate(
+      { portfolioId, mainTask: editValue },
+      {
+        onSuccess: () => {
+          console.log('주요 업무 업데이트 성공');
+          setEditingTask(null);
+        },
+        onError: (error) => {
+          console.error('주요 업무 업데이트 실패:', error);
+          alert('주요 업무 업데이트에 실패했습니다.');
+        },
+      }
+    );
   };
 
   const handleTaskKeyDown = (e: React.KeyboardEvent, portfolioId: number) => {
@@ -45,6 +57,8 @@ export default function Projects() {
       inputRef.current.select();
     }
   }, [editingTask]);
+
+  const isUpdating = updateMainTask.isPending;
 
   return (
     <div className={`grid grid-cols-2 gap-[24px] ${!isMyPage ? 'max-lg:grid-cols-1' : ''}`}>
@@ -103,11 +117,17 @@ export default function Projects() {
                     onBlur={() => handleTaskBlur(item.portfolioId)}
                     className="text-[16px] text-black bg-transparent focus:outline-none flex-1 text-left h-6"
                     placeholder="담당한 업무를 짧게 요약해서 입력해주세요"
+                    disabled={isUpdating}
                   />
                 ) : (
                   <div
-                    className="text-[16px] truncate flex-1 cursor-pointer hover:bg-gray-100 px-1 py-1 rounded transition-colors text-left h-6 flex items-center"
+                    className={`text-[16px] truncate flex-1 px-1 py-1 rounded transition-colors text-left h-6 flex items-center ${
+                      isUpdating
+                        ? 'cursor-not-allowed opacity-50'
+                        : 'cursor-pointer hover:bg-gray-100'
+                    }`}
                     onClick={(e) => {
+                      if (isUpdating) return;
                       e.preventDefault();
                       e.stopPropagation();
                       handleTaskClick(item.portfolioId, item.mainTask);

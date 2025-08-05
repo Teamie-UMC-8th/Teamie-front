@@ -37,3 +37,23 @@ export interface UpdateUserProfileParams {
   major?: string;
   file?: File;
 }
+
+// 주요 업무 수정 API 요청 파라미터
+export interface UpdateMainTaskParams {
+  mainTask: string;
+}
+
+// 주요 업무 수정 API 응답 구조
+export interface UpdateMainTaskResponse {
+  isSuccess: boolean;
+  error: null;
+  result: {
+    portfolioId: number;
+    projectName: string;
+    category: string;
+    contributionRate: number;
+    startDate: string;
+    endDate: string;
+    mainTask: string;
+  };
+}
