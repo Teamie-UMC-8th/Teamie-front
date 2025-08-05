@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { formatToKoreanDate } from '@/utils/formatDate';
-import Link from 'next/link';
 
 interface AddTeamProfileModalProps {
   onClose: () => void;

@@ -12,11 +12,6 @@ interface TextFieldModalProps {
 export default function TextFieldModal({ type, content, onClose, onSave }: TextFieldModalProps) {
   const [editedContent, setEditedContent] = useState(content);
 
-  const handleSave = () => {
-    onSave(editedContent);
-    onClose();
-  };
-
   const handleClose = () => {
     onSave(editedContent);
     onClose();

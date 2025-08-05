@@ -15,7 +15,6 @@ export default function PostIt({ content = '', onDelete, createdAt }: PostItProp
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [postItContent, setPostItContent] = useState(content);
-  const [timeLeft, setTimeLeft] = useState<string>('');
 
   // 남은 시간 계산
   useEffect(() => {
@@ -28,20 +27,10 @@ export default function PostIt({ content = '', onDelete, createdAt }: PostItProp
       const remainingTime = fortyEightHours - timeElapsed;
 
       if (remainingTime <= 0) {
-        setTimeLeft('만료됨');
         if (onDelete) {
           onDelete();
         }
         return;
-      }
-
-      const hours = Math.floor(remainingTime / (60 * 60 * 1000));
-      const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
-
-      if (hours > 0) {
-        setTimeLeft(`${hours}시간 ${minutes}분`);
-      } else {
-        setTimeLeft(`${minutes}분`);
       }
     };
 

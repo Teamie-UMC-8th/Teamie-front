@@ -32,7 +32,7 @@ export default function New() {
 
       // 서버에서 inviteCode만 반환하므로 직접 사용
       if (response.isSuccess && response.result?.inviteCode) {
-        const { id: projectId, name, inviteCode: code, expiresAt: expiryDate } = response.result;
+        const { id: projectId, inviteCode: code, expiresAt: expiryDate } = response.result;
         setProjectId(projectId);
         setInviteCode(code);
         setExpiresAt(expiryDate); // 만료일 상태 저장

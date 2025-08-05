@@ -3,14 +3,9 @@ import Portal from '@/components/Portal';
 interface ChangeLeaderModalProps {
   onClose: () => void;
   onConfirm: () => void;
-  memberName: string;
 }
 
-export default function ChangeLeaderModal({
-  onClose,
-  onConfirm,
-  memberName,
-}: ChangeLeaderModalProps) {
+export default function ChangeLeaderModal({ onClose, onConfirm }: ChangeLeaderModalProps) {
   return (
     <Portal>
       <div className="fixed inset-0 bg-[#00000033] bg-opacity-50 flex items-center justify-center z-50">

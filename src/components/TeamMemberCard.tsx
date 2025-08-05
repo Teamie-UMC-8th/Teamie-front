@@ -8,7 +8,6 @@ interface TeamMemberCardProps {
   email: string;
   role: string;
   isLeader?: boolean;
-  onJoinClick?: () => void;
   onClick?: () => void;
   onUpdate?: (field: 'role', value: string) => void;
 }
@@ -19,7 +18,6 @@ export default function TeamMemberCard({
   email,
   role,
   isLeader = false,
-  onJoinClick,
   onClick,
   onUpdate,
 }: TeamMemberCardProps) {

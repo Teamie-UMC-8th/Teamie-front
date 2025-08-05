@@ -20,7 +20,6 @@ export default function ProjectHomePage() {
 
   const {
     // 상태
-    projectHomeData,
     isLoading,
     error,
     isModalOpen,
@@ -279,7 +278,6 @@ export default function ProjectHomePage() {
           <ChangeLeaderModal
             onClose={handleCloseChangeLeaderModal}
             onConfirm={handleConfirmChangeLeader}
-            memberName={teamMembers.find((m) => m.id === selectedMemberId)?.name || ''}
           />
         </Portal>
       )}
