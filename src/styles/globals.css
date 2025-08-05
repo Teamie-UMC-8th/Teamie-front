@@ -1,12 +1,7 @@
 @import 'tailwindcss';
 
-/* 요일 헤더 간 눈금선 제거 */
-.rbc-month-view .rbc-month-header .rbc-header {
-  border-right: none !important;
-  border-left: none !important;
-}
 
-/* 마지막 요일(SAT)의 오른쪽 선도 제거 */
+/* 요일 헤더 간 눈금선 제거 */
 .rbc-month-view .rbc-month-header .rbc-header:last-child {
   border-right: none !important;
 }
@@ -18,14 +13,16 @@
 
 
 .rbc-month-row .rbc-date-cell {
-  border-right: none !important;
   border-left: none !important;
-}
-.rbc-month-row .rbc-date-cell:last-child {
   border-right: none !important;
 }
+
 .rbc-month-row .rbc-date-cell:first-child {
   border-left: none !important;
+}
+
+.rbc-month-row .rbc-date-cell:last-child {
+  border-right: none !important;
 }
 
 /* 캘린더 전체 border 제거 */
@@ -39,7 +36,8 @@
 .rbc-month-header {
   border: none !important;
   box-shadow: none !important;
-}
+  overflow: visible !important; /*가장 자리 호버 추가*/
+} 
 
 /* 각 주간(week row)마다 가로줄 구분선 추가 */
 .rbc-month-row {
@@ -90,3 +88,17 @@
 .rbc-day-bg.rbc-today {
   background-color: transparent !important;
 } 
+
+/* 이벤트가 많은 날도 자동 높이 확장 허용 */
+.rbc-month-row {
+  height: auto !important;
+}
+
+/* 이벤트 박스 내부 줄바꿈 허용 */
+.rbc-event-content {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  display: block !important;
+  word-break: keep-all !important;  
+}

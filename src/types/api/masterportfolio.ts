@@ -38,6 +38,7 @@ export interface MasterPortfolioDetail {
   insight: string;
   contributionRate: number;
   category: PortfolioCategory;
+  projectId:number;
 }
 
 export interface MasterPortfolioDetailResponse {
