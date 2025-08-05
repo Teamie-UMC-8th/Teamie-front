@@ -1,27 +1,14 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import Image from 'next/image';
 import { useState } from 'react';
 import { useMasterPortfolioDetail } from '@/hooks/queries/useGetMasterPortfolio';
 import ManualWriteSection from '@/features/aimasterportfolio/components/ManualWriteSection';
 import AIGenerationSection from '@/features/aimasterportfolio/components/AIGenerationSection';
 import MenuButton from '@/features/aimasterportfolio/components/MenuButton';
+import BackButton from '@/components/BackButton';
+import { CATEGORY_MAP, CATEGORY_LIST, CategoryKey } from '@/constants/category';
 
-export const CATEGORY_MAP = {
-  COURSE: { label: '수업', color: '#BED9FB' },
-  CLUB: { label: '동아리', color: '#CDE3C9' },
-  ACTIVITY: { label: '대외활동', color: '#F7DFC4' },
-  PROJECT: { label: '프로젝트', color: '#FBD5D5' },
-  OTHER: { label: '기타', color: '#C8C8C8' },
-} as const;
-
-export type CategoryKey = keyof typeof CATEGORY_MAP;
-
-export const CATEGORY_LIST = Object.entries(CATEGORY_MAP).map(([key, value]) => ({
-  value: key as CategoryKey,
-  ...value,
-}));
 
 const STYLES = {
   tag: 'w-[99px] h-[37px] bg-[#DAF3F3] rounded-[4px] px-[18px] py-[6px] flex items-center justify-center font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-[#000000] whitespace-nowrap',
@@ -36,7 +23,7 @@ function ProjectHeader({ title }: { title: string }) {
   return (
     <div className="flex flex-col gap-[12px] px-[30px]">
       <div className="flex items-center gap-[20px] max-lg:gap-[8px]">
-        <Image src="/icons/arrow-left.svg" alt="뒤로가기" width={24} height={24} />
+        <BackButton />
         <h1 className="font-[Pretendard] font-bold text-[22px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap gap-[1437px]">
           {title}
         </h1>
@@ -75,7 +62,7 @@ function CategorySelector({ selected, onSelect }: { selected: CategoryKey; onSel
             {CATEGORY_MAP[selected].label}
           </div>
           <svg width="14" height="8" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg" className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}>
-            <path d="M13.4393 1.56365L7.77721 7.56922..." fill="black" />
+            <path d="M13.4393 1.56365L7.77721 7.56922C7.64608 7.70832 7.50507 7.81525 7.35419 7.89003C7.20331 7.96481 7.03763 8.00145 6.85714 7.99996C6.67666 7.99846 6.51097 7.96107 6.3601 7.88779C6.20922 7.8145 6.06821 7.70757 5.93708 7.56698L0.274961 1.5614C0.197407 1.47765 0.13184 1.38119 0.0782577 1.27201C0.0260853 1.16283 -3.03994e-07 1.04542 -3.09486e-07 0.919795C-3.20469e-07 0.668534 0.0775525 0.452419 0.23266 0.271451C0.390587 0.0904841 0.597162 -2.61028e-08 0.852384 -3.72589e-08L12.8598 -5.62119e-07C13.1164 -5.73337e-07 13.323 0.0927276 13.4795 0.278182C13.636 0.463636 13.7143 0.679003 13.7143 0.924281C13.7143 0.987096 13.6226 1.19947 13.4393 1.5614" fill="black" />
           </svg>
         </button>
         {isOpen && (
