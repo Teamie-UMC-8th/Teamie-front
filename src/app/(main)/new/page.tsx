@@ -18,6 +18,7 @@ export default function New() {
   const [inviteCode, setInviteCode] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [hasAttemptedCreation, setHasAttemptedCreation] = useState(false);
 
   // 1초 throttle 적용
   const throttledCreateProject = useThrottle(1000);
@@ -51,12 +52,15 @@ export default function New() {
   );
 
   const handleCreateProject = () => {
-    if (!projectName.trim()) {
+    if (!projectName.trim() || hasAttemptedCreation) {
       return;
     }
 
     // 에러 메시지 초기화
     setErrorMessage('');
+
+    // 생성 시도 표시
+    setHasAttemptedCreation(true);
 
     // throttle 적용하여 중복 요청 방지
     throttledCreateProject(() => {
@@ -103,17 +107,21 @@ export default function New() {
             {/* 프로젝트 이름 입력 */}
             <input
               placeholder="프로젝트 이름을 입력해주세요."
-              className="lg:w-[27.5rem] lg:h-[3.125rem] w-[20.75rem] h-[3rem] border-[0.125rem] border-[#BBBBBB] rounded-[0.5rem] px-[1rem] py-[0.75rem] lg:text-[1.125rem] text-[1rem]"
+              className={`lg:w-[27.5rem] lg:h-[3.125rem] w-[20.75rem] h-[3rem] border-[0.125rem] border-[#BBBBBB] rounded-[0.5rem] px-[1rem] py-[0.75rem] lg:text-[1.125rem] text-[1rem] ${
+                createProjectMutation.isPending || hasAttemptedCreation ? 'cursor-not-allowed' : ''
+              }`}
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
-              disabled={createProjectMutation.isPending}
+              disabled={createProjectMutation.isPending || hasAttemptedCreation}
             />
             <button
-              className={`cursor-pointer self-center px-[0.75rem] py-[0.25rem] whitespace-nowrap bg-[#81D7D4] rounded-[0.25rem] text-white font-bold text-[1.125rem] ${
-                createProjectMutation.isPending ? 'bg-[#BAE5E4] cursor-not-allowed' : ''
+              className={`self-center px-[0.75rem] py-[0.25rem] whitespace-nowrap bg-[#81D7D4] rounded-[0.25rem] text-white font-bold text-[1.125rem] ${
+                createProjectMutation.isPending || hasAttemptedCreation
+                  ? 'bg-[#BAE5E4] cursor-not-allowed'
+                  : 'cursor-pointer'
               }`}
               onClick={handleCreateProject}
-              disabled={createProjectMutation.isPending}
+              disabled={createProjectMutation.isPending || hasAttemptedCreation}
             >
               생성하기
             </button>
@@ -140,7 +148,7 @@ export default function New() {
 
             <div className="bg-[#FFFFFF] p-[2.5rem] border-[0.125rem] border-[#BBBBBB] rounded-[0.75rem] relative">
               <div className="bg-[#F8F8F8] rounded-[0.75rem] relative">
-                <p className="lg:px-[7.5rem] px-[4.75rem] py-[2rem] lg:text-[1.125rem] text-[1rem] text-center">
+                <p className="lg:px-[6.5rem] px-[4rem] py-[2rem] lg:text-[1.125rem] text-[1rem] text-center">
                   💡 프로젝트에 참여해 주세요!
                   <br />
                   아래 링크를 통해 참여를 수락하면, <br />
