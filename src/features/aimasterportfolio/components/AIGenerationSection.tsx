@@ -19,7 +19,7 @@ export default function AIGenerationSection({ contribution }: AIGenerationSectio
       router.push(`/mypage/aimasterportfolio/${portfolioId}/create/ai`);
     } else {
       setShowToast(true);
-      setTimeout(() => setShowToast(false), 3000); // 3초 후 사라짐
+      setTimeout(() => setShowToast(false), 2000); // 2초 후 사라짐
     }
   };
 
