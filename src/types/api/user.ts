@@ -1,7 +1,7 @@
 export interface UserProject {
   id: string;
   name: string;
-  role: string; // 사용자가 해당 프로젝트에서 맡은 역할
+  permission: string;
 }
 
 export interface UserProfile {
