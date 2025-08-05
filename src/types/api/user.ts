@@ -30,3 +30,10 @@ export interface UserProjectsResponse {
   error: ApiErrorResponse | null;
   result: UserProject[] | null;
 }
+
+// 사용자 프로필 수정 API 요청 파라미터
+export interface UpdateUserProfileParams {
+  school?: string;
+  major?: string;
+  file?: File;
+}

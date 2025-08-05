@@ -1,6 +1,6 @@
 import { UserProfile, UserProject } from '@/types/api/user';
-import fetchUserProfile, { fetchUserProjects } from '@/services/user/user';
-import { useQuery } from '@tanstack/react-query';
+import fetchUserProfile, { fetchUserProjects, updateUserProfile } from '@/services/user/user';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 // 기본 사용자 정보만 가져오는 훅
 export const useUser = () => {
@@ -18,5 +18,21 @@ export const useUserProjects = (enabled: boolean = true) => {
     queryFn: fetchUserProjects,
     staleTime: 1000 * 60 * 5,
     enabled,
+  });
+};
+
+// 사용자 프로필 수정 훅
+export const useUpdateUserProfile = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateUserProfile,
+    onSuccess: (updatedProfile) => {
+      // 성공 시 사용자 정보 캐시 업데이트
+      queryClient.setQueryData(['user'], updatedProfile);
+    },
+    onError: (error) => {
+      console.error('프로필 업데이트 실패:', error);
+    },
   });
 };

@@ -9,6 +9,7 @@ interface EditableFieldProps {
   icon: string;
   label: string;
   className?: string;
+  disabled?: boolean;
 }
 
 export default function EditableField({
@@ -18,6 +19,7 @@ export default function EditableField({
   icon,
   label,
   className = '',
+  disabled = false,
 }: EditableFieldProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value);
@@ -35,6 +37,7 @@ export default function EditableField({
   }, [isEditing]);
 
   const handleClick = () => {
+    if (disabled) return;
     setIsEditing(true);
   };
 
@@ -78,9 +81,9 @@ export default function EditableField({
         />
       ) : (
         <div
-          className={`text-black cursor-pointer hover:bg-gray-100 px-1 py-1 rounded transition-colors h-6 flex items-center ${
+          className={`text-black px-1 py-1 rounded transition-colors h-6 flex items-center ${
             isPlaceholder ? 'text-gray-400 italic' : ''
-          }`}
+          } ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-100'}`}
           onClick={handleClick}
         >
           {displayValue}

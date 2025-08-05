@@ -6,35 +6,67 @@ import ToggleButton from '@/components/ToggleButton';
 import { useState } from 'react';
 import Projects from '@/features/mypage/components/Projects';
 import AddCorrectionButton from '@/features/mypage/components/AddCorrectionButton';
-import { useUser } from '@/hooks/mutations/useUser';
+import { useUser, useUpdateUserProfile } from '@/hooks/mutations/useUser';
 import ProfileImageUpload from '@/features/mypage/components/ProfileImageUpload';
 import EditableField from '@/features/mypage/components/EditableField';
 
 export default function MyPage() {
   const { selected, setSelected } = useToggle();
   const { data, isLoading, error } = useUser();
+  const updateUserProfile = useUpdateUserProfile();
 
   // Pro로 업그레이드 시에 만 토글이 보이도록 설정
   const [showToggle, setShowToggle] = useState(false);
 
   const handleProfileImageChange = (file: File) => {
-    // 여기서 서버에 이미지를 업로드하는 로직을 추가할 수 있습니다
-    console.log('Selected file:', file);
-    // TODO: API 호출하여 서버에 이미지 업로드
+    updateUserProfile.mutate(
+      { file },
+      {
+        onSuccess: () => {
+          console.log('프로필 이미지 업데이트 성공');
+        },
+        onError: (error) => {
+          console.error('프로필 이미지 업데이트 실패:', error);
+          alert('프로필 이미지 업데이트에 실패했습니다.');
+        },
+      }
+    );
   };
 
   const handleSchoolChange = (newSchool: string) => {
-    console.log('School changed to:', newSchool);
-    // TODO: API 호출하여 서버에 학교 정보 업데이트
+    updateUserProfile.mutate(
+      { school: newSchool },
+      {
+        onSuccess: () => {
+          console.log('학교 정보 업데이트 성공');
+        },
+        onError: (error) => {
+          console.error('학교 정보 업데이트 실패:', error);
+          alert('학교 정보 업데이트에 실패했습니다.');
+        },
+      }
+    );
   };
 
   const handleMajorChange = (newMajor: string) => {
-    console.log('Major changed to:', newMajor);
-    // TODO: API 호출하여 서버에 전공 정보 업데이트
+    updateUserProfile.mutate(
+      { major: newMajor },
+      {
+        onSuccess: () => {
+          console.log('전공 정보 업데이트 성공');
+        },
+        onError: (error) => {
+          console.error('전공 정보 업데이트 실패:', error);
+          alert('전공 정보 업데이트에 실패했습니다.');
+        },
+      }
+    );
   };
 
   if (isLoading) return <div>로딩 중...</div>;
   if (error) return <div>에러가 발생했어요.</div>;
+
+  const isUpdating = updateUserProfile.isPending;
 
   return (
     <div>
@@ -92,6 +124,7 @@ export default function MyPage() {
                 icon="/icons/UnivName.svg"
                 label="학교"
                 className="mb-[1.75rem] max-lg:mb-[1.5rem] max-lg:w-[20rem]"
+                disabled={isUpdating}
               />
               <EditableField
                 value={data?.major || ''}
@@ -100,6 +133,7 @@ export default function MyPage() {
                 icon="/icons/major.svg"
                 label="전공"
                 className="mb-[1.75rem] max-lg:mb-[1.5rem]"
+                disabled={isUpdating}
               />
               <div
                 className="flex items-center mb-[1.75rem]
