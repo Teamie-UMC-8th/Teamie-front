@@ -1,17 +1,24 @@
-import axiosInstance from "@/lib/axiosInstance";
-import { PlanDetailResponse } from "@/types/api/plans";
-import { PatchPlanRequest } from "@/types/api/plans";
-import PatchPlanUsersRequest from "@/types/api/plans";
+import axiosInstance from '@/lib/axiosInstance';
+import {
+  PlanDetailResponse,
+  PatchPlanRequest,
+  DeletePlanResponse,
+  PatchPlanUsersRequest,
+} from '@/types/api/plans';
 
-export const checkPlanDetail = async (planId: string): Promise<PlanDetailResponse> => {
+// 일정 조회
+export const getPlanDetail = async (planId: string): Promise<PlanDetailResponse> => {
   const { data } = await axiosInstance.get(`/api/v1/plans/${planId}`);
   return data;
 };
 
-export const deletePlan = async (planId: string): Promise<void> => {
-  await axiosInstance.delete(`/api/v1/plans/${planId}`);
+// 일정 삭제
+export const deletePlan = async (planId: string): Promise<DeletePlanResponse> => {
+  const { data } = await axiosInstance.delete(`/api/v1/plans/${planId}`);
+  return data;
 };
 
+// 일정 수정
 export const updatePlan = async (
   planId: string,
   planData: PatchPlanRequest
@@ -20,6 +27,7 @@ export const updatePlan = async (
   return data;
 };
 
+// 일정 사용자 수정
 export const updatePlanUsers = async (
   planId: string,
   userData: PatchPlanUsersRequest

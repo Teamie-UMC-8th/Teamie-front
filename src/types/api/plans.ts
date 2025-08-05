@@ -17,20 +17,37 @@ export interface PlanDetail {
 
 export interface PlanDetailResponse {
   isSuccess: boolean;
-  error: null | { errorCode: string; reason: string };
-  result: PlanDetail;
+  error: {
+    errorCode: string;
+    reason: string;
+    data: null;
+  } | null;
+  result: PlanDetail | null;
+}
+
+export interface DeletePlanResponse {
+  isSuccess: boolean;
+  error: {
+    errorCode: string;
+    reason: string;
+    data: null;
+  } | null;
+  result: {
+    message: string;
+    planId: number;
+  } | null;
 }
 
 export interface PatchPlanRequest {
-  name: string;
-  date: string;
-  location: string;
-  startHour: string;
-  memo: string;
-  meetingRecords: string;
+  name?: string;
+  date?: string;
+  startHour?: string;
+  location?: string;
+  memo?: string;
+  meetingRecords?: string;
 }
 
-export default interface PatchPlanUsersRequest {
+export interface PatchPlanUsersRequest {
   attendees: number[];
   writers: number[];
 }
