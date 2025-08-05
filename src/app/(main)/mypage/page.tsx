@@ -7,6 +7,7 @@ import { useState } from 'react';
 import Projects from '@/features/mypage/components/Projects';
 import AddCorrectionButton from '@/features/mypage/components/AddCorrectionButton';
 import { useUser } from '@/hooks/mutations/useUser';
+import ProfileImageUpload from '@/features/mypage/components/ProfileImageUpload';
 
 export default function MyPage() {
   const { selected, setSelected } = useToggle();
@@ -14,6 +15,12 @@ export default function MyPage() {
 
   // Pro로 업그레이드 시에 만 토글이 보이도록 설정
   const [showToggle, setShowToggle] = useState(false);
+
+  const handleProfileImageChange = (file: File) => {
+    // 여기서 서버에 이미지를 업로드하는 로직을 추가할 수 있습니다
+    console.log('Selected file:', file);
+    // TODO: API 호출하여 서버에 이미지 업로드
+  };
 
   if (isLoading) return <div>로딩 중...</div>;
   if (error) return <div>에러가 발생했어요.</div>;
@@ -45,19 +52,12 @@ export default function MyPage() {
               className="flex flex-col items-center
             max-lg:mr-[0rem]"
             >
-              <div className="relative">
-                <img
-                  src={data?.imageUrl || '/icons/myprofile.svg'}
-                  alt="Profile"
-                  className="mt-[2.5rem] mb-[0.25rem] w-[125px] h-[125px] rounded-full object-cover
-                  max-lg:ml-[3.75rem] max-lg:mt-[3.75rem]"
+              <div className="mt-[2.5rem] mb-[0.25rem] max-lg:ml-[3.75rem] max-lg:mt-[3.75rem]">
+                <ProfileImageUpload
+                  currentImageUrl={data?.imageUrl}
+                  onImageChange={handleProfileImageChange}
+                  className="w-[125px] h-[125px] rounded-full object-cover"
                 />
-                <button
-                  className="absolute bottom-[0.75rem] right-[0.625rem] cursor-pointer"
-                  onClick={() => alert('사진 추가')}
-                >
-                  <img src="/icons/camera-icon.svg" alt="카메라 아이콘" />
-                </button>
               </div>
               <div
                 className="text-black text-[1.375rem] font-semibold mb-[2.25rem]
