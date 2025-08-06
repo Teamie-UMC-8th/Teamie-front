@@ -30,7 +30,7 @@ export default function StepsSidebar({ steps, currentStep}: StepSidebarProps) {
       </div>
 
       {/* 스텝 리스트 */}
-      <div className="flex flex-col gap-[28px] max-lg:flex-row max-lg:gap-[16px] max-lg:justify-end">
+      <div className=" flex flex-col gap-[28px] max-lg:flex-row max-lg:gap-[16px] max-lg:justify-end">
 
         {steps.map((step, index) => {
           const isActive = currentStep + 1 === step.id;
