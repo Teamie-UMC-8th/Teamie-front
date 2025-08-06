@@ -30,7 +30,7 @@ export default function TeamTaskDetailPage() {
   const patchPlanMutation = usePatchPlan();
   const patchPlanUsersMutation = usePatchPlanUsers();
 
-  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date(2025, 0, 1));
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date(2025, 0, 1));
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [selectedTime, setSelectedTime] = useState<{
     hour: number;
@@ -55,7 +55,7 @@ export default function TeamTaskDetailPage() {
     if (planData?.result) {
       const plan = planData.result;
       setScheduleName(plan.name || '빈 일정');
-      setLocation(plan.location);
+      setLocation(plan.location || '');
       setMemo(plan.memo || '');
       setMeetingRecords(plan.meetingRecords || '');
 
@@ -140,7 +140,7 @@ export default function TeamTaskDetailPage() {
     });
   };
 
-  const formatDate = (date: Date | null) => {
+  const formatDate = (date: Date | undefined) => {
     if (!date) return '';
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -164,7 +164,7 @@ export default function TeamTaskDetailPage() {
   };
 
   // 모달용 날짜 형식 (MM.DD)
-  const formatDateForModal = (date: Date | null) => {
+  const formatDateForModal = (date: Date | undefined) => {
     if (!date) return '';
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');

@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 
 interface DatePickerProps {
-  selectedDate: Date | null;
+  selectedDate: Date | undefined;
   onDateChange: (date: Date) => void;
   isOpen: boolean;
   onToggle: () => void;
