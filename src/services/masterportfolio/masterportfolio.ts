@@ -8,7 +8,7 @@ import {
 } from '@/types/api/masterportfolio';
 import { AxiosResponse } from 'axios';
 
-// 마스터 포트폴리오 목록을 가져오는 함수(마이페이지)
+// 마스터 포트폴리오 목록을 가져오는 함수
 export const fetchMasterPortfolioList = async (cursor?: string) => {
   const res: AxiosResponse<MasterPortfolioListResponse> = await axiosInstance.get(
     `/api/v1/master-portfolios/me`,
