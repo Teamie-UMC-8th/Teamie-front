@@ -16,7 +16,7 @@ export default function ConfirmLeaveModal({ onConfirm, onCancel }: ConfirmLeaveM
           className="absolute top-[8px] right-[8px] w-[24px] h-[24px] cursor-pointer"
           onClick={onCancel}
         >
-          <img src="/icons/곱하기.svg" alt="닫기" className="w-[24px] h-[24px]" />
+          <img src="/icons/close.svg" alt="닫기" className="w-[24px] h-[24px]" />
         </button>
 
         {/* 질문 문구 */}
@@ -47,4 +47,4 @@ export default function ConfirmLeaveModal({ onConfirm, onCancel }: ConfirmLeaveM
       </div>
     </div>
   );
-} 
+}

@@ -76,7 +76,8 @@ export default function LeaderView() {
         <ProjectEndModal
           onConfirm={() => {
             setIsModalOpen(false);
-            router.push(`/projects/${projectId}/retrospect/create`);
+            //router.push(`/projects/${projectId}/retrospect/create`);
+            alert('프로젝트 종료!');
           }}
           onCancel={() => setIsModalOpen(false)}
         />
