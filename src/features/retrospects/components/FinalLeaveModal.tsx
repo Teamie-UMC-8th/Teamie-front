@@ -16,7 +16,7 @@ export default function FinalLeaveModal({ onConfirm, onCancel }: FinalLeaveModal
           className="absolute top-[8px] right-[8px] w-[24px] h-[24px] cursor-pointer"
           onClick={onCancel}
         >
-          <img src="/icons/곱하기.svg" alt="닫기" className="w-[24px] h-[24px]" />
+          <img src="/icons/close.svg" alt="닫기" className="w-[24px] h-[24px]" />
         </button>
 
         {/* 질문 문구 */}
@@ -27,18 +27,18 @@ export default function FinalLeaveModal({ onConfirm, onCancel }: FinalLeaveModal
         {/* 버튼 그룹 */}
         <div className="flex justify-center gap-[28px]">
           <button
-            onClick={onConfirm}
+            onClick={onCancel}
             className="w-[103px] h-[34px] bg-[#FFFFFF] border border-[#000000] rounded-[4px] 
                      text-[18px] leading-[26px] font-[Pretendard] font-normal text-[#000000] whitespace-nowrap cursor-pointer"
           >
-            예
+            취소
           </button>
           <button
-            onClick={onCancel}
+            onClick={onConfirm}
             className="w-[103px] h-[34px] bg-[#FFFFFF] border border-[#000000] rounded-[4px]
                      text-[18px] leading-[26px] font-[Pretendard] font-normal text-[#000000] whitespace-nowrap cursor-pointer"
           >
-            아니오
+            이탈
           </button>
         </div>
       </div>
