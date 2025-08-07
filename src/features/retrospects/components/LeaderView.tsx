@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import ProjectEndModal from "./ProjectEndModal";
-import { useRouter } from "next/navigation";
+import { useState } from 'react';
+import ProjectEndModal from './ProjectEndModal';
+import { useRouter } from 'next/navigation';
 
 export default function LeaderView() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -35,10 +35,10 @@ export default function LeaderView() {
       >
         {/* 팀장 카드 */}
         <div className="w-[562px] h-[310px] bg-white rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.2)] flex flex-col items-center text-center p-[24px] gap-[20px] pt-[53px]">
-          <strong className="w-[200px] h-[26px] text-[18px] font-bold leading-[26px] mb-[20px]">
+          <strong className="w-[562px] h-[26px] text-[18px] font-bold leading-[26px] mb-[20px]">
             팀장만 종료 가능합니다.
           </strong>
-          <p className="w-[600px] h-[72px] text-[16px] leading-[24px] text-black mb-[15px]">
+          <p className="w-[446px] h-[72px] text-[16px] leading-[24px] text-black mb-[15px]">
             프로젝트를 종료하면 프로젝트 대시보드 내의 <br />
             모든 내용을 수정하거나 삭제할 수 없게 됩니다. <br />
             또, 지금까지 진행한 내용을 바탕으로 팀 회고와 개인회고를 작성합니다.
@@ -53,14 +53,14 @@ export default function LeaderView() {
 
         {/* 팀원 카드 */}
         <div className="w-[562px] h-[310px] bg-[#F8F8F8] rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.2)] flex flex-col items-center text-center p-[24px] pt-[40px] text-[#898989]">
-          <strong className="w-[342px] h-[52px] text-[18px] font-bold leading-[26px] text-[#898989] mb-[20px]">
+          <strong className="w-[562px] h-[52px] text-[18px] font-bold leading-[26px] text-[#898989] mb-[20px]">
             팀장은 이탈이 불가능합니다. <br />
             팀장 권한을 타 팀원에게 부여한 후 이탈해주세요.
           </strong>
           <p className="w-[370px] h-[72px] text-[16px] leading-[24px] mb-[40px]">
             프로젝트에서 이탈하면 팀원들과의 실시간 연동이 종료되며, <br />
-            업로드한 자료는 팀원들이 자유롭게 사용할 수 있습니다. <br />
-            팀 회고는 진행되지 않으며, 개인 회고만 진행하게 됩니다.
+            업로드한 자료는 팀원들이 자유롭게 사용할 수 있습니다. <br />팀 회고는 진행되지 않으며,
+            개인 회고만 진행하게 됩니다.
           </p>
           <button
             className="bg-[#EFC9C9] border border-[#EFC9C9] rounded-[6px] px-[40px] py-[10px] text-white text-[18px] font-bold leading-[22px] w-[178px] h-[46px] whitespace-nowrap opacity-50 cursor-not-allowed mb-[40px]"
@@ -75,7 +75,6 @@ export default function LeaderView() {
       {isModalOpen && (
         <ProjectEndModal
           onConfirm={() => {
-            alert("프로젝트 종료!");
             setIsModalOpen(false);
             router.push(`/projects/${projectId}/retrospect/create`);
           }}
