@@ -36,3 +36,12 @@ export const deleteStep = async (stepId: number): Promise<string> => {
   const { data } = await axiosInstance.delete(`/api/v1/steps/${stepId}`);
   return data;
 };
+
+// STEP 수정
+export const updateStep = async (
+  stepId: number,
+  body: { name: string }
+): Promise<CreateStepResponse> => {
+  const { data } = await axiosInstance.patch<CreateStepResponse>(`/api/v1/steps/${stepId}`, body);
+  return data;
+};

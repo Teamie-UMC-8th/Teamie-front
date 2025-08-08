@@ -7,11 +7,13 @@ import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea
 import React, { useState } from 'react';
 import { useCreateStep } from '@/hooks/mutations/useCreateStep';
 import { useDeleteStep } from '@/hooks/mutations/useDeleteStep';
+import { useUpdateStep } from '@/hooks/mutations/useUpdateStep';
 
 export default function StepsBoard({ steps, projectId }: BoardProps) {
   const { openStepIds, toggleStep, openStep } = useSteps();
   const createStepMutation = useCreateStep();
   const deleteStepMutation = useDeleteStep();
+  const updateStepMutation = useUpdateStep();
   const [isAddingStep, setIsAddingStep] = useState(false);
   const [newStepName, setNewStepName] = useState('');
 
@@ -86,6 +88,17 @@ export default function StepsBoard({ steps, projectId }: BoardProps) {
     }
   };
 
+  // STEP 이름 수정 처리
+  const handleUpdateStepName = async (stepId: number, newName: string) => {
+    try {
+      await updateStepMutation.mutateAsync({ stepId, name: newName });
+      // 성공 시 쿼리 무효화로 자동으로 데이터가 업데이트됩니다
+    } catch (error) {
+      console.error('STEP 이름 수정 실패:', error);
+      throw error; // StepHeader에서 처리하도록 에러를 다시 던짐
+    }
+  };
+
   // 드래그가 끝났을 때 호출되는 함수
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result;
@@ -118,10 +131,12 @@ export default function StepsBoard({ steps, projectId }: BoardProps) {
           <div key={step.stepId} className="flex flex-col">
             <StepHeader
               stepName={step.stepName}
+              stepId={step.stepId}
               isOpen={openStepIds.includes(step.stepId)}
               onToggle={() => toggleStep(step.stepId)}
               showDelete={step.tasks.length === 0}
               onDelete={() => handleDeleteStep(step.stepId)}
+              onUpdateName={handleUpdateStepName}
             />
             {openStepIds.includes(step.stepId) && (
               <Droppable droppableId={step.stepId.toString()}>

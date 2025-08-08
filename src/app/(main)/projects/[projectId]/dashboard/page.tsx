@@ -60,11 +60,6 @@ export default function DashboardPage() {
           <h1 className="lg:text-[1.5rem] text-[1.375rem] lg:font-bold font-semibold">
             업무 대시보드
           </h1>
-          {dashboardData && (
-            <p className="text-sm text-gray-600 mt-1">
-              {dashboardData.projectName} • 총 {dashboardData.totalCount}개 업무
-            </p>
-          )}
         </div>
         <div className="flex-1 flex justify-end"></div>
         <Searchbar
