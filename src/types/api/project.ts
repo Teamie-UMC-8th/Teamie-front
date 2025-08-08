@@ -41,3 +41,11 @@ export interface PostJoinProjectResponse {
     message?: string;
   } | null;
 }
+
+export interface UserProjectPermissionResponse {
+  isSuccess: boolean;
+  error: null | string;
+  result: {
+    permission: 'LEAD' | 'MEMBER';
+  };
+}
