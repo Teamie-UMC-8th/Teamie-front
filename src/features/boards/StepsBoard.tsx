@@ -4,10 +4,65 @@ import TaskItem from '@/components/TaskItem';
 import { useSteps } from './hooks/useSteps';
 import { BoardProps } from '@/types/board';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import React from 'react';
+import React, { useState } from 'react';
+import { useCreateStep } from '@/hooks/mutations/useCreateStep';
 
 export default function StepsBoard({ steps, projectId }: BoardProps) {
-  const { steps: localSteps, openStepIds, toggleStep, addStep, moveTask } = useSteps(steps);
+  const { openStepIds, toggleStep } = useSteps();
+  const createStepMutation = useCreateStep();
+  const [isAddingStep, setIsAddingStep] = useState(false);
+  const [newStepName, setNewStepName] = useState('');
+
+  // STEP 추가 제한 (최대 8개)
+  const canAddStep = steps.length < 8;
+
+  // 상태 매핑 함수
+  const mapTaskStatus = (status: string) => {
+    switch (status) {
+      case 'ONGOING':
+        return '진행 중';
+      case 'COMPLETED':
+        return '완료';
+      default:
+        return '시작 전';
+    }
+  };
+
+  // STEP 추가 처리
+  const handleAddStep = async (stepName: string = '') => {
+    if (!canAddStep) return;
+
+    const finalStepName = stepName.trim() || '빈 STEP';
+
+    try {
+      await createStepMutation.mutateAsync({
+        projectId: parseInt(projectId),
+        body: { name: finalStepName },
+      });
+
+      // 성공 시 입력 필드 초기화
+      setNewStepName('');
+      setIsAddingStep(false);
+    } catch (error) {
+      console.error('STEP 생성 실패:', error);
+      alert('STEP 생성에 실패했습니다.');
+    }
+  };
+
+  // STEP 추가 모드 토글
+  const toggleAddStepMode = () => {
+    if (canAddStep) {
+      setIsAddingStep(!isAddingStep);
+      if (!isAddingStep) {
+        setNewStepName('');
+      }
+    }
+  };
+
+  // 포커스 아웃 시 자동 저장
+  const handleBlur = () => {
+    handleAddStep(newStepName);
+  };
 
   // TODO: 실제로는 step 삭제 로직을 구현해야 함
   const handleDeleteStep = (stepId: number) => {
@@ -15,7 +70,6 @@ export default function StepsBoard({ steps, projectId }: BoardProps) {
   };
 
   // 드래그가 끝났을 때 호출되는 함수
-  // source: 드래그 시작한 위치, destination: 드롭한 위치
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result;
 
@@ -31,50 +85,42 @@ export default function StepsBoard({ steps, projectId }: BoardProps) {
       return;
     }
 
-    // Task를 한 Step에서 다른 Step으로 이동
-    moveTask(sourceStepId, destStepId, source.index, destination.index);
+    // TODO: Task 이동 API 호출 구현
+    console.log('Task 이동:', {
+      sourceStepId,
+      destStepId,
+      sourceIndex: source.index,
+      destIndex: destination.index,
+    });
   };
 
   return (
-    // 전체 드래그앤드롭 컨텍스트 - 모든 드래그앤드롭 이벤트를 관리
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="grid [grid-template-columns:repeat(2,20.313rem)] lg:[grid-template-columns:repeat(4,20.313rem)] gap-x-[2.25rem] gap-y-[5rem] mt-[3.75rem]">
-        {localSteps.map((step) => (
-          <div key={step.id} className="flex flex-col">
+        {steps.map((step) => (
+          <div key={step.stepId} className="flex flex-col">
             <StepHeader
-              stepName={step.name}
-              isOpen={openStepIds.includes(step.id)}
-              onToggle={() => toggleStep(step.id)}
-              showDelete={step.items.length === 0}
-              onDelete={() => handleDeleteStep(step.id)}
+              stepName={step.stepName}
+              isOpen={openStepIds.includes(step.stepId)}
+              onToggle={() => toggleStep(step.stepId)}
+              showDelete={step.tasks.length === 0}
+              onDelete={() => handleDeleteStep(step.stepId)}
             />
-            {openStepIds.includes(step.id) && (
-              // 각 Step은 드롭 가능한 영역 (Droppable)
-              // droppableId: 각 Step을 구분하는 고유 ID
-              <Droppable droppableId={step.id.toString()}>
+            {openStepIds.includes(step.stepId) && (
+              <Droppable droppableId={step.stepId.toString()}>
                 {(provided) => (
-                  // 드롭 가능한 영역의 실제 div
-                  // ref: DnD 라이브러리가 이 div를 드롭 영역으로 인식하게 함
-                  // ...provided.droppableProps: 드롭 관련 이벤트 핸들러들
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                     className="flex flex-col mt-6 min-h-[0.625rem]"
                   >
-                    {/* 각 TaskItem은 드래그 가능한 아이템 (Draggable) */}
-                    {step.items.map((task, idx) => (
-                      // draggableId: 각 TaskItem을 구분하는 고유 ID
-                      // index: TaskItem의 순서 (0, 1, 2, ...)
+                    {step.tasks.map((task, idx) => (
                       <Draggable
-                        key={`${step.id}-${task.id}`}
-                        draggableId={task.id.toString()}
+                        key={`${step.stepId}-${task.taskId}`}
+                        draggableId={task.taskId.toString()}
                         index={idx}
                       >
                         {(provided, snapshot) => (
-                          // 드래그 가능한 아이템의 실제 div
-                          // ref: DnD 라이브러리가 이 div를 드래그 아이템으로 인식하게 함
-                          // ...provided.draggableProps: 드래그 관련 스타일 (transform, transition 등)
-                          // ...provided.dragHandleProps: 드래그 핸들러 (어디를 잡고 드래그할지)
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
@@ -88,11 +134,11 @@ export default function StepsBoard({ steps, projectId }: BoardProps) {
                             <div {...provided.dragHandleProps}>
                               <TaskItem
                                 projectId={projectId}
-                                id={task.id}
-                                title={task.title}
-                                status={task.status}
+                                id={task.taskId}
+                                title={task.taskName}
+                                status={mapTaskStatus(task.status)}
                                 deadline={task.deadline}
-                                assignee={task.assignee}
+                                assignee={task.managers.map((manager) => manager.userName)}
                               />
                             </div>
                           </div>
@@ -103,7 +149,7 @@ export default function StepsBoard({ steps, projectId }: BoardProps) {
                     {provided.placeholder}
 
                     <div className="mt-2">
-                      <AddTaskButton stepName={step.name} />
+                      <AddTaskButton stepName={step.stepName} />
                     </div>
                   </div>
                 )}
@@ -111,12 +157,37 @@ export default function StepsBoard({ steps, projectId }: BoardProps) {
             )}
           </div>
         ))}
-        <button
-          onClick={addStep}
-          className="flex bg-[#F8F8F8] text-[#898989] w-full h-[4.25rem] items-center justify-center rounded-[0.5rem] font-medium text-[1.125rem] cursor-pointer hover:bg-[#F0F0F0] transition-colors duration-200"
-        >
-          + STEP 추가
-        </button>
+
+        {/* STEP 추가 버튼 */}
+        {canAddStep && (
+          <div className="flex flex-col">
+            <div className="flex bg-[#DAF3F3] w-full h-[4.25rem] items-center justify-between rounded-[0.5rem]">
+              {isAddingStep ? (
+                <input
+                  type="text"
+                  value={newStepName}
+                  onChange={(e) => setNewStepName(e.target.value)}
+                  placeholder="STEP 이름을 입력하세요"
+                  className="flex-1 mx-auto text-center font-medium text-[1.125rem] bg-transparent border-none outline-none placeholder-gray-500"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleAddStep(newStepName);
+                    }
+                  }}
+                  onBlur={handleBlur}
+                  autoFocus
+                />
+              ) : (
+                <button
+                  onClick={toggleAddStepMode}
+                  className="w-full h-full font-medium text-[1.125rem] transition-colors duration-200 text-[#898989] cursor-pointer hover:text-[#666666]"
+                >
+                  + STEP 추가
+                </button>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </DragDropContext>
   );

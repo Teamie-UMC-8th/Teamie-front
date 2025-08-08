@@ -11,6 +11,7 @@ import { useGetDashboard } from '@/hooks/queries/useGetDashboard';
 export default function DashboardPage() {
   // 상태 관리: STEP 별로 보기 / 진행 상태별로 보기
   const [isStepView, setIsStepView] = useState(true);
+
   // 프로젝트 ID 파라미터 가져오기
   const { projectId } = useParams() as { projectId: string };
 
@@ -52,33 +53,19 @@ export default function DashboardPage() {
     );
   }
 
-  // API 데이터를 기존 컴포넌트가 기대하는 형태로 변환
-  const steps =
-    dashboardData?.steps?.map((apiStep) => ({
-      id: apiStep.stepId,
-      name: apiStep.stepName,
-      items:
-        apiStep.tasks?.map((task) => ({
-          id: task.taskId,
-          title: task.taskName,
-          status: (task.status === 'ONGOING'
-            ? '진행 중'
-            : task.status === 'COMPLETED'
-              ? '완료'
-              : task.status === 'PENDING'
-                ? '시작 전'
-                : '시작 전') as '시작 전' | '진행 중' | '완료',
-          deadline: new Date(task.deadline).toISOString().split('T')[0],
-          assignee: task.managers?.map((manager) => manager.userName) ?? [],
-        })) ?? [],
-    })) ?? [];
-
   return (
     <div className="min-h-screen w-full bg-white flex flex-col">
       <header className="flex items-center justify-between pb-[1rem] px-[0.5rem] border-b-[0.125rem] border-[#E7E7E7]">
-        <h1 className="lg:text-[1.5rem] text-[1.375rem] lg:font-bold font-semibold">
-          업무 대시보드
-        </h1>
+        <div>
+          <h1 className="lg:text-[1.5rem] text-[1.375rem] lg:font-bold font-semibold">
+            업무 대시보드
+          </h1>
+          {dashboardData && (
+            <p className="text-sm text-gray-600 mt-1">
+              {dashboardData.projectName} • 총 {dashboardData.totalCount}개 업무
+            </p>
+          )}
+        </div>
         <div className="flex-1 flex justify-end"></div>
         <Searchbar
           placeholder="검색어를 입력하세요."
@@ -90,6 +77,7 @@ export default function DashboardPage() {
       <ToggleButton
         leftLabel="STEP 별로 보기"
         rightLabel="진행 상태별로 보기"
+        isLeftSelected={isStepView}
         onToggle={handleViewToggle}
       />
 
@@ -101,9 +89,9 @@ export default function DashboardPage() {
           }}
         >
           {isStepView ? (
-            <StepsBoard steps={steps} projectId={projectId} />
+            <StepsBoard steps={dashboardData?.steps || []} projectId={projectId} />
           ) : (
-            <StatusBoard steps={steps} projectId={projectId} />
+            <StatusBoard steps={dashboardData?.steps || []} projectId={projectId} />
           )}
         </div>
       </main>
