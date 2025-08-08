@@ -8,6 +8,8 @@ interface TeamMemberCardProps {
   email: string;
   role: string;
   isLeader?: boolean;
+  currentUserEmail?: string;
+  currentUserImageUrl?: string;
   onClick?: () => void;
   onUpdate?: (field: 'role', value: string) => void;
 }
@@ -18,11 +20,16 @@ export default function TeamMemberCard({
   email,
   role,
   isLeader = false,
+  currentUserEmail,
+  currentUserImageUrl,
   onClick,
   onUpdate,
 }: TeamMemberCardProps) {
   const [editingField, setEditingField] = useState<'role' | null>(null);
   const [editValue, setEditValue] = useState('');
+
+  // 본인의 프로필 카드인지 확인
+  const isCurrentUser = currentUserEmail === email;
 
   const handleFieldClick = (field: 'role', currentValue: string) => {
     setEditingField(field);
@@ -50,19 +57,32 @@ export default function TeamMemberCard({
     }
   };
 
+  const handleCardClick = () => {
+    // 팀장인 경우 클릭 이벤트를 무시 (팀장 변경 불가)
+    if (isLeader) {
+      return;
+    }
+    // 팀원인 경우에만 팀장 변경 모달 표시
+    onClick?.();
+  };
+
   return (
     <div
-      className="w-[316px] h-[368px] rounded-[12px] bg-white mt-[24px] flex-col py-[36px] px-[40px] cursor-pointer
-      max-lg:ml-[142px] max-lg:w-[580px] max-lg:h-[241px]"
+      className={`w-[316px] h-[368px] rounded-[12px] bg-white mt-[24px] flex-col py-[36px] px-[40px] 
+      max-lg:ml-[142px] max-lg:w-[580px] max-lg:h-[241px] ${
+        !isLeader ? 'cursor-pointer hover:shadow-lg transition-shadow' : ''
+      }`}
       style={{ boxShadow: '0px 0px 10px 0px #00000033' }}
-      onClick={onClick}
+      onClick={handleCardClick}
     >
       <div className="max-lg:flex">
         <div className="flex flex-col items-center">
           <img
-            src="/icons/myprofile.svg"
+            src={
+              isCurrentUser && currentUserImageUrl ? currentUserImageUrl : '/icons/myprofile.svg'
+            }
             alt="Profile"
-            className="w-[125px] h-[125px]
+            className="w-[125px] h-[125px] rounded-full object-cover
       max-lg:ml-[20px]"
           />
 

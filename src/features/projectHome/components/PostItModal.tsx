@@ -11,7 +11,9 @@ export default function PostItModal({ onClose, onSave }: PostItModalProps) {
   const [content, setContent] = useState('');
 
   const handleSave = () => {
-    onSave(content);
+    if (content.trim()) {
+      onSave(content);
+    }
   };
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -20,6 +22,9 @@ export default function PostItModal({ onClose, onSave }: PostItModalProps) {
       setContent(value);
     }
   };
+
+  // 내용이 비어있는지 확인
+  const isEmpty = !content.trim();
 
   return (
     <div className="fixed inset-0 bg-[#00000033] rounded-[12px] flex items-center justify-center z-50">
@@ -56,8 +61,11 @@ export default function PostItModal({ onClose, onSave }: PostItModalProps) {
         />
         <div className="text-[12px] text-[#898989] mt-[4px] self-end">{content.length}/32</div>
         <button
-          className="w-[184px] h-[34px] bg-[#81D7D4] text-[18px] text-white font-bold rounded-[4px] mt-[16px] cursor-pointer"
+          className={`w-[184px] h-[34px] text-[18px] text-white font-bold rounded-[4px] mt-[16px] ${
+            isEmpty ? 'bg-[#BAE5E4]' : 'bg-[#81D7D4] cursor-pointer'
+          }`}
           onClick={handleSave}
+          disabled={isEmpty}
         >
           저장하기
         </button>
