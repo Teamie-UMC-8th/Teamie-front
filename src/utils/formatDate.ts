@@ -1,12 +1,14 @@
 export function formatDate(date: Date | string | undefined): string {
-  if (!date) return '마감일 없음';
+  if (!date) return '날짜 없음';
 
   const d = typeof date === 'string' ? new Date(date) : date;
-  if (isNaN(d.getTime())) return '마감일 없음';
+  if (isNaN(d.getTime())) return '날짜 없음';
 
-  const month = d.getMonth() + 1;
-  const day = d.getDate();
-  return `${month}월 ${day}일`;
+  const year = d.getFullYear().toString().slice(-2); // 2025 -> 25
+  const month = (d.getMonth() + 1).toString().padStart(2, '0'); // 4 -> 04
+  const day = d.getDate().toString().padStart(2, '0');
+
+  return `${year}.${month}.${day}`;
 }
 
 // 날짜를 25.04~25.06 형식으로 포맷팅하는 함수

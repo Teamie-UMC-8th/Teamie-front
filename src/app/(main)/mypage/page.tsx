@@ -220,8 +220,10 @@ export default function MyPage() {
             </div>
           </div>
 
-          {selected === 'project' && <Projects />}
-          {selected === 'ai' && <Tailored />}
+          <div className="min-h-[400px]">
+            {selected === 'project' && <Projects />}
+            {selected === 'ai' && <Tailored />}
+          </div>
         </div>
       </main>
     </div>
