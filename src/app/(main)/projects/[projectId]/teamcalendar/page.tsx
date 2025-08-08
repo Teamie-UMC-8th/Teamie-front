@@ -137,6 +137,7 @@ export default function TeamCalendar() {
               projectId={projectId}
               startDate={startDate}
               endDate={endDate}
+            currentDate={currentDate}
               setCurrentDate={setCurrentDate}
             />
           ),

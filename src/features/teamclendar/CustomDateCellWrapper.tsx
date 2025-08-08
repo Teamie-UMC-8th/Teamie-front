@@ -1,9 +1,10 @@
-"use client";
+'use client';
 
-import { ReactNode, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
-import { usePostPlan } from "@/hooks/mutations/usePostTeamCalendar";
+import { ReactNode, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
+import { usePostPlan } from '@/hooks/mutations/usePostTeamCalendar';
+import moment from 'moment';
 
 interface CustomDateCellWrapperProps {
   children: ReactNode;
@@ -11,6 +12,7 @@ interface CustomDateCellWrapperProps {
   projectId: string | undefined;
   startDate: string;
   endDate: string;
+  currentDate: Date;
   setCurrentDate: (date: Date) => void;
 }
 
@@ -20,6 +22,7 @@ export default function CustomDateCellWrapper({
   projectId,
   startDate,
   endDate,
+  currentDate,
   setCurrentDate,
 }: CustomDateCellWrapperProps) {
   const [hovered, setHovered] = useState(false);
@@ -27,8 +30,17 @@ export default function CustomDateCellWrapper({
   const queryClient = useQueryClient();
   const { mutate } = usePostPlan();
 
+  // 현재 달의 날짜인지 확인
+  const isCurrentMonth = moment(value).isSame(currentDate, 'month');
+
+  // 오늘 날짜 이후인지 확인 (오늘 포함)
+  const isTodayOrAfter = moment(value).isSameOrAfter(moment(), 'day');
+
+  // 플러스 버튼을 표시할 수 있는지 확인 (현재 달 & 오늘 이후)
+  const canShowPlusButton = isCurrentMonth && isTodayOrAfter;
+
   const handleClick = () => {
-    if (!projectId) return;
+    if (!projectId || !canShowPlusButton) return;
 
     const formattedDate = new Date(value).toISOString();
 
@@ -44,7 +56,7 @@ export default function CustomDateCellWrapper({
           setCurrentDate(new Date(value));
 
           queryClient.invalidateQueries({
-            queryKey: ["calendarPlans", projectId, startDate, endDate],
+            queryKey: ['calendarPlans', projectId, startDate, endDate],
           });
           console.log("일정 목록 refetch 요청!");
 
