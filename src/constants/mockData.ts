@@ -1,10 +1,4 @@
-export interface TaskItemProps {
-  id: number;
-  title: string;
-  status: '시작 전' | '진행 중' | '완료';
-  deadline: string;
-  assignee?: string[];
-}
+import { TaskItemProps } from '@/types/api/taskItem';
 
 export interface Step {
   id: number;
