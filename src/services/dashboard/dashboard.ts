@@ -1,14 +1,13 @@
 import axiosInstance from '@/lib/axiosInstance';
+import { GetDashboardRequest, DashboardResponse } from '@/types/api/dashboard';
 import {
-  GetDashboardRequest,
-  DashboardResponse,
   CreateStepRequest,
   CreateStepResponse,
   UpdateStepRequest,
   UpdateStepResponse,
   DeleteStepResponse,
-  CreateTaskResponse,
-} from '@/types/api/dashboard';
+} from '@/types/api/steps';
+import { CreateTaskResponse } from '@/types/api/tasks';
 import { ApiResponse } from '@/types/api/error';
 
 // 프로젝트 대시보드 조회

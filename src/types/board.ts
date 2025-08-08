@@ -1,4 +1,4 @@
-import { Step } from '@/types/api/dashboard';
+import { Step } from '@/types/api/steps';
 
 export interface BoardProps {
   steps: Step[];

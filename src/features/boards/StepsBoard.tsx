@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { useCreateStep } from '@/hooks/mutations/useCreateStep';
 import { useDeleteStep } from '@/hooks/mutations/useDeleteStep';
 import { useUpdateStep } from '@/hooks/mutations/useUpdateStep';
-import { TASK_STATUS_DISPLAY } from '@/types/api/taskItem';
+import { TASK_STATUS_DISPLAY } from '@/types/api/tasks';
 
 export default function StepsBoard({ steps, projectId }: BoardProps) {
   const { openStepIds, toggleStep, openStep } = useSteps();

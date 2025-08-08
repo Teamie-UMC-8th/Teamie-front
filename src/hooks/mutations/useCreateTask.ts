@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createTask } from '@/services/dashboard/dashboard';
-import { CreateTaskResponse } from '@/types/api/dashboard';
+import { CreateTaskResponse } from '@/types/api/tasks';
 
 // 업무 생성 mutation 훅
 export const useCreateTask = () => {

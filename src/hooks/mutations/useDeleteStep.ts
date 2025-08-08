@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteStep } from '@/services/dashboard/dashboard';
-import { DeleteStepResponse } from '@/types/api/dashboard';
+import { DeleteStepResponse } from '@/types/api/steps';
 
 // STEP 삭제 mutation 훅
 export const useDeleteStep = () => {

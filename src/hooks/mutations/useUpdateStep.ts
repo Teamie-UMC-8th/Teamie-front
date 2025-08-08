@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { updateStep } from '@/services/dashboard/dashboard';
-import { UpdateStepResponse, UpdateStepRequest } from '@/types/api/dashboard';
+import { UpdateStepResponse, UpdateStepRequest } from '@/types/api/steps';
 
 // STEP 수정 mutation 훅
 export const useUpdateStep = () => {

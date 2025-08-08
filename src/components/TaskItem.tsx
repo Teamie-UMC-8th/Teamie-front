@@ -2,7 +2,7 @@
 
 import { formatDate } from '@/utils/formatDate';
 import { useTaskItems } from '@/features/boards/hooks/useTaskItems';
-import { TaskItemComponentProps, TASK_STATUS_STYLES } from '@/types/api/taskItem';
+import { TaskItemComponentProps, TASK_STATUS_STYLES } from '@/types/api/tasks';
 import Link from 'next/link';
 
 export default function TaskItem({
@@ -13,7 +13,7 @@ export default function TaskItem({
   deadline,
   assignee,
 }: TaskItemComponentProps) {
-  const { displayAssignees, /* cardHeight, */ deadlineTextColor } = useTaskItems({
+  const { displayAssignees, cardHeight, deadlineTextColor } = useTaskItems({
     task: { id: taskId, title, status, deadline, assignee },
   });
 
@@ -21,8 +21,10 @@ export default function TaskItem({
   const statusStyle = TASK_STATUS_STYLES[status] || TASK_STATUS_STYLES['시작 전'];
 
   return (
-    <Link href={`/projects/${projectId}/tasks/${taskId}`} className={`block w-[325px] h-[122px]`}>
-      {/* 위 height만 &{cardHeight}으로 바꾸면 담당자 없을 시에 카드 높이 조정 122px -> 90px */}
+    <Link
+      href={`/projects/${projectId}/tasks/${taskId}`}
+      className={`block w-[325px] ${cardHeight}`}
+    >
       <div className="bg-white w-full h-full rounded-[8px] border border-[#BBBBBB] p-4 flex items-start gap-3">
         <label className="inline-flex items-center flex-shrink-0 mt-1">
           <input

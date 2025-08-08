@@ -1,4 +1,4 @@
-import { TaskItemProps } from '@/types/api/taskItem';
+import { TaskItemProps } from '@/types/api/tasks';
 
 export interface Step {
   id: number;
