@@ -84,9 +84,17 @@ export default function DashboardPage() {
           }}
         >
           {isStepView ? (
-            <StepsBoard steps={dashboardData?.steps || []} projectId={projectId} />
+            <StepsBoard
+              steps={dashboardData && 'steps' in dashboardData ? dashboardData.steps : []}
+              projectId={projectId}
+            />
           ) : (
-            <StatusBoard steps={dashboardData?.steps || []} projectId={projectId} />
+            <StatusBoard
+              statusGroups={
+                dashboardData && 'statusGroups' in dashboardData ? dashboardData.statusGroups : []
+              }
+              projectId={projectId}
+            />
           )}
         </div>
       </main>

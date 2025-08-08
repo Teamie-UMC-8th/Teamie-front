@@ -1,16 +1,17 @@
-import StepHeader from './components/StepHeader';
-import AddTaskButton from './components/AddTaskButton';
-import TaskItem from '@/components/TaskItem';
-import { useSteps } from './hooks/useSteps';
-import { BoardProps } from '@/types/board';
-import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useCreateStep } from '@/hooks/mutations/useCreateStep';
 import { useDeleteStep } from '@/hooks/mutations/useDeleteStep';
 import { useUpdateStep } from '@/hooks/mutations/useUpdateStep';
+import { useCreateTask } from '@/hooks/mutations/useCreateTask';
 import { TASK_STATUS_DISPLAY } from '@/types/api/tasks';
+import { StepsBoardProps } from '@/types/board';
+import { useSteps } from './hooks/useSteps';
+import AddTaskButton from './components/AddTaskButton';
+import StepHeader from './components/StepHeader';
+import TaskItem from '@/components/TaskItem';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
-export default function StepsBoard({ steps, projectId }: BoardProps) {
+export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
   const { openStepIds, toggleStep, openStep } = useSteps();
   const createStepMutation = useCreateStep();
   const deleteStepMutation = useDeleteStep();
