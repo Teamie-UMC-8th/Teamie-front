@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useGetProject } from '@/hooks/queries/useGetProject';
+import { useGetProject } from '@/hooks/queries/projects/useGetProject';
 import { useJoinProject } from '@/hooks/mutations/useJoinProject';
 
 interface ProjectInfo {
