@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Calendar as BigCalendar,
   momentLocalizer,
@@ -9,8 +9,10 @@ import {
 } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+
 import CalendarButton from "@/features/teamclendar/CalendarButton";
 import CustomDateCellWrapper from "@/features/teamclendar/CustomDateCellWrapper";
+import CalendarEventBox from "@/features/teamclendar/components/CalendarEventBox";
 import { useGetCalendarPlans } from "@/hooks/queries/useGetTeamCalendar";
 
 const localizer = momentLocalizer(moment);
@@ -21,7 +23,7 @@ export default function TeamCalendar() {
   const params = useParams();
   const projectId = params.projectId?.toString();
 
-  //  현재 보고 있는 달의 첫 날 ~ 마지막 날 계산
+  // 현재 보고 있는 달의 첫 날 ~ 마지막 날 계산
   const startDate = useMemo(
     () => moment(currentDate).startOf("month").toISOString(),
     [currentDate]
@@ -31,22 +33,40 @@ export default function TeamCalendar() {
     [currentDate]
   );
 
-  //  API 요청: startDate, endDate 추가
-  const { data: calendarData, isLoading } = useGetCalendarPlans(
-    projectId ?? "",
-    startDate,
-    endDate
-  );
+  // API 요청: 일정 목록
+  const {
+    data: calendarData,
+    isLoading,
+    refetch, // ✅ refetch 포함
+  } = useGetCalendarPlans(projectId ?? "", startDate, endDate);
 
+  // ✅ 창이 다시 focus될 때 refetch 실행
+  useEffect(() => {
+    const handleFocus = () => {
+      refetch();
+    };
+
+    window.addEventListener("focus", handleFocus);
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [refetch]);
+
+  // Calendar 표시용 events 가공
   const events =
-  calendarData?.result.flatMap((entry) =>
-    (entry.list ?? []).map((plan) => ({
-      id: String(plan.planId),
-      title: plan.title,
-      start: new Date(plan.startDate),
-      end: new Date(plan.endDate),
-    }))
-  ) || [];
+    calendarData?.result.flatMap((entry) =>
+      (entry.list ?? []).map((plan) => ({
+        id: String(plan.planId),
+        title: plan.title,
+        start: new Date(plan.startDate),
+        end: new Date(plan.endDate),
+      }))
+    ) || [];
+
+  // events 변경 시 콘솔 출력 (일정 자동 반영 확인용)
+  useEffect(() => {
+    console.log("일정 반영 확인:", events);
+  }, [events]);
 
   const handleEventClick = (event: any) => {
     router.push(`/projects/${projectId}/teamcalendar/${event.id}/teamtask`);
@@ -105,17 +125,19 @@ export default function TeamCalendar() {
         startAccessor="start"
         endAccessor="end"
         date={currentDate}
-        onNavigate={() => {}}
+        onNavigate={() => {}} // 기본 이동 비활성화 (커스텀 버튼 사용 중)
         style={{ height: "calc(100vh - 300px)", backgroundColor: "white" }}
         components={{
           dateCellWrapper: (props) => (
             <CustomDateCellWrapper
-  {...props}
-  projectId={projectId}
-  startDate={startDate}
-  endDate={endDate}
-/>
+              {...props}
+              projectId={projectId}
+              startDate={startDate}
+              endDate={endDate}
+              setCurrentDate={setCurrentDate}
+            />
           ),
+          event: CalendarEventBox, // ✅ 커스텀 일정 카드 디자인
         }}
         popup
         toolbar={false}
