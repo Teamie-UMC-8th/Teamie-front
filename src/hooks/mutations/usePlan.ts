@@ -62,7 +62,17 @@ export const useDeletePlan = () => {
     onSuccess: (data) => {
       if (data.isSuccess) {
         console.log('✅ 일정 삭제 성공:', data.result?.message);
-        router.push('/projects/[projectId]/teamcalendar'); // 실제 경로로 교체
+        // 삭제 성공 후 팀 캘린더 페이지로 리다이렉션
+        // 현재 URL에서 projectId를 추출하여 사용
+        const currentPath = window.location.pathname;
+        const projectIdMatch = currentPath.match(/\/projects\/([^\/]+)/);
+        if (projectIdMatch) {
+          const projectId = projectIdMatch[1];
+          router.push(`/projects/${projectId}/teamcalendar`);
+        } else {
+          // fallback: 홈으로 이동
+          router.push('/home');
+        }
       } else {
         console.error('❌ 일정 삭제 실패:', data.error);
       }

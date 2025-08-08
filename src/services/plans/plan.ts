@@ -32,6 +32,6 @@ export const updatePlanUsers = async (
   planId: string,
   userData: PatchPlanUsersRequest
 ): Promise<any> => {
-  const { data } = await axiosInstance.patch(`/api/v1/plans/${planId}/users`, userData);
+  const { data } = await axiosInstance.patch(`/api/v1/plans/${planId}/members`, userData);
   return data;
 };

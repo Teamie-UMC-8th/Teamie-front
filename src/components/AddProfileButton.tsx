@@ -10,9 +10,14 @@ interface Manager {
 interface AddProfileButtonProps {
   profiles: Manager[];
   onChange?: (selectedUserIds: number[]) => void;
+  onPermissionCheck?: () => boolean;
 }
 
-export default function AddProfileButton({ profiles, onChange }: AddProfileButtonProps) {
+export default function AddProfileButton({
+  profiles,
+  onChange,
+  onPermissionCheck,
+}: AddProfileButtonProps) {
   const [selectedProfiles, setSelectedProfiles] = useState<Manager[]>([]);
 
   const remainingProfiles = profiles
@@ -24,16 +29,50 @@ export default function AddProfileButton({ profiles, onChange }: AddProfileButto
 
   /* 프로필 선택 */
   const handleSelect = (profile: Manager) => {
+    console.log('AddProfileButton - 프로필 선택 시도:', profile);
+
+    // 권한 점검
+    if (onPermissionCheck) {
+      const hasPermission = onPermissionCheck();
+      console.log('AddProfileButton - 권한 점검 결과:', hasPermission);
+
+      if (!hasPermission) {
+        alert('프로젝트 멤버만 참석자를 수정할 수 있습니다.');
+        return;
+      }
+    }
+
     const updated = [...selectedProfiles, profile];
     setSelectedProfiles(updated);
+    console.log(
+      'AddProfileButton - onChange 호출:',
+      updated.map((p) => p.userId)
+    );
     onChange?.(updated.map((p) => p.userId));
     // 드롭다운을 닫지 않도록 setDropdownOpen(false) 제거
   };
 
   /* 프로필 제거 */
   const handleRemove = (profile: Manager) => {
+    console.log('AddProfileButton - 프로필 제거 시도:', profile);
+
+    // 권한 점검
+    if (onPermissionCheck) {
+      const hasPermission = onPermissionCheck();
+      console.log('AddProfileButton - 권한 점검 결과:', hasPermission);
+
+      if (!hasPermission) {
+        alert('프로젝트 멤버만 참석자를 수정할 수 있습니다.');
+        return;
+      }
+    }
+
     setSelectedProfiles((prev) => {
       const filtered = prev.filter((p) => p.userId !== profile.userId);
+      console.log(
+        'AddProfileButton - onChange 호출 (제거):',
+        filtered.map((p) => p.userId)
+      );
       onChange?.(filtered.map((p) => p.userId));
       return filtered;
     });

@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import axiosInstance from '@/lib/axiosInstance';
 import AddProfileButton from '@/components/AddProfileButton';
 import BackButton from '@/components/BackButton';
 import DeleteButton from '@/components/DeleteButton';
@@ -26,6 +28,22 @@ export default function TeamTaskDetailPage() {
 
   // API로 plan 데이터 가져오기
   const { data: planData, isLoading, error } = useGetPlanDetail(planId);
+
+  // 프로젝트 홈 데이터 가져오기 (참석자 검증을 위해)
+  const { data: projectHomeData } = useQuery({
+    queryKey: ['projectHome', projectId],
+    queryFn: async () => {
+      try {
+        const res = await axiosInstance.get(`/api/v1/projects/${projectId}`);
+        return res.data;
+      } catch (error) {
+        console.warn('프로젝트 홈 데이터를 불러올 수 없습니다:', error);
+        return null;
+      }
+    },
+    retry: 1,
+  });
+
   const deletePlanMutation = useDeletePlan();
   const patchPlanMutation = usePatchPlan();
   const patchPlanUsersMutation = usePatchPlanUsers();
@@ -89,56 +107,107 @@ export default function TeamTaskDetailPage() {
     }
   }, [planData]);
 
-  // 참석자 정보 (API 데이터 우선, 없으면 mockdata 사용)
+  // 참석자 정보 (프로젝트 홈의 사용자 목록 사용)
   const availableProfiles =
-    planData?.result?.attendees?.map((attendee: { userId: number; name: string }) => ({
-      userId: attendee.userId,
-      userName: attendee.name,
-    })) ||
-    projectHomeMockData.result?.project.users.map((user) => ({
+    projectHomeData?.result?.users?.map((user: { id: number; name: string }) => ({
       userId: user.id,
       userName: user.name,
-    })) ||
-    [];
+    })) || [];
 
   const handleAttendeesChange = (selectedUserIds: number[]) => {
-    setSelectedAttendees(selectedUserIds);
+    console.log('handleAttendeesChange 호출:', selectedUserIds);
+
     // 프로젝트 멤버 권한 체크
     if (!isCurrentUserProjectMember()) {
       alert('프로젝트 멤버만 참석자를 수정할 수 있습니다.');
       return;
     }
-    // 참석자 변경 시 자동 저장
-    patchPlanUsersMutation.mutate({
-      planId,
-      userData: {
-        attendees: selectedUserIds,
-        writers: selectedWriters,
-      },
-    });
+
+    // 상태 업데이트를 다음 렌더링 사이클로 지연
+    setTimeout(() => {
+      console.log('handleAttendeesChange - API 호출 시도:', {
+        planId: planId.toString(),
+        selectedUserIds,
+        selectedWriters,
+      });
+
+      setSelectedAttendees(selectedUserIds);
+      // 참석자 변경 시 자동 저장
+      patchPlanUsersMutation.mutate({
+        planId: planId.toString(),
+        userData: {
+          attendees: selectedUserIds,
+          writers: selectedWriters,
+        },
+      });
+    }, 0);
   };
 
-  // 현재 사용자가 프로젝트 멤버인지 확인하는 함수
+  // 현재 사용자 정보 가져오기
+  const { data: currentUser } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: async () => {
+      try {
+        const res = await axiosInstance.get('/api/v1/users/me');
+        return res.data.result;
+      } catch (error) {
+        console.warn('현재 사용자 정보를 불러올 수 없습니다:', error);
+        return null;
+      }
+    },
+    retry: 1,
+  });
+
+  // 현재 사용자가 프로젝트 홈의 프로필 카드에 연동되어 있는지 확인하는 함수
   const isCurrentUserProjectMember = () => {
-    const currentUserId = 1; // 실제로는 인증된 사용자 ID를 가져와야 함
-    return projectHomeMockData.result?.project.users.some((user) => user.id === currentUserId);
+    if (!currentUser || !projectHomeData?.result?.users) {
+      console.log('권한 확인 실패: 사용자 정보 또는 프로젝트 데이터 없음', {
+        currentUser,
+        projectUsers: projectHomeData?.result?.users,
+      });
+      return false;
+    }
+
+    // 프로젝트 홈과 동일한 방식: 이메일로 비교
+    const isMember = projectHomeData.result.users.some(
+      (user: { email: string }) => user.email === currentUser.email
+    );
+
+    console.log('프로젝트 홈 권한 확인:', {
+      currentUserEmail: currentUser.email,
+      currentUserName: currentUser.name,
+      projectUsers: projectHomeData.result.users.map(
+        (u: { id: number; name: string; email: string }) => ({
+          id: u.id,
+          name: u.name,
+          email: u.email,
+        })
+      ),
+      isMember,
+    });
+
+    return isMember;
   };
 
   const handleWritersChange = (selectedUserIds: number[]) => {
-    setSelectedWriters(selectedUserIds);
     // 프로젝트 멤버 권한 체크
     if (!isCurrentUserProjectMember()) {
       alert('프로젝트 멤버만 기록자를 수정할 수 있습니다.');
       return;
     }
-    // 기록자 변경 시 자동 저장
-    patchPlanUsersMutation.mutate({
-      planId,
-      userData: {
-        attendees: selectedAttendees,
-        writers: selectedUserIds,
-      },
-    });
+
+    // 상태 업데이트를 다음 렌더링 사이클로 지연
+    setTimeout(() => {
+      setSelectedWriters(selectedUserIds);
+      // 기록자 변경 시 자동 저장
+      patchPlanUsersMutation.mutate({
+        planId: planId.toString(),
+        userData: {
+          attendees: selectedAttendees,
+          writers: selectedUserIds,
+        },
+      });
+    }, 0);
   };
 
   const formatDate = (date: Date | undefined) => {
@@ -176,17 +245,17 @@ export default function TeamTaskDetailPage() {
 
   const handleDateChange = (date: Date) => {
     setSelectedDate(date);
-    // 프로젝트 멤버 권한 체크
+    // 프로젝트 홈 권한 체크
     if (!isCurrentUserProjectMember()) {
       console.error('권한 없음: 프로젝트 멤버만 일정을 수정할 수 있습니다.');
-
       return;
     }
-    // 일자 변경 시 자동 저장
+    // 일자 변경 시 자동 저장 (API 형식에 맞게 ISO 문자열로 변환)
+    const isoDate = date.toISOString();
     patchPlanMutation.mutate({
-      planId,
+      planId: planId.toString(),
       planData: {
-        date: `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`,
+        date: isoDate,
       },
     });
   };
@@ -197,10 +266,9 @@ export default function TeamTaskDetailPage() {
 
   const handleTimeChange = (time: { hour: number; minute: number; period: 'AM' | 'PM' }) => {
     setSelectedTime(time);
-    // 프로젝트 멤버 권한 체크
+    // 프로젝트 홈 권한 체크
     if (!isCurrentUserProjectMember()) {
       console.error('권한 없음: 프로젝트 멤버만 일정을 수정할 수 있습니다.');
-
       return;
     }
     // 시간 변경 시 자동 저장
@@ -213,7 +281,7 @@ export default function TeamTaskDetailPage() {
     const formattedTime = `${hour24.toString().padStart(2, '0')}:${time.minute.toString().padStart(2, '0')}`;
 
     patchPlanMutation.mutate({
-      planId,
+      planId: planId.toString(),
       planData: {
         startHour: formattedTime,
       },
@@ -237,7 +305,7 @@ export default function TeamTaskDetailPage() {
     setIsEditingTitle(false);
     setScheduleName(editingTitle);
 
-    // 프로젝트 멤버 권한 체크
+    // 프로젝트 홈 권한 체크
     if (!isCurrentUserProjectMember()) {
       alert('프로젝트 멤버만 일정명을 수정할 수 있습니다.');
       return;
@@ -245,7 +313,7 @@ export default function TeamTaskDetailPage() {
 
     // 일정명 변경 시 자동 저장
     patchPlanMutation.mutate({
-      planId,
+      planId: planId.toString(),
       planData: {
         name: editingTitle,
       },
@@ -311,7 +379,7 @@ export default function TeamTaskDetailPage() {
         <div className="max-lg:mr-[74px]">
           <DeleteButton
             onDelete={() => {
-              deletePlanMutation.mutate(planId);
+              deletePlanMutation.mutate(planId.toString());
             }}
             modalTitle="이 일정을 정말 삭제하시겠습니까?"
             confirmText="삭제"
@@ -397,16 +465,15 @@ export default function TeamTaskDetailPage() {
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               onBlur={(e) => {
-                // 프로젝트 멤버 권한 체크
+                // 프로젝트 홈 권한 체크
                 if (!isCurrentUserProjectMember()) {
                   console.error('권한 없음: 프로젝트 멤버만 장소를 수정할 수 있습니다.');
-
                   return;
                 }
                 console.log('장소 수정 시도:', e.target.value);
                 // 장소 변경 시 자동 저장 (포커스 아웃 시)
                 patchPlanMutation.mutate({
-                  planId,
+                  planId: planId.toString(),
                   planData: {
                     location: e.target.value,
                   },
@@ -425,7 +492,11 @@ export default function TeamTaskDetailPage() {
           <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px]  mr-[28px]">
             참석자
           </div>
-          <AddProfileButton profiles={availableProfiles} onChange={handleAttendeesChange} />
+          <AddProfileButton
+            profiles={availableProfiles}
+            onChange={handleAttendeesChange}
+            onPermissionCheck={isCurrentUserProjectMember}
+          />
         </div>
 
         {/* 비고 */}
@@ -433,7 +504,7 @@ export default function TeamTaskDetailPage() {
           value={memo}
           onChange={setMemo}
           onBlur={(value) => {
-            // 프로젝트 멤버 권한 체크
+            // 프로젝트 홈 권한 체크
             if (!isCurrentUserProjectMember()) {
               alert('프로젝트 멤버만 비고를 수정할 수 있습니다.');
               return;
@@ -441,7 +512,7 @@ export default function TeamTaskDetailPage() {
 
             // 비고 변경 시 자동 저장 (포커스 아웃 시)
             patchPlanMutation.mutate({
-              planId,
+              planId: planId.toString(),
               planData: {
                 memo: value,
               },
@@ -454,7 +525,7 @@ export default function TeamTaskDetailPage() {
           value={meetingRecords}
           onChange={setMeetingRecords}
           onBlur={(value) => {
-            // 프로젝트 멤버 권한 체크
+            // 프로젝트 홈 권한 체크
             if (!isCurrentUserProjectMember()) {
               alert('프로젝트 멤버만 회의록을 수정할 수 있습니다.');
               return;
@@ -462,7 +533,7 @@ export default function TeamTaskDetailPage() {
 
             // 회의록 변경 시 자동 저장 (포커스 아웃 시)
             patchPlanMutation.mutate({
-              planId,
+              planId: planId.toString(),
               planData: {
                 meetingRecords: value,
               },
@@ -471,6 +542,7 @@ export default function TeamTaskDetailPage() {
           availableProfiles={availableProfiles}
           selectedWriters={selectedWriters}
           onWritersChange={handleWritersChange}
+          onPermissionCheck={isCurrentUserProjectMember}
         />
       </div>
       <RemindMessageModal

@@ -7,6 +7,7 @@ interface MeetingRecordsFieldProps {
   availableProfiles: { userId: number; userName: string }[];
   selectedWriters: number[];
   onWritersChange: (selectedUserIds: number[]) => void;
+  onPermissionCheck?: () => boolean;
 }
 
 export default function MeetingRecordsField({
@@ -16,6 +17,7 @@ export default function MeetingRecordsField({
   availableProfiles,
   selectedWriters,
   onWritersChange,
+  onPermissionCheck,
 }: MeetingRecordsFieldProps) {
   return (
     <div
@@ -29,7 +31,11 @@ export default function MeetingRecordsField({
         <div className="border-l-[2px] border-[#898989] h-[22px]" />
         <p className="text-[18px] ml-[12px] mr-[12px]">기록자</p>
         <div className="border-l-[2px] border-[#898989] h-[22px] mr-[12px]" />
-        <AddProfileButton profiles={availableProfiles} onChange={onWritersChange} />
+        <AddProfileButton
+          profiles={availableProfiles}
+          onChange={onWritersChange}
+          onPermissionCheck={onPermissionCheck}
+        />
       </div>
       <textarea
         value={value}
