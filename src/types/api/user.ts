@@ -1,3 +1,5 @@
+import { ApiErrorResponse } from './error';
+
 export interface UserProject {
   id: string;
   name: string;
@@ -18,13 +20,13 @@ export interface UserProfile {
 // 사용자 프로필 API 응답 구조
 export interface UserResponse {
   isSuccess: boolean;
-  error: null;
-  result: UserProfile;
+  error: ApiErrorResponse | null;
+  result: UserProfile | null;
 }
 
 // 사용자 프로젝트 API 응답 구조
 export interface UserProjectsResponse {
   isSuccess: boolean;
-  error: null;
-  result: UserProject[];
+  error: ApiErrorResponse | null;
+  result: UserProject[] | null;
 }

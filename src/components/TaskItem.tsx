@@ -1,12 +1,9 @@
 'use client';
 
 import { formatDate } from '@/utils/formatDate';
-import { TaskItemProps } from '@/constants/mockData';
+import { useTaskItems } from '@/features/boards/hooks/useTaskItems';
+import { TaskItemComponentProps, TASK_STATUS_STYLES } from '@/types/api/tasks';
 import Link from 'next/link';
-
-interface TaskItemComponentProps extends TaskItemProps {
-  projectId: string;
-}
 
 export default function TaskItem({
   projectId,
@@ -16,8 +13,19 @@ export default function TaskItem({
   deadline,
   assignee,
 }: TaskItemComponentProps) {
+  const { displayAssignees, /* cardHeight, */ deadlineTextColor } = useTaskItems({
+    task: { id: taskId, title, status, deadline, assignee },
+  });
+
+  // 상태별 스타일 가져오기 (타입 안전성 보장)
+  const statusStyle = TASK_STATUS_STYLES[status] || TASK_STATUS_STYLES['시작 전'];
+
   return (
-    <Link href={`/projects/${projectId}/tasks/${taskId}`} className="block w-[325px] h-[122px]">
+    <Link
+      href={`/projects/${projectId}/tasks/${taskId}`}
+      className={`block w-[325px] h-[122px]`}
+      /* 위 height만 &{cardHeight}으로 바꾸면 담당자 없을 시에 카드 높이 조정 122px -> 90px */
+    >
       <div className="bg-white w-full h-full rounded-[8px] border border-[#BBBBBB] p-4 flex items-start gap-3">
         <label className="inline-flex items-center flex-shrink-0 mt-1">
           <input
@@ -38,30 +46,30 @@ export default function TaskItem({
         </label>
 
         <div className="flex flex-col flex-1 gap-[10px]">
+          {/* 업무명 (필수) */}
           <div className="font-normal text-[16px] text-black mt-[1px]">{title}</div>
 
-          <div className="flex items-center justify-between gap-[2px] text-[14px] text-[#898989]">
-            {formatDate(deadline) === '마감일 없음' ? (
-              <span>마감일 없음</span>
+          {/* 진행상태 (필수) */}
+          <div className="flex items-center justify-between gap-[2px] text-[14px]">
+            {/* 마감기한 (선택) */}
+            {deadline ? (
+              <span className={deadlineTextColor}>{formatDate(deadline)}까지</span>
             ) : (
-              <span>{formatDate(deadline)}까지</span>
+              <span className="text-[#898989]">마감일 없음</span>
             )}
+
+            {/* 진행상태 배지 */}
             <div
-              className={`flex items-center justify-center px-2 py-0.5 w-[63px] h-[22px] rounded-full font-semibold ${
-                status === '진행 중'
-                  ? 'bg-[#B6F5DF] text-[#505050]'
-                  : status === '완료'
-                    ? 'bg-[#D1D5DB] text-[#505050]'
-                    : 'bg-[#E7E7E7] text-[#505050]'
-              }`}
+              className={`flex items-center justify-center px-2 py-0.5 w-[63px] h-[22px] rounded-full font-semibold ${statusStyle.bg} ${statusStyle.text}`}
             >
               {status}
             </div>
           </div>
 
-          {assignee && assignee.length > 0 && (
+          {/* 담당자 (선택) */}
+          {displayAssignees && (
             <div className="mt-auto flex flex-wrap gap-2">
-              {assignee.map((name, index) => (
+              {displayAssignees.displayList.map((name, index) => (
                 <div
                   key={index}
                   className="inline-flex items-center gap-[4px] rounded-[30px] p-[3px] pr-[9px]"
@@ -75,6 +83,11 @@ export default function TaskItem({
                   <span className="text-[12px]">{name}</span>
                 </div>
               ))}
+              {displayAssignees.hasMore && (
+                <div className="inline-flex items-center rounded-[30px] p-[3px] pr-[9px] text-[12px] text-[#898989]">
+                  ...
+                </div>
+              )}
             </div>
           )}
         </div>

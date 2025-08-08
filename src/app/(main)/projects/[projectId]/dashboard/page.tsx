@@ -6,24 +6,61 @@ import { Searchbar } from '@/components/Searchbar';
 import ToggleButton from '@/components/ToggleButton';
 import StepsBoard from '@/features/boards/StepsBoard';
 import StatusBoard from '@/features/boards/StatusBoard';
-import { mockProjects } from '@/constants/mockData';
+import { useGetDashboard } from '@/hooks/queries/useGetDashboard';
 
 export default function DashboardPage() {
   // 상태 관리: STEP 별로 보기 / 진행 상태별로 보기
   const [isStepView, setIsStepView] = useState(true);
+
   // 프로젝트 ID 파라미터 가져오기
   const { projectId } = useParams() as { projectId: string };
 
-  // TODO: 목데이터가 아닌 실제 데이터로 대체
-  const project = mockProjects.find((p) => p.id === projectId);
-  const steps = project?.steps ?? [];
+  // 대시보드 데이터 조회
+  const {
+    data: dashboardData,
+    isLoading,
+    error,
+    refetch,
+  } = useGetDashboard({
+    projectId: parseInt(projectId),
+    view: isStepView ? 'step' : 'status',
+  });
+
+  // 뷰 변경 시 데이터 다시 불러오기
+  const handleViewToggle = (isLeftSelected: boolean) => {
+    setIsStepView(isLeftSelected);
+    // 토글 후 잠시 대기 후 데이터 다시 불러오기
+    setTimeout(() => {
+      refetch();
+    }, 100);
+  };
+
+  // 로딩 상태 처리
+  if (isLoading) {
+    return (
+      <div className="min-h-screen w-full bg-white flex items-center justify-center">
+        <div className="text-lg">로딩 중...</div>
+      </div>
+    );
+  }
+
+  // 에러 상태 처리
+  if (error) {
+    return (
+      <div className="min-h-screen w-full bg-white flex items-center justify-center">
+        <div className="text-lg text-red-500">데이터를 불러오는 중 오류가 발생했습니다.</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full bg-white flex flex-col">
       <header className="flex items-center justify-between pb-[1rem] px-[0.5rem] border-b-[0.125rem] border-[#E7E7E7]">
-        <h1 className="lg:text-[1.5rem] text-[1.375rem] lg:font-bold font-semibold">
-          업무 대시보드
-        </h1>
+        <div>
+          <h1 className="lg:text-[1.5rem] text-[1.375rem] lg:font-bold font-semibold">
+            업무 대시보드
+          </h1>
+        </div>
         <div className="flex-1 flex justify-end"></div>
         <Searchbar
           placeholder="검색어를 입력하세요."
@@ -35,7 +72,8 @@ export default function DashboardPage() {
       <ToggleButton
         leftLabel="STEP 별로 보기"
         rightLabel="진행 상태별로 보기"
-        onToggle={(isLeftSelected) => setIsStepView(isLeftSelected)}
+        isLeftSelected={isStepView}
+        onToggle={handleViewToggle}
       />
 
       <main className="flex-1 overflow-x-auto">
@@ -46,9 +84,17 @@ export default function DashboardPage() {
           }}
         >
           {isStepView ? (
-            <StepsBoard steps={steps} projectId={projectId} />
+            <StepsBoard
+              steps={dashboardData && 'steps' in dashboardData ? dashboardData.steps : []}
+              projectId={projectId}
+            />
           ) : (
-            <StatusBoard steps={steps} projectId={projectId} />
+            <StatusBoard
+              statusGroups={
+                dashboardData && 'statusGroups' in dashboardData ? dashboardData.statusGroups : []
+              }
+              projectId={projectId}
+            />
           )}
         </div>
       </main>

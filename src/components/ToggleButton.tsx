@@ -1,18 +1,19 @@
 'use client';
 
-import { useState } from 'react';
-
 interface ToggleButtonProps {
   leftLabel: string;
   rightLabel: string;
+  isLeftSelected: boolean;
   onToggle?: (isLeftSelected: boolean) => void;
 }
 
-export default function ToggleButton({ leftLabel, rightLabel, onToggle }: ToggleButtonProps) {
-  const [isLeftSelected, setIsLeftSelected] = useState(true);
-
+export default function ToggleButton({
+  leftLabel,
+  rightLabel,
+  isLeftSelected,
+  onToggle,
+}: ToggleButtonProps) {
   const handleToggle = (isLeft: boolean) => {
-    setIsLeftSelected(isLeft);
     onToggle?.(isLeft);
   };
 

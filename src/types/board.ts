@@ -1,6 +1,12 @@
-import { Step } from '@/constants/mockData';
+import { Step } from '@/types/api/steps';
+import { StatusGroup } from '@/types/api/dashboard';
 
-export interface BoardProps {
+export interface StepsBoardProps {
   steps: Step[];
+  projectId: string;
+}
+
+export interface StatusBoardProps {
+  statusGroups: StatusGroup[];
   projectId: string;
 }
