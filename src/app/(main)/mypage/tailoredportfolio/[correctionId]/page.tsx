@@ -1,6 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { useParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import { fetchCorrectionDetail } from '@/services/correction/correction';
 import DeleteButton from '@/components/DeleteButton';
 import ReductionToggle from '@/features/correction/components/ReductionToggle';
 import TailoredDropdown from '@/features/correction/components/TailoredDropdown';
@@ -10,8 +13,21 @@ import ConcretizationMark from '@/features/correction/components/ConcretizationM
 import ConcretizationToggle from '@/features/correction/components/ConcretizationToggle';
 
 export default function TailoredPortfolio() {
+  const params = useParams();
+  const correctionId = Number(params.correctionId);
   const [toggleROn, setRToggleOn] = useState(false);
   const [toggleCOn, setCToggleOn] = useState(false);
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['correction-detail', correctionId],
+    queryFn: () => fetchCorrectionDetail(correctionId),
+    enabled: !!correctionId,
+  });
+
+  if (isLoading) return <div>AI 첨삭 정보를 불러오는 중...</div>;
+  if (error) return <div>AI 첨삭 정보를 불러오는데 실패했습니다.</div>;
+  if (!data) return <div>AI 첨삭 정보를 찾을 수 없습니다.</div>;
+
   return (
     <div>
       <div className="flex justify-between">
@@ -23,7 +39,7 @@ export default function TailoredPortfolio() {
             className="text-[24px] font-semibold mt-[28px] ml-[20px]
           max-lg:ml-[8px]"
           >
-            프로젝트 A
+            AI 첨삭 상세
           </h1>
         </div>
         <DeleteButton

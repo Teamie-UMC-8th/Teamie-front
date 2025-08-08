@@ -6,17 +6,75 @@ import ToggleButton from '@/components/ToggleButton';
 import { useState } from 'react';
 import Projects from '@/features/mypage/components/Projects';
 import AddCorrectionButton from '@/features/mypage/components/AddCorrectionButton';
-import { useUser } from '@/hooks/mutations/useUser';
+import { useUser, useUpdateUserProfile } from '@/hooks/mutations/useUser';
+import ProfileImageUpload from '@/features/mypage/components/ProfileImageUpload';
+import EditableField from '@/features/mypage/components/EditableField';
 
 export default function MyPage() {
   const { selected, setSelected } = useToggle();
   const { data, isLoading, error } = useUser();
+  const updateUserProfile = useUpdateUserProfile();
 
   // Pro로 업그레이드 시에 만 토글이 보이도록 설정
   const [showToggle, setShowToggle] = useState(false);
 
+  const handleProfileImageChange = (file: File) => {
+    updateUserProfile.mutate(
+      { file },
+      {
+        onSuccess: () => {
+          console.log('프로필 이미지 업데이트 성공');
+        },
+        onError: (error) => {
+          console.error('프로필 이미지 업데이트 실패:', error);
+          alert('프로필 이미지 업데이트에 실패했습니다.');
+        },
+      }
+    );
+  };
+
+  const handleSchoolChange = (newSchool: string) => {
+    // 빈 값일 때는 업데이트하지 않음
+    if (newSchool.trim() === '' && data?.school) {
+      return;
+    }
+    updateUserProfile.mutate(
+      { school: newSchool },
+      {
+        onSuccess: () => {
+          console.log('학교 정보 업데이트 성공');
+        },
+        onError: (error) => {
+          console.error('학교 정보 업데이트 실패:', error);
+          alert('학교 정보 업데이트에 실패했습니다.');
+        },
+      }
+    );
+  };
+
+  const handleMajorChange = (newMajor: string) => {
+    // 빈 값일 때는 업데이트하지 않음
+    if (newMajor.trim() === '' && data?.major) {
+      return;
+    }
+    updateUserProfile.mutate(
+      { major: newMajor },
+      {
+        onSuccess: () => {
+          console.log('전공 정보 업데이트 성공');
+        },
+        onError: (error) => {
+          console.error('전공 정보 업데이트 실패:', error);
+          alert('전공 정보 업데이트에 실패했습니다.');
+        },
+      }
+    );
+  };
+
   if (isLoading) return <div>로딩 중...</div>;
   if (error) return <div>에러가 발생했어요.</div>;
+
+  const isUpdating = updateUserProfile.isPending;
 
   return (
     <div>
@@ -45,19 +103,12 @@ export default function MyPage() {
               className="flex flex-col items-center
             max-lg:mr-[0rem]"
             >
-              <div className="relative">
-                <img
-                  src={data?.imageUrl || '/icons/myprofile.svg'}
-                  alt="Profile"
-                  className="mt-[2.5rem] mb-[0.25rem] w-[125px] h-[125px] rounded-full object-cover
-                  max-lg:ml-[3.75rem] max-lg:mt-[3.75rem]"
+              <div className="mt-[2.5rem] mb-[0.25rem] max-lg:ml-[3.75rem] max-lg:mt-[3.75rem]">
+                <ProfileImageUpload
+                  currentImageUrl={data?.imageUrl}
+                  onImageChange={handleProfileImageChange}
+                  className="w-[125px] h-[125px] rounded-full object-cover"
                 />
-                <button
-                  className="absolute bottom-[0.75rem] right-[0.625rem] cursor-pointer"
-                  onClick={() => alert('사진 추가')}
-                >
-                  <img src="/icons/camera-icon.svg" alt="카메라 아이콘" />
-                </button>
               </div>
               <div
                 className="text-black text-[1.375rem] font-semibold mb-[2.25rem]
@@ -74,33 +125,35 @@ export default function MyPage() {
               className="flex flex-col items-start ml-[3.75rem] text-[1.125rem]
             max-lg:mt-[4.625rem] "
             >
+              <EditableField
+                value={data?.school || ''}
+                placeholder="학교를 입력해주세요."
+                onSave={handleSchoolChange}
+                icon="/icons/UnivName.svg"
+                label="학교"
+                className="mb-[1.75rem] max-lg:mb-[1.5rem] max-lg:w-[20rem]"
+                disabled={isUpdating}
+              />
+              <EditableField
+                value={data?.major || ''}
+                placeholder="전공을 입력해주세요."
+                onSave={handleMajorChange}
+                icon="/icons/major.svg"
+                label="전공"
+                className="mb-[1.75rem] max-lg:mb-[1.5rem]"
+                disabled={isUpdating}
+              />
               <div
-                className="flex mb-[1.75rem]
-              max-lg:mb-[1.5rem] max-lg:w-[20rem]"
-              >
-                <img src="/icons/UnivName.svg" alt="University" className="mr-[0.75rem]" />
-                <div className="text-[#898989] mr-[0.75rem]">학교:</div>
-                <div className="text-black">{data?.school || '-'}</div>
-              </div>
-              <div
-                className="flex mb-[1.75rem]
-              max-lg:mb-[1.5rem]"
-              >
-                <img src="/icons/major.svg" alt="major" className="mr-[0.75rem]" />
-                <div className="text-[#898989] mr-[0.75rem]">전공:</div>
-                <div className="text-black">{data?.major || '-'}</div>
-              </div>
-              <div
-                className="flex mb-[1.75rem]
+                className="flex items-center mb-[1.75rem]
               max-lg:mb-[1.5rem]"
               >
                 <img src="/icons/email.svg" alt="email" className="mr-[0.75rem]" />
-                <div className="text-[#898989] mr-[0.75rem]">이메일:</div>
+                <div className="text-[#505050] mr-[0.75rem]">이메일:</div>
                 <div className="text-black">{data?.email}</div>
               </div>
-              <div className="flex mb-[2.25rem]">
+              <div className="flex items-center mb-[2.25rem]">
                 <img src="/icons/ProjectCount.svg" alt="Project Count" className="mr-[0.75rem]" />
-                <div className="text-[#898989] mr-[0.75rem]">팀 프로젝트 진행 횟수:</div>
+                <div className="text-[#505050] mr-[0.75rem]">팀 프로젝트 진행 횟수:</div>
                 <div className="text-black">{data?.projectNum}</div>
               </div>
             </div>
@@ -151,7 +204,7 @@ export default function MyPage() {
           className="flex flex-col ml-[143px] mt-[0px]
         max-lg:ml-[0rem] max-lg:mt-[5rem]"
         >
-          <div className="flex items-center justify-between mb-[2.5rem]">
+          <div className="flex items-center justify-between mb-[2.5rem] w-[954px]">
             <h2 className="text-[1.375rem] font-bold ">포트폴리오</h2>
             <div className="flex items-center gap-4 h-[20px]">
               {/* AI 첨삭일 때만 + 버튼 표시 */}
@@ -160,14 +213,17 @@ export default function MyPage() {
                 <ToggleButton
                   leftLabel="프로젝트"
                   rightLabel="AI 첨삭"
+                  isLeftSelected={selected === 'project'}
                   onToggle={(isLeft) => setSelected(isLeft ? 'project' : 'ai')}
                 />
               )}
             </div>
           </div>
 
-          {selected === 'project' && <Projects />}
-          {selected === 'ai' && <Tailored />}
+          <div className="min-h-[400px]">
+            {selected === 'project' && <Projects />}
+            {selected === 'ai' && <Tailored />}
+          </div>
         </div>
       </main>
     </div>
