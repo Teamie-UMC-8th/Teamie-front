@@ -15,11 +15,15 @@ export default function TimePicker({
   onToggle,
 }: TimePickerProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [activeDropdowns, setActiveDropdowns] = useState<Set<'period' | 'hour' | 'minute'>>(
+    new Set()
+  );
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         onToggle();
+        setActiveDropdowns(new Set());
       }
     };
 
@@ -34,14 +38,17 @@ export default function TimePicker({
 
   const handlePeriodChange = (period: 'AM' | 'PM') => {
     onTimeChange({ ...selectedTime, period });
+    setActiveDropdowns(new Set());
   };
 
   const handleHourChange = (hour: number) => {
     onTimeChange({ ...selectedTime, hour });
+    setActiveDropdowns(new Set());
   };
 
   const handleMinuteChange = (minute: number) => {
     onTimeChange({ ...selectedTime, minute });
+    setActiveDropdowns(new Set());
   };
 
   const hours = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -51,33 +58,49 @@ export default function TimePicker({
     <div className="relative" ref={dropdownRef}>
       {isOpen && (
         <>
+          {/* 초기 시간 선택 필드 */}
           <div
             className="absolute mt-8 left-[-32px] bg-white rounded-lg z-50 w-[260px] h-[48px]"
             style={{ boxShadow: '0px 0px 15px 0px #00000033' }}
           >
             <div className="p-[8px]">
-              {/* Time Selection */}
               <div className="flex items-center justify-center">
                 {/* AM/PM Selector */}
-                <div className="flex">
-                  <button
-                    onClick={() => handlePeriodChange('AM')}
-                    className={`w-[60px] h-[32px] text-[18px] border border-[#BBBBBB] bg-[#F8F8F8] rounded-[4px] transition-colors mr-[12px] ${
-                      selectedTime.period === 'AM' ? 'bg-[#F8F8F8] text-black' : ''
-                    }`}
-                  >
-                    AM
-                  </button>
-                </div>
+                <button
+                  onClick={() => {
+                    const newDropdowns = new Set(activeDropdowns);
+                    if (newDropdowns.has('period')) {
+                      newDropdowns.delete('period');
+                    } else {
+                      newDropdowns.add('period');
+                    }
+                    setActiveDropdowns(newDropdowns);
+                  }}
+                  className={`w-[60px] h-[32px] text-[18px] border rounded-[4px] transition-colors mr-[12px] ${
+                    activeDropdowns.has('period')
+                      ? 'border-black bg-white'
+                      : 'border-[#BBBBBB] bg-[#F8F8F8]'
+                  }`}
+                >
+                  {selectedTime.period}
+                </button>
 
                 {/* Hour Selector */}
                 <button
-                  className="w-[80px] h-[32px] text-[18px] border border-[#BBBBBB] bg-[#F8F8F8] rounded-[4px] transition-colors"
                   onClick={() => {
-                    const currentIndex = hours.indexOf(selectedTime.hour);
-                    const nextIndex = (currentIndex + 1) % hours.length;
-                    handleHourChange(hours[nextIndex]);
+                    const newDropdowns = new Set(activeDropdowns);
+                    if (newDropdowns.has('hour')) {
+                      newDropdowns.delete('hour');
+                    } else {
+                      newDropdowns.add('hour');
+                    }
+                    setActiveDropdowns(newDropdowns);
                   }}
+                  className={`w-[80px] h-[32px] text-[18px] border rounded-[4px] transition-colors ${
+                    activeDropdowns.has('hour')
+                      ? 'border-black bg-white'
+                      : 'border-[#BBBBBB] bg-[#F8F8F8]'
+                  }`}
                 >
                   {selectedTime.hour}시
                 </button>
@@ -87,12 +110,20 @@ export default function TimePicker({
 
                 {/* Minute Selector */}
                 <button
-                  className="w-[80px] h-[32px] text-[18px] border border-[#BBBBBB] bg-[#F8F8F8] rounded-[4px] transition-colors"
                   onClick={() => {
-                    const currentIndex = minutes.indexOf(selectedTime.minute);
-                    const nextIndex = (currentIndex + 1) % minutes.length;
-                    handleMinuteChange(minutes[nextIndex]);
+                    const newDropdowns = new Set(activeDropdowns);
+                    if (newDropdowns.has('minute')) {
+                      newDropdowns.delete('minute');
+                    } else {
+                      newDropdowns.add('minute');
+                    }
+                    setActiveDropdowns(newDropdowns);
                   }}
+                  className={`w-[80px] h-[32px] text-[18px] border rounded-[4px] transition-colors ${
+                    activeDropdowns.has('minute')
+                      ? 'border-black bg-white'
+                      : 'border-[#BBBBBB] bg-[#F8F8F8]'
+                  }`}
                 >
                   {selectedTime.minute.toString().padStart(2, '0')}분
                 </button>
@@ -100,12 +131,11 @@ export default function TimePicker({
             </div>
           </div>
 
-          {/* 컬럼 드롭다운 */}
-          <div className="absolute mt-[84px] left-[-32px] z-50 w-[252px] h-[300px] ml-[4px]">
-            <div className="flex gap-[4px]">
-              {/* AM/PM Selector Column */}
+          {/* 드롭다운 - AM/PM */}
+          {activeDropdowns.has('period') && (
+            <div className="absolute mt-[84px] left-[-32px] z-50 w-[68px] h-[76px] ml-[4px]">
               <div
-                className="rounded-[8px] bg-white w-[68px] h-[76px]"
+                className="rounded-[8px] bg-white w-full h-full"
                 style={{ boxShadow: '0px 0px 8px 0px #00000040' }}
               >
                 <div className="p-[4px] gap-[4px]">
@@ -129,10 +159,14 @@ export default function TimePicker({
                   </div>
                 </div>
               </div>
+            </div>
+          )}
 
-              {/* Hour Selector Column */}
+          {/* 드롭다운 - Hour */}
+          {activeDropdowns.has('hour') && (
+            <div className="absolute mt-[84px] left-[-32px] z-50 w-[88px] h-[436px] ml-[76px]">
               <div
-                className="rounded-[8px] bg-white w-[88px] h-[436px]"
+                className="rounded-[8px] bg-white w-full h-full"
                 style={{ boxShadow: '0px 0px 8px 0px #00000040' }}
               >
                 <div className="p-[4px] gap-[4px]">
@@ -151,10 +185,14 @@ export default function TimePicker({
                   ))}
                 </div>
               </div>
+            </div>
+          )}
 
-              {/* Minute Selector Column */}
+          {/* 드롭다운 - Minute */}
+          {activeDropdowns.has('minute') && (
+            <div className="absolute mt-[84px] left-[-32px] z-50 w-[88px] h-[148px] ml-[172px]">
               <div
-                className="rounded-[8px] bg-white w-[88px] h-[148px]"
+                className="rounded-[8px] bg-white w-full h-full"
                 style={{ boxShadow: '0px 0px 8px 0px #00000040' }}
               >
                 <div className="p-[4px] gap-[4px]">
@@ -174,7 +212,7 @@ export default function TimePicker({
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </>
       )}
     </div>

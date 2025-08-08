@@ -36,11 +36,7 @@ export default function TeamTaskDetailPage() {
     hour: number;
     minute: number;
     period: 'AM' | 'PM';
-  }>({
-    hour: 6,
-    minute: 0,
-    period: 'PM',
-  });
+  } | null>(null);
   const [isTimePickerOpen, setIsTimePickerOpen] = useState(false);
   const [selectedAttendees, setSelectedAttendees] = useState<number[]>([]);
   const [isRemindModalOpen, setIsRemindModalOpen] = useState(false);
@@ -74,6 +70,8 @@ export default function TeamTaskDetailPage() {
           minute,
           period,
         });
+      } else {
+        setSelectedTime(null);
       }
 
       // 참석자 설정
@@ -148,7 +146,9 @@ export default function TeamTaskDetailPage() {
     return `${year}.${month}.${day}`;
   };
 
-  const formatTime = (time: { hour: number; minute: number; period: 'AM' | 'PM' }) => {
+  const formatTime = (time: { hour: number; minute: number; period: 'AM' | 'PM' } | null) => {
+    if (!time) return '';
+
     let hour24 = time.hour;
 
     // PM인 경우 12를 더하고, AM이고 12시인 경우 0으로 변경
@@ -302,15 +302,19 @@ export default function TeamTaskDetailPage() {
           </div>
 
           {/* 시작 시간 */}
-          <div className="flex items-center relative">
-            <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] mr-[28px]">
+          <div className="flex items-center relative w-[390px]">
+            <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] mr-[28px] flex-shrink-0">
               시작 시간
             </div>
             <div
-              className="text-[20px] w-[60px] cursor-pointer flex items-center"
-              onClick={toggleTimePicker}
+              className={`flex items-center ${selectedTime ? 'w-[60px]' : 'w-0'} overflow-hidden transition-all duration-200`}
             >
-              {formatTime(selectedTime)}
+              <div
+                className="text-[20px] cursor-pointer whitespace-nowrap"
+                onClick={toggleTimePicker}
+              >
+                {selectedTime ? formatTime(selectedTime) : ''}
+              </div>
             </div>
             <img
               src="/icons/timePicker.svg"
@@ -319,7 +323,7 @@ export default function TeamTaskDetailPage() {
               onClick={toggleTimePicker}
             />
             <TimePicker
-              selectedTime={selectedTime}
+              selectedTime={selectedTime || { hour: 1, minute: 0, period: 'AM' }}
               onTimeChange={handleTimeChange}
               isOpen={isTimePickerOpen}
               onToggle={toggleTimePicker}
@@ -421,7 +425,7 @@ export default function TeamTaskDetailPage() {
             ? `${selectedDate.getFullYear()}-${(selectedDate.getMonth() + 1).toString().padStart(2, '0')}-${selectedDate.getDate().toString().padStart(2, '0')}`
             : ''
         }
-        time={formatTime(selectedTime)}
+        time={selectedTime ? formatTime(selectedTime) : ''}
         attendees={selectedAttendees
           .map(
             (id) =>
