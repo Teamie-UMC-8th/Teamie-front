@@ -4,7 +4,7 @@ import { mockProjects } from '@/constants/mockData';
 import ProjectHeader from './components/ProjectHeader';
 
 // 임시 로그인 사용자
-const currentUser = '홍길동';
+const currentUser = '김태화';
 
 export default function MyTaskBoard() {
   // 프로젝트별로, 모든 step의 items 중 담당자가 currentUser인 태스크만 한 배열로 합침

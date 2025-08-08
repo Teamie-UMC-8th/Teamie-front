@@ -23,16 +23,17 @@ export const mockProjects: Project[] = [
         items: [
           {
             id: 1,
-            title: '기획서 초안 작성',
+            title: '놀라지 마세요',
             status: '진행 중',
-            deadline: '2024-05-04',
-            assignee: ['홍길동', '이순신'],
+            deadline: '2025-09-04',
+            assignee: ['김태화', '두현우'],
           },
           {
             id: 2,
-            title: '요구사항 정리',
+            title: 'mockData 입니다',
             status: '시작 전',
-            deadline: '2024-05-07',
+            deadline: '2025-09-07',
+            assignee: ['김태화'],
           },
         ],
       },
@@ -42,10 +43,10 @@ export const mockProjects: Project[] = [
         items: [
           {
             id: 3,
-            title: '와이어프레임 제작',
+            title: '^________^',
             status: '완료',
-            deadline: '2024-05-10',
-            assignee: ['김디자이너'],
+            deadline: '2025-10-10',
+            assignee: ['김태화'],
           },
         ],
       },
@@ -54,6 +55,20 @@ export const mockProjects: Project[] = [
   {
     id: '456',
     name: '프로젝트 B',
-    steps: [],
+    steps: [
+      {
+        id: 1,
+        name: '기획',
+        items: [
+          {
+            id: 1,
+            title: 'Teamie 화이팅!',
+            status: '진행 중',
+            deadline: '2025-09-04',
+            assignee: ['김태화', '이예린'],
+          },
+        ],
+      },
+    ],
   },
 ];
