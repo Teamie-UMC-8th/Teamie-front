@@ -17,6 +17,7 @@ export default function ProjectHomePage() {
   const params = useParams();
   const projectId = Number(params.projectId);
   const [currentUserEmail, setCurrentUserEmail] = useState<string>('');
+  const [currentUserImageUrl, setCurrentUserImageUrl] = useState<string>('');
 
   const {
     // 상태
@@ -61,6 +62,7 @@ export default function ProjectHomePage() {
         const response = await axiosInstance.get('/api/v1/users/me');
         if (response.data.isSuccess && response.data.result) {
           setCurrentUserEmail(response.data.result.email);
+          setCurrentUserImageUrl(response.data.result.imageUrl);
         }
       } catch (error) {
         console.error('현재 사용자 정보 가져오기 실패:', error);
@@ -242,6 +244,7 @@ export default function ProjectHomePage() {
               role={member.role}
               isLeader={member.isLeader}
               currentUserEmail={currentUserEmail}
+              currentUserImageUrl={currentUserImageUrl}
               onClick={() => handleChangeLeader(member.id)}
               onUpdate={(field, value) => handleUpdateTeamMember(member.id, field, value)}
             />

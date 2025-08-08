@@ -9,6 +9,7 @@ interface TeamMemberCardProps {
   role: string;
   isLeader?: boolean;
   currentUserEmail?: string;
+  currentUserImageUrl?: string;
   onClick?: () => void;
   onUpdate?: (field: 'role', value: string) => void;
 }
@@ -20,6 +21,7 @@ export default function TeamMemberCard({
   role,
   isLeader = false,
   currentUserEmail,
+  currentUserImageUrl,
   onClick,
   onUpdate,
 }: TeamMemberCardProps) {
@@ -76,9 +78,11 @@ export default function TeamMemberCard({
       <div className="max-lg:flex">
         <div className="flex flex-col items-center">
           <img
-            src="/icons/myprofile.svg"
+            src={
+              isCurrentUser && currentUserImageUrl ? currentUserImageUrl : '/icons/myprofile.svg'
+            }
             alt="Profile"
-            className="w-[125px] h-[125px]
+            className="w-[125px] h-[125px] rounded-full object-cover
       max-lg:ml-[20px]"
           />
 
