@@ -1,3 +1,5 @@
+import { ApiErrorResponse } from './error';
+
 export interface CreateProjectRequest {
   name: string;
   permission?: string; // 생성자의 권한 (LEAD로 설정)
@@ -5,13 +7,13 @@ export interface CreateProjectRequest {
 
 export interface CreateProjectReponse {
   isSuccess: boolean;
-  error: string;
+  error: ApiErrorResponse | null;
   result: {
     id: string;
     name: string;
     inviteCode: string;
     expiresAt: string;
-  };
+  } | null;
 }
 
 export interface GetJoinProjectRequest {
@@ -20,18 +22,14 @@ export interface GetJoinProjectRequest {
 
 export interface GetJoinProjectResponse {
   isSuccess: boolean;
-  error: {
-    errorCode: string;
-    reason: string;
-    data: null;
-  };
+  error: ApiErrorResponse | null;
   result: {
     project?: {
       id: string;
       name: string;
       leader: string;
     };
-  };
+  } | null;
 }
 
 export interface PostJoinProjectRequest {
@@ -40,8 +38,8 @@ export interface PostJoinProjectRequest {
 
 export interface PostJoinProjectResponse {
   isSuccess: boolean;
-  error: string | null;
+  error: ApiErrorResponse | null;
   result?: {
     message?: string;
-  };
+  } | null;
 }

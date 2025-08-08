@@ -1,3 +1,5 @@
+import { ApiErrorResponse } from './error';
+
 // 공통 타입 정의
 interface Manager {
   userId: number;
@@ -8,17 +10,10 @@ interface FileItem {
   fileUrl: string;
 }
 
-// 에러 응답 타입 정의
-interface ErrorResponse {
-  errorCode: string; // 예: "TASK4041"
-  reason: string; // 예: "TASK를 찾을 수 없습니다."
-  data: null;
-}
-
 // 업무 상세 조회 API 응답 타입 정의
 export interface TaskDetailResponse {
   isSuccess: boolean;
-  error: ErrorResponse | null;
+  error: ApiErrorResponse | null;
   result: {
     name: string;
     deadline: string; // 예: '2024-07-10 00:00:00'
@@ -44,7 +39,7 @@ export interface UpdateTaskRequest {
 // 업무 수정 API 응답 타입 정의
 export interface UpdateTaskResponse {
   isSuccess: boolean;
-  error: null;
+  error: ApiErrorResponse | null;
   result: {
     name: string;
     deadline: string;
@@ -58,7 +53,7 @@ export interface UpdateTaskResponse {
 // 업무 삭제 API 응답 타입 정의
 export interface DeleteTaskResponse {
   isSuccess: boolean;
-  error: null;
+  error: ApiErrorResponse | null;
   result: {
     message: string; // "업무가 성공적으로 삭제되었습니다."
     taskId: string; // 삭제된 업무의 ID
