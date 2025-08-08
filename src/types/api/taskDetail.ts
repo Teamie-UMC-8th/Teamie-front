@@ -10,7 +10,7 @@ interface FileItem {
   fileUrl: string;
 }
 
-// 업무 상세 조회 API 응답 타입 정의
+// 업무 상세 조회 API 응답 타입 정의 (Swagger 명세와 일치)
 export interface TaskDetailResponse {
   isSuccess: boolean;
   error: ApiErrorResponse | null;

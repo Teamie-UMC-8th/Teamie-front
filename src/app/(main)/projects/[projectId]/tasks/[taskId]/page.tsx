@@ -15,7 +15,6 @@ import {
   useTaskDeleteHandler,
   useTaskMemoHandler,
 } from '@/hooks/mutations/useTaskDetail';
-import { getMockUserList } from '@/constants/taskDetailMockData';
 import axiosInstance from '@/lib/axiosInstance';
 
 export default function TaskDetailPage() {
@@ -40,12 +39,6 @@ export default function TaskDetailPage() {
         return res.data.result;
       } catch (error) {
         console.warn('사용자 목록을 불러올 수 없습니다:', error);
-
-        // 개발 모드에서만 모의 데이터 사용
-        if (process.env.NODE_ENV === 'development') {
-          return getMockUserList();
-        }
-
         return []; // 빈 배열 반환
       }
     },

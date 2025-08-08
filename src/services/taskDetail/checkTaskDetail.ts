@@ -1,4 +1,3 @@
-import getMockTaskData from '@/constants/taskDetailMockData';
 import axiosInstance from '@/lib/axiosInstance';
 import {
   TaskDetailResponse,
@@ -14,21 +13,6 @@ export const checkTaskDetail = async (taskId: number): Promise<TaskDetailRespons
     return response.data;
   } catch (error: unknown) {
     console.error('업무 상세 조회 실패:', error);
-
-    // 개발 모드에서만 모의 데이터 사용
-    if (
-      process.env.NODE_ENV === 'development' &&
-      error &&
-      typeof error === 'object' &&
-      'response' in error &&
-      error.response &&
-      typeof error.response === 'object' &&
-      'status' in error.response &&
-      error.response.status === 404
-    ) {
-      console.warn('API가 준비되지 않아 모의 데이터를 사용합니다.');
-      return getMockTaskData();
-    }
 
     // 실제 API 에러 응답 처리
     if (
