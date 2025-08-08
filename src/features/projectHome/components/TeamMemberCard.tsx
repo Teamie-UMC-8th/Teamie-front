@@ -6,6 +6,9 @@ interface TeamMemberCardProps {
   email: string;
   role: string;
   isLeader?: boolean;
+  currentUserEmail?: string;
+  onClick?: () => void;
+  onUpdate?: (field: string, value: string) => void;
 }
 
 export default function TeamMemberCard({
@@ -14,12 +17,30 @@ export default function TeamMemberCard({
   email,
   role,
   isLeader = false,
+  currentUserEmail,
+  onClick,
+  onUpdate,
 }: TeamMemberCardProps) {
+  // 본인의 프로필 카드인지 확인
+  const isCurrentUser = currentUserEmail === email;
+
+  const handleCardClick = () => {
+    // 본인의 프로필 카드인 경우 클릭 이벤트를 무시
+    if (isCurrentUser) {
+      return;
+    }
+    // 다른 팀원의 카드인 경우에만 팀장 변경 모달 표시
+    onClick?.();
+  };
+
   return (
     <div
-      className="w-[315px] h-[368px] rounded-[12px] bg-white mt-[24px] flex-col py-[36px] px-[40px]
-      max-lg:ml-[142px] max-lg:w-[580px] max-lg:h-[241px]"
+      className={`w-[315px] h-[368px] rounded-[12px] bg-white mt-[24px] flex-col py-[36px] px-[40px]
+      max-lg:ml-[142px] max-lg:w-[580px] max-lg:h-[241px] ${
+        !isCurrentUser ? 'cursor-pointer hover:shadow-lg transition-shadow' : ''
+      }`}
       style={{ boxShadow: '0px 0px 10px 0px #00000033' }}
+      onClick={handleCardClick}
     >
       <div className="max-lg:flex">
         <div>

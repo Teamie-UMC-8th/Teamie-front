@@ -241,6 +241,7 @@ export default function ProjectHomePage() {
               email={member.email}
               role={member.role}
               isLeader={member.isLeader}
+              currentUserEmail={currentUserEmail}
               onClick={() => handleChangeLeader(member.id)}
               onUpdate={(field, value) => handleUpdateTeamMember(member.id, field, value)}
             />
