@@ -6,10 +6,12 @@ import { BoardProps } from '@/types/board';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import React, { useState } from 'react';
 import { useCreateStep } from '@/hooks/mutations/useCreateStep';
+import { useDeleteStep } from '@/hooks/mutations/useDeleteStep';
 
 export default function StepsBoard({ steps, projectId }: BoardProps) {
-  const { openStepIds, toggleStep } = useSteps();
+  const { openStepIds, toggleStep, openStep } = useSteps();
   const createStepMutation = useCreateStep();
+  const deleteStepMutation = useDeleteStep();
   const [isAddingStep, setIsAddingStep] = useState(false);
   const [newStepName, setNewStepName] = useState('');
 
@@ -35,7 +37,7 @@ export default function StepsBoard({ steps, projectId }: BoardProps) {
     const finalStepName = stepName.trim() || '빈 STEP';
 
     try {
-      await createStepMutation.mutateAsync({
+      const response = await createStepMutation.mutateAsync({
         projectId: parseInt(projectId),
         body: { name: finalStepName },
       });
@@ -43,6 +45,11 @@ export default function StepsBoard({ steps, projectId }: BoardProps) {
       // 성공 시 입력 필드 초기화
       setNewStepName('');
       setIsAddingStep(false);
+
+      // 새로 생성된 스텝을 자동으로 열기
+      if (response.result?.stepId) {
+        openStep(response.result.stepId);
+      }
     } catch (error) {
       console.error('STEP 생성 실패:', error);
       alert('STEP 생성에 실패했습니다.');
@@ -64,9 +71,19 @@ export default function StepsBoard({ steps, projectId }: BoardProps) {
     handleAddStep(newStepName);
   };
 
-  // TODO: 실제로는 step 삭제 로직을 구현해야 함
-  const handleDeleteStep = (stepId: number) => {
-    alert(`STEP ${stepId} 삭제!`);
+  // STEP 삭제 처리
+  const handleDeleteStep = async (stepId: number) => {
+    // if (!confirm('정말로 이 STEP을 삭제하시겠습니까?')) {
+    //   return;
+    // }
+
+    try {
+      await deleteStepMutation.mutateAsync(stepId);
+      // 성공 시 쿼리 무효화로 자동으로 데이터가 업데이트됩니다
+    } catch (error) {
+      console.error('STEP 삭제 실패:', error);
+      alert('STEP 삭제에 실패했습니다.');
+    }
   };
 
   // 드래그가 끝났을 때 호출되는 함수

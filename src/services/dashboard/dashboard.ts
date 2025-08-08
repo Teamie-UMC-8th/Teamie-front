@@ -30,3 +30,9 @@ export const createStep = async (
   );
   return data;
 };
+
+// STEP 삭제
+export const deleteStep = async (stepId: number): Promise<string> => {
+  const { data } = await axiosInstance.delete(`/api/v1/steps/${stepId}`);
+  return data;
+};
