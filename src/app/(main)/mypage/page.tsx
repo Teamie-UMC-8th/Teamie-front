@@ -34,6 +34,10 @@ export default function MyPage() {
   };
 
   const handleSchoolChange = (newSchool: string) => {
+    // 빈 값일 때는 업데이트하지 않음
+    if (newSchool.trim() === '' && data?.school) {
+      return;
+    }
     updateUserProfile.mutate(
       { school: newSchool },
       {
@@ -49,6 +53,10 @@ export default function MyPage() {
   };
 
   const handleMajorChange = (newMajor: string) => {
+    // 빈 값일 때는 업데이트하지 않음
+    if (newMajor.trim() === '' && data?.major) {
+      return;
+    }
     updateUserProfile.mutate(
       { major: newMajor },
       {
@@ -205,6 +213,7 @@ export default function MyPage() {
                 <ToggleButton
                   leftLabel="프로젝트"
                   rightLabel="AI 첨삭"
+                  isLeftSelected={selected === 'project'}
                   onToggle={(isLeft) => setSelected(isLeft ? 'project' : 'ai')}
                 />
               )}

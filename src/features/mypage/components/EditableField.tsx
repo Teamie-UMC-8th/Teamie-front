@@ -42,8 +42,14 @@ export default function EditableField({
   };
 
   const handleSave = () => {
-    if (editValue.trim() !== value) {
-      onSave(editValue.trim());
+    if (editValue !== value) {
+      // 빈 값일 때는 이전 값으로 되돌림
+      if (editValue.trim() === '') {
+        setEditValue(value);
+        setIsEditing(false);
+        return;
+      }
+      onSave(editValue);
     }
     setIsEditing(false);
   };

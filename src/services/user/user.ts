@@ -12,6 +12,9 @@ import axiosInstance from '@/lib/axiosInstance';
 // 사용자 프로필 정보를 가져오는 함수
 export default async function fetchUserProfile(): Promise<UserProfile> {
   const { data } = await axiosInstance.get<UserResponse>('/api/v1/users/me');
+  if (!data.result) {
+    throw new Error('사용자 정보를 가져올 수 없습니다.');
+  }
   return data.result;
 }
 
@@ -38,11 +41,11 @@ export async function fetchUserProjects(): Promise<UserProject[]> {
 export async function updateUserProfile(params: UpdateUserProfileParams): Promise<UserProfile> {
   const formData = new FormData();
 
-  if (params.school !== undefined) {
+  if (params.school !== undefined && params.school !== null && params.school !== '') {
     formData.append('school', params.school);
   }
 
-  if (params.major !== undefined) {
+  if (params.major !== undefined && params.major !== null && params.major !== '') {
     formData.append('major', params.major);
   }
 
@@ -55,6 +58,10 @@ export async function updateUserProfile(params: UpdateUserProfileParams): Promis
       'Content-Type': 'multipart/form-data',
     },
   });
+
+  if (!data.result) {
+    throw new Error('사용자 정보를 업데이트할 수 없습니다.');
+  }
 
   return data.result;
 }
