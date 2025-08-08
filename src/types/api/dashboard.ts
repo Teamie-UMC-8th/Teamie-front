@@ -33,3 +33,22 @@ export interface Manager {
   userId: number;
   userName: string;
 }
+
+// STEP 생성 요청 타입
+export interface CreateStepRequest {
+  name: string;
+}
+
+// STEP 생성 응답 타입
+export interface CreateStepResponse {
+  isSuccess: boolean;
+  error: {
+    errorCode: string;
+    reason: string;
+    data: null;
+  } | null;
+  result: {
+    stepId: number;
+    name: string;
+  } | null;
+}
