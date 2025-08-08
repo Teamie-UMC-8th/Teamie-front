@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 // UI 상태만 관리하는 훅
 export function useSteps() {
@@ -12,8 +12,14 @@ export function useSteps() {
     );
   };
 
+  // 새로 생성된 스텝을 자동으로 열기
+  const openStep = (id: number) => {
+    setOpenStepIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+  };
+
   return {
     openStepIds,
     toggleStep,
+    openStep,
   };
 }
