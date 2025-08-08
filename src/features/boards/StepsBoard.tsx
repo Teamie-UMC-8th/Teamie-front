@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import { useCreateStep } from '@/hooks/mutations/useCreateStep';
 import { useDeleteStep } from '@/hooks/mutations/useDeleteStep';
 import { useUpdateStep } from '@/hooks/mutations/useUpdateStep';
+import { TASK_STATUS_DISPLAY } from '@/types/api/taskItem';
 
 export default function StepsBoard({ steps, projectId }: BoardProps) {
   const { openStepIds, toggleStep, openStep } = useSteps();
@@ -20,15 +21,15 @@ export default function StepsBoard({ steps, projectId }: BoardProps) {
   // STEP 추가 제한 (최대 8개)
   const canAddStep = steps.length < 8;
 
-  // 상태 매핑 함수
+  // 상태 매핑 함수 (API 상태를 표시 텍스트로 변환)
   const mapTaskStatus = (status: string) => {
     switch (status) {
       case 'ONGOING':
-        return '진행 중';
+        return TASK_STATUS_DISPLAY.ONGOING;
       case 'COMPLETED':
-        return '완료';
+        return TASK_STATUS_DISPLAY.COMPLETE;
       default:
-        return '시작 전';
+        return TASK_STATUS_DISPLAY.BEFORE;
     }
   };
 
@@ -41,7 +42,7 @@ export default function StepsBoard({ steps, projectId }: BoardProps) {
     try {
       const response = await createStepMutation.mutateAsync({
         projectId: parseInt(projectId),
-        body: { name: finalStepName },
+        name: finalStepName,
       });
 
       // 성공 시 입력 필드 초기화

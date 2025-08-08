@@ -4,12 +4,19 @@ import {
   DashboardResponse,
   CreateStepRequest,
   CreateStepResponse,
+  UpdateStepRequest,
+  UpdateStepResponse,
+  DeleteStepResponse,
+  CreateTaskResponse,
 } from '@/types/api/dashboard';
+import { ApiResponse } from '@/types/api/error';
 
 // 프로젝트 대시보드 조회
 export const getDashboard = async (params: GetDashboardRequest): Promise<DashboardResponse> => {
   const { projectId, view } = params;
-  const response = await axiosInstance.get(`/api/v1/tasks/${projectId}/dashboard?view=${view}`);
+  const response = await axiosInstance.get<ApiResponse<DashboardResponse>>(
+    `/api/v1/tasks/${projectId}/dashboard?view=${view}`
+  );
 
   // API 응답이 { isSuccess, error, result } 형태로 감싸져 있으므로 result에서 실제 데이터 추출
   if (response.data.isSuccess && response.data.result) {
@@ -20,36 +27,32 @@ export const getDashboard = async (params: GetDashboardRequest): Promise<Dashboa
 };
 
 // STEP 생성
-export const createStep = async (
-  projectId: number,
-  body: CreateStepRequest
-): Promise<CreateStepResponse> => {
+export const createStep = async (request: CreateStepRequest): Promise<CreateStepResponse> => {
+  const { projectId, name } = request;
   const { data } = await axiosInstance.post<CreateStepResponse>(
     `/api/v1/projects/${projectId}/steps`,
-    body
+    { name }
   );
   return data;
 };
 
 // STEP 삭제
-export const deleteStep = async (stepId: number): Promise<string> => {
-  const { data } = await axiosInstance.delete(`/api/v1/steps/${stepId}`);
+export const deleteStep = async (stepId: number): Promise<DeleteStepResponse> => {
+  const { data } = await axiosInstance.delete<DeleteStepResponse>(`/api/v1/steps/${stepId}`);
   return data;
 };
 
 // STEP 수정
-export const updateStep = async (
-  stepId: number,
-  body: { name: string }
-): Promise<CreateStepResponse> => {
-  const { data } = await axiosInstance.patch<CreateStepResponse>(`/api/v1/steps/${stepId}`, body);
+export const updateStep = async (request: UpdateStepRequest): Promise<UpdateStepResponse> => {
+  const { stepId, name } = request;
+  const { data } = await axiosInstance.patch<UpdateStepResponse>(`/api/v1/steps/${stepId}`, {
+    name,
+  });
   return data;
 };
 
 // 업무 생성
-export const createTask = async (
-  stepId: number
-): Promise<{ isSuccess: boolean; result: { taskId: number } | null }> => {
-  const { data } = await axiosInstance.post(`/api/v1/tasks`, { stepId });
+export const createTask = async (stepId: number): Promise<CreateTaskResponse> => {
+  const { data } = await axiosInstance.post<CreateTaskResponse>(`/api/v1/tasks`, { stepId });
   return data;
 };
