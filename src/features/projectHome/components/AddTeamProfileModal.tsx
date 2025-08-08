@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { formatToKoreanDate } from '@/utils/formatDate';
 
 interface AddTeamProfileModalProps {
@@ -19,6 +20,7 @@ export default function AddTeamProfileModal({
   onJoinClick,
 }: AddTeamProfileModalProps) {
   const [showCopyModal, setShowCopyModal] = useState(false);
+  const router = useRouter();
 
   const handleCopyText = async () => {
     const textToCopy = `💡 프로젝트에 참여해 주세요!
@@ -36,6 +38,12 @@ export default function AddTeamProfileModal({
     } catch {
       window.alert('텍스트 복사에 실패했습니다.');
     }
+  };
+
+  const handleJoinClick = () => {
+    // 참여 수락 페이지로 이동
+    router.push(`/projects/join/${inviteCode}`);
+    onClose();
   };
 
   return (
@@ -65,16 +73,13 @@ export default function AddTeamProfileModal({
             <br />
             👉 참여하기:{' '}
             <span
-              className="underline font-bold text-[#81D7D4] cursor-pointer"
-              onClick={() => {
-                onJoinClick?.();
-                onClose();
-              }}
+              className="underline font-bold text-[#81D7D4] cursor-pointer hover:text-[#6BC5C2] transition-colors"
+              onClick={handleJoinClick}
             >
               {projectName}
             </span>
             <br />
-            링크 유효기간: {formatToKoreanDate(expiresAt)}까지
+            링크 유효기간: {formatToKoreanDate(expiresAt)}
           </p>
 
           <button

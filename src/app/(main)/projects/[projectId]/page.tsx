@@ -18,6 +18,9 @@ export default function ProjectHomePage() {
   const projectId = Number(params.projectId);
   const [currentUserEmail, setCurrentUserEmail] = useState<string>('');
   const [currentUserImageUrl, setCurrentUserImageUrl] = useState<string>('');
+  const [projectName, setProjectName] = useState<string>('프로젝트');
+  const [inviteCode, setInviteCode] = useState<string>('INVITE123');
+  const [expiresAt, setExpiresAt] = useState<string>('');
 
   const {
     // 상태
@@ -54,6 +57,29 @@ export default function ProjectHomePage() {
     // API mutations
     updateProjectMutation,
   } = useProjectHomeState(projectId);
+
+  // 프로젝트 데이터에서 프로젝트 이름 가져오기
+  useEffect(() => {
+    const fetchProjectData = async () => {
+      try {
+        const response = await axiosInstance.get(`/api/v1/projects/${projectId}`);
+        if (response.data.isSuccess && response.data.result?.project) {
+          setProjectName(response.data.result.project.name || '프로젝트');
+
+          // 초대코드와 만료일 설정 (7일 후로 설정)
+          const now = new Date();
+          const expiresDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7일 후
+          setExpiresAt(expiresDate.toISOString());
+
+          // 초대코드는 프로젝트 ID를 기반으로 생성 (실제로는 API에서 가져와야 함)
+          setInviteCode(`INVITE${projectId}`);
+        }
+      } catch (error) {
+        console.error('프로젝트 정보 가져오기 실패:', error);
+      }
+    };
+    fetchProjectData();
+  }, [projectId]);
 
   // 현재 사용자 이메일 가져오기
   useEffect(() => {
@@ -269,9 +295,9 @@ export default function ProjectHomePage() {
         <Portal>
           <AddTeamProfileModal
             onClose={handleCloseAddTeamModal}
-            projectName="프로젝트명"
-            inviteCode="INVITE123"
-            expiresAt="2024-12-31"
+            projectName={projectName}
+            inviteCode={inviteCode}
+            expiresAt={expiresAt}
             onJoinClick={handleJoinProject}
           />
         </Portal>
