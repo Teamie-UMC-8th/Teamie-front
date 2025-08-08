@@ -280,19 +280,28 @@ export const updateProfile = async (
   profileData: UpdateProfileRequest
 ): Promise<UpdateProfileResponse> => {
   try {
-    const response = await axiosInstance.patch<UpdateProfileResponse>(
-      `/api/v1/projects/${projectId}/profile`,
-      profileData
-    );
+    console.log('프로필 수정 API 호출 시도:', `/api/v1/users/me`, profileData);
+
+    // 사용자 본인의 프로필을 수정하는 API 사용
+    const response = await axiosInstance.patch<UpdateProfileResponse>(`/api/v1/users/me`, {
+      school: profileData.role, // role을 school로 매핑
+    });
+
+    console.log('프로필 수정 성공:', response.data);
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error('프로필 수정 API 호출 실패:', error);
-    // API 호출 실패 시 mock 응답 반환
-    return {
-      isSuccess: true,
-      error: null,
-      result: {},
-    };
+
+    // 403 오류인 경우 권한 문제로 처리
+    if (error.response?.status === 403) {
+      console.error('403 Forbidden: 프로필 수정 권한이 없습니다.');
+      console.error('가능한 원인:');
+      console.error('1. 현재 사용자가 인증되지 않았습니다.');
+      console.error('2. 사용자 프로필 수정 권한이 없습니다.');
+    }
+
+    // 실제 오류를 throw하여 상위에서 처리하도록 함
+    throw error;
   }
 };
 

@@ -470,8 +470,16 @@ export const useProjectHomeState = (projectId: number) => {
             );
           }
         },
-        onError: (error) => {
+        onError: (error: any) => {
           console.error('프로필 카드 수정 실패:', error);
+
+          // 403 오류인 경우 사용자에게 알림
+          if (error.response?.status === 403) {
+            alert('프로필 수정 권한이 없습니다. 프로젝트 멤버인지 확인해주세요.');
+          } else {
+            alert('프로필 수정에 실패했습니다. 다시 시도해주세요.');
+          }
+
           // 에러 시에도 로컬 상태 업데이트 (개발 환경)
           if (process.env.NODE_ENV === 'development') {
             setTeamMembers((prev) =>
