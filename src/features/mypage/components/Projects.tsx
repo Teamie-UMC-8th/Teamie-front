@@ -1,11 +1,12 @@
 'use client';
 
-import { useMasterPortfolioList } from '@/hooks/mutations/useMasterPortfolio';
+import { useMasterPortfolioList } from '@/hooks/queries/useGetMasterPortfolio';
 import { useUpdateMainTask } from '@/hooks/mutations/useUser';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { formatDateRange } from '@/utils/formatDate';
 import { useState, useRef, useEffect } from 'react';
+import { MasterPortfolio } from '@/types/api/masterportfolio';
 
 export default function Projects() {
   const pathname = usePathname();
@@ -62,7 +63,7 @@ export default function Projects() {
 
   return (
     <div className={`grid grid-cols-2 gap-[24px] ${!isMyPage ? 'max-lg:grid-cols-1' : ''}`}>
-      {data?.data.map((item) => (
+      {data?.data?.map((item: MasterPortfolio) => (
         <Link key={item.portfolioId} href={`/mypage/aimasterportfolio/${item.portfolioId}`}>
           <button
             className={`bg-[#F8F8F8] w-[465px] h-[192px] rounded-[8px] grid justify-center cursor-pointer ${
