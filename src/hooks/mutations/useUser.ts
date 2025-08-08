@@ -50,7 +50,7 @@ export const useUpdateMainTask = () => {
       updateMainTask(portfolioId, { mainTask }),
     onSuccess: (updatedProject) => {
       // 성공 시 프로젝트 목록 캐시 업데이트
-      queryClient.invalidateQueries({ queryKey: ['masterPortfolioList'] });
+      queryClient.invalidateQueries({ queryKey: ['master-portfolios'] });
     },
     onError: (error) => {
       console.error('주요 업무 업데이트 실패:', error);
