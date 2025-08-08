@@ -95,10 +95,15 @@ export default function Projects() {
             </div>
 
             <div className="w-[439px] h-[96px] mx-[13px] pt-[16px] pb-[20px] mt-[-36px] max-lg:w-[397px] max-lg:h-[96px] max-lg:ml-[12px]">
-              <div className="flex mb-[12px]">
+              <div className="flex mb-[12px] items-center">
                 <div className="text-[16px] text-[#505050] mr-[38px] ml-[12px] ">기여도</div>
                 <div className="text-[16px] text-black mr-[24px]">{item.contributionRate}%</div>
-                <img src="/icons/percent-bar.svg" alt="Percent Bar" className="max-lg:w-[247px]" />
+                <div className=" bg-white border border-[#E7E7E7] rounded-[2px] w-[286px] h-[10px]">
+                  <div
+                    className="bg-[#81D7D4] rounded-[2px] h-[8px]"
+                    style={{ width: `${item.contributionRate}%` }}
+                  />
+                </div>
               </div>
               <div className="flex mb-[12px]">
                 <div className="text-[16px] text-[#505050] mr-[20px] ml-[12px] ">진행 기간</div>
