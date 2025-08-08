@@ -16,8 +16,51 @@ export default function TaskItem({
   deadline,
   assignee,
 }: TaskItemComponentProps) {
+  // 마감기한이 경과했는지 확인 (완료 상태가 아닌 경우에만)
+  const isDeadlineOverdue = () => {
+    if (!deadline || status === '완료') return false;
+    const deadlineDate = new Date(deadline);
+    const today = new Date();
+    return deadlineDate < today;
+  };
+
+  // 담당자 표시 로직 (최대 3명 + ...)
+  const displayAssignees = () => {
+    if (!assignee || assignee.length === 0) return null;
+
+    const maxDisplay = 3;
+    const displayList = assignee.slice(0, maxDisplay);
+    const hasMore = assignee.length > maxDisplay;
+
+    return (
+      <div className="mt-auto flex flex-wrap gap-2">
+        {displayList.map((name, index) => (
+          <div
+            key={index}
+            className="inline-flex items-center gap-[4px] rounded-[30px] p-[3px] pr-[9px]"
+            style={{ boxShadow: '1px 1px 4px 0 rgba(0,0,0,0.25)' }}
+          >
+            <img src="/icons/assignee.svg" alt="참석자 아이콘" className="w-[16px] h-[16px]" />
+            <span className="text-[12px]">{name}</span>
+          </div>
+        ))}
+        {hasMore && (
+          <div className="inline-flex items-center rounded-[30px] p-[3px] pr-[9px] text-[12px] text-[#898989]">
+            ...
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // 카드 높이 조정 (담당자가 없으면 더 작게)
+  const cardHeight = assignee && assignee.length > 0 ? 'h-[122px]' : 'h-[90px]';
+
   return (
-    <Link href={`/projects/${projectId}/tasks/${taskId}`} className="block w-[325px] h-[122px]">
+    <Link
+      href={`/projects/${projectId}/tasks/${taskId}`}
+      className={`block w-[325px] ${cardHeight}`}
+    >
       <div className="bg-white w-full h-full rounded-[8px] border border-[#BBBBBB] p-4 flex items-start gap-3">
         <label className="inline-flex items-center flex-shrink-0 mt-1">
           <input
@@ -38,14 +81,21 @@ export default function TaskItem({
         </label>
 
         <div className="flex flex-col flex-1 gap-[10px]">
+          {/* 업무명 (필수) */}
           <div className="font-normal text-[16px] text-black mt-[1px]">{title}</div>
 
-          <div className="flex items-center justify-between gap-[2px] text-[14px] text-[#898989]">
-            {formatDate(deadline) === '마감일 없음' ? (
-              <span>마감일 없음</span>
+          {/* 진행상태 (필수) */}
+          <div className="flex items-center justify-between gap-[2px] text-[14px]">
+            {/* 마감기한 (선택) */}
+            {deadline ? (
+              <span className={`${isDeadlineOverdue() ? 'text-red-500' : 'text-[#898989]'}`}>
+                {formatDate(deadline)}까지
+              </span>
             ) : (
-              <span>{formatDate(deadline)}까지</span>
+              <span className="text-[#898989]">마감일 없음</span>
             )}
+
+            {/* 진행상태 배지 */}
             <div
               className={`flex items-center justify-center px-2 py-0.5 w-[63px] h-[22px] rounded-full font-semibold ${
                 status === '진행 중'
@@ -59,24 +109,8 @@ export default function TaskItem({
             </div>
           </div>
 
-          {assignee && assignee.length > 0 && (
-            <div className="mt-auto flex flex-wrap gap-2">
-              {assignee.map((name, index) => (
-                <div
-                  key={index}
-                  className="inline-flex items-center gap-[4px] rounded-[30px] p-[3px] pr-[9px]"
-                  style={{ boxShadow: '1px 1px 4px 0 rgba(0,0,0,0.25)' }}
-                >
-                  <img
-                    src="/icons/assignee.svg"
-                    alt="참석자 아이콘"
-                    className="w-[16px] h-[16px]"
-                  />
-                  <span className="text-[12px]">{name}</span>
-                </div>
-              ))}
-            </div>
-          )}
+          {/* 담당자 (선택) */}
+          {displayAssignees()}
         </div>
       </div>
     </Link>

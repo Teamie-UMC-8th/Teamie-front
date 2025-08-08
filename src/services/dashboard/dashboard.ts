@@ -45,3 +45,11 @@ export const updateStep = async (
   const { data } = await axiosInstance.patch<CreateStepResponse>(`/api/v1/steps/${stepId}`, body);
   return data;
 };
+
+// 업무 생성
+export const createTask = async (
+  stepId: number
+): Promise<{ isSuccess: boolean; result: { taskId: number } | null }> => {
+  const { data } = await axiosInstance.post(`/api/v1/tasks`, { stepId });
+  return data;
+};

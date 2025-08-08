@@ -181,7 +181,7 @@ export default function StepsBoard({ steps, projectId }: BoardProps) {
                     {provided.placeholder}
 
                     <div className="mt-2">
-                      <AddTaskButton stepName={step.stepName} />
+                      <AddTaskButton stepId={step.stepId} stepName={step.stepName} />
                     </div>
                   </div>
                 )}
