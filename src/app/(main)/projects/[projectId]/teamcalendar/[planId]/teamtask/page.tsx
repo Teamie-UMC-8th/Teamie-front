@@ -45,12 +45,15 @@ export default function TeamTaskDetailPage() {
   const [memo, setMemo] = useState('');
   const [meetingRecords, setMeetingRecords] = useState('');
   const [selectedWriters, setSelectedWriters] = useState<number[]>([]);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editingTitle, setEditingTitle] = useState('');
 
   // API 데이터로 상태 업데이트
   useEffect(() => {
     if (planData?.result) {
       const plan = planData.result;
       setScheduleName(plan.name || '빈 일정');
+      setEditingTitle(plan.name || '빈 일정');
       setLocation(plan.location || '');
       setMemo(plan.memo || '');
       setMeetingRecords(plan.meetingRecords || '');
@@ -225,6 +228,35 @@ export default function TeamTaskDetailPage() {
     setIsRemindModalOpen(!isRemindModalOpen);
   };
 
+  const handleTitleEdit = () => {
+    setIsEditingTitle(true);
+    setEditingTitle(scheduleName);
+  };
+
+  const handleTitleSave = () => {
+    setIsEditingTitle(false);
+    setScheduleName(editingTitle);
+
+    // 프로젝트 멤버 권한 체크
+    if (!isCurrentUserProjectMember()) {
+      alert('프로젝트 멤버만 일정명을 수정할 수 있습니다.');
+      return;
+    }
+
+    // 일정명 변경 시 자동 저장
+    patchPlanMutation.mutate({
+      planId,
+      planData: {
+        name: editingTitle,
+      },
+    });
+  };
+
+  const handleTitleCancel = () => {
+    setIsEditingTitle(false);
+    setEditingTitle(scheduleName);
+  };
+
   // 로딩 상태
   if (isLoading) {
     return (
@@ -249,7 +281,32 @@ export default function TeamTaskDetailPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <BackButton />
-          <h1 className="text-[24px] text-black font-semibold">{scheduleName}</h1>
+          {isEditingTitle ? (
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={editingTitle}
+                onChange={(e) => setEditingTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleTitleSave();
+                  } else if (e.key === 'Escape') {
+                    handleTitleCancel();
+                  }
+                }}
+                onBlur={handleTitleSave}
+                className="text-[24px] text-black font-semibold border-black outline-none bg-transparent"
+                autoFocus
+              />
+            </div>
+          ) : (
+            <h1
+              className="text-[24px] text-black font-semibold cursor-pointer "
+              onClick={handleTitleEdit}
+            >
+              {scheduleName}
+            </h1>
+          )}
         </div>
         <div className="max-lg:mr-[74px]">
           <DeleteButton
