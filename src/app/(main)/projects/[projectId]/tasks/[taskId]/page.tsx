@@ -390,34 +390,41 @@ export default function TaskDetailPage() {
             <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] mr-[28px]">
               마감 기한
             </div>
-            <div className="text-[20px] w-[110px]">
-              {selectedDate
-                ? (() => {
-                    const year = selectedDate.getFullYear();
-                    const month = (selectedDate.getMonth() + 1).toString().padStart(2, '0');
-                    const day = selectedDate.getDate().toString().padStart(2, '0');
-                    return `${year}.${month}.${day}`;
-                  })()
-                : task.deadline
-                  ? (() => {
-                      const dateString = task.deadline;
-                      // 날짜 문자열에서 날짜 부분만 추출
-                      const datePart = dateString.split(' ')[0];
-                      const [year, month, day] = datePart.split('-').map(Number);
-
-                      if (year && month && day) {
-                        return `${year}.${month.toString().padStart(2, '0')}.${day.toString().padStart(2, '0')}`;
-                      }
-                      return '2025.01.01';
-                    })()
-                  : '2025.01.01'}
-            </div>
-            <button
-              onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
-              className="ml-[20px] cursor-pointer"
+            <div
+              className={`flex items-center ${selectedDate || task.deadline ? 'w-[110px]' : 'w-0'} overflow-hidden transition-all duration-200`}
             >
-              <img src="/icons/deadline-calendar.svg" alt="마감기한" />
-            </button>
+              <div
+                className="text-[20px] cursor-pointer whitespace-nowrap"
+                onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
+              >
+                {selectedDate
+                  ? (() => {
+                      const year = selectedDate.getFullYear();
+                      const month = (selectedDate.getMonth() + 1).toString().padStart(2, '0');
+                      const day = selectedDate.getDate().toString().padStart(2, '0');
+                      return `${year}.${month}.${day}`;
+                    })()
+                  : task.deadline
+                    ? (() => {
+                        const dateString = task.deadline;
+                        // 날짜 문자열에서 날짜 부분만 추출
+                        const datePart = dateString.split(' ')[0];
+                        const [year, month, day] = datePart.split('-').map(Number);
+
+                        if (year && month && day) {
+                          return `${year}.${month.toString().padStart(2, '0')}.${day.toString().padStart(2, '0')}`;
+                        }
+                        return '';
+                      })()
+                    : ''}
+              </div>
+            </div>
+            <img
+              src="/icons/deadline-calendar.svg"
+              alt="마감기한"
+              className="ml-[2px] cursor-pointer"
+              onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
+            />
             <DatePicker
               selectedDate={selectedDate}
               onDateChange={handleDateChange}
