@@ -123,9 +123,15 @@ export default function TaskDetailPage() {
   // 데이터가 로드되면 selectedDate를 업데이트
   useEffect(() => {
     if (data?.result?.deadline) {
-      const date = new Date(data.result.deadline);
-      if (!isNaN(date.getTime())) {
-        setSelectedDate(date);
+      const dateString = data.result.deadline;
+      // 날짜 문자열에서 날짜 부분만 추출 (YYYY-MM-DD 또는 YYYY-MM-DD HH:mm:ss 형식 모두 지원)
+      const datePart = dateString.split(' ')[0]; // 시간 부분 제거
+      const [year, month, day] = datePart.split('-').map(Number);
+
+      if (year && month && day) {
+        // 로컬 시간대의 날짜 객체 생성 (시간은 00:00:00으로 설정)
+        const localDate = new Date(year, month - 1, day);
+        setSelectedDate(localDate);
       }
     }
   }, [data?.result?.deadline]);
@@ -223,7 +229,7 @@ export default function TaskDetailPage() {
   const handleDateChange = (date: Date) => {
     setSelectedDate(date);
     if (data?.result) {
-      // API가 기대하는 형식: 'YYYY-MM-DD HH:mm:ss' - 마감 기한을 23:59:59로 설정
+      // 로컬 시간대를 유지하면서 날짜를 포맷팅
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
@@ -233,7 +239,13 @@ export default function TaskDetailPage() {
         originalDate: date,
         formattedDate: formattedDate,
         localDateString: date.toLocaleDateString('ko-KR'),
-        utcDate: date.toISOString(),
+        // UTC 변환 없이 로컬 날짜 정보만 출력
+        localDateInfo: {
+          year: date.getFullYear(),
+          month: date.getMonth() + 1,
+          day: date.getDate(),
+          localDateString: date.toLocaleDateString('ko-KR'),
+        },
       });
 
       updateTaskMutation.mutate({
@@ -388,12 +400,15 @@ export default function TaskDetailPage() {
                   })()
                 : task.deadline
                   ? (() => {
-                      const date = new Date(task.deadline);
-                      if (isNaN(date.getTime())) return '2025.01.01';
-                      const year = date.getFullYear();
-                      const month = (date.getMonth() + 1).toString().padStart(2, '0');
-                      const day = date.getDate().toString().padStart(2, '0');
-                      return `${year}.${month}.${day}`;
+                      const dateString = task.deadline;
+                      // 날짜 문자열에서 날짜 부분만 추출
+                      const datePart = dateString.split(' ')[0];
+                      const [year, month, day] = datePart.split('-').map(Number);
+
+                      if (year && month && day) {
+                        return `${year}.${month.toString().padStart(2, '0')}.${day.toString().padStart(2, '0')}`;
+                      }
+                      return '2025.01.01';
                     })()
                   : '2025.01.01'}
             </div>
