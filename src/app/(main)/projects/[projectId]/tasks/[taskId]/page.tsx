@@ -221,11 +221,24 @@ export default function TaskDetailPage() {
   const handleDateChange = (date: Date) => {
     setSelectedDate(date);
     if (data?.result) {
+      // API가 기대하는 형식: 'YYYY-MM-DD HH:mm:ss' - 마감 기한을 23:59:59로 설정
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const formattedDate = `${year}-${month}-${day} 23:59:59`;
+
+      console.log('📅 날짜 변경:', {
+        originalDate: date,
+        formattedDate: formattedDate,
+        localDateString: date.toLocaleDateString('ko-KR'),
+        utcDate: date.toISOString(),
+      });
+
       updateTaskMutation.mutate({
         taskId,
         data: {
           ...data.result,
-          deadline: date.toISOString(),
+          deadline: formattedDate,
           managerIds: data.result.managers.map((m) => m.userId),
           existingFileUrls: data.result.files?.map((f) => f.fileUrl) ?? [],
         },
