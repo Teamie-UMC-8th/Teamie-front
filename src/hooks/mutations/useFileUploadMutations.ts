@@ -30,8 +30,8 @@ export const useDeleteTaskFile = () => {
 
   return useMutation({
     mutationFn: (taskFileId: number) => deleteTaskFile(taskFileId),
-    onSuccess: (_data: DeleteFileResponse, taskFileId) => {
-      console.log('✅ 파일 삭제 mutation 성공:', { taskFileId });
+    onSuccess: (data: DeleteFileResponse, taskFileId) => {
+      console.log('✅ 파일 삭제 mutation 성공:', { taskFileId, message: data.message });
       // 파일 삭제 성공 시 관련 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ['taskFiles'] });
       queryClient.invalidateQueries({ queryKey: ['taskDetail'] });

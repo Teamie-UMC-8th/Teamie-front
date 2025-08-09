@@ -85,6 +85,10 @@ export const deleteTaskFile = async (taskFileId: number): Promise<DeleteFileResp
         throw new Error('삭제할 파일을 찾을 수 없습니다.');
       }
 
+      if (status === 400) {
+        throw new Error('파일 삭제 요청이 잘못되었습니다.');
+      }
+
       // API에서 반환한 구체적인 에러 메시지가 있다면 사용
       const errorData = (error.response as { data?: any }).data;
       if (errorData?.error?.reason) {
