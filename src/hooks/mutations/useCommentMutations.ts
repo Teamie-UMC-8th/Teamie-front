@@ -1,6 +1,25 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { addComment } from '@/services/taskDetail/addComment';
-import { AddCommentResponse } from '@/types/api/comment';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import {
+  addComment,
+  getComments,
+  addCocomment,
+  updateCocomment,
+} from '@/services/taskDetail/addComment';
+import {
+  AddCommentResponse,
+  GetCommentsResponse,
+  AddCocommentResponse,
+  UpdateCocommentResponse,
+} from '@/types/api/comment';
+
+// 댓글 조회 query
+export const useGetComments = (taskId: number, offset: number = 0) => {
+  return useQuery({
+    queryKey: ['taskComments', taskId, offset],
+    queryFn: () => getComments(taskId, offset),
+    enabled: !!taskId,
+  });
+};
 
 // 댓글 추가 mutation
 export const useAddComment = () => {
@@ -15,6 +34,40 @@ export const useAddComment = () => {
     },
     onError: (error: Error) => {
       console.error('댓글 추가 mutation 에러:', error);
+    },
+  });
+};
+
+// 대댓글 추가 mutation
+export const useAddCocomment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ commentId, content }: { commentId: number; content: string }) =>
+      addCocomment(commentId, { content }),
+    onSuccess: (_data: AddCocommentResponse, variables) => {
+      // 대댓글 추가 성공 시 관련 캐시 무효화
+      queryClient.invalidateQueries({ queryKey: ['taskComments'] });
+    },
+    onError: (error: Error) => {
+      console.error('대댓글 추가 mutation 에러:', error);
+    },
+  });
+};
+
+// 대댓글 수정 mutation
+export const useUpdateCocomment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ cocommentId, content }: { cocommentId: number; content: string }) =>
+      updateCocomment(cocommentId, { content }),
+    onSuccess: (_data: UpdateCocommentResponse, variables) => {
+      // 대댓글 수정 성공 시 관련 캐시 무효화
+      queryClient.invalidateQueries({ queryKey: ['taskComments'] });
+    },
+    onError: (error: Error) => {
+      console.error('대댓글 수정 mutation 에러:', error);
     },
   });
 };
