@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
 import { useState, useCallback } from 'react';
 import { updateTaskDetail, deleteTaskDetail } from '@/services/taskDetail/checkTaskDetail';
 import {
@@ -50,8 +49,9 @@ export const useDeleteTaskDetail = () => {
     mutationFn: (taskId: number) => deleteTaskDetail(taskId),
     // 삭제 성공 시 관련 캐시들을 정리
     onSuccess: (_data: DeleteTaskResponse, taskId) => {
-      // 해당 업무 상세 캐시 제거
+      // 삭제된 업무의 캐시를 제거 (무효화가 아닌 제거)
       queryClient.removeQueries({ queryKey: ['taskDetail', taskId] });
+      queryClient.removeQueries({ queryKey: ['taskFiles', taskId] });
 
       // 프로젝트 대시보드 캐시 무효화 (업무 목록이 변경될 수 있음)
       queryClient.invalidateQueries({ queryKey: ['projectDashboard'] });
@@ -103,7 +103,6 @@ export const useTaskMemoHandler = () => {
 
 // 삭제 핸들러를 포함한 커스텀 훅
 export const useTaskDeleteHandler = () => {
-  const router = useRouter();
   const deleteTaskMutation = useDeleteTaskDetail();
 
   const handleDelete = async (taskId: number, projectId: number) => {
@@ -112,9 +111,6 @@ export const useTaskDeleteHandler = () => {
 
       // 성공 메시지 표시 (선택사항)
       console.log('삭제 성공:', result.result.message);
-
-      // 대시보드로 이동
-      router.push(`/projects/${projectId}/dashboard`);
     } catch (err: unknown) {
       console.error('삭제 실패:', err);
 
@@ -133,15 +129,14 @@ export const useTaskDeleteHandler = () => {
 // 업무 삭제 mutation 훅
 export const useDeleteTask = () => {
   const queryClient = useQueryClient();
-  const router = useRouter();
 
   return useMutation({
-    mutationFn: (taskId: number) => {
-      console.log('🎯 useDeleteTask - mutationFn 호출:', { taskId });
+    mutationFn: ({ taskId, projectId }: { taskId: number; projectId: number }) => {
+      console.log('🎯 useDeleteTask - mutationFn 호출:', { taskId, projectId });
       return deleteTaskDetail(taskId);
     },
-    onSuccess: (data: DeleteTaskResponse, taskId) => {
-      console.log('✅ 업무 삭제 mutation 성공:', { taskId, data });
+    onSuccess: (data: DeleteTaskResponse, { taskId, projectId }) => {
+      console.log('✅ 업무 삭제 mutation 성공:', { taskId, projectId, data });
 
       // 응답 데이터 검증
       if (!data || !data.isSuccess) {
@@ -150,13 +145,15 @@ export const useDeleteTask = () => {
         return;
       }
 
-      // 관련 캐시 무효화
-      queryClient.invalidateQueries({ queryKey: ['taskDetail', taskId] });
-      queryClient.invalidateQueries({ queryKey: ['taskFiles', taskId] });
+      // 삭제된 업무의 캐시를 제거 (무효화가 아닌 제거)
+      queryClient.removeQueries({ queryKey: ['taskDetail', taskId] });
+      queryClient.removeQueries({ queryKey: ['taskFiles', taskId] });
+
+      // 대시보드 캐시만 무효화 (업무 목록이 변경되었으므로)
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
 
-      // 이전 페이지로 이동
-      router.back();
+      // 성공 메시지 표시
+      console.log('✅ 업무가 성공적으로 삭제되었습니다.');
     },
     onError: (error: Error) => {
       console.error('❌ 업무 삭제 mutation 에러:', error);

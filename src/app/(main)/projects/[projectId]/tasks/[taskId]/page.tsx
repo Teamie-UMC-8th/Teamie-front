@@ -17,6 +17,7 @@ import {
   useDeleteTask,
 } from '@/hooks/mutations/useTaskDetail';
 import axiosInstance from '@/lib/axiosInstance';
+import { useRouter } from 'next/navigation';
 
 export default function TaskDetailPage() {
   const params = useParams();
@@ -24,6 +25,12 @@ export default function TaskDetailPage() {
   const projectId = Number(params.projectId);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [isTaskDeleted, setIsTaskDeleted] = useState(false); // 삭제 완료 상태 추적
+
+  const { memo, setMemo, handleMemoChange, handleMemoBlur } = useTaskMemoHandler();
+  const updateTaskMutation = useUpdateTaskDetail();
+  const deleteTaskMutation = useDeleteTask();
+  const router = useRouter();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['taskDetail', taskId],
@@ -31,9 +38,38 @@ export default function TaskDetailPage() {
       console.log('🎯 TaskDetailPage - useQuery 시작:', { taskId, projectId });
       return checkTaskDetail(taskId);
     },
-    enabled: !!taskId,
+    enabled: !!taskId && !deleteTaskMutation.isPending && !isTaskDeleted, // 삭제 중이거나 삭제 완료된 경우 쿼리 비활성화
     retry: 1, // 재시도 횟수 제한
   });
+
+  // 삭제 성공 시 페이지 이동
+  useEffect(() => {
+    if (deleteTaskMutation.isSuccess && isTaskDeleted) {
+      // 삭제 성공 후 이전 페이지로 이동
+      router.back();
+    }
+  }, [deleteTaskMutation.isSuccess, isTaskDeleted, router]);
+
+  // 404 에러 처리 - 업무가 삭제되었거나 존재하지 않는 경우
+  useEffect(() => {
+    if (error) {
+      console.error('🎯 TaskDetailPage - useQuery 실패:', error);
+
+      // 404 에러인 경우 업무가 삭제되었거나 존재하지 않음을 알림
+      if (error instanceof Error && error.message.includes('404')) {
+        alert('업무가 삭제되었거나 존재하지 않습니다.');
+        // 대시보드로 리다이렉트
+        window.location.href = `/projects/${projectId}/dashboard`;
+      }
+    }
+  }, [error, projectId]);
+
+  // 삭제 실패 시 isTaskDeleted 상태 되돌리기
+  useEffect(() => {
+    if (deleteTaskMutation.isError) {
+      setIsTaskDeleted(false);
+    }
+  }, [deleteTaskMutation.isError]);
 
   // 데이터 로딩 상태 로깅
   useEffect(() => {
@@ -51,13 +87,6 @@ export default function TaskDetailPage() {
       }
     }
   }, [data]);
-
-  // 에러 상태 로깅
-  useEffect(() => {
-    if (error) {
-      console.error('🎯 TaskDetailPage - useQuery 실패:', error);
-    }
-  }, [error]);
 
   // 프로젝트 홈 데이터 가져오기 (담당자 검증을 위해)
   const { data: projectHomeData } = useQuery({
@@ -99,10 +128,6 @@ export default function TaskDetailPage() {
     }
   }, [data?.result?.deadline]);
 
-  const { memo, setMemo, handleMemoChange, handleMemoBlur } = useTaskMemoHandler();
-  const updateTaskMutation = useUpdateTaskDetail();
-  const deleteTaskMutation = useDeleteTask();
-
   // 업무 삭제 핸들러
   const handleDelete = () => {
     console.log('🎯 TaskDetailPage - 삭제 핸들러 호출:', { taskId, projectId });
@@ -114,7 +139,16 @@ export default function TaskDetailPage() {
       return;
     }
 
-    deleteTaskMutation.mutate(taskId);
+    // projectId가 유효한지 확인
+    if (!projectId || isNaN(projectId)) {
+      console.error('❌ TaskDetailPage - 유효하지 않은 projectId:', projectId);
+      alert('유효하지 않은 프로젝트 ID입니다.');
+      return;
+    }
+
+    // 삭제 시작 시 상태 설정
+    setIsTaskDeleted(true);
+    deleteTaskMutation.mutate({ taskId, projectId });
   };
 
   // 현재 사용자가 프로젝트 홈의 프로필 카드에 연동되어 있는지 확인하는 함수
