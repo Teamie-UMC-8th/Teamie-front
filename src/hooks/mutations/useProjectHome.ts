@@ -170,7 +170,7 @@ export const useProjectHomeState = (projectId: number) => {
       setTeamRules(project.rule || '');
 
       // API 사용자 데이터를 TeamMember 형식으로 변환
-      const members = transformUsersToTeamMembers(projectHomeData.result.users);
+      const members = transformUsersToTeamMembers(project.users);
 
       // 기존 팀원이 없을 때만 설정 (로컬 상태 보존)
       if (teamMembers.length === 0) {
