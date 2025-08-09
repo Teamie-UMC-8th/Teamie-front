@@ -26,6 +26,8 @@ export default function TaskDetailPage() {
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [isTaskDeleted, setIsTaskDeleted] = useState(false); // 삭제 완료 상태 추적
+  const [isEditingName, setIsEditingName] = useState(false); // 업무 이름 수정 모드
+  const [editingName, setEditingName] = useState(''); // 수정 중인 업무 이름
 
   const { memo, setMemo, handleMemoChange, handleMemoBlur } = useTaskMemoHandler();
   const updateTaskMutation = useUpdateTaskDetail();
@@ -246,6 +248,36 @@ export default function TaskDetailPage() {
     }
   };
 
+  // 업무 이름 수정 시작
+  const handleNameEdit = () => {
+    if (data?.result) {
+      setIsEditingName(true);
+      setEditingName(data.result.name || '');
+    }
+  };
+
+  // 업무 이름 수정 완료
+  const handleNameSave = () => {
+    if (data?.result && editingName.trim() !== '') {
+      updateTaskMutation.mutate({
+        taskId,
+        data: {
+          ...data.result,
+          name: editingName.trim(),
+          managerIds: data.result.managers.map((m) => m.userId),
+          existingFileUrls: data.result.files?.map((f) => f.fileUrl) ?? [],
+        },
+      });
+    }
+    setIsEditingName(false);
+  };
+
+  // 업무 이름 수정 취소
+  const handleNameCancel = () => {
+    setIsEditingName(false);
+    setEditingName('');
+  };
+
   // 로딩 상태 처리
   if (isLoading) {
     return (
@@ -292,7 +324,32 @@ export default function TaskDetailPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <BackButton />
-          <h1 className="text-[24px] text-black font-semibold">{task.name || '빈 업무'}</h1>
+          {isEditingName ? (
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={editingName}
+                onChange={(e) => setEditingName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleNameSave();
+                  } else if (e.key === 'Escape') {
+                    handleNameCancel();
+                  }
+                }}
+                onBlur={handleNameSave}
+                className="text-[24px] text-black font-semibold border-black outline-none bg-transparent"
+                autoFocus
+              />
+            </div>
+          ) : (
+            <h1
+              className="text-[24px] text-black font-semibold cursor-pointer"
+              onClick={handleNameEdit}
+            >
+              {task.name || '빈 업무'}
+            </h1>
+          )}
         </div>
         <div className="max-lg:mr-[74px]">
           <DeleteButton
