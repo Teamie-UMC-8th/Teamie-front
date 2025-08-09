@@ -1,10 +1,12 @@
 'use client';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { checkTaskDetail } from '@/services/taskDetail/checkTaskDetail';
 import AddProfileButton from '@/components/AddProfileButton';
 import BackButton from '@/components/BackButton';
 import DeleteButton from '@/components/DeleteButton';
+import DatePicker from '@/components/DatePicker';
 import AddComment from '@/features/tasks/components/AddComment';
 import FileUploader from '@/features/tasks/components/FileUploader';
 import TaskDropdown from '@/features/tasks/components/TaskDropdown';
@@ -20,6 +22,8 @@ export default function TaskDetailPage() {
   const params = useParams();
   const taskId = Number(params.taskId);
   const projectId = Number(params.projectId);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['taskDetail', taskId],
@@ -48,9 +52,34 @@ export default function TaskDetailPage() {
     retry: 1, // 재시도 횟수 제한
   });
 
+  // 데이터가 로드되면 selectedDate를 업데이트
+  useEffect(() => {
+    if (data?.result?.deadline) {
+      const date = new Date(data.result.deadline);
+      if (!isNaN(date.getTime())) {
+        setSelectedDate(date);
+      }
+    }
+  }, [data?.result?.deadline]);
+
   const updateTaskMutation = useUpdateTaskDetail();
   const { handleDelete } = useTaskDeleteHandler();
   const { memo, handleMemoChange } = useTaskMemoHandler();
+
+  const handleDateChange = (date: Date) => {
+    setSelectedDate(date);
+    if (task) {
+      updateTaskMutation.mutate({
+        taskId,
+        data: {
+          ...task,
+          deadline: date.toISOString(),
+          managerIds: task.managers.map((m) => m.userId),
+          existingFileUrls: task.files?.map((f) => f.fileUrl) ?? [],
+        },
+      });
+    }
+  };
 
   // 로딩 상태 처리
   if (isLoading) {
@@ -118,23 +147,41 @@ export default function TaskDetailPage() {
         max-lg:flex-col max-lg:items-start max-lg:ml-[24px]"
         >
           {/* 마감 기한 */}
-          <div className="flex items-center">
+          <div className="flex items-center relative">
             <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] mr-[28px]">
               마감 기한
             </div>
-            <div className="text-[20px]">
-              {task.deadline
+            <div className="text-[20px] w-[110px]">
+              {selectedDate
                 ? (() => {
-                    const date = new Date(task.deadline);
-                    if (isNaN(date.getTime())) return '2025.01.01';
-                    const year = date.getFullYear();
-                    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-                    const day = date.getDate().toString().padStart(2, '0');
+                    const year = selectedDate.getFullYear();
+                    const month = (selectedDate.getMonth() + 1).toString().padStart(2, '0');
+                    const day = selectedDate.getDate().toString().padStart(2, '0');
                     return `${year}.${month}.${day}`;
                   })()
-                : '2025.01.01'}
+                : task.deadline
+                  ? (() => {
+                      const date = new Date(task.deadline);
+                      if (isNaN(date.getTime())) return '2025.01.01';
+                      const year = date.getFullYear();
+                      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                      const day = date.getDate().toString().padStart(2, '0');
+                      return `${year}.${month}.${day}`;
+                    })()
+                  : '2025.01.01'}
             </div>
-            <img src="/icons/deadline-calendar.svg" alt="마감기한" className="ml-[20px]" />
+            <button
+              onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
+              className="ml-[20px] cursor-pointer"
+            >
+              <img src="/icons/deadline-calendar.svg" alt="마감기한" />
+            </button>
+            <DatePicker
+              selectedDate={selectedDate}
+              onDateChange={handleDateChange}
+              isOpen={isDatePickerOpen}
+              onToggle={() => setIsDatePickerOpen(!isDatePickerOpen)}
+            />
           </div>
           {/* 진행상태 */}
           <div
