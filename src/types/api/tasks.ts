@@ -1,5 +1,12 @@
 import { ApiErrorResponse } from './error';
 
+// EventTarget 인터페이스 확장 (StepHeader의 blur 메서드 호출을 위해)
+declare global {
+  interface EventTarget {
+    blur(): void;
+  }
+}
+
 // API용 Task 타입 (완전한 형태)
 export interface Task {
   taskId: number;

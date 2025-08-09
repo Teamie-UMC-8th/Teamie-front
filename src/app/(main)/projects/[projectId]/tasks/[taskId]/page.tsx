@@ -26,23 +26,66 @@ export default function TaskDetailPage() {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['taskDetail', taskId],
-    queryFn: () => checkTaskDetail(taskId),
+    queryFn: () => {
+      console.log('🎯 TaskDetailPage - useQuery 시작:', { taskId, projectId });
+      return checkTaskDetail(taskId);
+    },
     enabled: !!taskId,
     retry: 1, // 재시도 횟수 제한
   });
 
-  const { data: usersData } = useQuery({
-    queryKey: ['userList'],
+  // 데이터 로딩 상태 로깅
+  useEffect(() => {
+    if (data) {
+      console.log('🎯 TaskDetailPage - useQuery 성공:', data);
+      if (data?.result) {
+        console.log('📋 TaskDetailPage - 업무 정보:', {
+          name: data.result.name,
+          deadline: data.result.deadline,
+          status: data.result.status,
+          stepId: data.result.stepId,
+          managersCount: data.result.managers?.length || 0,
+          filesCount: data.result.files?.length || 0,
+        });
+      }
+    }
+  }, [data]);
+
+  // 에러 상태 로깅
+  useEffect(() => {
+    if (error) {
+      console.error('🎯 TaskDetailPage - useQuery 실패:', error);
+    }
+  }, [error]);
+
+  // 프로젝트 홈 데이터 가져오기 (담당자 검증을 위해)
+  const { data: projectHomeData } = useQuery({
+    queryKey: ['projectHome', projectId],
     queryFn: async () => {
       try {
-        const res = await axiosInstance.get('/api/v1/users');
-        return res.data.result;
+        const res = await axiosInstance.get(`/api/v1/projects/${projectId}`);
+        return res.data;
       } catch (error) {
-        console.warn('사용자 목록을 불러올 수 없습니다:', error);
-        return []; // 빈 배열 반환
+        console.warn('프로젝트 홈 데이터를 불러올 수 없습니다:', error);
+        return null;
       }
     },
-    retry: 1, // 재시도 횟수 제한
+    retry: 1,
+  });
+
+  // 현재 사용자 정보 가져오기
+  const { data: currentUser } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: async () => {
+      try {
+        const res = await axiosInstance.get('/api/v1/users/me');
+        return res.data.result;
+      } catch (error) {
+        console.warn('현재 사용자 정보를 불러올 수 없습니다:', error);
+        return null;
+      }
+    },
+    retry: 1,
   });
 
   // 데이터가 로드되면 selectedDate를 업데이트
@@ -57,18 +100,85 @@ export default function TaskDetailPage() {
 
   const updateTaskMutation = useUpdateTaskDetail();
   const { handleDelete } = useTaskDeleteHandler();
-  const { memo, handleMemoChange } = useTaskMemoHandler();
+  const { memo, handleMemoChange, handleMemoBlur } = useTaskMemoHandler();
+
+  // 현재 사용자가 프로젝트 홈의 프로필 카드에 연동되어 있는지 확인하는 함수
+  const isCurrentUserProjectMember = () => {
+    if (!currentUser || !projectHomeData?.result?.users) {
+      console.log('권한 확인 실패: 사용자 정보 또는 프로젝트 데이터 없음', {
+        currentUser,
+        projectUsers: projectHomeData?.result?.users,
+      });
+      return false;
+    }
+
+    // 프로젝트 홈과 동일한 방식: 이메일로 비교
+    const isMember = projectHomeData.result.users.some(
+      (user: { email: string }) => user.email === currentUser.email
+    );
+
+    console.log('프로젝트 홈 권한 확인:', {
+      currentUserEmail: currentUser.email,
+      currentUserName: currentUser.name,
+      projectUsers: projectHomeData.result.users.map(
+        (u: { id: number; name: string; email: string }) => ({
+          id: u.id,
+          name: u.name,
+          email: u.email,
+        })
+      ),
+      isMember,
+    });
+
+    return isMember;
+  };
+
+  // 담당자 정보 (프로젝트 홈의 사용자 목록 사용)
+  const availableProfiles =
+    projectHomeData?.result?.users?.map((user: { id: number; name: string }) => ({
+      userId: user.id,
+      userName: user.name,
+    })) || [];
+
+  const handleManagersChange = (selectedUserIds: number[]) => {
+    console.log('handleManagersChange 호출:', selectedUserIds);
+
+    // 프로젝트 멤버 권한 체크
+    if (!isCurrentUserProjectMember()) {
+      alert('프로젝트 멤버만 담당자를 수정할 수 있습니다.');
+      return;
+    }
+
+    // 상태 업데이트를 다음 렌더링 사이클로 지연
+    setTimeout(() => {
+      console.log('handleManagersChange - API 호출 시도:', {
+        taskId,
+        selectedUserIds,
+      });
+
+      if (data?.result) {
+        updateTaskMutation.mutate({
+          taskId,
+          data: {
+            ...data.result,
+            managerIds: selectedUserIds,
+            existingFileUrls: data.result.files?.map((f) => f.fileUrl) ?? [],
+          },
+        });
+      }
+    }, 0);
+  };
 
   const handleDateChange = (date: Date) => {
     setSelectedDate(date);
-    if (task) {
+    if (data?.result) {
       updateTaskMutation.mutate({
         taskId,
         data: {
-          ...task,
+          ...data.result,
           deadline: date.toISOString(),
-          managerIds: task.managers.map((m) => m.userId),
-          existingFileUrls: task.files?.map((f) => f.fileUrl) ?? [],
+          managerIds: data.result.managers.map((m) => m.userId),
+          existingFileUrls: data.result.files?.map((f) => f.fileUrl) ?? [],
         },
       });
     }
@@ -186,16 +296,38 @@ export default function TaskDetailPage() {
             </div>
             <TaskDropdown
               status={task.status}
-              onChange={(newStatus) => {
-                updateTaskMutation.mutate({
-                  taskId,
-                  data: {
-                    ...task,
-                    status: newStatus,
-                    managerIds: task.managers.map((m) => m.userId),
-                    existingFileUrls: task.files?.map((f) => f.fileUrl) ?? [],
-                  },
+              onChange={async (newStatus) => {
+                console.log('TaskDetailPage - 상태 변경 시도:', {
+                  currentStatus: task.status,
+                  newStatus,
                 });
+
+                if (data?.result) {
+                  const updateData = {
+                    ...data.result,
+                    status: newStatus,
+                    managerIds: data.result.managers.map((m) => m.userId),
+                    existingFileUrls: data.result.files?.map((f) => f.fileUrl) ?? [],
+                  };
+
+                  console.log('TaskDetailPage - 업데이트 데이터:', updateData);
+
+                  try {
+                    await updateTaskMutation.mutateAsync({
+                      taskId,
+                      data: updateData,
+                    });
+                    console.log('TaskDetailPage - 상태 변경 성공');
+                  } catch (error) {
+                    console.error('TaskDetailPage - 상태 변경 실패:', error);
+                    const errorMessage =
+                      error instanceof Error ? error.message : '상태 변경에 실패했습니다.';
+                    alert(`상태 변경에 실패했습니다: ${errorMessage}`);
+                  }
+                } else {
+                  console.error('TaskDetailPage - data.result가 없습니다.');
+                  alert('업무 정보를 불러올 수 없습니다.');
+                }
               }}
             />
           </div>
@@ -210,17 +342,10 @@ export default function TaskDetailPage() {
             담당자
           </div>
           <AddProfileButton
-            profiles={usersData || []}
-            onChange={(newSelectedUserIds) => {
-              updateTaskMutation.mutate({
-                taskId,
-                data: {
-                  ...task,
-                  managerIds: newSelectedUserIds,
-                  existingFileUrls: task.files?.map((f) => f.fileUrl) ?? [],
-                },
-              });
-            }}
+            profiles={availableProfiles}
+            onChange={handleManagersChange}
+            onPermissionCheck={isCurrentUserProjectMember}
+            initialSelectedIds={task.managers.map((m) => m.userId)}
           />
         </div>
 
@@ -245,7 +370,8 @@ export default function TaskDetailPage() {
           </div>
           <textarea
             value={memo || task.memo || ''}
-            onChange={(e) => handleMemoChange(e.target.value, taskId, data)}
+            onChange={(e) => handleMemoChange(e.target.value)}
+            onBlur={() => handleMemoBlur(taskId, data)}
             placeholder="비고를 입력하세요..."
             className="min-w-[1288px] h-[84px] px-[20px] py-[16px] border-[2px] rounded-[6px] border-[#BBBBBB] ml-[28px] 
           max-lg:w-[735px] max-lg:min-w-[735px] resize-none"

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Manager {
   userId: number;
@@ -11,14 +11,28 @@ interface AddProfileButtonProps {
   profiles: Manager[];
   onChange?: (selectedUserIds: number[]) => void;
   onPermissionCheck?: () => boolean;
+  initialSelectedIds?: number[];
 }
 
 export default function AddProfileButton({
   profiles,
   onChange,
   onPermissionCheck,
+  initialSelectedIds = [],
 }: AddProfileButtonProps) {
   const [selectedProfiles, setSelectedProfiles] = useState<Manager[]>([]);
+
+  // 초기 선택된 프로필 설정
+  useEffect(() => {
+    if (initialSelectedIds.length > 0 && profiles.length > 0) {
+      const initialProfiles = profiles.filter((profile) =>
+        initialSelectedIds.includes(profile.userId)
+      );
+      if (initialProfiles.length > 0 && selectedProfiles.length === 0) {
+        setSelectedProfiles(initialProfiles);
+      }
+    }
+  }, [initialSelectedIds, profiles, selectedProfiles.length]);
 
   const remainingProfiles = profiles
     .filter((p) => !selectedProfiles.find((s) => s.userId === p.userId))

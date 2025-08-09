@@ -16,8 +16,8 @@ export interface TaskDetailResponse {
   error: ApiErrorResponse | null;
   result: {
     name: string;
-    deadline: string; // 예: '2024-07-10 00:00:00'
-    status: 'BEFORE' | 'ONGOING' | 'COMPLETE'; // 백엔드 기준 정의
+    deadline: string; // 예: '2024-07-10 00:00:00 '
+    status: 'ONGOING' | 'COMPLETED' | 'NOTSTART'; // API 명세에 맞춰 수정
     memo: string;
     managers: Manager[];
     files: FileItem[];
@@ -28,8 +28,8 @@ export interface TaskDetailResponse {
 // 업무 수정 API 요청 타입 정의
 export interface UpdateTaskRequest {
   name: string;
-  deadline: string; // 예: '2024-07-10 00:00:00'
-  status: 'BEFORE' | 'ONGOING' | 'COMPLETE';
+  deadline: string; // 예: '2024-07-10 00:00:00 '
+  status: 'ONGOING' | 'COMPLETED' | 'NOTSTART'; // API 명세에 맞춰 수정
   memo: string;
   managerIds: number[];
   existingFileUrls: string[];
@@ -43,7 +43,7 @@ export interface UpdateTaskResponse {
   result: {
     name: string;
     deadline: string;
-    status: 'BEFORE' | 'ONGOING' | 'COMPLETE';
+    status: 'ONGOING' | 'COMPLETED' | 'NOTSTART'; // API 명세에 맞춰 수정
     memo: string;
     managers: Manager[];
     stepId: number;

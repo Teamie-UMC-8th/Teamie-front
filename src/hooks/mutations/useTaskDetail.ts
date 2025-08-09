@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { updateTaskDetail, deleteTaskDetail } from '@/services/taskDetail/checkTaskDetail';
 import {
   UpdateTaskRequest,
@@ -18,7 +18,28 @@ export const useUpdateTaskDetail = () => {
       updateTaskDetail(taskId, data),
     // 수정 성공 시 해당 taskId의 캐시를 무효화하여 최신 데이터를 가져오도록 함
     onSuccess: (_data: UpdateTaskResponse, variables) => {
+      console.log('✅ 업무 수정 성공:', {
+        taskId: variables.taskId,
+        status: variables.data.status,
+      });
       queryClient.invalidateQueries({ queryKey: ['taskDetail', variables.taskId] });
+    },
+    // 에러 처리 추가
+    onError: (error: Error, variables) => {
+      console.error('❌ 업무 수정 실패:', {
+        taskId: variables.taskId,
+        status: variables.data.status,
+        error: error.message,
+      });
+
+      // NOTSTART 상태로 변경할 때 특별한 에러 메시지
+      if (variables.data.status === 'NOTSTART') {
+        console.error('🔍 NOTSTART 상태 변경 실패 - 가능한 원인:');
+        console.error('1. 담당자가 없는 상태에서 NOTSTART로 변경 시도');
+        console.error('2. 마감일이 지난 상태에서 NOTSTART로 변경 시도');
+        console.error('3. API에서 NOTSTART 상태 변경을 허용하지 않음');
+        console.error('4. 기타 비즈니스 로직 제약사항');
+      }
     },
   });
 };
@@ -50,29 +71,32 @@ export const useTaskMemoHandler = () => {
   const [memo, setMemo] = useState('');
   const updateTaskMutation = useUpdateTaskDetail();
 
-  const handleMemoChange = (
-    newMemo: string,
-    taskId: number,
-    taskData: TaskDetailResponse | undefined
-  ) => {
+  const handleMemoChange = useCallback((newMemo: string) => {
     setMemo(newMemo);
-    if (!taskData?.result) return;
+  }, []);
 
-    updateTaskMutation.mutate({
-      taskId,
-      data: {
-        ...taskData.result,
-        memo: newMemo,
-        managerIds: taskData.result.managers.map((m) => m.userId),
-        existingFileUrls: taskData.result.files?.map((f) => f.fileUrl) ?? [],
-      },
-    });
-  };
+  const handleMemoBlur = useCallback(
+    (taskId: number, taskData: TaskDetailResponse | undefined) => {
+      if (!taskData?.result) return;
+
+      updateTaskMutation.mutate({
+        taskId,
+        data: {
+          ...taskData.result,
+          memo: memo,
+          managerIds: taskData.result.managers.map((m) => m.userId),
+          existingFileUrls: taskData.result.files?.map((f) => f.fileUrl) ?? [],
+        },
+      });
+    },
+    [memo, updateTaskMutation]
+  );
 
   return {
     memo,
     setMemo,
     handleMemoChange,
+    handleMemoBlur,
     isUpdating: updateTaskMutation.isPending,
   };
 };

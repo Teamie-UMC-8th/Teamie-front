@@ -3,14 +3,14 @@
 import { useState, useEffect } from 'react';
 
 const STATUS_OPTIONS = [
-  { label: '시작 전', value: 'BEFORE', color: 'bg-[#E7E7E7]' },
-  { label: '진행 중', value: 'ONGOING', color: 'bg-[#B6F5DF]' },
-  { label: '완료', value: 'COMPLETE', color: 'bg-[#A1C2ED]' },
+  { label: '시작 전', value: 'NOTSTART' as const, color: 'bg-[#E7E7E7]' },
+  { label: '진행 중', value: 'ONGOING' as const, color: 'bg-[#B6F5DF]' },
+  { label: '완료', value: 'COMPLETED' as const, color: 'bg-[#A1C2ED]' },
 ] as const;
 
 interface TaskDropdownProps {
-  status: 'BEFORE' | 'ONGOING' | 'COMPLETE';
-  onChange?: (status: 'BEFORE' | 'ONGOING' | 'COMPLETE') => void;
+  status: 'ONGOING' | 'COMPLETED' | 'NOTSTART';
+  onChange?: (status: 'ONGOING' | 'COMPLETED' | 'NOTSTART') => void;
 }
 
 export default function TaskDropdown({ status, onChange }: TaskDropdownProps) {
@@ -21,15 +21,28 @@ export default function TaskDropdown({ status, onChange }: TaskDropdownProps) {
 
   useEffect(() => {
     const match = STATUS_OPTIONS.find((s) => s.value === status);
-    if (match) setSelected(match);
+    if (match) {
+      console.log('TaskDropdown - 상태 업데이트:', { currentStatus: status, matchedOption: match });
+      setSelected(match);
+    }
   }, [status]);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
   const handleSelect = (option: (typeof STATUS_OPTIONS)[number]) => {
+    console.log('TaskDropdown - 상태 선택:', option);
+    console.log('TaskDropdown - 현재 선택된 상태:', selected);
+
     setSelected(option);
     setIsOpen(false);
-    onChange?.(option.value);
+    console.log('TaskDropdown - onChange 호출:', option.value);
+    if (onChange) {
+      const newStatus: 'ONGOING' | 'COMPLETED' | 'NOTSTART' = option.value;
+      console.log('TaskDropdown - 새로운 상태:', newStatus);
+      onChange(newStatus);
+    } else {
+      console.warn('TaskDropdown - onChange 함수가 없습니다.');
+    }
   };
 
   return (
