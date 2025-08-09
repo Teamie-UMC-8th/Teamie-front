@@ -50,12 +50,12 @@ export interface UpdateTaskResponse {
   };
 }
 
-// 업무 삭제 API 응답 타입 정의
+// 업무 삭제 API 응답 타입 정의 (API 문서에 맞춰 수정)
 export interface DeleteTaskResponse {
   isSuccess: boolean;
   error: ApiErrorResponse | null;
   result: {
     message: string; // "업무가 성공적으로 삭제되었습니다."
-    taskId: string; // 삭제된 업무의 ID
+    taskId: number; // 삭제된 업무의 ID (number로 수정)
   };
 }

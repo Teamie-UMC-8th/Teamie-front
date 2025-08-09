@@ -107,11 +107,23 @@ export const updateTaskDetail = async (
 // 업무 삭제 함수
 export const deleteTaskDetail = async (taskId: number): Promise<DeleteTaskResponse> => {
   try {
+    console.log('🔍 업무 삭제 시작:', { taskId });
+    console.log('📡 API 호출 시도:', `/api/v1/tasks/${taskId}`);
+
     const response = await axiosInstance.delete(`/api/v1/tasks/${taskId}`);
+
+    console.log('✅ 업무 삭제 성공:', response.data);
+    console.log('📊 응답 데이터 구조:', {
+      isSuccess: response.data.isSuccess,
+      hasError: !!response.data.error,
+      hasResult: !!response.data.result,
+      resultKeys: response.data.result ? Object.keys(response.data.result) : null,
+    });
     return response.data;
   } catch (error: unknown) {
-    console.error('업무 삭제 실패:', error);
+    console.error('❌ 업무 삭제 실패:', error);
 
+    // API 에러 응답 처리
     if (
       error &&
       typeof error === 'object' &&
@@ -120,12 +132,26 @@ export const deleteTaskDetail = async (taskId: number): Promise<DeleteTaskRespon
       typeof error.response === 'object' &&
       'status' in error.response
     ) {
-      if (error.response.status === 404) {
+      const status = error.response.status;
+
+      if (status === 404) {
         throw new Error('삭제할 업무를 찾을 수 없습니다.');
       }
 
-      if (error.response.status === 403) {
+      if (status === 403) {
         throw new Error('업무 삭제 권한이 없습니다.');
+      }
+
+      if (status === 400) {
+        throw new Error('업무 삭제 요청이 잘못되었습니다.');
+      }
+
+      // API에서 반환한 구체적인 에러 메시지가 있다면 사용
+      const errorData = (error.response as { data?: any }).data;
+      if (errorData?.error?.reason) {
+        throw new Error(errorData.error.reason);
+      } else if (errorData?.message) {
+        throw new Error(errorData.message);
       }
     }
 

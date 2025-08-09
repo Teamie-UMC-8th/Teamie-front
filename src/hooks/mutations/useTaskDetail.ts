@@ -129,3 +129,38 @@ export const useTaskDeleteHandler = () => {
     isDeleting: deleteTaskMutation.isPending,
   };
 };
+
+// 업무 삭제 mutation 훅
+export const useDeleteTask = () => {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: (taskId: number) => {
+      console.log('🎯 useDeleteTask - mutationFn 호출:', { taskId });
+      return deleteTaskDetail(taskId);
+    },
+    onSuccess: (data: DeleteTaskResponse, taskId) => {
+      console.log('✅ 업무 삭제 mutation 성공:', { taskId, data });
+
+      // 응답 데이터 검증
+      if (!data || !data.isSuccess) {
+        console.error('❌ 업무 삭제 실패: API 응답이 성공이 아님:', data);
+        alert('업무 삭제에 실패했습니다.');
+        return;
+      }
+
+      // 관련 캐시 무효화
+      queryClient.invalidateQueries({ queryKey: ['taskDetail', taskId] });
+      queryClient.invalidateQueries({ queryKey: ['taskFiles', taskId] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+
+      // 이전 페이지로 이동
+      router.back();
+    },
+    onError: (error: Error) => {
+      console.error('❌ 업무 삭제 mutation 에러:', error);
+      alert(error.message || '업무 삭제에 실패했습니다.');
+    },
+  });
+};

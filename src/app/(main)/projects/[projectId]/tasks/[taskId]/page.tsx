@@ -14,6 +14,7 @@ import {
   useUpdateTaskDetail,
   useTaskDeleteHandler,
   useTaskMemoHandler,
+  useDeleteTask,
 } from '@/hooks/mutations/useTaskDetail';
 import axiosInstance from '@/lib/axiosInstance';
 
@@ -98,9 +99,23 @@ export default function TaskDetailPage() {
     }
   }, [data?.result?.deadline]);
 
+  const { memo, setMemo, handleMemoChange, handleMemoBlur } = useTaskMemoHandler();
   const updateTaskMutation = useUpdateTaskDetail();
-  const { handleDelete } = useTaskDeleteHandler();
-  const { memo, handleMemoChange, handleMemoBlur } = useTaskMemoHandler();
+  const deleteTaskMutation = useDeleteTask();
+
+  // 업무 삭제 핸들러
+  const handleDelete = () => {
+    console.log('🎯 TaskDetailPage - 삭제 핸들러 호출:', { taskId, projectId });
+
+    // taskId가 유효한지 확인
+    if (!taskId || isNaN(taskId)) {
+      console.error('❌ TaskDetailPage - 유효하지 않은 taskId:', taskId);
+      alert('유효하지 않은 업무 ID입니다.');
+      return;
+    }
+
+    deleteTaskMutation.mutate(taskId);
+  };
 
   // 현재 사용자가 프로젝트 홈의 프로필 카드에 연동되어 있는지 확인하는 함수
   const isCurrentUserProjectMember = () => {
@@ -233,7 +248,12 @@ export default function TaskDetailPage() {
           <h1 className="text-[24px] text-black font-semibold">{task.name || '빈 업무'}</h1>
         </div>
         <div className="max-lg:mr-[74px]">
-          <DeleteButton onDelete={() => handleDelete(taskId, projectId)} />
+          <DeleteButton
+            onDelete={handleDelete}
+            modalTitle="이 업무를 정말 삭제하시겠습니까?"
+            confirmText="삭제"
+            cancelText="취소"
+          />
         </div>
       </div>
 
