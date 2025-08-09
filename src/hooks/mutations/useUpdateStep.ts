@@ -8,7 +8,7 @@ export const useUpdateStep = () => {
 
   return useMutation<UpdateStepResponse, Error, UpdateStepRequest>({
     mutationFn: (request: UpdateStepRequest) => updateStep(request),
-    onSuccess: (data, variables) => {
+    onSuccess: () => {
       // STEP 수정 성공 시 대시보드 데이터 무효화하여 다시 불러오기
       queryClient.invalidateQueries({
         queryKey: ['dashboard'],

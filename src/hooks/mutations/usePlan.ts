@@ -2,6 +2,8 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { getPlanDetail, deletePlan, updatePlan, updatePlanUsers } from '@/services/plans/plan';
 import { PatchPlanRequest, PatchPlanUsersRequest } from '@/types/api/plans';
+import { ApiErrorResponse } from '@/types/api/error';
+import { AxiosError } from 'axios';
 
 // Query Hook
 export const useGetPlanDetail = (planId: string) =>
@@ -23,9 +25,9 @@ export const usePatchPlan = () =>
         console.error('❌ 일정 수정 실패:', data.error);
       }
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiErrorResponse>) => {
       console.error('❌ 일정 수정 중 에러 발생:', error);
-      if (error?.response?.status === 403) {
+      if (error?.response?.data?.errorCode === 'PLAN4031') {
         console.error('권한이 없습니다. 프로젝트 멤버만 수정할 수 있습니다.');
       } else {
         console.error('일정 수정에 실패했습니다.');
@@ -44,9 +46,9 @@ export const usePatchPlanUsers = () =>
         console.error('❌ 일정 사용자 수정 실패:', data.error);
       }
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiErrorResponse>) => {
       console.error('❌ 일정 사용자 수정 중 에러 발생:', error);
-      if (error?.response?.status === 403) {
+      if (error?.response?.data?.errorCode === 'PLAN4031') {
         console.error('권한이 없습니다. 프로젝트 멤버만 수정할 수 있습니다.');
       } else {
         console.error('일정 사용자 수정에 실패했습니다.');
@@ -77,7 +79,7 @@ export const useDeletePlan = () => {
         console.error('❌ 일정 삭제 실패:', data.error);
       }
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiErrorResponse>) => {
       console.error('❌ 일정 삭제 중 에러 발생:', error);
     },
   });

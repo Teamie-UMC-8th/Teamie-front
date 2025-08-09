@@ -13,7 +13,6 @@ import RemindMessageModal from '@/features/teamTask/components/RemindMessageModa
 import RemindMessageButton from '@/features/teamTask/components/RemindMessageButton';
 import MemoField from '@/features/teamTask/components/MemoField';
 import MeetingRecordsField from '@/features/teamTask/components/MeetingRecordsField';
-import { projectHomeMockData } from '@/constants/projectHomeMockData';
 import {
   useDeletePlan,
   useGetPlanDetail,

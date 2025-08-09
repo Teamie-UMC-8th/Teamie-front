@@ -48,7 +48,7 @@ export const useUpdateMainTask = () => {
   return useMutation({
     mutationFn: ({ portfolioId, mainTask }: { portfolioId: number; mainTask: string }) =>
       updateMainTask(portfolioId, { mainTask }),
-    onSuccess: (updatedProject) => {
+    onSuccess: () => {
       // 성공 시 프로젝트 목록 캐시 업데이트
       queryClient.invalidateQueries({ queryKey: ['master-portfolios'] });
     },

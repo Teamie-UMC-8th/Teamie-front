@@ -18,9 +18,12 @@ import {
   UpdateProfileRequest,
   PostItData,
   TeamMember,
+  ProjectUser,
 } from '@/types/api/projectHome';
 
 import axiosInstance from '@/lib/axiosInstance';
+import { AxiosError } from 'axios';
+import { ApiErrorResponse } from '@/types/api/error';
 
 /**
  * 프로젝트 홈 데이터를 조회하는 쿼리 훅
@@ -143,7 +146,6 @@ export const useUpdateProfile = (projectId: number) => {
  * @returns ProjectHomePage에서 필요한 상태와 핸들러들
  */
 export const useProjectHomeState = (projectId: number) => {
-  const queryClient = useQueryClient();
   const { data: projectHomeData, isLoading, error } = useProjectHome(projectId);
   const updateProjectMutation = useUpdateProject(projectId);
   const createPostItMutation = useCreatePostIt(projectId);
@@ -197,7 +199,7 @@ export const useProjectHomeState = (projectId: number) => {
 
             // 이미 존재하는지 확인
             const existingUser = projectHomeData.result.users.find(
-              (user: any) => user.email === currentUser.email
+              (user: ProjectUser) => user.email === currentUser.email
             );
 
             if (!existingUser) {
@@ -470,11 +472,11 @@ export const useProjectHomeState = (projectId: number) => {
             );
           }
         },
-        onError: (error: any) => {
+        onError: (error: Error) => {
           console.error('프로필 카드 수정 실패:', error);
 
           // 403 오류인 경우 사용자에게 알림
-          if (error.response?.status === 403) {
+          if ((error as AxiosError<ApiErrorResponse>).response?.data?.errorCode === 'PROJECT4031') {
             alert('프로필 수정 권한이 없습니다. 프로젝트 멤버인지 확인해주세요.');
           } else {
             alert('프로필 수정에 실패했습니다. 다시 시도해주세요.');

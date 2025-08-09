@@ -4,7 +4,7 @@ import { ApiErrorResponse } from './error';
 export interface Task {
   taskId: number;
   taskName: string;
-  status: 'ONGOING' | 'COMPLETED' | 'PENDING';
+  status: 'ONGOING' | 'COMPLETED' | 'NOTSTART';
   managers: Manager[];
   deadline: string;
 }
@@ -39,7 +39,7 @@ export interface TaskItem {
 }
 
 // TaskItem 컴포넌트 Props
-export interface TaskItemProps extends TaskItem {}
+export type TaskItemProps = TaskItem;
 
 // TaskItem 컴포넌트 Props (projectId 포함)
 export interface TaskItemComponentProps extends TaskItemProps {
@@ -64,11 +64,11 @@ export interface UseTaskItemsReturn {
 }
 
 // TASK 상태 매핑 타입
-export type TaskStatus = 'BEFORE' | 'ONGOING' | 'COMPLETE';
+export type TaskStatus = 'NOTSTART' | 'ONGOING' | 'COMPLETE';
 
 // TASK 상태 표시 텍스트 매핑
 export const TASK_STATUS_DISPLAY: Record<TaskStatus, string> = {
-  BEFORE: '시작 전',
+  NOTSTART: '시작 전',
   ONGOING: '진행 중',
   COMPLETE: '완료',
 } as const;

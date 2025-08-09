@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useCreateStep } from '@/hooks/mutations/useCreateStep';
 import { useDeleteStep } from '@/hooks/mutations/useDeleteStep';
 import { useUpdateStep } from '@/hooks/mutations/useUpdateStep';
-import { useCreateTask } from '@/hooks/mutations/useCreateTask';
 import { TASK_STATUS_DISPLAY } from '@/types/api/tasks';
 import { StepsBoardProps } from '@/types/board';
 import { useSteps } from './hooks/useSteps';
@@ -30,7 +29,7 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
       case 'COMPLETED':
         return TASK_STATUS_DISPLAY.COMPLETE;
       default:
-        return TASK_STATUS_DISPLAY.BEFORE;
+        return TASK_STATUS_DISPLAY.NOTSTART;
     }
   };
 

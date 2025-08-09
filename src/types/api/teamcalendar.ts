@@ -18,7 +18,7 @@ export interface PostPlanResponse {
 
 // 캘린더 조회 시 단일 일정 정보
 export interface CalendarPlan {
-  title: any;
+  title: string;
   endDate: string | number | Date;
   startDate: string | number | Date;
   planId: string;

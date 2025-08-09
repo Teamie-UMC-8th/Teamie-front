@@ -4,6 +4,7 @@ import {
   PatchPlanRequest,
   DeletePlanResponse,
   PatchPlanUsersRequest,
+  PatchPlanUsersResponse,
 } from '@/types/api/plans';
 
 // 일정 조회
@@ -31,7 +32,10 @@ export const updatePlan = async (
 export const updatePlanUsers = async (
   planId: string,
   userData: PatchPlanUsersRequest
-): Promise<any> => {
-  const { data } = await axiosInstance.patch(`/api/v1/plans/${planId}/members`, userData);
+): Promise<PatchPlanUsersResponse> => {
+  const { data } = await axiosInstance.patch<PatchPlanUsersResponse>(
+    `/api/v1/plans/${planId}/members`,
+    userData
+  );
   return data;
 };

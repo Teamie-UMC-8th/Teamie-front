@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 // UI 상태만 관리하는 훅
 export function useSteps() {

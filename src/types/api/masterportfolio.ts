@@ -1,6 +1,6 @@
 // 마스터 포트폴리오 관련 타입 정의(마이페이지)
 export interface MasterPortfolio {
-  projectId: string | number | bigint | boolean | readonly (string | number | bigint | boolean)[] | null | undefined;
+  projectId: number;
   portfolioId: number;
   projectName: string;
   category: string;
@@ -27,7 +27,6 @@ export interface MasterPortfolioListResponse {
 }
 //api 1번
 
-
 export interface PostMasterPortfolioQuestionRequest {
   recordIdList: number[];
 }
@@ -46,14 +45,8 @@ export interface PostMasterPortfolioQuestionResponse {
   result: MasterPortfolioQuestion[];
 }
 
-
-
-
-
-
 // 마스터 포트폴리오 상세 정보 타입 정의(마스터포트폴리오)
 export interface MasterPortfolioDetail {
-  result: any;
   id: number;
   detailInfo: string;
   assignedTask: string;
@@ -71,7 +64,6 @@ export interface MasterPortfolioDetailResponse {
   result: MasterPortfolioDetail;
 }
 //api 5번
-
 
 export interface MasterPortfolioGeneratedResult {
   detailInfo: string;

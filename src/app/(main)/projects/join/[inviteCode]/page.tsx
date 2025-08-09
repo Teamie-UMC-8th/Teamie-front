@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useGetProject } from '@/hooks/queries/useGetProject';
 import { useJoinProject } from '@/hooks/mutations/useJoinProject';
+import { GetJoinProjectResponse } from '@/types/api/project';
+import { AxiosError } from 'axios';
+import { ApiErrorResponse, ApiResponse } from '@/types/api/error';
 
 interface ProjectInfo {
   name: string;
@@ -40,7 +43,7 @@ export default function JoinProject() {
           router.push(`/projects/${projectInfo.projectId}`);
         }, 2000);
       } else {
-        setError(response.error || '프로젝트 참여에 실패했습니다.');
+        setError(response.error?.reason || '프로젝트 참여에 실패했습니다.');
         setIsLoading(false);
       }
     },
@@ -61,7 +64,7 @@ export default function JoinProject() {
     if (getProjectQuery.isSuccess && getProjectQuery.data) {
       console.log('초대코드 유효성 확인 성공:', getProjectQuery.data);
       // 프로젝트 정보 설정
-      const projectData = getProjectQuery.data as any;
+      const projectData: GetJoinProjectResponse = getProjectQuery.data;
       if (projectData.result?.project) {
         setProjectInfo({
           name: projectData.result.project.name,
@@ -73,7 +76,9 @@ export default function JoinProject() {
       console.error('초대코드 유효성 확인 오류:', getProjectQuery.error);
 
       // 에러 응답에서 errorCode를 확인하여 처리 방식 결정
-      const errorResponse = getProjectQuery.error;
+      const errorResponse = getProjectQuery.error as AxiosError<
+        ApiResponse<{ project: { id: string } }>
+      >;
       const errorCode = errorResponse.response?.data?.error?.errorCode;
 
       if (errorCode === 'PROJECT4011') {

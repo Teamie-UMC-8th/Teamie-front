@@ -1,9 +1,9 @@
 import {
   fetchMasterPortfolioDetail,
   fetchMasterPortfolioList,
-   getMasterPortfolioGeneratedResult,
+  getMasterPortfolioGeneratedResult,
 } from '@/services/masterportfolio/masterportfolio';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
 // 마스터 포트폴리오 목록을 가져오는 훅(마이페이지)
 export const useMasterPortfolioList = (cursor?: string) => {
@@ -24,7 +24,7 @@ export const useMasterPortfolioDetail = (projectId: number) => {
   });
 };
 
- export const useGetMasterPortfolioGeneratedResult = (portfolioId: number) => {
+export const useGetMasterPortfolioGeneratedResult = (portfolioId: number) => {
   return useQuery({
     queryKey: ['masterPortfolioGeneratedResult', portfolioId],
     queryFn: () => getMasterPortfolioGeneratedResult(portfolioId),

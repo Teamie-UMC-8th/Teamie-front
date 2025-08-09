@@ -14,8 +14,11 @@ import {
   JoinProjectResponse,
   ProjectUser,
   TeamMember,
+  PostItData,
 } from '@/types/api/projectHome';
-import { projectHomeMockData } from '@/constants/projectHomeMockData';
+// import { projectHomeMockData } from '@/constants/projectHomeMockData';
+import { ApiErrorResponse } from '@/types/api/error';
+import { AxiosError } from 'axios';
 
 /**
  * 사용자가 접근 가능한 프로젝트 목록을 가져오는 함수
@@ -26,8 +29,13 @@ export const getUserProjects = async () => {
     const response = await axiosInstance.get('/api/v1/projects');
     console.log('프로젝트 목록 조회 성공:', response.data);
     return response.data;
-  } catch (error: any) {
-    console.error('프로젝트 목록 조회 실패:', error.response?.status, error.response?.data);
+  } catch (error) {
+    const axiosError = error as AxiosError<ApiErrorResponse>;
+    console.error(
+      '프로젝트 목록 조회 실패:',
+      axiosError.response?.data?.errorCode,
+      axiosError.response?.data?.data
+    );
     return null;
   }
 };
@@ -41,8 +49,13 @@ export const checkAuthStatus = async () => {
     const response = await axiosInstance.get('/api/v1/users/me');
     console.log('인증 성공:', response.data);
     return true;
-  } catch (error: any) {
-    console.error('인증 실패:', error.response?.status, error.response?.data);
+  } catch (error) {
+    const axiosError = error as AxiosError<ApiErrorResponse>;
+    console.error(
+      '인증 실패:',
+      axiosError.response?.data?.errorCode,
+      axiosError.response?.data?.data
+    );
     return false;
   }
 };
@@ -70,7 +83,8 @@ export const getProjectHome = async (projectId: number): Promise<ProjectHomeResp
     const isAuthenticated = await checkAuthStatus();
     if (!isAuthenticated) {
       console.error('인증되지 않은 상태입니다. 로그인이 필요합니다.');
-      return projectHomeMockData;
+      // return projectHomeMockData;
+      throw new Error('인증되지 않은 상태입니다. 로그인이 필요합니다.');
     }
 
     // 프로젝트 ID가 유효한지 확인 (1보다 작으면 테스트용 ID 사용)
@@ -82,23 +96,24 @@ export const getProjectHome = async (projectId: number): Promise<ProjectHomeResp
     const response = await axiosInstance.get<ProjectHomeResponse>(`/api/v1/projects/${projectId}`);
     console.log('API 호출 성공:', response.data);
     return response.data;
-  } catch (error: any) {
+  } catch (error) {
+    const axiosError = error as AxiosError<ApiErrorResponse>;
     console.error('API 호출 실패:', error);
     console.error('에러 상세 정보:', {
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      data: error.response?.data,
-      headers: error.response?.headers,
+      status: axiosError.response?.status,
+      statusText: axiosError.response?.statusText,
+      data: axiosError.response?.data,
+      headers: axiosError.response?.headers,
       config: {
-        url: error.config?.url,
-        method: error.config?.method,
-        baseURL: error.config?.baseURL,
-        headers: error.config?.headers,
+        url: axiosError.config?.url,
+        method: axiosError.config?.method,
+        baseURL: axiosError.config?.baseURL,
+        headers: axiosError.config?.headers,
       },
     });
 
     // 403 에러는 권한 문제, 401은 인증 문제
-    if (error.response?.status === 403) {
+    if (axiosError.response?.status === 403) {
       console.error('403 Forbidden: 프로젝트에 대한 접근 권한이 없습니다.');
       console.error('가능한 원인:');
       console.error('1. 해당 프로젝트의 멤버가 아닙니다.');
@@ -106,12 +121,13 @@ export const getProjectHome = async (projectId: number): Promise<ProjectHomeResp
       console.error('3. 백엔드에서 CORS 설정이 잘못되었습니다.');
       console.error(`현재 시도한 프로젝트 ID: ${projectId}`);
       console.error('해결 방법: 초대코드를 통해 프로젝트에 참여하세요.');
-    } else if (error.response?.status === 401) {
+    } else if (axiosError.response?.status === 401) {
       console.error('401 Unauthorized: 로그인이 필요합니다.');
     }
 
     // API 호출 실패 시 mock 데이터 반환
-    return projectHomeMockData;
+    // return projectHomeMockData;
+    throw error;
   }
 };
 
@@ -132,11 +148,12 @@ export const updateProject = async (
     );
     console.log('프로젝트 수정 성공:', response.data);
     return response.data;
-  } catch (error: any) {
+  } catch (error) {
+    const axiosError = error as AxiosError<ApiErrorResponse>;
     console.error('프로젝트 수정 API 호출 실패:', error);
 
     // 403 오류인 경우 권한 문제로 처리
-    if (error.response?.status === 403) {
+    if (axiosError.response?.status === 403) {
       console.error('403 Forbidden: 프로젝트 수정 권한이 없습니다.');
       console.error('가능한 원인:');
       console.error('1. 현재 사용자가 프로젝트 멤버가 아닙니다.');
@@ -255,11 +272,12 @@ export const changeLeader = async (
     );
     console.log('팀장 변경 성공:', response.data);
     return response.data;
-  } catch (error: any) {
+  } catch (error) {
+    const axiosError = error as AxiosError<ApiErrorResponse>;
     console.error('팀장 변경 API 호출 실패:', error);
 
     // 403 오류인 경우 권한 문제로 처리
-    if (error.response?.status === 403) {
+    if (axiosError.response?.status === 403) {
       console.error('403 Forbidden: 팀장 변경 권한이 없습니다.');
       console.error('가능한 원인:');
       console.error('1. 현재 사용자가 팀장이 아닙니다.');
@@ -289,11 +307,12 @@ export const updateProfile = async (
 
     console.log('프로필 수정 성공:', response.data);
     return response.data;
-  } catch (error: any) {
+  } catch (error) {
+    const axiosError = error as AxiosError<ApiErrorResponse>;
     console.error('프로필 수정 API 호출 실패:', error);
 
     // 403 오류인 경우 권한 문제로 처리
-    if (error.response?.status === 403) {
+    if (axiosError.response?.status === 403) {
       console.error('403 Forbidden: 프로필 수정 권한이 없습니다.');
       console.error('가능한 원인:');
       console.error('1. 현재 사용자가 인증되지 않았습니다.');
@@ -319,12 +338,13 @@ export const joinProject = async (joinData: JoinProjectRequest): Promise<JoinPro
 
     console.log('프로젝트 참여 성공:', response.data);
     return response.data;
-  } catch (error: any) {
+  } catch (error) {
+    const axiosError = error as AxiosError<ApiErrorResponse>;
     console.error('프로젝트 참여 API 호출 실패:', error);
 
-    if (error.response?.status === 403) {
+    if (axiosError.response?.status === 403) {
       console.error('403 Forbidden: 프로젝트 참여 권한이 없습니다.');
-    } else if (error.response?.status === 404) {
+    } else if (axiosError.response?.status === 404) {
       console.error('404 Not Found: 프로젝트를 찾을 수 없습니다.');
     }
 
@@ -349,7 +369,7 @@ export const transformUsersToTeamMembers = (users: ProjectUser[]): TeamMember[] 
 /**
  * 만료된 PostIt을 필터링하는 함수
  */
-export const filterExpiredPostIts = (postIts: any[]): any[] => {
+export const filterExpiredPostIts = (postIts: PostItData[]): PostItData[] => {
   const now = Date.now();
   const fortyEightHours = 48 * 60 * 60 * 1000; // 48시간을 밀리초로
 

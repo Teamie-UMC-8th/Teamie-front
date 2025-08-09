@@ -8,7 +8,7 @@ export const useCreateTask = () => {
 
   return useMutation<CreateTaskResponse, Error, number>({
     mutationFn: (stepId: number) => createTask(stepId),
-    onSuccess: (data, stepId) => {
+    onSuccess: () => {
       // 업무 생성 성공 시 대시보드 데이터 무효화하여 다시 불러오기
       queryClient.invalidateQueries({
         queryKey: ['dashboard'],

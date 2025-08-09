@@ -53,7 +53,7 @@ export default function StepHeader({
     setIsEditing(false);
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       e.currentTarget.blur();
@@ -75,7 +75,7 @@ export default function StepHeader({
             <input
               type="text"
               value={editName}
-              onChange={(e) => setEditName(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditName(e.target.value)}
               onBlur={handleBlur}
               onKeyDown={handleKeyPress}
               className="flex-1 mx-auto text-center font-medium text-[1.125rem] bg-transparent border-none outline-none"

@@ -1,3 +1,5 @@
+import { ApiErrorResponse } from './error';
+
 export interface PlanUser {
   userId: number;
   name: string;
@@ -17,21 +19,13 @@ export interface PlanDetail {
 
 export interface PlanDetailResponse {
   isSuccess: boolean;
-  error: {
-    errorCode: string;
-    reason: string;
-    data: null;
-  } | null;
+  error: ApiErrorResponse | null;
   result: PlanDetail | null;
 }
 
 export interface DeletePlanResponse {
   isSuccess: boolean;
-  error: {
-    errorCode: string;
-    reason: string;
-    data: null;
-  } | null;
+  error: ApiErrorResponse | null;
   result: {
     message: string;
     planId: number;
@@ -50,4 +44,10 @@ export interface PatchPlanRequest {
 export interface PatchPlanUsersRequest {
   attendees: number[];
   writers: number[];
+}
+
+export interface PatchPlanUsersResponse {
+  isSuccess: boolean;
+  error: ApiErrorResponse | null;
+  result: PlanDetail | null;
 }

@@ -13,8 +13,6 @@ export default function StatusBoard({ statusGroups, projectId }: StatusBoardProp
         return '완료';
       case 'NOTSTART':
         return '시작 전';
-      case 'PENDING':
-        return '시작 전';
       default:
         return '시작 전';
     }

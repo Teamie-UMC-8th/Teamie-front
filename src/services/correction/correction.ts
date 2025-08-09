@@ -1,4 +1,4 @@
-import { CorrectionListResponse } from '@/types/api/correction';
+import { CorrectionListResponse, CorrectionDetailResponse } from '@/types/api/correction';
 import axiosInstance from '@/lib/axiosInstance';
 
 export async function fetchCorrectionList(
@@ -17,8 +17,12 @@ export async function fetchCorrectionList(
   return data.result;
 }
 
-export async function fetchCorrectionDetail(correctionId: number): Promise<any> {
-  const { data } = await axiosInstance.get(`/api/v1/portfolio-corrections/${correctionId}`);
+export async function fetchCorrectionDetail(
+  correctionId: number
+): Promise<CorrectionDetailResponse['result']> {
+  const { data } = await axiosInstance.get<CorrectionDetailResponse>(
+    `/api/v1/portfolio-corrections/${correctionId}`
+  );
 
   if (!data.result) {
     throw new Error('AI 첨삭 상세 정보를 가져올 수 없습니다.');

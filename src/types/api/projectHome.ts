@@ -1,3 +1,6 @@
+import { ApiErrorResponse } from './error';
+import { Task } from './tasks';
+
 /**
  * 프로젝트 사용자 정보 타입
  */
@@ -9,7 +12,7 @@ export interface ProjectUser {
   imageUrl: string | null;
   permission: string;
   role: string;
-  tasks: any[];
+  tasks: Task[];
 }
 
 /**
@@ -28,11 +31,7 @@ export interface Project {
  */
 export interface ProjectHomeResponse {
   isSuccess: boolean;
-  error: {
-    errorCode: string;
-    reason: string;
-    data: any;
-  } | null;
+  error: ApiErrorResponse;
   result: {
     project: Project;
     users: ProjectUser[];
@@ -53,11 +52,7 @@ export interface UpdateProjectRequest {
  */
 export interface UpdateProjectResponse {
   isSuccess: boolean;
-  error: {
-    errorCode: string;
-    reason: string;
-    data: any;
-  } | null;
+  error: ApiErrorResponse | null;
   result: {
     project: Project;
   } | null;
@@ -86,11 +81,7 @@ export interface PostItInfo {
  */
 export interface CreatePostItResponse {
   isSuccess: boolean;
-  error: {
-    errorCode: string;
-    reason: string;
-    data: any;
-  } | null;
+  error: ApiErrorResponse | null;
   result: PostItInfo | null;
 }
 
@@ -99,11 +90,7 @@ export interface CreatePostItResponse {
  */
 export interface DeletePostItResponse {
   isSuccess: boolean;
-  error: {
-    errorCode: string;
-    reason: string;
-    data: any;
-  } | null;
+  error: ApiErrorResponse | null;
   result: {
     message: string;
   } | null;
@@ -121,11 +108,7 @@ export interface ChangeLeaderRequest {
  */
 export interface ChangeLeaderResponse {
   isSuccess: boolean;
-  error: {
-    errorCode: string;
-    reason: string;
-    data: any;
-  } | null;
+  error: ApiErrorResponse | null;
   result: {
     newLeaderId: number;
     permission: string;
@@ -145,12 +128,10 @@ export interface UpdateProfileRequest {
  */
 export interface UpdateProfileResponse {
   isSuccess: boolean;
-  error: {
-    errorCode: string;
-    reason: string;
-    data: any;
+  error: ApiErrorResponse | null;
+  result: {
+    message: string;
   } | null;
-  result: Record<string, any>;
 }
 
 /**
@@ -158,12 +139,10 @@ export interface UpdateProfileResponse {
  */
 export interface ProjectHomeError {
   isSuccess: false;
-  error: {
-    errorCode: 'FORBIDDEN_USER_FOR_UPDATE' | 'PROJECT_NOT_FOUND';
-    reason: string;
-    data: null;
-  };
-  result: null;
+  error: ApiErrorResponse;
+  result: {
+    message: string;
+  } | null;
 }
 
 /**
@@ -199,11 +178,7 @@ export interface JoinProjectRequest {
  */
 export interface JoinProjectResponse {
   isSuccess: boolean;
-  error: {
-    errorCode: string;
-    reason: string;
-    data: any;
-  } | null;
+  error: ApiErrorResponse | null;
   result: {
     message: string;
   } | null;

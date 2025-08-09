@@ -23,7 +23,7 @@ export default function TaskDetailPage() {
   const taskId = Number(params.taskId);
   const projectId = Number(params.projectId);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['taskDetail', taskId],

@@ -6,7 +6,7 @@ interface AddTaskButtonProps {
   className?: string;
 }
 
-export default function AddTaskButton({ stepId, stepName, className = '' }: AddTaskButtonProps) {
+export default function AddTaskButton({ stepId, className = '' }: AddTaskButtonProps) {
   const createTaskMutation = useCreateTask();
 
   const handleClick = async () => {

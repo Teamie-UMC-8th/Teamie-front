@@ -1,5 +1,3 @@
-import AddProfileButton from '@/components/AddProfileButton';
-
 interface MemoFieldProps {
   value: string;
   onChange: (value: string) => void;

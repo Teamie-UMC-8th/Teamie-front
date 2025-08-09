@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { TaskItem, UseTaskItemsProps, UseTaskItemsReturn } from '@/types/api/tasks';
+import { UseTaskItemsProps, UseTaskItemsReturn } from '@/types/api/tasks';
 
 export const useTaskItems = ({ task }: UseTaskItemsProps): UseTaskItemsReturn => {
   // 마감기한이 경과했는지 확인 (완료 상태가 아닌 경우에만)
