@@ -99,3 +99,21 @@ export interface MasterPortfolioDetailRecordsResponse {
   error: null;
   result: MasterPortfolioDetailRecords[];
 }
+
+export interface MasterPortfolioStatusResponse {
+  isSuccess: boolean;
+  error: null;
+  result: {
+    status: 'DONE' | 'NOT_STARTED' | 'NEED_ANSWERS' | 'GENERATING';
+  };
+}
+
+export interface PatchMasterPortfolioRequest {
+  detailInfo: string;
+  assignedTask: string;
+  keyAchievement: string;
+  insight: string;
+  contributionRate: number;
+  mainTask: string;
+  category: string;
+}

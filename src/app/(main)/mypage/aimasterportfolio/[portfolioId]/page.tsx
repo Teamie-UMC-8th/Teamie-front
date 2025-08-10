@@ -1,14 +1,18 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
-import { useMasterPortfolioDetail } from '@/hooks/queries/useGetMasterPortfolio';
+import { useEffect, useState } from 'react';
+import {
+  useMasterPortfolioDetail,
+  useMasterPortfolioStatus,
+} from '@/hooks/queries/useGetMasterPortfolio';
 import { useUpdateContribution } from '@/hooks/mutations/useUpdateContribution';
 import AIGenerationSection from '@/features/aimasterportfolio/components/AIGenerationSection';
 import MenuButton from '@/features/aimasterportfolio/components/MenuButton';
 import BackButton from '@/components/BackButton';
 import { CATEGORY_MAP, CATEGORY_LIST, CategoryKey } from '@/constants/category';
 import ContributionSlider from '@/components/ContributionSlider';
+import { useRouter } from 'next/navigation';
 
 const STYLES = {
   tag: 'w-[99px] h-[37px] bg-[#DAF3F3] rounded-[4px] px-[18px] py-[6px] flex items-center justify-center font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-[#000000] whitespace-nowrap',
@@ -106,6 +110,14 @@ export default function MasterPortfolioDetail() {
   const updateContribution = useUpdateContribution();
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey>('ACTIVITY');
   const [contribution, setContribution] = useState(50);
+  const { data: status, isLoading: statusLoading } = useMasterPortfolioStatus(portfolioId);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status?.result.status === 'DONE') {
+      router.push(`/mypage/aimasterportfolio/${portfolioId}/final`);
+    }
+  }, [status, portfolioId, router]);
 
   const handleContributionChange = (newContribution: number) => {
     setContribution(newContribution);
@@ -115,7 +127,7 @@ export default function MasterPortfolioDetail() {
     });
   };
 
-  if (isLoading) return <div>포트폴리오 상세 정보를 불러오는 중...</div>;
+  if (isLoading || statusLoading) return <div>포트폴리오 상세 정보를 불러오는 중...</div>;
   if (error) return <div>포트폴리오 상세 정보를 불러오는데 실패했습니다.</div>;
   if (!data) return <div>포트폴리오 정보를 찾을 수 없습니다.</div>;
 

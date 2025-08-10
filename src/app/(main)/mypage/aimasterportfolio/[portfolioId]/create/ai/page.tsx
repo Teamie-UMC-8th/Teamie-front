@@ -8,11 +8,12 @@ import Image from 'next/image';
 import Step1 from '@/features/aimasterportfolio/components/steps/Step1';
 import Step2 from '@/features/aimasterportfolio/components/steps/Step2';
 import Step3 from '@/features/aimasterportfolio/components/steps/Step3';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import AIConfirmModal from '@/features/aimasterportfolio/components/AIConfirmModal';
-import { usePostMasterPortfolioQuestions } from '@/hooks/mutations/usePatchMasterPortfolio';
+import { usePostMasterPortfolioQuestions } from '@/hooks/mutations/usePostMasterPortfolioQuestions';
 import { useMasterPortfolioDetail } from '@/hooks/queries/useGetMasterPortfolio';
 import { useGetPersonalRetro } from '@/hooks/queries/useGetPersonalRetro';
+import { usePatchMasterPortfolio } from '@/hooks/mutations/usePatchMasterPortfolio';
 
 const AI_CREATE_STEPS = [
   {
@@ -57,12 +58,15 @@ export default function AIMasterPortfolioCreatePage() {
   const router = useRouter();
   const params = useParams();
   const portfolioId = params.portfolioId as string;
-  const { currentStep, goToStep } = useFunnel();
+  const searchParams = useSearchParams();
+  const initialStep = searchParams.get('step');
+  const { currentStep, goToStep } = useFunnel({ initialStep: Number(initialStep) });
   const [scrollY, setScrollY] = useState(0);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const { mutate } = usePostMasterPortfolioQuestions();
   const { data: portfolio } = useMasterPortfolioDetail(Number(portfolioId));
   const { data: retro } = useGetPersonalRetro(portfolio?.projectId as number);
+  const { mutate: patchMutate } = usePatchMasterPortfolio();
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -105,8 +109,20 @@ export default function AIMasterPortfolioCreatePage() {
 
   const handleSubButtonClick = () => {
     if (currentStep === 0) {
-      console.log(portfolio);
       router.replace(`/projects/${portfolio?.projectId}/retrospect/create`);
+    } else if (currentStep === 2) {
+      patchMutate({
+        portfolioId: Number(portfolioId),
+        body: {
+          detailInfo: '',
+          assignedTask: '',
+          keyAchievement: '',
+          insight: '',
+          contributionRate: 0,
+          mainTask: '',
+          category: 'OTHER',
+        },
+      });
     } else {
       goToStep(currentStep - 1);
     }

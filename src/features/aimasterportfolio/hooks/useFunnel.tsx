@@ -2,10 +2,11 @@ import { useState } from 'react';
 
 interface UseFunnelProps {
   maxSteps?: number;
+  initialStep?: number;
 }
 
-export function useFunnel({ maxSteps = 3 }: UseFunnelProps = {}) {
-  const [currentStep, setCurrentStep] = useState(0);
+export function useFunnel({ maxSteps = 3, initialStep = 0 }: UseFunnelProps = {}) {
+  const [currentStep, setCurrentStep] = useState(initialStep);
   const [stepData, setStepData] = useState<Record<number, unknown>>({});
 
   const nextStep = () => {
