@@ -472,34 +472,38 @@ export default function AddComment() {
           {/* 대댓글 출력 */}
           {comment.cocomments &&
             comment.cocomments.length > 0 &&
-            comment.cocomments.map((cocomment, cocommentIndex) => (
-              <div
-                key={cocomment.cocommentId}
-                className={cocommentIndex < comment.cocomments.length - 1 ? 'mb-[8px]' : 'mb-[8px]'}
-              >
-                <ReplyComment
-                  idx={idx}
-                  cocommentIdx={cocomment.cocommentId}
-                  replyToIndex={null}
-                  replyToCocommentId={null}
-                  replyValue=""
-                  submittedReply={cocomment.content}
-                  submittedReplyUser={cocomment.users}
-                  onChange={() => {}}
-                  onSubmit={() => {}}
-                  formatDate={() => formatDate(cocomment.createdAt)}
-                  isAddingCocomment={isAddingCocomment}
-                  isDeletingCocomment={isDeletingCocomment}
-                  onCocommentEdit={handleCocommentEdit}
-                  onCocommentDelete={handleCocommentDelete}
-                  onCocommentReply={handleCocommentReply}
-                  editCocommentId={editCocommentId}
-                  editCocommentContent={editCocommentContent}
-                  onCocommentEditChange={setEditCocommentContent}
-                  onCocommentEditSubmit={handleCocommentEditSubmit}
-                />
-              </div>
-            ))}
+            [...comment.cocomments]
+              .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+              .map((cocomment, cocommentIndex) => (
+                <div
+                  key={cocomment.cocommentId}
+                  className={
+                    cocommentIndex < comment.cocomments.length - 1 ? 'mb-[8px]' : 'mb-[8px]'
+                  }
+                >
+                  <ReplyComment
+                    idx={idx}
+                    cocommentIdx={cocomment.cocommentId}
+                    replyToIndex={null}
+                    replyToCocommentId={null}
+                    replyValue=""
+                    submittedReply={cocomment.content}
+                    submittedReplyUser={cocomment.users}
+                    onChange={() => {}}
+                    onSubmit={() => {}}
+                    formatDate={() => formatDate(cocomment.createdAt)}
+                    isAddingCocomment={isAddingCocomment}
+                    isDeletingCocomment={isDeletingCocomment}
+                    onCocommentEdit={handleCocommentEdit}
+                    onCocommentDelete={handleCocommentDelete}
+                    onCocommentReply={handleCocommentReply}
+                    editCocommentId={editCocommentId}
+                    editCocommentContent={editCocommentContent}
+                    onCocommentEditChange={setEditCocommentContent}
+                    onCocommentEditSubmit={handleCocommentEditSubmit}
+                  />
+                </div>
+              ))}
 
           {/* 대댓글 입력 필드 */}
           {replyToIndex === idx && (
