@@ -336,13 +336,15 @@ export default function AddComment() {
             placeholder={isAddingComment ? '댓글을 추가하는 중...' : '댓글을 작성하세요'}
           />
 
-          <button
-            onClick={handleComment}
-            disabled={isAddingComment || newComment.trim() === ''}
-            className="absolute right-[8px] top-1/2 -translate-y-1/2 w-[36px] h-[36px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <img src="/icons/comment-enter.svg" alt="전송" />
-          </button>
+          {newComment.trim() !== '' && (
+            <button
+              onClick={handleComment}
+              disabled={isAddingComment}
+              className="absolute right-[8px] top-1/2 -translate-y-1/2 w-[36px] h-[36px] cursor-pointer "
+            >
+              <img src="/icons/comment-enter.svg" alt="전송" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -350,8 +352,8 @@ export default function AddComment() {
       {comments.map((comment, idx) => (
         <div
           key={comment.commentId}
-          className="mt-[40px] ml-[95px]
-        max-lg:ml-[79px] max-lg:mt-[32px]"
+          className={`${idx === 0 ? 'mt-[40px]' : 'mt-[16px]'} ml-[95px]
+        max-lg:ml-[79px] ${idx === 0 ? 'max-lg:mt-[32px]' : 'max-lg:mt-[12px]'}`}
         >
           <div className="flex items-center mb-[8px] w-[1360px] group">
             <div className="flex flex-col items-center mr-[20px]">

@@ -71,14 +71,16 @@ export default function ReplyComment({
             max-lg:w-[671px] disabled:opacity-50"
             placeholder={isAddingCocomment ? '대댓글을 추가하는 중...' : '댓글을 작성하세요'}
           />
-          <button
-            onClick={() => onSubmit(idx)}
-            disabled={isAddingCocomment || replyValue.trim() === ''}
-            className="absolute right-[8px] top-1/2 -translate-y-1/2 w-[36px] h-[36px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
-            max-lg:translate-x-[-550px]"
-          >
-            <img src="/icons/comment-enter.svg" alt="대댓글 전송" />
-          </button>
+          {replyValue.trim() !== '' && (
+            <button
+              onClick={() => onSubmit(idx)}
+              disabled={isAddingCocomment}
+              className="absolute right-[8px] top-1/2 -translate-y-1/2 w-[36px] h-[36px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
+              max-lg:translate-x-[-550px]"
+            >
+              <img src="/icons/comment-enter.svg" alt="대댓글 전송" />
+            </button>
+          )}
         </div>
       </div>
     );
@@ -197,14 +199,16 @@ export default function ReplyComment({
               isAddingCocomment ? '대댓글을 추가하는 중...' : '대댓글에 대한 대댓글을 작성하세요'
             }
           />
-          <button
-            onClick={() => onSubmit(idx)}
-            disabled={isAddingCocomment || replyValue.trim() === ''}
-            className="absolute right-[8px] top-1/2 -translate-y-1/2 w-[36px] h-[36px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
-            max-lg:translate-x-[-550px]"
-          >
-            <img src="/icons/comment-enter.svg" alt="대댓글 전송" />
-          </button>
+          {replyValue.trim() !== '' && (
+            <button
+              onClick={() => onSubmit(idx)}
+              disabled={isAddingCocomment}
+              className="absolute right-[8px] top-1/2 -translate-y-1/2 w-[36px] h-[36px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
+              max-lg:translate-x-[-550px]"
+            >
+              <img src="/icons/comment-enter.svg" alt="대댓글 전송" />
+            </button>
+          )}
         </div>
       </div>
     );
