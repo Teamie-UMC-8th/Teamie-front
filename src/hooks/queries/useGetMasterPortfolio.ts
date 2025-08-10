@@ -4,6 +4,7 @@ import {
   fetchMasterPortfolioList,
   getMasterPortfolioGeneratedResult,
   getMasterPortfolioStatus,
+  fetchMasterPortfolioQuestions,
 } from '@/services/masterportfolio/masterportfolio';
 import { useQuery } from '@tanstack/react-query';
 
@@ -50,5 +51,12 @@ export const useMasterPortfolioStatus = (projectId: number) => {
     queryFn: () => getMasterPortfolioStatus(projectId),
     staleTime: 1000 * 60 * 5,
     enabled: !!projectId,
+  });
+};
+
+export const useMasterPortfolioQuestions = (portfolioId: number) => {
+  return useQuery({
+    queryKey: ['master-portfolio-questions', portfolioId],
+    queryFn: () => fetchMasterPortfolioQuestions(portfolioId),
   });
 };

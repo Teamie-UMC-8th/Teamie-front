@@ -8,6 +8,8 @@ import {
   MasterPortfolioDetailRecordsResponse,
   MasterPortfolioStatusResponse,
   PatchMasterPortfolioRequest,
+  PatchMasterPortfolioQuestionsRequest,
+  PatchMasterPortfolioQuestionsResponse,
 } from '@/types/api/masterportfolio';
 import { AxiosResponse } from 'axios';
 
@@ -27,6 +29,24 @@ export const postMasterPortfolioQuestions = async (
   body: PostMasterPortfolioQuestionRequest
 ): Promise<PostMasterPortfolioQuestionResponse> => {
   const response = await axiosInstance.post(
+    `/api/v1/master-portfolios/${portfolioId}/questions`,
+    body
+  );
+  return response.data;
+};
+
+export const fetchMasterPortfolioQuestions = async (
+  portfolioId: number
+): Promise<PostMasterPortfolioQuestionResponse> => {
+  const response = await axiosInstance.get(`/api/v1/master-portfolios/${portfolioId}/questions`);
+  return response.data;
+};
+
+export const patchMasterPortfolioQuestions = async (
+  portfolioId: number,
+  body: PatchMasterPortfolioQuestionsRequest
+): Promise<PatchMasterPortfolioQuestionsResponse> => {
+  const response = await axiosInstance.patch(
     `/api/v1/master-portfolios/${portfolioId}/questions`,
     body
   );

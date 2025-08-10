@@ -1,19 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import StepsSidebar from '@/features/aimasterportfolio/components/StepSidebar';
 import Portal from '@/components/Portal';
 import { useFunnel } from '@/features/aimasterportfolio/hooks/useFunnel';
 import Image from 'next/image';
 import Step1 from '@/features/aimasterportfolio/components/steps/Step1';
 import Step2 from '@/features/aimasterportfolio/components/steps/Step2';
-import Step3 from '@/features/aimasterportfolio/components/steps/Step3';
+import Step3, { type Step3Handle } from '@/features/aimasterportfolio/components/steps/Step3';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import AIConfirmModal from '@/features/aimasterportfolio/components/AIConfirmModal';
 import { usePostMasterPortfolioQuestions } from '@/hooks/mutations/usePostMasterPortfolioQuestions';
 import { useMasterPortfolioDetail } from '@/hooks/queries/useGetMasterPortfolio';
 import { useGetPersonalRetro } from '@/hooks/queries/useGetPersonalRetro';
 import { usePatchMasterPortfolio } from '@/hooks/mutations/usePatchMasterPortfolio';
+import { usePatchMasterPortfolioQuestions } from '@/hooks/mutations/usePatchMasterPortfolioQuestions';
+import { useQueryClient } from '@tanstack/react-query';
 
 const AI_CREATE_STEPS = [
   {
@@ -63,10 +65,6 @@ export default function AIMasterPortfolioCreatePage() {
   const { currentStep, goToStep } = useFunnel({ initialStep: Number(initialStep) });
   const [scrollY, setScrollY] = useState(0);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const { mutate } = usePostMasterPortfolioQuestions();
-  const { data: portfolio } = useMasterPortfolioDetail(Number(portfolioId));
-  const { data: retro } = useGetPersonalRetro(portfolio?.projectId as number);
-  const { mutate: patchMutate } = usePatchMasterPortfolio();
   const [formAnswers, setFormAnswers] = useState({
     projectGoal: null as boolean | null,
     workDomain: null as boolean | null,
@@ -75,6 +73,13 @@ export default function AIMasterPortfolioCreatePage() {
     roleContribution: null as boolean | null,
     roleContributionDetail: '',
   });
+  const step3Ref = useRef<Step3Handle>(null);
+  const { mutate } = usePostMasterPortfolioQuestions();
+  const { data: portfolio } = useMasterPortfolioDetail(Number(portfolioId));
+  const { data: retro } = useGetPersonalRetro(portfolio?.projectId as number);
+  const { mutate: patchQuestions, isPending: isPatchQuestionsPending } =
+    usePatchMasterPortfolioQuestions();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -84,16 +89,18 @@ export default function AIMasterPortfolioCreatePage() {
 
   const sidebarPaddingTop = Math.max(0, 56 - scrollY);
 
+  // 1. 회고 데이터가 채워졌는지 확인하는 함수
   const isRetroDataComplete = () => {
-    if (!retro) return false;
+    if (!retro) return false; // retro 데이터가 없으면 false 반환
 
     const { collaborationProfile, memorableExperience, strengthsAndGrowth } = retro;
 
     return (
-      collaborationProfile?.trim() || memorableExperience?.trim() || strengthsAndGrowth?.trim()
-    );
+      collaborationProfile?.trim() || memorableExperience?.trim() || strengthsAndGrowth?.trim() // 근데 3항목 중 한 개씩 차있어야 하는 거면 &&을 써야하는 거 아닌가
+    ); // 세 항목 중 하나라도 값이 있다면 true 반환
   };
 
+  // 2. 메인 버튼을 비활성화할지 판단하는 함수
   const isMainButtonDisabled = () => {
     return currentStep === 0 && !isRetroDataComplete();
   };
@@ -119,22 +126,23 @@ export default function AIMasterPortfolioCreatePage() {
     if (currentStep === 0) {
       router.replace(`/projects/${portfolio?.projectId}/retrospect/create`);
     } else if (currentStep === 2) {
-      // 임시저장 실행 - Step3의 모든 폼 데이터 반영
-      patchMutate(
+      // 임시저장 실행 - Step3의 모든 폼 데이터 반영 (질문 업데이트)
+      const payload = step3Ref.current?.buildDraftPayload() ?? [];
+      if (payload.length === 0) {
+        alert('변경 사항이 없습니다.');
+        return;
+      }
+
+      patchQuestions(
         {
           portfolioId: Number(portfolioId),
-          body: {
-            detailInfo: formAnswers.workDomainDetail || '',
-            assignedTask: formAnswers.roleContributionDetail || '',
-            keyAchievement: formAnswers.achievement ? 'yes' : 'no',
-            insight: formAnswers.projectGoal ? 'yes' : 'no',
-            contributionRate: formAnswers.roleContribution ? 25 : 0,
-            mainTask: formAnswers.workDomain ? 'yes' : 'no',
-            category: 'OTHER',
-          },
+          body: payload,
         },
         {
           onSuccess: () => {
+            queryClient.invalidateQueries({
+              queryKey: ['master-portfolio-questions', Number(portfolioId)],
+            });
             alert('임시저장이 완료되었습니다.');
           },
           onError: (error) => {
@@ -182,7 +190,7 @@ export default function AIMasterPortfolioCreatePage() {
                   <div className="w-full h-full bg-white border-none rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.10)] p-[50px] max-lg:px-[36px] max-lg:py-[32px] max-lg:text-[16px] max-lg:leading-[24px]">
                     {currentStep === 0 && <Step1 />}
                     {currentStep === 1 && <Step2 />}
-                    {currentStep === 2 && <Step3 onAnswersChange={setFormAnswers} />}
+                    {currentStep === 2 && <Step3 ref={step3Ref} />}
                   </div>
                   <Image
                     className="absolute top-[0] left-[-6px] translate-x-[-50%] translate-y-[50%]"
@@ -197,21 +205,17 @@ export default function AIMasterPortfolioCreatePage() {
               <div className="relative w-fit h-full">
                 <div className="w-fit h-full bg-white border-none rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.10)] px-[34px] py-[24px] flex gap-[16px]">
                   <button
-                    className="rounded-[6px] border-[1.5px] border-[#898989] bg-[#FFF] p-[6px] px-[32px] cursor-pointer"
-                    onClick={() => {
-                      if (currentStep === 0) {
-                        router.push(`/projects/${portfolioId}/retrospect/ai`);
-                      } else {
-                        goToStep(currentStep - 1);
-                      }
-                    }}
+                    className="rounded-[6px] border-[1.5px] border-[#898989] bg-[#FFF] p-[6px] px-[32px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={handleSubButtonClick}
+                    disabled={currentStep === 2 && isPatchQuestionsPending}
                   >
                     {AI_CREATE_STEPS[currentStep].buttons.sub}
                   </button>
 
                   <button
-                    className="rounded-[6px] border-[1px] border-[#81D7D4] bg-[#81D7D4] p-[6px] px-[32px] text-[#FFF] cursor-pointer"
+                    className="rounded-[6px] border-[1px] border-[#81D7D4] bg-[#81D7D4] p-[6px] px-[32px] text-[#FFF] cursor-pointer  disabled:opacity-50"
                     onClick={handleMainButtonClick}
+                    disabled={isMainButtonDisabled()}
                   >
                     {AI_CREATE_STEPS[currentStep].buttons.main}
                   </button>
