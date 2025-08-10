@@ -4,28 +4,43 @@ export function Divider() {
   return <div className="w-full h-[1px] my-[24px] bg-[#E7E7E7]" />;
 }
 
-export default function Step3() {
+interface Step3Props {
+  onAnswersChange?: (answers: {
+    projectGoal: boolean | null;
+    workDomain: boolean | null;
+    workDomainDetail: string;
+    achievement: boolean | null;
+    roleContribution: boolean | null;
+    roleContributionDetail: string;
+  }) => void;
+}
+
+export default function Step3({ onAnswersChange }: Step3Props) {
   const [answers, setAnswers] = useState({
-    question1: null,
-    question2: null,
-    question2Text: '',
-    question3: null,
-    question4: null,
-    question4Text: '',
+    projectGoal: null as boolean | null,
+    workDomain: null as boolean | null,
+    workDomainDetail: '',
+    achievement: null as boolean | null,
+    roleContribution: null as boolean | null,
+    roleContributionDetail: '',
   });
 
   const handleYesNo = (question: string, value: boolean) => {
-    setAnswers((prev) => ({
-      ...prev,
+    const newAnswers = {
+      ...answers,
       [question]: value,
-    }));
+    };
+    setAnswers(newAnswers);
+    onAnswersChange?.(newAnswers);
   };
 
   const handleTextChange = (question: string, value: string) => {
-    setAnswers((prev) => ({
-      ...prev,
+    const newAnswers = {
+      ...answers,
       [question]: value,
-    }));
+    };
+    setAnswers(newAnswers);
+    onAnswersChange?.(newAnswers);
   };
 
   return (
@@ -45,9 +60,9 @@ export default function Step3() {
           </p>
           <div className="flex gap-3 ml-4">
             <button
-              onClick={() => handleYesNo('question1', true)}
+              onClick={() => handleYesNo('projectGoal', true)}
               className={`px-6 py-2 rounded-md font-medium transition-colors ${
-                answers.question1 === true
+                answers.projectGoal === true
                   ? 'border-[1px] border-[#81D7D4] bg-[#DAF3F3]'
                   : 'border-[0.6px] border-[#898989] bg-[#FFF]'
               }`}
@@ -55,9 +70,9 @@ export default function Step3() {
               예
             </button>
             <button
-              onClick={() => handleYesNo('question1', false)}
+              onClick={() => handleYesNo('projectGoal', false)}
               className={`px-6 py-2 rounded-md font-medium transition-colors ${
-                answers.question1 === false
+                answers.projectGoal === false
                   ? 'border-[1px] border-[#81D7D4] bg-[#DAF3F3]'
                   : 'border-[0.6px] border-[#898989] bg-[#FFF]'
               }`}
@@ -76,9 +91,9 @@ export default function Step3() {
           </p>
           <div className="flex gap-3 ml-4">
             <button
-              onClick={() => handleYesNo('question2', true)}
+              onClick={() => handleYesNo('workDomain', true)}
               className={`px-6 py-2 rounded-md font-medium transition-colors ${
-                answers.question2 === true
+                answers.workDomain === true
                   ? 'border-[1px] border-[#81D7D4] bg-[#DAF3F3]'
                   : 'border-[0.6px] border-[#898989] bg-[#FFF]'
               }`}
@@ -86,9 +101,9 @@ export default function Step3() {
               예
             </button>
             <button
-              onClick={() => handleYesNo('question2', false)}
+              onClick={() => handleYesNo('workDomain', false)}
               className={`px-6 py-2 rounded-md font-medium transition-colors ${
-                answers.question2 === false
+                answers.workDomain === false
                   ? 'border-[1px] border-[#81D7D4] bg-[#DAF3F3]'
                   : 'border-[0.6px] border-[#898989] bg-[#FFF]'
               }`}
@@ -98,8 +113,8 @@ export default function Step3() {
           </div>
         </div>
         <textarea
-          value={answers.question2Text}
-          onChange={(e) => handleTextChange('question2Text', e.target.value)}
+          value={answers.workDomainDetail}
+          onChange={(e) => handleTextChange('workDomainDetail', e.target.value)}
           placeholder="올바른 내용을 알려주세요."
           className="w-full p-4 border border-gray-400 mb-[0px] rounded-md resize-none h-24 focus:outline-none focus:ring-2 focus:border-transparent bg-[#FFF]"
         />
@@ -112,9 +127,9 @@ export default function Step3() {
           </p>
           <div className="flex gap-3 ml-4">
             <button
-              onClick={() => handleYesNo('question3', true)}
+              onClick={() => handleYesNo('achievement', true)}
               className={`px-6 py-2 rounded-md font-medium transition-colors ${
-                answers.question3 === true
+                answers.achievement === true
                   ? 'border-[1px] border-[#81D7D4] bg-[#DAF3F3]'
                   : 'border-[0.6px] border-[#898989] bg-[#FFF]'
               }`}
@@ -122,9 +137,9 @@ export default function Step3() {
               예
             </button>
             <button
-              onClick={() => handleYesNo('question3', false)}
+              onClick={() => handleYesNo('achievement', false)}
               className={`px-6 py-2 rounded-md font-medium transition-colors ${
-                answers.question3 === false
+                answers.achievement === false
                   ? 'border-[1px] border-[#81D7D4] bg-[#DAF3F3]'
                   : 'border-[0.6px] border-[#898989] bg-[#FFF]'
               }`}
@@ -142,9 +157,9 @@ export default function Step3() {
           </p>
           <div className="flex gap-3 ml-4">
             <button
-              onClick={() => handleYesNo('question4', true)}
+              onClick={() => handleYesNo('roleContribution', true)}
               className={`px-6 py-2 rounded-md font-medium transition-colors ${
-                answers.question4 === true
+                answers.roleContribution === true
                   ? 'border-[1px] border-[#81D7D4] bg-[#DAF3F3]'
                   : 'border-[0.6px] border-[#898989] bg-[#FFF]'
               }`}
@@ -153,9 +168,9 @@ export default function Step3() {
             </button>
 
             <button
-              onClick={() => handleYesNo('question4', false)}
+              onClick={() => handleYesNo('roleContribution', false)}
               className={`px-6 py-2 rounded-md font-medium transition-colors ${
-                answers.question4 === false
+                answers.roleContribution === false
                   ? 'border-[1px] border-[#81D7D4] bg-[#DAF3F3]'
                   : 'border-[0.6px] border-[#898989] bg-[#FFF]'
               }`}
@@ -165,8 +180,8 @@ export default function Step3() {
           </div>
         </div>
         <textarea
-          value={answers.question4Text}
-          onChange={(e) => handleTextChange('question4Text', e.target.value)}
+          value={answers.roleContributionDetail}
+          onChange={(e) => handleTextChange('roleContributionDetail', e.target.value)}
           placeholder="올바른 내용을 알려주세요."
           className="w-full p-4 border border-gray-400 rounded-md resize-none h-24 focus:outline-none focus:ring-2 focus:border-transparent bg-[#FFF]"
         />

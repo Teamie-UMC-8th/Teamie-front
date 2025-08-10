@@ -67,6 +67,14 @@ export default function AIMasterPortfolioCreatePage() {
   const { data: portfolio } = useMasterPortfolioDetail(Number(portfolioId));
   const { data: retro } = useGetPersonalRetro(portfolio?.projectId as number);
   const { mutate: patchMutate } = usePatchMasterPortfolio();
+  const [formAnswers, setFormAnswers] = useState({
+    projectGoal: null as boolean | null,
+    workDomain: null as boolean | null,
+    workDomainDetail: '',
+    achievement: null as boolean | null,
+    roleContribution: null as boolean | null,
+    roleContributionDetail: '',
+  });
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -111,18 +119,30 @@ export default function AIMasterPortfolioCreatePage() {
     if (currentStep === 0) {
       router.replace(`/projects/${portfolio?.projectId}/retrospect/create`);
     } else if (currentStep === 2) {
-      patchMutate({
-        portfolioId: Number(portfolioId),
-        body: {
-          detailInfo: '',
-          assignedTask: '',
-          keyAchievement: '',
-          insight: '',
-          contributionRate: 0,
-          mainTask: '',
-          category: 'OTHER',
+      // 임시저장 실행 - Step3의 모든 폼 데이터 반영
+      patchMutate(
+        {
+          portfolioId: Number(portfolioId),
+          body: {
+            detailInfo: formAnswers.workDomainDetail || '',
+            assignedTask: formAnswers.roleContributionDetail || '',
+            keyAchievement: formAnswers.achievement ? 'yes' : 'no',
+            insight: formAnswers.projectGoal ? 'yes' : 'no',
+            contributionRate: formAnswers.roleContribution ? 25 : 0,
+            mainTask: formAnswers.workDomain ? 'yes' : 'no',
+            category: 'OTHER',
+          },
         },
-      });
+        {
+          onSuccess: () => {
+            alert('임시저장이 완료되었습니다.');
+          },
+          onError: (error) => {
+            console.error('임시저장 실패:', error);
+            alert('임시저장 중 오류가 발생했습니다.');
+          },
+        }
+      );
     } else {
       goToStep(currentStep - 1);
     }
@@ -162,7 +182,7 @@ export default function AIMasterPortfolioCreatePage() {
                   <div className="w-full h-full bg-white border-none rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.10)] p-[50px] max-lg:px-[36px] max-lg:py-[32px] max-lg:text-[16px] max-lg:leading-[24px]">
                     {currentStep === 0 && <Step1 />}
                     {currentStep === 1 && <Step2 />}
-                    {currentStep === 2 && <Step3 />}
+                    {currentStep === 2 && <Step3 onAnswersChange={setFormAnswers} />}
                   </div>
                   <Image
                     className="absolute top-[0] left-[-6px] translate-x-[-50%] translate-y-[50%]"
