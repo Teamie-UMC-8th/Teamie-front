@@ -5,6 +5,7 @@ import {
   PostMasterPortfolioQuestionRequest,
   PostMasterPortfolioQuestionResponse,
   MasterPortfolioGeneratedResponse,
+  MasterPortfolioDetailRecordsResponse,
 } from '@/types/api/masterportfolio';
 import { AxiosResponse } from 'axios';
 
@@ -46,4 +47,13 @@ export const getMasterPortfolioGeneratedResult = async (
     `/api/v1/master-portfolios/${portfolioId}/generation-result`
   );
   return response.data;
+};
+
+// 마스터 포트폴리오 상세 레코드를 가져오는 함수(마스터포트폴리오 상세 레코드)
+export const fetchMasterPortfolioDetailRecords = async (projectId: number) => {
+  const res: AxiosResponse<MasterPortfolioDetailRecordsResponse> = await axiosInstance.get(
+    `/api/v1/master-portfolios/${projectId}/records`
+  );
+
+  return res.data.result;
 };

@@ -1,5 +1,6 @@
 import {
   fetchMasterPortfolioDetail,
+  fetchMasterPortfolioDetailRecords,
   fetchMasterPortfolioList,
   getMasterPortfolioGeneratedResult,
 } from '@/services/masterportfolio/masterportfolio';
@@ -30,5 +31,14 @@ export const useGetMasterPortfolioGeneratedResult = (portfolioId: number) => {
     queryFn: () => getMasterPortfolioGeneratedResult(portfolioId),
     staleTime: 1000 * 60 * 5,
     enabled: !!portfolioId, // portfolioId가 존재할 때만 요청
+  });
+};
+
+export const useMasterPortfolioDetailRecords = (projectId: number) => {
+  return useQuery({
+    queryKey: ['master-portfolio-detail-records', projectId],
+    queryFn: () => fetchMasterPortfolioDetailRecords(projectId),
+    staleTime: 1000 * 60 * 5,
+    enabled: !!projectId,
   });
 };

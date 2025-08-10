@@ -2,11 +2,18 @@
 
 import { useState } from 'react';
 import MeetingLogModal from '../MeetingLogModal';
+import { useMasterPortfolioDetailRecords } from '@/hooks/queries/useGetMasterPortfolio';
+import { useParams } from 'next/navigation';
 
 export default function Step2() {
   const [openModal, setOpenModal] = useState(false);
   const [selectedLogContent, setSelectedLogContent] = useState('');
   const [selectedIndexes, setSelectedIndexes] = useState<number[]>([]);
+
+  const portfolioId = useParams().portfolioId;
+  const { data: masterPortfolioDetailRecords } = useMasterPortfolioDetailRecords(
+    Number(portfolioId)
+  );
 
   const toggleCardSelection = (index: number) => {
     setSelectedIndexes((prev) => {
@@ -43,8 +50,8 @@ export default function Step2() {
           <li>어려웠던 점과 극복한 방법</li>
         </ul>
         <br />
-        회의록은 필수로 선택하지 않아도 되지만, 양질의 회의록이 많다면 좋은 마스터 포트폴리오를 생성할 수 있어요.
-        제가 참고할 회의록을 모두 선택하셨다면, 생성을 시작할게요!
+        회의록은 필수로 선택하지 않아도 되지만, 양질의 회의록이 많다면 좋은 마스터 포트폴리오를
+        생성할 수 있어요. 제가 참고할 회의록을 모두 선택하셨다면, 생성을 시작할게요!
       </div>
 
       <div className="w-fit flex flex-col justify-center items-center border-[2px] border-[#81D7D4] bg-[#DAF3F3] rounded-[100px] py-[16px] px-[36px]">
@@ -56,7 +63,7 @@ export default function Step2() {
         </p>
       </div>
 
-      {Number(length) === 0 ? (
+      {masterPortfolioDetailRecords?.length === 0 ? (
         <div className="bg-[#F8F8F8] rounded-[8px] shadow-[0_0_4px_rgba(0,0,0,0.20)] px-[16px] py-[24px] text-[#505050] text-center min-w-[660px] mt-8">
           OOO님이 참석한 일정에 작성된 회의록이 없어요.
           <br /> 회의록 없이 마스터 포트폴리오를 생성할게요.
@@ -64,7 +71,7 @@ export default function Step2() {
       ) : (
         <div className="w-full max-lg:w-[475px] max-lg:h-[512px] border-[1.5px] border-[#898989] rounded-[20px] p-[16px] max-h-[512px] overflow-y-auto">
           <div className="grid grid-cols-2 max-lg:grid-cols-1 gap-[16px]">
-            {Array.from({ length: 6 }).map((_, index) => {
+            {masterPortfolioDetailRecords?.map((record, index) => {
               const isSelected = selectedIndexes.includes(index);
 
               return (
@@ -76,7 +83,7 @@ export default function Step2() {
                     `}
                   >
                     <div className="p-2 rounded-[4px] border border-[#E7E7E7] bg-white text-black text-[18px] leading-[26px] font-normal tracking-[0.72px]">
-                      3주차 정기 회의
+                      {record.name}
                     </div>
 
                     <div className="w-full flex gap-[14px] mt-[8px]">
@@ -84,7 +91,7 @@ export default function Step2() {
                         일자
                       </div>
                       <div className="flex-9 text-black text-[14px] leading-[22px] font-normal tracking-[0.56px]">
-                        2025.05.25
+                        {record.date}
                       </div>
                     </div>
 
@@ -102,12 +109,11 @@ export default function Step2() {
                         }}
                       >
                         <div className="absolute inset-0 bg-[rgba(0,0,0,0.1)] opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-[4px]" />
-                        내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용...
+                        {record.meetingRecords}
                         <button
                           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-[12px] py-[4px] text-[14px] font-semibold rounded-[4px] shadow opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
                           onClick={(e) => {
-                            e.stopPropagation(); // 카드 클릭 방지
-                            setSelectedLogContent('...');
+                            setSelectedLogContent(record.meetingRecords);
                             setOpenModal(true);
                           }}
                         >

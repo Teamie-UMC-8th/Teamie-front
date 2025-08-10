@@ -86,3 +86,16 @@ export interface MasterPortfolioGeneratedResponse {
   error: null;
   result: MasterPortfolioGeneratedResult;
 }
+
+export interface MasterPortfolioDetailRecords {
+  id: number;
+  name: string;
+  date: string;
+  meetingRecords: string;
+}
+
+export interface MasterPortfolioDetailRecordsResponse {
+  isSuccess: boolean;
+  error: null;
+  result: MasterPortfolioDetailRecords[];
+}
