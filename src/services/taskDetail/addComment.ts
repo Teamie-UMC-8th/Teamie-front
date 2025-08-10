@@ -9,6 +9,7 @@ import {
   UpdateCocommentRequest,
   UpdateCocommentResponse,
   DeleteCocommentResponse,
+  DeleteCommentResponse,
 } from '@/types/api/comment';
 
 // 댓글 추가 함수
@@ -152,6 +153,51 @@ export const deleteCocomment = async (cocommentId: number): Promise<DeleteCocomm
 
     console.error('💥 대댓글 삭제 중 예상치 못한 오류 발생');
     throw new Error('대댓글 삭제 중 오류가 발생했습니다.');
+  }
+};
+
+// 댓글 삭제 함수
+export const deleteComment = async (commentId: number): Promise<DeleteCommentResponse> => {
+  console.log('🚀 댓글 삭제 API 호출 시작:', { commentId });
+
+  try {
+    console.log('📡 DELETE 요청 전송:', `/api/v1/comments/${commentId}`);
+    const response = await axiosInstance.delete(`/api/v1/comments/${commentId}`);
+    console.log('✅ 댓글 삭제 API 성공:', {
+      status: response.status,
+      statusText: response.statusText,
+      data: response.data,
+      headers: response.headers,
+    });
+    return response.data;
+  } catch (error: unknown) {
+    console.error('❌ 댓글 삭제 실패:', {
+      error,
+      errorType: typeof error,
+      hasResponse: error && typeof error === 'object' && 'response' in error,
+    });
+
+    // 실제 API 에러 응답 처리
+    if (
+      error &&
+      typeof error === 'object' &&
+      'response' in error &&
+      error.response &&
+      typeof error.response === 'object' &&
+      'status' in error.response
+    ) {
+      console.error('🔍 API 에러 상세 정보:', {
+        status: error.response.status,
+      });
+
+      if (error.response.status === 404) {
+        console.error('🔍 댓글을 찾을 수 없음 (404)');
+        throw new Error('댓글을 찾을 수 없습니다.');
+      }
+    }
+
+    console.error('💥 댓글 삭제 중 예상치 못한 오류 발생');
+    throw new Error('댓글 삭제 중 오류가 발생했습니다.');
   }
 };
 

@@ -5,6 +5,7 @@ import {
   addCocomment,
   updateCocomment,
   deleteCocomment,
+  deleteComment,
 } from '@/services/taskDetail/addComment';
 import {
   AddCommentResponse,
@@ -12,6 +13,7 @@ import {
   AddCocommentResponse,
   UpdateCocommentResponse,
   DeleteCocommentResponse,
+  DeleteCommentResponse,
 } from '@/types/api/comment';
 
 // 댓글 조회 query
@@ -106,14 +108,18 @@ export const useDeleteComment = () => {
 
   return useMutation({
     mutationFn: (commentId: number) => {
-      // 실제 API가 준비되면 여기에 구현
-      return Promise.resolve({ commentId });
+      console.log('🔄 useDeleteComment mutation 시작:', { commentId });
+      return deleteComment(commentId);
     },
-    onSuccess: () => {
+    onSuccess: (_data: DeleteCommentResponse, variables) => {
+      console.log('🎉 댓글 삭제 mutation 성공:', { commentId: variables, data: _data });
+      // 댓글 삭제 성공 시 관련 캐시 완전 제거
+      queryClient.removeQueries({ queryKey: ['taskComments'] });
       queryClient.invalidateQueries({ queryKey: ['taskComments'] });
+      console.log('🔄 댓글 목록 캐시 완전 제거 완료');
     },
-    onError: (error: Error) => {
-      console.error('댓글 삭제 mutation 에러:', error);
+    onError: (error: Error, variables) => {
+      console.error('💥 댓글 삭제 mutation 에러:', { commentId: variables, error });
     },
   });
 };

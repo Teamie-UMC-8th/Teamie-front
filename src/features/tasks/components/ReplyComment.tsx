@@ -69,7 +69,13 @@ export default function ReplyComment({
             disabled={isAddingCocomment}
             className="rounded-[8px] w-[1224px] min-h-[46px] pl-[12px] py-[10px] bg-white border-[2px] border-[#BBBBBB]
             max-lg:w-[671px] disabled:opacity-50"
-            placeholder={isAddingCocomment ? '대댓글을 추가하는 중...' : '댓글을 작성하세요'}
+            placeholder={
+              isAddingCocomment
+                ? '대댓글을 추가하는 중...'
+                : replyToCocommentId
+                  ? '대댓글에 대한 대댓글을 작성하세요'
+                  : '댓글을 작성하세요'
+            }
           />
           {replyValue.trim() !== '' && (
             <button
@@ -113,7 +119,7 @@ export default function ReplyComment({
                 <input
                   value={editCocommentContent}
                   onChange={(e) => onCocommentEditChange?.(e.target.value)}
-                  className="rounded-[8px] w-[1232px] min-h-[46px] pl-[12px] py-[10px] bg-white border-[2px] border-[#BBBBBB] ml-[8px]
+                  className="rounded-[8px] w-[1224px] min-h-[46px] pl-[12px] py-[10px] bg-white border-[2px] border-[#BBBBBB] ml-[16px]
                   max-lg:w-[671px]"
                   placeholder="대댓글을 수정하세요"
                 />
@@ -163,52 +169,6 @@ export default function ReplyComment({
             )}
           </div>
           <div className="text-[#898989] text-[12px] ml-[24px] mt-[4px]">{formatDate()}</div>
-        </div>
-      </div>
-    );
-  }
-
-  // 대댓글에 대한 대댓글 입력 필드
-  if (replyToCocommentId === cocommentIdx) {
-    console.log('🎯 대댓글에 대한 대댓글 입력 필드 렌더링:', {
-      replyToCocommentId,
-      cocommentIdx,
-      isMatch: replyToCocommentId === cocommentIdx,
-    });
-
-    return (
-      <div className="flex items-center ml-[40px] w-[1320px]">
-        <img
-          src="/icons/arrow-reply.svg"
-          alt="대댓글 화살표"
-          className="w-[24px] h-[24px] mr-[20px]"
-        />
-        <img
-          className="mr-[20px] w-[44px] h-[44px] rounded-full object-cover"
-          src={currentUser?.imageUrl || '/icons/myprofile.svg'}
-          alt="댓글프로필"
-        />
-        <div className="relative w-[1224px]">
-          <input
-            value={replyValue}
-            onChange={(e) => onChange(idx, e.target.value)}
-            disabled={isAddingCocomment}
-            className="rounded-[8px] w-[1224px] min-h-[46px] pl-[12px] py-[10px] bg-white border-[2px] border-[#BBBBBB]
-            max-lg:w-[671px] disabled:opacity-50"
-            placeholder={
-              isAddingCocomment ? '대댓글을 추가하는 중...' : '대댓글에 대한 대댓글을 작성하세요'
-            }
-          />
-          {replyValue.trim() !== '' && (
-            <button
-              onClick={() => onSubmit(idx)}
-              disabled={isAddingCocomment}
-              className="absolute right-[8px] top-1/2 -translate-y-1/2 w-[36px] h-[36px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
-              max-lg:translate-x-[-550px]"
-            >
-              <img src="/icons/comment-enter.svg" alt="대댓글 전송" />
-            </button>
-          )}
         </div>
       </div>
     );

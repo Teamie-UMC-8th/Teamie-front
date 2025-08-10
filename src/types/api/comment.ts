@@ -91,3 +91,10 @@ export interface DeleteCocommentResponse {
   error: null;
   result: string;
 }
+
+// 댓글 삭제 API 응답 타입 정의
+export interface DeleteCommentResponse {
+  isSuccess: boolean;
+  error: null;
+  result: string;
+}

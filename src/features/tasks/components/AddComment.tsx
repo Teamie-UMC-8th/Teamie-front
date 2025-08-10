@@ -5,6 +5,7 @@ import {
   useAddCocomment,
   useUpdateCocomment,
   useDeleteCocomment,
+  useDeleteComment,
 } from '@/hooks/mutations/useCommentMutations';
 import { useParams } from 'next/navigation';
 import { useUser } from '@/hooks/mutations/useUser';
@@ -50,6 +51,7 @@ export default function AddComment() {
   const { mutate: addCocommentMutation, isPending: isAddingCocomment } = useAddCocomment();
   const { mutate: updateCocommentMutation, isPending: isUpdatingCocomment } = useUpdateCocomment();
   const { mutate: deleteCocommentMutation, isPending: isDeletingCocomment } = useDeleteCocomment();
+  const { mutate: deleteCommentMutation, isPending: isDeletingComment } = useDeleteComment();
 
   // 댓글 데이터가 로드되면 상태 업데이트
   useEffect(() => {
@@ -153,10 +155,19 @@ export default function AddComment() {
     const commentId = comments[idx].commentId;
     const content = replyComments[idx].trim();
 
+    console.log('💬 대댓글 추가 API 호출:', {
+      commentId,
+      content,
+      replyToCocommentId,
+      isReplyToCocomment: !!replyToCocommentId,
+    });
+
     addCocommentMutation(
       { commentId, content },
       {
         onSuccess: (data) => {
+          console.log('✅ 대댓글 추가 성공:', data);
+
           // 성공 시 입력 필드 초기화 및 replyToIndex 초기화
           setReplyComments((prev) => {
             const newReplies = { ...prev };
@@ -164,6 +175,7 @@ export default function AddComment() {
             return newReplies;
           });
           setReplyToIndex(null);
+          setReplyToCocommentId(null); // 대댓글에 대한 대댓글 모드도 초기화
 
           // 로컬 상태에 새 대댓글 추가
           const newCocommentData = {
@@ -239,9 +251,22 @@ export default function AddComment() {
 
   // 대댓글에 대한 대댓글 입력 처리
   const handleCocommentReply = (cocommentId: number) => {
-    setReplyToCocommentId(cocommentId);
-    setReplyToIndex(null); // 기존 댓글 대댓글 입력 모드 해제
-    setEditCocommentId(null); // 수정 모드 해제
+    // 해당 대댓글이 속한 댓글의 인덱스를 찾기
+    const commentIndex = comments.findIndex((comment) =>
+      comment.cocomments?.some((cocomment) => cocomment.cocommentId === cocommentId)
+    );
+
+    if (commentIndex !== -1) {
+      console.log('💬 대댓글에 대한 대댓글 입력 모드 시작:', {
+        cocommentId,
+        commentIndex,
+      });
+
+      // 해당 댓글의 대댓글 입력 모드 활성화
+      setReplyToIndex(commentIndex);
+      setReplyToCocommentId(cocommentId); // 어떤 대댓글에 대한 대댓글인지 저장
+      setEditCocommentId(null); // 수정 모드 해제
+    }
   };
 
   // 대댓글 삭제 처리
@@ -360,9 +385,9 @@ export default function AddComment() {
               <img
                 src={comment.users.imageUrl || '/icons/myprofile.svg'}
                 alt="댓글프로필"
-                className="w-[44px] h-[44px] rounded-full object-cover mr-[8px]"
+                className="w-[44px] h-[44px] rounded-full object-cover"
               />
-              <div className="text-[12px] text-black mt-[2px]">
+              <div className="text-[12px] text-black mt-[2px] text-center">
                 {comment.users.name || 'Teamie'}
               </div>
             </div>
@@ -384,7 +409,7 @@ export default function AddComment() {
                   />
                 ) : (
                   <div
-                    className="bg-[#F8F8F8] rounded-[8px] w-[1288px] min-h-[46px] pl-[12px] py-[10px] min-w-fit
+                    className="bg-[#F8F8F8] rounded-[8px] w-[1288px] min-h-[46px] pl-[12px] py-[10px] min-w-fit ml-[8px]
                   max-lg:w-[735px]"
                   >
                     {comment.content}
@@ -402,6 +427,10 @@ export default function AddComment() {
                         setEditIndex(idx);
                         setReplyToIndex(null);
                       } else if (action === 'delete') {
+                        const commentId = comments[idx].commentId;
+                        console.log('🗑️ 댓글 삭제 요청:', { commentId, commentIndex: idx });
+
+                        // 먼저 로컬 상태에서 해당 댓글을 제거
                         const newComments = comments.filter((_, i) => i !== idx);
                         const newReplies = { ...replyComments };
                         delete newReplies[idx];
@@ -409,6 +438,23 @@ export default function AddComment() {
                         setReplyComments(newReplies);
                         setReplyToIndex(null);
                         setEditIndex(null);
+
+                        // API 호출
+                        deleteCommentMutation(commentId, {
+                          onSuccess: () => {
+                            console.log('🎉 댓글 삭제 성공:', commentId);
+                            // 성공 후 서버에서 최신 데이터를 다시 가져옴
+                            refetchComments();
+                          },
+                          onError: (error: Error) => {
+                            console.error('💥 댓글 삭제 실패:', { commentId, error });
+                            // 실패 시 원래 상태로 되돌림
+                            setComments(comments);
+                            setReplyComments(replyComments);
+                            refetchComments();
+                            alert(error.message || '댓글 삭제에 실패했습니다.');
+                          },
+                        });
                       } else {
                         setReplyToIndex(null);
                         setEditIndex(null);
@@ -417,7 +463,7 @@ export default function AddComment() {
                   />
                 )}
               </div>
-              <div className="text-[#898989] text-[12px] ml-[12px] mt-[4px]">
+              <div className="text-[#898989] text-[12px] ml-[16px] mt-[4px] ">
                 {formatDate(comment.createdAt)}
               </div>
             </div>
@@ -429,7 +475,7 @@ export default function AddComment() {
             comment.cocomments.map((cocomment, cocommentIndex) => (
               <div
                 key={cocomment.cocommentId}
-                className={cocommentIndex < comment.cocomments.length - 1 ? 'mb-[8px]' : ''}
+                className={cocommentIndex < comment.cocomments.length - 1 ? 'mb-[8px]' : 'mb-[8px]'}
               >
                 <ReplyComment
                   idx={idx}
@@ -452,55 +498,6 @@ export default function AddComment() {
                   onCocommentEditChange={setEditCocommentContent}
                   onCocommentEditSubmit={handleCocommentEditSubmit}
                 />
-
-                {/* 대댓글에 대한 대댓글 입력 필드 */}
-                {replyToCocommentId === cocomment.cocommentId && (
-                  <ReplyComment
-                    idx={idx}
-                    replyToIndex={null}
-                    replyToCocommentId={replyToCocommentId}
-                    replyValue={cocommentReplyValue}
-                    onChange={(idx, value) => setCocommentReplyValue(value)}
-                    onSubmit={() => {
-                      if (!cocommentReplyValue || cocommentReplyValue.trim() === '') return;
-
-                      // 현재는 로컬 상태만 업데이트 (실제 API가 준비되면 여기에 구현)
-                      console.log('💬 대댓글에 대한 대댓글 추가:', {
-                        cocommentId: cocomment.cocommentId,
-                        content: cocommentReplyValue.trim(),
-                      });
-
-                      // 로컬 상태에 새 대댓글 추가 (임시)
-                      const newCocommentData = {
-                        cocommentId: Date.now(), // 임시 ID
-                        content: cocommentReplyValue.trim(),
-                        createdAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString(),
-                        users: {
-                          imageUrl: currentUser?.imageUrl || '/icons/myprofile.svg',
-                          name: currentUser?.name || '사용자',
-                        },
-                      };
-
-                      setComments((prev) =>
-                        prev.map((comment, commentIdx) =>
-                          commentIdx === idx
-                            ? {
-                                ...comment,
-                                cocomments: [...(comment.cocomments || []), newCocommentData],
-                              }
-                            : comment
-                        )
-                      );
-
-                      // 입력 필드 초기화
-                      setCocommentReplyValue('');
-                      setReplyToCocommentId(null);
-                    }}
-                    formatDate={formatDate}
-                    isAddingCocomment={isAddingCocomment}
-                  />
-                )}
               </div>
             ))}
 
