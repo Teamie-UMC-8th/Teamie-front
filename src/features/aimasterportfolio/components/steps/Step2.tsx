@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import MeetingLogModal from '../MeetingLogModal';
 import { useMasterPortfolioDetailRecords } from '@/hooks/queries/useGetMasterPortfolio';
 import { useParams } from 'next/navigation';
+import { useUser } from '@/hooks/mutations/useUser';
 
 interface Step2Props {
   selectedIds?: number[];
@@ -19,6 +20,7 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
     Number(portfolioId)
   );
 
+  const { data: user } = useUser();
   // index → id 매핑을 위해 메모리 동기화
   useEffect(() => {
     if (!masterPortfolioDetailRecords || masterPortfolioDetailRecords.length === 0) return;
@@ -82,7 +84,7 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
 
       {masterPortfolioDetailRecords?.length === 0 ? (
         <div className="bg-[#F8F8F8] rounded-[8px] shadow-[0_0_4px_rgba(0,0,0,0.20)] px-[16px] py-[24px] text-[#505050] text-center min-w-[660px] mt-8">
-          OOO님이 참석한 일정에 작성된 회의록이 없어요.
+          {user?.name}님이 참석한 일정에 작성된 회의록이 없어요.
           <br /> 회의록 없이 마스터 포트폴리오를 생성할게요.
         </div>
       ) : (

@@ -46,6 +46,7 @@ export default function AIMasterPortfolioCreatePage() {
   const step3Ref = useRef<Step3Handle>(null);
   const [isPostingQuestions, setIsPostingQuestions] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [synced, setSynced] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -54,13 +55,13 @@ export default function AIMasterPortfolioCreatePage() {
   }, []);
 
   const sidebarPaddingTop = Math.max(0, 56 - scrollY);
-
   const status = statusData?.result?.status as string | undefined;
   const stepParam = searchParams.get('step');
   const requiredStep = status === 'NEED_ANSWERS' ? 3 : status === 'DONE' ? 0 : 1;
   const minStepIndex = Math.max(0, requiredStep - 1);
 
   useEffect(() => {
+    setSynced(false);
     if (!status) return;
 
     if (status === 'DONE') {
@@ -68,14 +69,19 @@ export default function AIMasterPortfolioCreatePage() {
       return;
     }
 
+    let changed = false;
     const stepNum = stepParam ? Number(stepParam) : NaN;
     if (!stepParam || Number.isNaN(stepNum) || stepNum < requiredStep) {
       router.replace(`${pathname}?step=${requiredStep}`);
+      changed = true;
     }
 
     if (currentStep < minStepIndex) {
       goToStep(minStepIndex);
+      changed = true;
     }
+
+    if (!changed) setSynced(true);
   }, [
     status,
     stepParam,
@@ -87,6 +93,9 @@ export default function AIMasterPortfolioCreatePage() {
     router,
     goToStep,
   ]);
+
+  // 초기 로딩/정규화 중에는 깜빡임 방지를 위해 렌더 지연
+  if (!status || !synced) return null;
 
   const isRetroDataComplete = () => {
     if (!retro) return false;
