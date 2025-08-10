@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const STATUS_OPTIONS = [
   { label: '시작 전', value: 'NOTSTART' as const, color: 'bg-[#E7E7E7]' },
@@ -18,6 +18,7 @@ export default function TaskDropdown({ status, onChange }: TaskDropdownProps) {
     () => STATUS_OPTIONS.find((s) => s.value === status) || STATUS_OPTIONS[0]
   );
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const match = STATUS_OPTIONS.find((s) => s.value === status);
@@ -28,6 +29,23 @@ export default function TaskDropdown({ status, onChange }: TaskDropdownProps) {
   }, [status]);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
+
+  // 빈 곳 클릭 시 드롭다운 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   const handleSelect = (option: (typeof STATUS_OPTIONS)[number]) => {
     console.log('TaskDropdown - 상태 선택:', option);
@@ -46,7 +64,7 @@ export default function TaskDropdown({ status, onChange }: TaskDropdownProps) {
   };
 
   return (
-    <div className="relative inline-block">
+    <div className="relative inline-block" ref={dropdownRef}>
       <div className="flex">
         {/* 선택된 상태 표시 */}
         <button

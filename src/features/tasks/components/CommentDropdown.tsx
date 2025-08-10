@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const COMMENT_OPTIONS = [
   { label: '대댓글 등록', icon: '/icons/reply.svg', action: 'reply' },
@@ -22,9 +22,27 @@ export default function CommentMenuDropdown({
   type?: 'comment' | 'cocomment';
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const options = type === 'cocomment' ? COCOMMENT_OPTIONS : COMMENT_OPTIONS;
 
   const toggleDropdown = () => setIsOpen((prev) => !prev);
+
+  // 빈 곳 클릭 시 드롭다운 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   const handleSelect = (action: string) => {
     onSelect(action);
@@ -32,7 +50,7 @@ export default function CommentMenuDropdown({
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col" ref={dropdownRef}>
       <button
         onClick={toggleDropdown}
         className="absolute right-[8px] top-1/2 -translate-y-1/2 cursor-pointer group-hover:block hidden"

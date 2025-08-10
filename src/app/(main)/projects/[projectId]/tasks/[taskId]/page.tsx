@@ -391,38 +391,72 @@ export default function TaskDetailPage() {
               마감 기한
             </div>
             <div
-              className={`flex items-center ${selectedDate || task.deadline ? 'w-[110px]' : 'w-0'} overflow-hidden transition-all duration-200`}
+              className={`flex items-center ${(() => {
+                const shouldShow = selectedDate || task.deadline;
+                console.log('🔍 마감기한 컨테이너 조건:', {
+                  selectedDate,
+                  taskDeadline: task.deadline,
+                  shouldShow,
+                  className: shouldShow ? 'w-[110px]' : 'w-0',
+                });
+                return shouldShow ? 'w-[110px]' : 'w-0';
+              })()} overflow-hidden transition-all duration-200`}
             >
               <div
                 className="text-[20px] cursor-pointer whitespace-nowrap"
                 onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
               >
-                {selectedDate
-                  ? (() => {
-                      const year = selectedDate.getFullYear();
-                      const month = (selectedDate.getMonth() + 1).toString().padStart(2, '0');
-                      const day = selectedDate.getDate().toString().padStart(2, '0');
-                      return `${year}.${month}.${day}`;
-                    })()
-                  : task.deadline
-                    ? (() => {
-                        const dateString = task.deadline;
-                        // 날짜 문자열에서 날짜 부분만 추출
-                        const datePart = dateString.split(' ')[0];
-                        const [year, month, day] = datePart.split('-').map(Number);
+                {(() => {
+                  console.log('🔍 마감기한 표시 디버깅:', {
+                    selectedDate,
+                    taskDeadline: task.deadline,
+                    hasSelectedDate: !!selectedDate,
+                    hasTaskDeadline: !!task.deadline,
+                  });
 
-                        if (year && month && day) {
-                          return `${year}.${month.toString().padStart(2, '0')}.${day.toString().padStart(2, '0')}`;
-                        }
-                        return '';
-                      })()
-                    : ''}
+                  if (selectedDate) {
+                    const year = selectedDate.getFullYear();
+                    const month = (selectedDate.getMonth() + 1).toString().padStart(2, '0');
+                    const day = selectedDate.getDate().toString().padStart(2, '0');
+                    const formattedDate = `${year}.${month}.${day}`;
+                    console.log('📅 selectedDate 포맷팅 결과:', formattedDate);
+                    return formattedDate;
+                  } else if (task.deadline) {
+                    console.log('📅 task.deadline 원본:', task.deadline);
+                    const dateString = task.deadline;
+
+                    // ISO 문자열 처리 (2025-08-06T23:59:59.000Z 형태)
+                    let datePart;
+                    if (dateString.includes('T')) {
+                      // ISO 문자열인 경우 T를 기준으로 분리
+                      datePart = dateString.split('T')[0];
+                    } else {
+                      // 일반 날짜 문자열인 경우 공백을 기준으로 분리
+                      datePart = dateString.split(' ')[0];
+                    }
+
+                    console.log('📅 datePart 추출:', datePart);
+                    const [year, month, day] = datePart.split('-').map(Number);
+                    console.log('📅 파싱된 날짜:', { year, month, day });
+
+                    if (year && month && day) {
+                      const formattedDate = `${year}.${month.toString().padStart(2, '0')}.${day.toString().padStart(2, '0')}`;
+                      console.log('📅 task.deadline 포맷팅 결과:', formattedDate);
+                      return formattedDate;
+                    }
+                    console.log('❌ 날짜 파싱 실패');
+                    return '';
+                  } else {
+                    console.log('❌ 날짜 데이터 없음');
+                    return '';
+                  }
+                })()}
               </div>
             </div>
             <img
               src="/icons/deadline-calendar.svg"
               alt="마감기한"
-              className="ml-[2px] cursor-pointer"
+              className="ml-[10px] cursor-pointer"
               onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
             />
             <DatePicker

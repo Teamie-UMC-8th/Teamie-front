@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface Manager {
   userId: number;
@@ -40,6 +40,7 @@ export default function AddProfileButton({
 
   const toggleDropdown = () => setDropdownOpen((prev) => !prev);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   /* 프로필 선택 */
   const handleSelect = (profile: Manager) => {
@@ -65,6 +66,23 @@ export default function AddProfileButton({
     onChange?.(updated.map((p) => p.userId));
     // 드롭다운을 닫지 않도록 setDropdownOpen(false) 제거
   };
+
+  // 빈 곳 클릭 시 드롭다운 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    if (dropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownOpen]);
 
   /* 프로필 제거 */
   const handleRemove = (profile: Manager) => {
@@ -114,7 +132,7 @@ export default function AddProfileButton({
       ))}
 
       {/* 프로필 추가 버튼 + 드롭다운 */}
-      <div className="relative">
+      <div className="relative" ref={dropdownRef}>
         <button
           onClick={toggleDropdown}
           className="flex items-center justify-center w-[36px] h-[36px]"
