@@ -16,6 +16,7 @@ import { useGetPersonalRetro } from '@/hooks/queries/useGetPersonalRetro';
 import { usePatchMasterPortfolio } from '@/hooks/mutations/usePatchMasterPortfolio';
 import { usePatchMasterPortfolioQuestions } from '@/hooks/mutations/usePatchMasterPortfolioQuestions';
 import { useQueryClient } from '@tanstack/react-query';
+import { usePostMasterPortfolioGenerate } from '@/hooks/mutations/usePostMasterPortfolioGenerate';
 
 const AI_CREATE_STEPS = [
   {
@@ -74,7 +75,7 @@ export default function AIMasterPortfolioCreatePage() {
     roleContributionDetail: '',
   });
   const step3Ref = useRef<Step3Handle>(null);
-  const { mutate } = usePostMasterPortfolioQuestions();
+  const { mutate } = usePostMasterPortfolioGenerate();
   const { data: portfolio } = useMasterPortfolioDetail(Number(portfolioId));
   const { data: retro } = useGetPersonalRetro(portfolio?.projectId as number);
   const { mutate: patchQuestions, isPending: isPatchQuestionsPending } =
@@ -107,16 +108,7 @@ export default function AIMasterPortfolioCreatePage() {
 
   const handleMainButtonClick = () => {
     if (currentStep === 2) {
-      mutate(
-        { portfolioId: Number(portfolioId), recordIdList: [] },
-        {
-          onSuccess: () => setShowConfirmModal(true),
-          onError: (error) => {
-            console.error('질문 생성 실패:', error);
-            alert('질문 생성 중 오류가 발생했습니다.');
-          },
-        }
-      );
+      setShowConfirmModal(true);
     } else {
       goToStep(currentStep + 1);
     }
@@ -236,7 +228,35 @@ export default function AIMasterPortfolioCreatePage() {
       {showConfirmModal && (
         <AIConfirmModal
           onConfirm={() => {
-            router.push(`/mypage/aimasterportfolio/${portfolioId}/final`);
+            const payload = step3Ref.current?.buildDraftPayload() ?? [];
+            patchQuestions(
+              {
+                portfolioId: Number(portfolioId),
+                body: payload,
+              },
+              {
+                onSuccess: () => {
+                  queryClient.invalidateQueries({
+                    queryKey: ['master-portfolio-questions', Number(portfolioId)],
+                  });
+
+                  mutate(
+                    { portfolioId: Number(portfolioId) },
+                    {
+                      onSuccess: () => setShowConfirmModal(true),
+                      onError: (error) => {
+                        console.error('포트폴리오 생성 실패:', error);
+                        alert('포트폴리오 생성 중 오류가 발생했습니다.');
+                      },
+                    }
+                  );
+                },
+                onError: (error) => {
+                  console.error('임시저장 실패:', error);
+                  alert('임시저장 중 오류가 발생했습니다.');
+                },
+              }
+            );
           }}
           onCancel={() => setShowConfirmModal(false)}
         />
