@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import StepsSidebar from '@/features/aimasterportfolio/components/StepSidebar';
 import Portal from '@/components/Portal';
 import { useFunnel } from '@/features/aimasterportfolio/hooks/useFunnel';
@@ -18,45 +18,10 @@ import { useGetPersonalRetro } from '@/hooks/queries/useGetPersonalRetro';
 import { usePatchMasterPortfolioQuestions } from '@/hooks/mutations/usePatchMasterPortfolioQuestions';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePostMasterPortfolioGenerate } from '@/hooks/mutations/usePostMasterPortfolioGenerate';
+import { usePostMasterPortfolioQuestions } from '@/hooks/mutations/usePostMasterPortfolioQuestions';
 
-const AI_CREATE_STEPS = [
-  {
-    id: 1,
-    title: '개인 회고 작성',
-    buttons: {
-      sub: '개인 회고로 이동',
-      main: (
-        <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">
-          다음으로 →
-        </span>
-      ),
-    },
-  },
-  {
-    id: 2,
-    title: '회의록 선택',
-    buttons: {
-      sub: '← 이전으로',
-      main: (
-        <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">
-          다음으로 →
-        </span>
-      ),
-    },
-  },
-  {
-    id: 3,
-    title: '추가 질문',
-    buttons: {
-      sub: '임시저장',
-      main: (
-        <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">
-          AI 마스터 포트폴리오 생성하기
-        </span>
-      ),
-    },
-  },
-];
+const STEP_TITLES = ['개인 회고 작성', '회의록 선택', '추가 질문'] as const;
+const STEPS_FOR_SIDEBAR = STEP_TITLES.map((title, idx) => ({ id: idx + 1, title }));
 
 export default function AIMasterPortfolioCreatePage() {
   const router = useRouter();
@@ -72,11 +37,15 @@ export default function AIMasterPortfolioCreatePage() {
     usePatchMasterPortfolioQuestions();
   const queryClient = useQueryClient();
   const { mutate: generate } = usePostMasterPortfolioGenerate();
+  const { mutate: postQuestions } = usePostMasterPortfolioQuestions();
 
   const { currentStep, goToStep } = useFunnel({ initialStep: 0 });
   const [scrollY, setScrollY] = useState(0);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [selectedRecordIds, setSelectedRecordIds] = useState<number[]>([]);
   const step3Ref = useRef<Step3Handle>(null);
+  const [isPostingQuestions, setIsPostingQuestions] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -86,10 +55,9 @@ export default function AIMasterPortfolioCreatePage() {
 
   const sidebarPaddingTop = Math.max(0, 56 - scrollY);
 
-  // 최소 의존성: 상태/파라미터를 원시 값으로 고정
   const status = statusData?.result?.status as string | undefined;
   const stepParam = searchParams.get('step');
-  const requiredStep = status === 'NEED_ANSWERS' ? 2 : status === 'DONE' ? 0 : 1;
+  const requiredStep = status === 'NEED_ANSWERS' ? 3 : status === 'DONE' ? 0 : 1;
   const minStepIndex = Math.max(0, requiredStep - 1);
 
   useEffect(() => {
@@ -124,7 +92,7 @@ export default function AIMasterPortfolioCreatePage() {
     if (!retro) return false;
     const { collaborationProfile, memorableExperience, strengthsAndGrowth } = retro;
     return (
-      collaborationProfile?.trim() && memorableExperience?.trim() && strengthsAndGrowth?.trim()
+      collaborationProfile?.trim() || memorableExperience?.trim() || strengthsAndGrowth?.trim()
     );
   };
 
@@ -137,6 +105,21 @@ export default function AIMasterPortfolioCreatePage() {
   const handleMainButtonClick = () => {
     if (currentStep === 2) {
       setShowConfirmModal(true);
+    } else if (currentStep === 1) {
+      if (isPostingQuestions) return;
+      setIsPostingQuestions(true);
+      postQuestions(
+        { portfolioId, recordIdList: selectedRecordIds },
+        {
+          onSuccess: () => {
+            safeGoToStep(currentStep + 1);
+            queryClient.invalidateQueries({
+              queryKey: ['master-portfolio-questions', portfolioId],
+            });
+          },
+          onSettled: () => setIsPostingQuestions(false),
+        }
+      );
     } else {
       safeGoToStep(currentStep + 1);
     }
@@ -183,7 +166,11 @@ export default function AIMasterPortfolioCreatePage() {
           max-lg:justify-end"
           style={{ paddingTop: `${sidebarPaddingTop}px` }}
         >
-          <StepsSidebar currentStep={currentStep} steps={AI_CREATE_STEPS} goToStep={safeGoToStep} />
+          <StepsSidebar
+            currentStep={currentStep}
+            steps={STEPS_FOR_SIDEBAR}
+            goToStep={safeGoToStep}
+          />
         </div>
       </Portal>
 
@@ -208,7 +195,12 @@ export default function AIMasterPortfolioCreatePage() {
                 <div className="relative w-full h-full">
                   <div className="w-full h-full bg-white border-none rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.10)] p-[50px] max-lg:px-[36px] max-lg:py-[32px] max-lg:text-[16px] max-lg:leading-[24px]">
                     {currentStep === 0 && <Step1 />}
-                    {currentStep === 1 && <Step2 />}
+                    {currentStep === 1 && (
+                      <Step2
+                        onChangeSelectedIds={setSelectedRecordIds}
+                        selectedIds={selectedRecordIds}
+                      />
+                    )}
                     {currentStep === 2 && <Step3 ref={step3Ref} />}
                   </div>
                   <Image
@@ -226,17 +218,31 @@ export default function AIMasterPortfolioCreatePage() {
                   <button
                     className="rounded-[6px] border-[1.5px] border-[#898989] bg-[#FFF] p-[6px] px-[32px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={handleSubButtonClick}
-                    disabled={currentStep === 2 && isPatchQuestionsPending}
+                    disabled={
+                      (currentStep === 2 && isPatchQuestionsPending) ||
+                      isPostingQuestions ||
+                      isGenerating
+                    }
                   >
-                    {AI_CREATE_STEPS[currentStep].buttons.sub}
+                    {currentStep === 0
+                      ? '개인 회고로 이동'
+                      : currentStep === 1
+                        ? '← 이전으로'
+                        : '임시저장'}
                   </button>
 
                   <button
                     className="rounded-[6px] border-[1px] border-[#81D7D4] bg-[#81D7D4] p-[6px] px-[32px] text-[#FFF] cursor-pointer disabled:opacity-50"
                     onClick={handleMainButtonClick}
-                    disabled={isMainButtonDisabled()}
+                    disabled={isMainButtonDisabled() || isPostingQuestions || isGenerating}
                   >
-                    {AI_CREATE_STEPS[currentStep].buttons.main}
+                    {currentStep === 2
+                      ? isGenerating
+                        ? '생성 중…'
+                        : 'AI 마스터 포트폴리오 생성하기'
+                      : isPostingQuestions
+                        ? '다음으로…'
+                        : '다음으로 →'}
                   </button>
                 </div>
                 <Image
@@ -254,7 +260,14 @@ export default function AIMasterPortfolioCreatePage() {
 
       {showConfirmModal && (
         <AIConfirmModal
+          confirmText="생성"
+          cancelText="취소"
+          isLoading={isGenerating}
+          disableConfirm={isGenerating}
+          disableCancel={isGenerating}
           onConfirm={() => {
+            if (isGenerating) return;
+            setIsGenerating(true);
             const payload = step3Ref.current?.buildDraftPayload() ?? [];
             patchQuestions(
               { portfolioId, body: payload },
@@ -271,17 +284,22 @@ export default function AIMasterPortfolioCreatePage() {
                         console.error('포트폴리오 생성 실패:', error);
                         alert('포트폴리오 생성 중 오류가 발생했습니다.');
                       },
+                      onSettled: () => setIsGenerating(false),
                     }
                   );
                 },
                 onError: (error) => {
                   console.error('임시저장 실패:', error);
                   alert('임시저장 중 오류가 발생했습니다.');
+                  setIsGenerating(false);
                 },
               }
             );
           }}
-          onCancel={() => setShowConfirmModal(false)}
+          onCancel={() => {
+            if (isGenerating) return;
+            setShowConfirmModal(false);
+          }}
         />
       )}
     </>

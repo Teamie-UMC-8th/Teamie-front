@@ -1,36 +1,56 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import MeetingLogModal from '../MeetingLogModal';
 import { useMasterPortfolioDetailRecords } from '@/hooks/queries/useGetMasterPortfolio';
 import { useParams } from 'next/navigation';
 
-export default function Step2() {
+interface Step2Props {
+  selectedIds?: number[];
+  onChangeSelectedIds?: (ids: number[]) => void;
+}
+
+export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Props) {
   const [openModal, setOpenModal] = useState(false);
   const [selectedLogContent, setSelectedLogContent] = useState('');
-  const [selectedIndexes, setSelectedIndexes] = useState<number[]>([]);
-
+  const [localSelectedIndexes, setLocalSelectedIndexes] = useState<number[]>([]);
   const portfolioId = useParams().portfolioId;
   const { data: masterPortfolioDetailRecords } = useMasterPortfolioDetailRecords(
     Number(portfolioId)
   );
 
-  const toggleCardSelection = (index: number) => {
-    setSelectedIndexes((prev) => {
-      const alreadySelected = prev.includes(index);
+  // index → id 매핑을 위해 메모리 동기화
+  useEffect(() => {
+    if (!masterPortfolioDetailRecords || masterPortfolioDetailRecords.length === 0) return;
+    const nextIndexes: number[] = [];
+    masterPortfolioDetailRecords.forEach((record, idx) => {
+      if (selectedIds.includes(record.id)) nextIndexes.push(idx);
+    });
+    setLocalSelectedIndexes(nextIndexes);
+  }, [masterPortfolioDetailRecords, selectedIds]);
 
+  const toggleCardSelection = (index: number) => {
+    setLocalSelectedIndexes((prev) => {
+      const alreadySelected = prev.includes(index);
+      let next: number[];
       if (alreadySelected) {
-        // 선택 해제
-        return prev.filter((i) => i !== index);
+        next = prev.filter((i) => i !== index);
       } else {
-        // 최대 8개까지만 선택
         if (prev.length >= 8) return prev;
-        return [...prev, index];
+        next = [...prev, index];
       }
+
+      // 상위로 id 배열 전달
+      if (onChangeSelectedIds && masterPortfolioDetailRecords) {
+        const ids = next.map((i) => masterPortfolioDetailRecords[i].id);
+        onChangeSelectedIds(ids);
+      }
+
+      return next;
     });
   };
 
-  const length = selectedIndexes.length;
+  const length = localSelectedIndexes.length;
 
   return (
     <div className="flex flex-col gap-[36px] max-lg:gap-[28px] items-center">
@@ -49,9 +69,6 @@ export default function Step2() {
           <li>실제로 달성한 정량적 성과와 받은 피드백</li>
           <li>어려웠던 점과 극복한 방법</li>
         </ul>
-        <br />
-        회의록은 필수로 선택하지 않아도 되지만, 양질의 회의록이 많다면 좋은 마스터 포트폴리오를
-        생성할 수 있어요. 제가 참고할 회의록을 모두 선택하셨다면, 생성을 시작할게요!
       </div>
 
       <div className="w-fit flex flex-col justify-center items-center border-[2px] border-[#81D7D4] bg-[#DAF3F3] rounded-[100px] py-[16px] px-[36px]">
@@ -72,15 +89,16 @@ export default function Step2() {
         <div className="w-full max-lg:w-[475px] max-lg:h-[512px] border-[1.5px] border-[#898989] rounded-[20px] p-[16px] max-h-[512px] overflow-y-auto">
           <div className="grid grid-cols-2 max-lg:grid-cols-1 gap-[16px]">
             {masterPortfolioDetailRecords?.map((record, index) => {
-              const isSelected = selectedIndexes.includes(index);
-
+              const isSelected = localSelectedIndexes.includes(index);
               return (
-                <div key={index} className="flex flex-col gap-[8px]">
+                <div key={record.id} className="flex flex-col gap-[8px]">
                   <div
                     onClick={() => toggleCardSelection(index)}
-                    className={`flex flex-col w-full max-lg:w-[419px] rounded-[8px] p-[16px] cursor-pointer shadow-[0_0_4px_rgba(0,0,0,0.25)]
-                      ${isSelected ? 'bg-[#DAF3F3] border-[2px] border-[#81D7D4]' : 'bg-[#F8F8F8] border border-transparent'}
-                    `}
+                    className={`flex flex-col w-full max-lg:w-[419px] rounded-[8px] p-[16px] cursor-pointer shadow-[0_0_4px_rgba(0,0,0,0.25)] ${
+                      isSelected
+                        ? 'bg-[#DAF3F3] border-[2px] border-[#81D7D4]'
+                        : 'bg-[#F8F8F8] border border-transparent'
+                    }`}
                   >
                     <div className="p-2 rounded-[4px] border border-[#E7E7E7] bg-white text-black text-[18px] leading-[26px] font-normal tracking-[0.72px]">
                       {record.name}
@@ -105,7 +123,7 @@ export default function Step2() {
                         style={{
                           display: '-webkit-box',
                           WebkitLineClamp: 3,
-                          WebkitBoxOrient: 'vertical',
+                          WebkitBoxOrient: 'vertical' as const,
                         }}
                       >
                         <div className="absolute inset-0 bg-[rgba(0,0,0,0.1)] opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-[4px]" />
@@ -113,6 +131,7 @@ export default function Step2() {
                         <button
                           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-[12px] py-[4px] text-[14px] font-semibold rounded-[4px] shadow opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
                           onClick={(e) => {
+                            e.stopPropagation();
                             setSelectedLogContent(record.meetingRecords);
                             setOpenModal(true);
                           }}

@@ -1,10 +1,14 @@
+import { useUser } from '@/hooks/mutations/useUser';
+
 export default function Step1() {
+  const { data: user } = useUser();
+
   return (
     <div>
       <div>
-        <strong>안녕하세요! OOO님의 포트폴리오를 생성할 AI, 티미입니다.</strong> <br />
+        <strong>안녕하세요! {user?.name}님의 포트폴리오를 생성할 AI, 티미입니다.</strong> <br />
         <br />
-        OOO님의 개인 회고를 읽으며 프로젝트에 대한 데이터를 수집할게요.
+        {user?.name}님의 개인 회고를 읽으며 프로젝트에 대한 데이터를 수집할게요.
         <br /> 아래 내용들을 개인 회고에 작성해주시면, 더 좋은 품질의 마스터 포트폴리오를 받아보실
         수 있어요.
         <br />
