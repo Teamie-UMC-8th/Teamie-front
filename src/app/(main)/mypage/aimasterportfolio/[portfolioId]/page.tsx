@@ -5,14 +5,18 @@ import { useEffect, useState } from 'react';
 import {
   useMasterPortfolioDetail,
   useMasterPortfolioStatus,
+  useMasterPortfolioList,
 } from '@/hooks/queries/useGetMasterPortfolio';
 import { useUpdateContribution } from '@/hooks/mutations/useUpdateContribution';
+import { usePatchMasterPortfolio } from '@/hooks/mutations/usePatchMasterPortfolio';
 import AIGenerationSection from '@/features/aimasterportfolio/components/AIGenerationSection';
 import MenuButton from '@/features/aimasterportfolio/components/MenuButton';
 import BackButton from '@/components/BackButton';
 import { CATEGORY_MAP, CATEGORY_LIST, CategoryKey } from '@/constants/category';
 import ContributionSlider from '@/components/ContributionSlider';
 import { useRouter } from 'next/navigation';
+import { useProjectHome } from '@/hooks/mutations/useProjectHome';
+import { formatDate } from '@/utils/formatDate';
 
 const STYLES = {
   tag: 'w-[99px] h-[37px] bg-[#DAF3F3] rounded-[4px] px-[18px] py-[6px] flex items-center justify-center font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-[#000000] whitespace-nowrap',
@@ -24,7 +28,7 @@ function ProjectHeader({ title }: { title: string }) {
     <div className="flex flex-col gap-[12px] px-[30px]">
       <div className="flex items-center gap-[20px] max-lg:gap-[8px]">
         <BackButton />
-        <h1 className="font-[Pretendard] font-bold text-[22px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap gap-[1437px]">
+        <h1 className="font-[Pretendard] font-bold text-[24px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap gap-[1437px]">
           {title}
         </h1>
         <MenuButton />
@@ -35,7 +39,7 @@ function ProjectHeader({ title }: { title: string }) {
 
 function ProjectPeriod({ startDate, endDate }: { startDate: string; endDate: string }) {
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-[28px]">
       <div className={STYLES.tag}>진행 기간</div>
       <time className={STYLES.text}>
         {startDate} ~ {endDate}
@@ -108,16 +112,33 @@ export default function MasterPortfolioDetail() {
   const portfolioId = Number(params.portfolioId);
   const { data, isLoading, error } = useMasterPortfolioDetail(portfolioId);
   const updateContribution = useUpdateContribution();
+  const patchMasterPortfolio = usePatchMasterPortfolio();
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey>('ACTIVITY');
-  const [contribution, setContribution] = useState(50);
+  const [contribution, setContribution] = useState(0); // 초기값 0으로 변경
   const { data: status, isLoading: statusLoading } = useMasterPortfolioStatus(portfolioId);
   const router = useRouter();
+
+  // 프로젝트 정보 가져오기
+  const { data: projectHomeData, isLoading: projectLoading } = useProjectHome(data?.projectId || 0);
+
+  // 마스터 포트폴리오 목록에서 현재 포트폴리오의 날짜 정보 가져오기
+  const { data: portfolioListData } = useMasterPortfolioList();
 
   useEffect(() => {
     if (status?.result.status === 'DONE') {
       router.push(`/mypage/aimasterportfolio/${portfolioId}/final`);
     }
   }, [status, portfolioId, router]);
+
+  // API 데이터가 로드되면 상태 업데이트
+  useEffect(() => {
+    if (data?.contributionRate) {
+      setContribution(data.contributionRate);
+    }
+    if (data?.category) {
+      setSelectedCategory(data.category as CategoryKey);
+    }
+  }, [data]);
 
   const handleContributionChange = (newContribution: number) => {
     setContribution(newContribution);
@@ -127,15 +148,40 @@ export default function MasterPortfolioDetail() {
     });
   };
 
-  if (isLoading || statusLoading) return <div>포트폴리오 상세 정보를 불러오는 중...</div>;
+  const handleCategoryChange = (newCategory: CategoryKey) => {
+    setSelectedCategory(newCategory);
+    if (data) {
+      patchMasterPortfolio.mutate({
+        portfolioId,
+        body: {
+          detailInfo: data.detailInfo || '',
+          assignedTask: data.assignedTask || '',
+          keyAchievement: data.keyAchievement || '',
+          insight: data.insight || '',
+          contributionRate: contribution,
+          mainTask: data.mainTask || '',
+          category: newCategory,
+        },
+      });
+    }
+  };
+
+  if (isLoading || statusLoading || projectLoading)
+    return <div>포트폴리오 상세 정보를 불러오는 중...</div>;
   if (error) return <div>포트폴리오 상세 정보를 불러오는데 실패했습니다.</div>;
   if (!data) return <div>포트폴리오 정보를 찾을 수 없습니다.</div>;
 
+  // API 데이터에서 프로젝트 정보 추출
+  const project = projectHomeData?.result?.project;
+  const currentPortfolio = portfolioListData?.data?.find((p) => p.portfolioId === portfolioId);
+
   const projectData = {
-    title: '프로젝트 A',
-    startDate: '2025.04.02',
-    endDate: '2025.06.20',
-    contribution: 74,
+    title: project?.name || currentPortfolio?.projectName || '프로젝트 이름 없음',
+    startDate: currentPortfolio?.startDate
+      ? formatDate(currentPortfolio.startDate)
+      : '날짜 정보 없음',
+    endDate: currentPortfolio?.endDate ? formatDate(currentPortfolio.endDate) : '날짜 정보 없음',
+    contribution: contribution,
   };
 
   return (
@@ -143,10 +189,10 @@ export default function MasterPortfolioDetail() {
       <ProjectHeader title={projectData.title} />
       <hr className="w-[1600px] max-lg:w-[976px] h-0 border-t-[2px] border-[#E7E7E7]" />
       <div className="flex flex-col gap-4 pr-[30px] pl-[30px] pt-[40px] pb-[12px]">
-        <section className="flex items-center pb-[60px] max-lg:flex-col max-lg:items-start">
+        <section className="flex items-center justify-between pb-[60px] max-lg:flex-col max-lg:items-start">
           <div className="flex flex-nowrap gap-[200px] max-lg:gap-[100px]">
             <ProjectPeriod startDate={projectData.startDate} endDate={projectData.endDate} />
-            <CategorySelector selected={selectedCategory} onSelect={setSelectedCategory} />
+            <CategorySelector selected={selectedCategory} onSelect={handleCategoryChange} />
           </div>
           <div className="flex flex-wrap max-lg:mt-[60px] lg:ml-[200px]">
             <ContributionSlider value={contribution} onChange={handleContributionChange} />

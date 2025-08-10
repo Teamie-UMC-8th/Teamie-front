@@ -1,11 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
+import { useMasterPortfolioDetail } from '@/hooks/queries/useGetMasterPortfolio';
 
 export default function MenuButton() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const params = useParams();
+  const portfolioId = Number(params.portfolioId);
+
+  // 포트폴리오 정보에서 프로젝트 ID 가져오기
+  const { data: portfolioDetail } = useMasterPortfolioDetail(portfolioId);
+  const projectId = portfolioDetail?.projectId;
 
   return (
     <div className="absolute top-0 right-[20px] relative ml-auto max-lg:w-[32px] max-lg:h-[32px]">
@@ -31,7 +38,7 @@ export default function MenuButton() {
             <hr className="w-[90%] border-[1px] border-[#BBBBBB] my-[8px] mx-auto" />
 
             <button
-              onClick={() => router.push('/retrospect')}
+              onClick={() => projectId && router.push(`/projects/${projectId}/retrospect/create`)}
               className="px-[24px] py-[4px] text-[18px] text-left leading-[26px] font-normal text-black cursor-pointer"
             >
               개인 회고로 이동
