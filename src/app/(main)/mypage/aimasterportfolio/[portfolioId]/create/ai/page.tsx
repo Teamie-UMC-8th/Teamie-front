@@ -241,17 +241,25 @@ export default function AIMasterPortfolioCreatePage() {
                   </button>
 
                   <button
-                    className="rounded-[6px] border-[1px] border-[#81D7D4] bg-[#81D7D4] p-[6px] px-[32px] text-[#FFF] cursor-pointer disabled:opacity-50"
+                    className="rounded-[6px] border-[1px] border-[#81D7D4] bg-[#81D7D4] p-[6px] px-[32px] text-[#FFF] cursor-pointer disabled:opacity-50 flex items-center justify-center min-w-[120px] h-[40px]"
                     onClick={handleMainButtonClick}
                     disabled={isMainButtonDisabled() || isPostingQuestions || isGenerating}
                   >
-                    {currentStep === 2
-                      ? isGenerating
-                        ? '생성 중…'
-                        : 'AI 마스터 포트폴리오 생성하기'
-                      : isPostingQuestions
-                        ? '다음으로…'
-                        : '다음으로 →'}
+                    {currentStep === 2 ? (
+                      isGenerating ? (
+                        '생성 중…'
+                      ) : (
+                        'AI 마스터 포트폴리오 생성하기'
+                      )
+                    ) : isPostingQuestions ? (
+                      <img
+                        src="/icons/nextLoading.svg"
+                        alt="로딩"
+                        className="w-[20px] h-[20px] animate-spin"
+                      />
+                    ) : (
+                      '다음으로 →'
+                    )}
                   </button>
                 </div>
                 <Image

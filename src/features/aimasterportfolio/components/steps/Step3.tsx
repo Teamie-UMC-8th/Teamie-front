@@ -72,9 +72,20 @@ const Step3 = forwardRef<Step3Handle>(function Step3(_, ref) {
               questionId: q.id,
               answer: state.answer,
             };
+            // NO 답변일 때만 reason 추가
             if (state.answer === 'NO' && state.reason.trim()) {
               item.reason = state.reason.trim();
             }
+
+            // 안전장치: YES 답변인데 reason이 있으면 제거
+            if (state.answer === 'YES' && item.reason) {
+              delete item.reason;
+              console.warn(`질문 ID ${q.id}: YES 답변인데 reason이 있어서 제거했습니다.`);
+            }
+
+            console.log(
+              `질문 ID ${q.id}: answer=${state.answer}, reason 포함 여부=${item.reason ? 'YES' : 'NO'}`
+            );
             payload.push(item);
           }
         } else if (q.questionType === 'TEXT') {
@@ -98,9 +109,10 @@ const Step3 = forwardRef<Step3Handle>(function Step3(_, ref) {
       ...prev,
       [questionId]: {
         answer: value,
-        reason: value === 'YES' ? '' : (prev[questionId]?.reason ?? ''),
+        reason: value === 'YES' ? '' : (prev[questionId]?.reason ?? ''), // YES면 빈 문자열
       },
     }));
+    console.log(`질문 ID ${questionId}: ${value} 선택, reason 초기화됨`);
   };
 
   const handleReasonChange = (questionId: number, reason: string) => {
