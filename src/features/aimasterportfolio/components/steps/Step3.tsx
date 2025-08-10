@@ -50,33 +50,45 @@ const Step3 = forwardRef<Step3Handle>(function Step3(_, ref) {
       const payload: PatchMasterPortfolioQuestionsRequest = [];
 
       for (const q of questions) {
-        const state = localAnswers[q.id!] ?? { answer: null, reason: '' };
+        // questionId가 없으면 스킵
+        if (!q.id) {
+          console.warn('Question ID가 없습니다:', q);
+          continue;
+        }
+
+        const state = localAnswers[q.id] ?? { answer: null, reason: '' };
         const originalAnswer = (q.answer as 'YES' | 'NO' | null) ?? null;
         const originalReason = q.reason ?? '';
 
         if (q.questionType === 'YES_NO') {
+          // YES_NO 타입: answer가 있어야 함
           if (state.answer === null) continue;
+
           const changedAnswer = state.answer !== originalAnswer;
           const changedReason = state.answer === 'NO' && state.reason !== originalReason;
 
           if (changedAnswer || changedReason) {
             const item: PatchMasterPortfolioQuestionItem = {
-              questionId: q.id!,
+              questionId: q.id,
               answer: state.answer,
             };
-            if (state.answer === 'NO') {
-              item.reason = state.reason;
+            if (state.answer === 'NO' && state.reason.trim()) {
+              item.reason = state.reason.trim();
             }
             payload.push(item);
           }
-        } else {
-          // TEXT: reason만 관리
-          if (state.reason !== originalReason) {
-            payload.push({ questionId: q.id!, reason: state.reason });
+        } else if (q.questionType === 'TEXT') {
+          // TEXT 타입: reason만 관리하지만 answer도 필요할 수 있음
+          if (state.reason !== originalReason && state.reason.trim()) {
+            payload.push({
+              questionId: q.id,
+              reason: state.reason.trim(),
+            });
           }
         }
       }
 
+      console.log('Generated payload:', payload);
       return payload;
     },
   }));

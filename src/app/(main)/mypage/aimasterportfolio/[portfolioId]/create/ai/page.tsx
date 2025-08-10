@@ -101,7 +101,7 @@ export default function AIMasterPortfolioCreatePage() {
     if (!retro) return false;
     const { collaborationProfile, memorableExperience, strengthsAndGrowth } = retro;
     return (
-      collaborationProfile?.trim() || memorableExperience?.trim() || strengthsAndGrowth?.trim()
+      collaborationProfile?.trim() && memorableExperience?.trim() && strengthsAndGrowth?.trim()
     );
   };
 

@@ -102,6 +102,7 @@ export interface MasterPortfolioDetailRecordsResponse {
   result: MasterPortfolioDetailRecords[];
 }
 
+//마스터 포트폴리오 진행 상태 조회 api
 export interface MasterPortfolioStatusResponse {
   isSuccess: boolean;
   error: null;
