@@ -74,3 +74,11 @@ export const patchMasterPortfolio = async (
   const response = await axiosInstance.patch(`/api/v1/master-portfolios/${portfolioId}`, body);
   return response.data;
 };
+
+//마스터 포트폴리오 생성 api 추가
+export const postMasterPortfolioGenerate = async (
+  portfolioId: number
+): Promise<MasterPortfolioGeneratedResponse> => {
+  const response = await axiosInstance.post(`/api/v1/master-portfolios/${portfolioId}/generate`);
+  return response.data;
+};
