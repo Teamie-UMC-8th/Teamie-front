@@ -4,7 +4,6 @@ import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { useMasterPortfolioDetail } from '@/hooks/queries/useGetMasterPortfolio';
 import { useUpdateContribution } from '@/hooks/mutations/useUpdateContribution';
-import ManualWriteSection from '@/features/aimasterportfolio/components/ManualWriteSection';
 import AIGenerationSection from '@/features/aimasterportfolio/components/AIGenerationSection';
 import MenuButton from '@/features/aimasterportfolio/components/MenuButton';
 import BackButton from '@/components/BackButton';
@@ -14,11 +13,7 @@ import ContributionSlider from '@/components/ContributionSlider';
 const STYLES = {
   tag: 'w-[99px] h-[37px] bg-[#DAF3F3] rounded-[4px] px-[18px] py-[6px] flex items-center justify-center font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-[#000000] whitespace-nowrap',
   text: 'font-[Pretendard] font-normal text-[20px] leading-[30px] text-[#000000] whitespace-nowrap',
-  methodButton:
-    'px-[12px] py-[4px] rounded-[4px] flex items-center justify-center gap-[8px] font-[Pretendard] text-[18px] leading-[26px] whitespace-nowrap transition-all',
 } as const;
-
-type GenerationMethod = 'ai' | 'manual';
 
 function ProjectHeader({ title }: { title: string }) {
   return (
@@ -104,48 +99,11 @@ function CategorySelector({
   );
 }
 
-function GenerationMethodSelector({
-  method,
-  onMethodChange,
-}: {
-  method: GenerationMethod;
-  onMethodChange: (method: GenerationMethod) => void;
-}) {
-  const methods = [
-    { id: 'ai' as const, label: 'AI 생성', hasIcon: true },
-    { id: 'manual' as const, label: '직접 작성', hasIcon: false },
-  ];
-  return (
-    <div className="flex items-center gap-0 bg-white p-[4px] rounded-[8px] border border-[#e7e7e7]">
-      {methods.map(({ id, label, hasIcon }) => {
-        const isSelected = method === id;
-        return (
-          <button
-            key={id}
-            onClick={() => onMethodChange(id)}
-            className={`${STYLES.methodButton} ${isSelected ? 'bg-[#81D7D4] text-white font-bold cursor-default' : 'bg-[#ffffff] text-[#BBBBBB] font-normal hover:font-bold cursor-pointer'}`}
-          >
-            {hasIcon && (
-              <img
-                src="/icons/coin.svg"
-                alt="AI 아이콘"
-                className="w-[24px] h-[24px] object-contain"
-              />
-            )}
-            {label}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
 export default function MasterPortfolioDetail() {
   const params = useParams();
   const portfolioId = Number(params.portfolioId);
   const { data, isLoading, error } = useMasterPortfolioDetail(portfolioId);
   const updateContribution = useUpdateContribution();
-  const [generationMethod, setGenerationMethod] = useState<GenerationMethod>('ai');
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey>('ACTIVITY');
   const [contribution, setContribution] = useState(50);
 
@@ -188,13 +146,8 @@ export default function MasterPortfolioDetail() {
             <h2 className="text-[20px] leading-[28px] font-semibold text-[#000000] font-[Pretendard]">
               마스터 포트폴리오
             </h2>
-            <GenerationMethodSelector
-              method={generationMethod}
-              onMethodChange={setGenerationMethod}
-            />
           </section>
-          {generationMethod === 'manual' && <ManualWriteSection />}
-          {generationMethod === 'ai' && <AIGenerationSection contribution={contribution} />}
+          <AIGenerationSection contribution={contribution} />
         </section>
       </div>
     </main>
