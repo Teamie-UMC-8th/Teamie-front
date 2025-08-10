@@ -11,6 +11,8 @@ import Step3 from '@/features/aimasterportfolio/components/steps/Step3';
 import { useRouter, useParams } from 'next/navigation';
 import AIConfirmModal from '@/features/aimasterportfolio/components/AIConfirmModal';
 import { usePostMasterPortfolioQuestions } from '@/hooks/mutations/usePatchMasterPortfolio';
+import { useMasterPortfolioDetail } from '@/hooks/queries/useGetMasterPortfolio';
+import { useGetPersonalRetro } from '@/hooks/queries/useGetPersonalRetro';
 
 const AI_CREATE_STEPS = [
   {
@@ -18,7 +20,11 @@ const AI_CREATE_STEPS = [
     title: '개인 회고 작성',
     buttons: {
       sub: '개인 회고로 이동',
-      main: <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">다음으로 →</span>,
+      main: (
+        <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">
+          다음으로 →
+        </span>
+      ),
     },
   },
   {
@@ -26,7 +32,11 @@ const AI_CREATE_STEPS = [
     title: '회의록 선택',
     buttons: {
       sub: '← 이전으로',
-      main: <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">다음으로 →</span>,
+      main: (
+        <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">
+          다음으로 →
+        </span>
+      ),
     },
   },
   {
@@ -34,7 +44,11 @@ const AI_CREATE_STEPS = [
     title: '추가 질문',
     buttons: {
       sub: '임시저장',
-      main: <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">AI 마스터 포트폴리오 생성하기</span>,
+      main: (
+        <span className="font-[Pretendard] font-bold text-[18px] leading-[26px] text-center w-full">
+          AI 마스터 포트폴리오 생성하기
+        </span>
+      ),
     },
   },
 ];
@@ -46,8 +60,9 @@ export default function AIMasterPortfolioCreatePage() {
   const { currentStep, goToStep } = useFunnel();
   const [scrollY, setScrollY] = useState(0);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-
   const { mutate } = usePostMasterPortfolioQuestions();
+  const { data: portfolio } = useMasterPortfolioDetail(Number(portfolioId));
+  const { data: retro } = useGetPersonalRetro(portfolio?.projectId as number);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -56,6 +71,20 @@ export default function AIMasterPortfolioCreatePage() {
   }, []);
 
   const sidebarPaddingTop = Math.max(0, 56 - scrollY);
+
+  const isRetroDataComplete = () => {
+    if (!retro) return false;
+
+    const { collaborationProfile, memorableExperience, strengthsAndGrowth } = retro;
+
+    return (
+      collaborationProfile?.trim() || memorableExperience?.trim() || strengthsAndGrowth?.trim()
+    );
+  };
+
+  const isMainButtonDisabled = () => {
+    return currentStep === 0 && !isRetroDataComplete();
+  };
 
   const handleMainButtonClick = () => {
     if (currentStep === 2) {
@@ -71,6 +100,15 @@ export default function AIMasterPortfolioCreatePage() {
       );
     } else {
       goToStep(currentStep + 1);
+    }
+  };
+
+  const handleSubButtonClick = () => {
+    if (currentStep === 0) {
+      console.log(portfolio);
+      router.replace(`/projects/${portfolio?.projectId}/retrospect/create`);
+    } else {
+      goToStep(currentStep - 1);
     }
   };
 
@@ -100,10 +138,10 @@ export default function AIMasterPortfolioCreatePage() {
             <div className="flex flex-col gap-[40px] items-end">
               <div className="flex items-start gap-[40px] w-full">
                 <img
-  src="/icons/AITeamieChatIcon.svg"
-  alt="티미 채팅 아이콘"
-  className="w-[80px] max-lg:w-[60px] h-[80px] max-lg:h-[60px] mt-[24px]"
-/>
+                  src="/icons/AITeamieChatIcon.svg"
+                  alt="티미 채팅 아이콘"
+                  className="w-[80px] max-lg:w-[60px] h-[80px] max-lg:h-[60px] mt-[24px]"
+                />
                 <div className="relative w-full h-full">
                   <div className="w-full h-full bg-white border-none rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.10)] p-[50px] max-lg:px-[36px] max-lg:py-[32px] max-lg:text-[16px] max-lg:leading-[24px]">
                     {currentStep === 0 && <Step1 />}
