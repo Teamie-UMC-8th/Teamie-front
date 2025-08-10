@@ -84,3 +84,10 @@ export interface Cocomment {
     name: string;
   };
 }
+
+// 대댓글 삭제 API 응답 타입 정의
+export interface DeleteCocommentResponse {
+  isSuccess: boolean;
+  error: null;
+  result: string;
+}

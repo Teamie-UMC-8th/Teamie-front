@@ -9,6 +9,7 @@ const COMMENT_OPTIONS = [
 ];
 
 const COCOMMENT_OPTIONS = [
+  { label: '대댓글 등록', icon: '/icons/reply.svg', action: 'reply' },
   { label: '대댓글 수정', icon: '/icons/edit.svg', action: 'edit' },
   { label: '대댓글 삭제', icon: '/icons/deletecomment.svg', action: 'delete' },
 ];

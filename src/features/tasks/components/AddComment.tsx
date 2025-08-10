@@ -4,6 +4,7 @@ import {
   useGetComments,
   useAddCocomment,
   useUpdateCocomment,
+  useDeleteCocomment,
 } from '@/hooks/mutations/useCommentMutations';
 import { useParams } from 'next/navigation';
 import { useUser } from '@/hooks/mutations/useUser';
@@ -26,6 +27,13 @@ export default function AddComment() {
   const [editCocommentId, setEditCocommentId] = useState<number | null>(null);
   const [editCocommentContent, setEditCocommentContent] = useState('');
 
+  // 대댓글에 대한 대댓글 입력 상태 관리
+  const [replyToCocommentId, setReplyToCocommentId] = useState<number | null>(null);
+  const [cocommentReplyValue, setCocommentReplyValue] = useState('');
+
+  // 삭제된 대댓글 ID 추적
+  const [deletedCocommentIds, setDeletedCocommentIds] = useState<Set<number>>(new Set());
+
   // 현재 사용자 정보 가져오기
   const { data: currentUser } = useUser();
 
@@ -36,17 +44,68 @@ export default function AddComment() {
     data: commentsData,
     isLoading: isLoadingComments,
     error: commentsError,
+    refetch: refetchComments,
   } = useGetComments(taskId);
   const { mutate: addCommentMutation, isPending: isAddingComment } = useAddComment();
   const { mutate: addCocommentMutation, isPending: isAddingCocomment } = useAddCocomment();
   const { mutate: updateCocommentMutation, isPending: isUpdatingCocomment } = useUpdateCocomment();
+  const { mutate: deleteCocommentMutation, isPending: isDeletingCocomment } = useDeleteCocomment();
 
   // 댓글 데이터가 로드되면 상태 업데이트
   useEffect(() => {
     if (commentsData?.result?.comments) {
-      setComments(commentsData.result.comments);
+      console.log('📥 서버에서 댓글 데이터 로드:', commentsData.result.comments);
+
+      // 삭제된 대댓글을 필터링하여 로컬 상태 업데이트
+      const filteredComments = commentsData.result.comments.map((comment) => ({
+        ...comment,
+        cocomments:
+          comment.cocomments?.filter(
+            (cocomment) => !deletedCocommentIds.has(cocomment.cocommentId)
+          ) || [],
+      }));
+
+      console.log('🔍 삭제된 대댓글 필터링 후:', {
+        originalCount: commentsData.result.comments.reduce(
+          (acc, c) => acc + (c.cocomments?.length || 0),
+          0
+        ),
+        filteredCount: filteredComments.reduce((acc, c) => acc + (c.cocomments?.length || 0), 0),
+        deletedIds: Array.from(deletedCocommentIds),
+      });
+
+      // 로컬 상태와 서버 데이터를 병합
+      setComments((prevComments) => {
+        // 서버 데이터를 기준으로 하되, 로컬에서 추가된 대댓글은 보존
+        return filteredComments.map((serverComment) => {
+          const localComment = prevComments.find((c) => c.commentId === serverComment.commentId);
+
+          if (localComment) {
+            // 로컬에서 추가된 대댓글 중 서버에 없는 것들을 찾아서 병합
+            const localOnlyCocomments =
+              localComment.cocomments?.filter(
+                (localCocomment) =>
+                  !serverComment.cocomments?.some(
+                    (serverCocomment) => serverCocomment.cocommentId === localCocomment.cocommentId
+                  ) && !deletedCocommentIds.has(localCocomment.cocommentId)
+              ) || [];
+
+            return {
+              ...serverComment,
+              cocomments: [...(serverComment.cocomments || []), ...localOnlyCocomments],
+            };
+          }
+
+          return serverComment;
+        });
+      });
     }
-  }, [commentsData]);
+  }, [commentsData, deletedCocommentIds]);
+
+  // 댓글 상태가 변경될 때마다 로그 출력
+  useEffect(() => {
+    console.log('📊 현재 댓글 상태:', comments);
+  }, [comments]);
 
   const handleComment = () => {
     if (newComment.trim() === '') return;
@@ -57,6 +116,19 @@ export default function AddComment() {
         onSuccess: (data) => {
           // 성공 시 입력 필드만 초기화 (댓글 목록은 useQuery가 자동으로 업데이트)
           setNewComment('');
+          // 로컬 상태에 새 댓글 추가
+          const newCommentData = {
+            commentId: data.result.commentId,
+            content: data.result.content,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            users: {
+              imageUrl: currentUser?.imageUrl || '/icons/myprofile.svg',
+              name: currentUser?.name || '사용자',
+            },
+            cocomments: [],
+          };
+          setComments((prev) => [newCommentData, ...prev]);
         },
         onError: (error: Error) => {
           console.error('댓글 추가 실패:', error);
@@ -92,6 +164,28 @@ export default function AddComment() {
             return newReplies;
           });
           setReplyToIndex(null);
+
+          // 로컬 상태에 새 대댓글 추가
+          const newCocommentData = {
+            cocommentId: data.result.cocommentId,
+            content: data.result.content,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            users: {
+              imageUrl: currentUser?.imageUrl || '/icons/myprofile.svg',
+              name: currentUser?.name || '사용자',
+            },
+          };
+          setComments((prev) =>
+            prev.map((comment, commentIdx) =>
+              commentIdx === idx
+                ? {
+                    ...comment,
+                    cocomments: [...(comment.cocomments || []), newCocommentData],
+                  }
+                : comment
+            )
+          );
         },
         onError: (error: Error) => {
           console.error('대댓글 추가 실패:', error);
@@ -117,6 +211,23 @@ export default function AddComment() {
         onSuccess: (data) => {
           setEditCocommentId(null);
           setEditCocommentContent('');
+
+          // 로컬 상태에서 대댓글 내용 업데이트
+          setComments((prev) =>
+            prev.map((comment) => ({
+              ...comment,
+              cocomments:
+                comment.cocomments?.map((cocomment) =>
+                  cocomment.cocommentId === editCocommentId
+                    ? {
+                        ...cocomment,
+                        content: editCocommentContent.trim(),
+                        updatedAt: new Date().toISOString(),
+                      }
+                    : cocomment
+                ) || [],
+            }))
+          );
         },
         onError: (error: Error) => {
           console.error('대댓글 수정 실패:', error);
@@ -126,12 +237,45 @@ export default function AddComment() {
     );
   };
 
+  // 대댓글에 대한 대댓글 입력 처리
+  const handleCocommentReply = (cocommentId: number) => {
+    setReplyToCocommentId(cocommentId);
+    setReplyToIndex(null); // 기존 댓글 대댓글 입력 모드 해제
+    setEditCocommentId(null); // 수정 모드 해제
+  };
+
   // 대댓글 삭제 처리
   const handleCocommentDelete = (cocommentId: number) => {
-    if (confirm('대댓글을 삭제하시겠습니까?')) {
-      // 실제 삭제 API가 준비되면 여기에 구현
-      console.log('대댓글 삭제:', cocommentId);
-    }
+    console.log('🗑️ 대댓글 삭제 요청:', { cocommentId });
+
+    // 먼저 로컬 상태에서 해당 대댓글을 제거
+    setComments((prev) =>
+      prev.map((comment) => ({
+        ...comment,
+        cocomments:
+          comment.cocomments?.filter((cocomment) => cocomment.cocommentId !== cocommentId) || [],
+      }))
+    );
+    setDeletedCocommentIds((prev) => new Set([...prev, cocommentId]));
+
+    deleteCocommentMutation(cocommentId, {
+      onSuccess: () => {
+        console.log('🎉 대댓글 삭제 성공:', cocommentId);
+        // 성공 후 서버에서 최신 데이터를 다시 가져옴
+        refetchComments();
+      },
+      onError: (error: Error) => {
+        console.error('💥 대댓글 삭제 실패:', { cocommentId, error });
+        // 실패 시 삭제된 ID에서 제거하고 원래 상태로 되돌림
+        setDeletedCocommentIds((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(cocommentId);
+          return newSet;
+        });
+        refetchComments();
+        alert(error.message || '대댓글 삭제에 실패했습니다.');
+      },
+    });
   };
 
   // 날짜 포맷 함수
@@ -280,26 +424,82 @@ export default function AddComment() {
           {/* 대댓글 출력 */}
           {comment.cocomments &&
             comment.cocomments.length > 0 &&
-            comment.cocomments.map((cocomment) => (
-              <ReplyComment
+            comment.cocomments.map((cocomment, cocommentIndex) => (
+              <div
                 key={cocomment.cocommentId}
-                idx={idx}
-                cocommentIdx={cocomment.cocommentId}
-                replyToIndex={replyToIndex}
-                replyValue={replyComments[idx] || ''}
-                submittedReply={cocomment.content}
-                submittedReplyUser={cocomment.users}
-                onChange={handleReplyChange}
-                onSubmit={handleReplySubmit}
-                formatDate={() => formatDate(cocomment.createdAt)}
-                isAddingCocomment={isAddingCocomment}
-                onCocommentEdit={handleCocommentEdit}
-                onCocommentDelete={handleCocommentDelete}
-                editCocommentId={editCocommentId}
-                editCocommentContent={editCocommentContent}
-                onCocommentEditChange={setEditCocommentContent}
-                onCocommentEditSubmit={handleCocommentEditSubmit}
-              />
+                className={cocommentIndex < comment.cocomments.length - 1 ? 'mb-[8px]' : ''}
+              >
+                <ReplyComment
+                  idx={idx}
+                  cocommentIdx={cocomment.cocommentId}
+                  replyToIndex={null}
+                  replyToCocommentId={null}
+                  replyValue=""
+                  submittedReply={cocomment.content}
+                  submittedReplyUser={cocomment.users}
+                  onChange={() => {}}
+                  onSubmit={() => {}}
+                  formatDate={() => formatDate(cocomment.createdAt)}
+                  isAddingCocomment={isAddingCocomment}
+                  isDeletingCocomment={isDeletingCocomment}
+                  onCocommentEdit={handleCocommentEdit}
+                  onCocommentDelete={handleCocommentDelete}
+                  onCocommentReply={handleCocommentReply}
+                  editCocommentId={editCocommentId}
+                  editCocommentContent={editCocommentContent}
+                  onCocommentEditChange={setEditCocommentContent}
+                  onCocommentEditSubmit={handleCocommentEditSubmit}
+                />
+
+                {/* 대댓글에 대한 대댓글 입력 필드 */}
+                {replyToCocommentId === cocomment.cocommentId && (
+                  <ReplyComment
+                    idx={idx}
+                    replyToIndex={null}
+                    replyToCocommentId={replyToCocommentId}
+                    replyValue={cocommentReplyValue}
+                    onChange={(idx, value) => setCocommentReplyValue(value)}
+                    onSubmit={() => {
+                      if (!cocommentReplyValue || cocommentReplyValue.trim() === '') return;
+
+                      // 현재는 로컬 상태만 업데이트 (실제 API가 준비되면 여기에 구현)
+                      console.log('💬 대댓글에 대한 대댓글 추가:', {
+                        cocommentId: cocomment.cocommentId,
+                        content: cocommentReplyValue.trim(),
+                      });
+
+                      // 로컬 상태에 새 대댓글 추가 (임시)
+                      const newCocommentData = {
+                        cocommentId: Date.now(), // 임시 ID
+                        content: cocommentReplyValue.trim(),
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        users: {
+                          imageUrl: currentUser?.imageUrl || '/icons/myprofile.svg',
+                          name: currentUser?.name || '사용자',
+                        },
+                      };
+
+                      setComments((prev) =>
+                        prev.map((comment, commentIdx) =>
+                          commentIdx === idx
+                            ? {
+                                ...comment,
+                                cocomments: [...(comment.cocomments || []), newCocommentData],
+                              }
+                            : comment
+                        )
+                      );
+
+                      // 입력 필드 초기화
+                      setCocommentReplyValue('');
+                      setReplyToCocommentId(null);
+                    }}
+                    formatDate={formatDate}
+                    isAddingCocomment={isAddingCocomment}
+                  />
+                )}
+              </div>
             ))}
 
           {/* 대댓글 입력 필드 */}

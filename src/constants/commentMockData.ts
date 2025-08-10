@@ -3,6 +3,7 @@ import {
   GetCommentsResponse,
   AddCocommentResponse,
   UpdateCocommentResponse,
+  DeleteCocommentResponse,
 } from '@/types/api/comment';
 
 // 댓글 추가 모의 응답 데이터
@@ -39,6 +40,13 @@ export const getMockUpdateCocommentResponse = (
     cocommentId: cocommentId,
     content: content,
   },
+});
+
+// 대댓글 삭제 모의 응답 데이터
+export const getMockDeleteCocommentResponse = (cocommentId: number): DeleteCocommentResponse => ({
+  isSuccess: true,
+  error: null,
+  result: '대댓글이 성공적으로 삭제되었습니다.',
 });
 
 // 댓글 조회 모의 응답 데이터
