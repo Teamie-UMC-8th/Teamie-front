@@ -26,9 +26,36 @@ export default function FileUploader() {
       const uploadedFiles: UploadedFile[] = Array.from(e.target.files).filter(
         (file) => file && file.name
       );
-      setFiles((prev) => [...prev, ...uploadedFiles]);
 
-      uploadedFiles.forEach((file) => {
+      // 중복 파일 체크 및 필터링
+      const newFiles = uploadedFiles.filter((newFile) => {
+        const isDuplicate = files.some(
+          (existingFile) =>
+            existingFile.name === newFile.name &&
+            existingFile.size === newFile.size &&
+            existingFile.lastModified === newFile.lastModified
+        );
+
+        if (isDuplicate) {
+          console.log('⚠️ 중복 파일 감지:', newFile.name);
+          alert(`파일 "${newFile.name}"이(가) 이미 업로드되어 있습니다.`);
+          return false;
+        }
+
+        return true;
+      });
+
+      if (newFiles.length === 0) {
+        // 파일 입력 초기화
+        if (inputRef.current) {
+          inputRef.current.value = '';
+        }
+        return;
+      }
+
+      setFiles((prev) => [...prev, ...newFiles]);
+
+      newFiles.forEach((file) => {
         if (typeof taskId === 'string' && file && file.name) {
           uploadMutation.mutate(
             { taskId: Number(taskId), file },
@@ -59,6 +86,11 @@ export default function FileUploader() {
         }
       });
     }
+
+    // 파일 입력 초기화 (같은 파일을 다시 선택할 수 있도록)
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
   };
 
   // 드래그 앤 드롭으로 파일을 놓았을 때 파일을 상태에 추가 및 업로드 트리거
@@ -69,9 +101,32 @@ export default function FileUploader() {
       const droppedFiles: UploadedFile[] = Array.from(e.dataTransfer.files).filter(
         (file) => file && file.name
       );
-      setFiles((prev) => [...prev, ...droppedFiles]);
 
-      droppedFiles.forEach((file) => {
+      // 중복 파일 체크 및 필터링
+      const newFiles = droppedFiles.filter((newFile) => {
+        const isDuplicate = files.some(
+          (existingFile) =>
+            existingFile.name === newFile.name &&
+            existingFile.size === newFile.size &&
+            existingFile.lastModified === newFile.lastModified
+        );
+
+        if (isDuplicate) {
+          console.log('⚠️ 중복 파일 감지:', newFile.name);
+          alert(`파일 "${newFile.name}"이(가) 이미 업로드되어 있습니다.`);
+          return false;
+        }
+
+        return true;
+      });
+
+      if (newFiles.length === 0) {
+        return;
+      }
+
+      setFiles((prev) => [...prev, ...newFiles]);
+
+      newFiles.forEach((file) => {
         if (typeof taskId === 'string' && file && file.name) {
           uploadMutation.mutate(
             { taskId: Number(taskId), file },
@@ -122,6 +177,10 @@ export default function FileUploader() {
         onSuccess: (data) => {
           console.log('✅ 파일 삭제 성공:', data.message || '파일이 삭제되었습니다.');
           setFiles((prev) => prev.filter((_, i) => i !== index));
+          // 파일 삭제 후 입력 초기화
+          if (inputRef.current) {
+            inputRef.current.value = '';
+          }
         },
         onError: (error: Error) => {
           console.error('❌ 파일 삭제 실패:', error);
@@ -131,6 +190,10 @@ export default function FileUploader() {
     } else {
       // 서버에 업로드되지 않은 파일은 바로 제거
       setFiles((prev) => prev.filter((_, i) => i !== index));
+      // 파일 삭제 후 입력 초기화
+      if (inputRef.current) {
+        inputRef.current.value = '';
+      }
     }
   };
 
