@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import StepsSidebar from '@/features/aimasterportfolio/components/StepSidebar';
 import Portal from '@/components/Portal';
 import { useFunnel } from '@/features/aimasterportfolio/hooks/useFunnel';
@@ -8,12 +8,13 @@ import Image from 'next/image';
 import Step1 from '@/features/aimasterportfolio/components/steps/Step1';
 import Step2 from '@/features/aimasterportfolio/components/steps/Step2';
 import Step3, { type Step3Handle } from '@/features/aimasterportfolio/components/steps/Step3';
-import { useRouter, useParams, useSearchParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams, usePathname } from 'next/navigation';
 import AIConfirmModal from '@/features/aimasterportfolio/components/AIConfirmModal';
-import { usePostMasterPortfolioQuestions } from '@/hooks/mutations/usePostMasterPortfolioQuestions';
-import { useMasterPortfolioDetail } from '@/hooks/queries/useGetMasterPortfolio';
+import {
+  useMasterPortfolioDetail,
+  useMasterPortfolioStatus,
+} from '@/hooks/queries/useGetMasterPortfolio';
 import { useGetPersonalRetro } from '@/hooks/queries/useGetPersonalRetro';
-import { usePatchMasterPortfolio } from '@/hooks/mutations/usePatchMasterPortfolio';
 import { usePatchMasterPortfolioQuestions } from '@/hooks/mutations/usePatchMasterPortfolioQuestions';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePostMasterPortfolioGenerate } from '@/hooks/mutations/usePostMasterPortfolioGenerate';
@@ -60,27 +61,22 @@ const AI_CREATE_STEPS = [
 export default function AIMasterPortfolioCreatePage() {
   const router = useRouter();
   const params = useParams();
-  const portfolioId = params.portfolioId as string;
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const initialStep = searchParams.get('step');
-  const { currentStep, goToStep } = useFunnel({ initialStep: Number(initialStep) });
-  const [scrollY, setScrollY] = useState(0);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [formAnswers, setFormAnswers] = useState({
-    projectGoal: null as boolean | null,
-    workDomain: null as boolean | null,
-    workDomainDetail: '',
-    achievement: null as boolean | null,
-    roleContribution: null as boolean | null,
-    roleContributionDetail: '',
-  });
-  const step3Ref = useRef<Step3Handle>(null);
-  const { mutate } = usePostMasterPortfolioGenerate();
-  const { data: portfolio } = useMasterPortfolioDetail(Number(portfolioId));
+  const portfolioId = Number(params.portfolioId);
+
+  const { data: portfolio } = useMasterPortfolioDetail(portfolioId);
+  const { data: statusData } = useMasterPortfolioStatus(portfolioId);
   const { data: retro } = useGetPersonalRetro(portfolio?.projectId as number);
   const { mutate: patchQuestions, isPending: isPatchQuestionsPending } =
     usePatchMasterPortfolioQuestions();
   const queryClient = useQueryClient();
+  const { mutate: generate } = usePostMasterPortfolioGenerate();
+
+  const { currentStep, goToStep } = useFunnel({ initialStep: 0 });
+  const [scrollY, setScrollY] = useState(0);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const step3Ref = useRef<Step3Handle>(null);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -90,50 +86,79 @@ export default function AIMasterPortfolioCreatePage() {
 
   const sidebarPaddingTop = Math.max(0, 56 - scrollY);
 
-  // 1. 회고 데이터가 채워졌는지 확인하는 함수
+  // 최소 의존성: 상태/파라미터를 원시 값으로 고정
+  const status = statusData?.result?.status as string | undefined;
+  const stepParam = searchParams.get('step');
+  const requiredStep = status === 'NEED_ANSWERS' ? 2 : status === 'DONE' ? 0 : 1;
+  const minStepIndex = Math.max(0, requiredStep - 1);
+
+  useEffect(() => {
+    if (!status) return;
+
+    if (status === 'DONE') {
+      router.replace(`/mypage/aimasterportfolio/${portfolioId}/final`);
+      return;
+    }
+
+    const stepNum = stepParam ? Number(stepParam) : NaN;
+    if (!stepParam || Number.isNaN(stepNum) || stepNum < requiredStep) {
+      router.replace(`${pathname}?step=${requiredStep}`);
+    }
+
+    if (currentStep < minStepIndex) {
+      goToStep(minStepIndex);
+    }
+  }, [
+    status,
+    stepParam,
+    requiredStep,
+    pathname,
+    currentStep,
+    minStepIndex,
+    portfolioId,
+    router,
+    goToStep,
+  ]);
+
   const isRetroDataComplete = () => {
-    if (!retro) return false; // retro 데이터가 없으면 false 반환
-
+    if (!retro) return false;
     const { collaborationProfile, memorableExperience, strengthsAndGrowth } = retro;
-
     return (
-      collaborationProfile?.trim() || memorableExperience?.trim() || strengthsAndGrowth?.trim() // 근데 3항목 중 한 개씩 차있어야 하는 거면 &&을 써야하는 거 아닌가
-    ); // 세 항목 중 하나라도 값이 있다면 true 반환
+      collaborationProfile?.trim() && memorableExperience?.trim() && strengthsAndGrowth?.trim()
+    );
   };
 
-  // 2. 메인 버튼을 비활성화할지 판단하는 함수
-  const isMainButtonDisabled = () => {
-    return currentStep === 0 && !isRetroDataComplete();
+  const isMainButtonDisabled = () => currentStep === 0 && !isRetroDataComplete();
+
+  const safeGoToStep = (target: number) => {
+    goToStep(Math.max(target, minStepIndex));
   };
 
   const handleMainButtonClick = () => {
     if (currentStep === 2) {
       setShowConfirmModal(true);
     } else {
-      goToStep(currentStep + 1);
+      safeGoToStep(currentStep + 1);
     }
   };
 
   const handleSubButtonClick = () => {
     if (currentStep === 0) {
-      router.replace(`/projects/${portfolio?.projectId}/retrospect/create`);
+      if (portfolio?.projectId)
+        router.replace(`/projects/${portfolio.projectId}/retrospect/create`);
     } else if (currentStep === 2) {
-      // 임시저장 실행 - Step3의 모든 폼 데이터 반영 (질문 업데이트)
       const payload = step3Ref.current?.buildDraftPayload() ?? [];
-      if (payload.length === 0) {
+      if (Array.isArray(payload) && payload.length === 0) {
         alert('변경 사항이 없습니다.');
         return;
       }
 
       patchQuestions(
-        {
-          portfolioId: Number(portfolioId),
-          body: payload,
-        },
+        { portfolioId, body: payload },
         {
           onSuccess: () => {
             queryClient.invalidateQueries({
-              queryKey: ['master-portfolio-questions', Number(portfolioId)],
+              queryKey: ['master-portfolio-questions', portfolioId],
             });
             alert('임시저장이 완료되었습니다.');
           },
@@ -144,7 +169,7 @@ export default function AIMasterPortfolioCreatePage() {
         }
       );
     } else {
-      goToStep(currentStep - 1);
+      safeGoToStep(currentStep - 1);
     }
   };
 
@@ -152,13 +177,13 @@ export default function AIMasterPortfolioCreatePage() {
     <>
       <Portal as="aside" containerId="step-sidebar">
         <div
-          className="fixed top-0 left-0 h-full bg-white shadow-lg z-1
+          className="fixed top-0 left-0 h-full bg-white shadow-lg z-[1]
           max-lg:w-full max-lg:h-[108px]
           max-lg:border-none
           max-lg:justify-end"
           style={{ paddingTop: `${sidebarPaddingTop}px` }}
         >
-          <StepsSidebar currentStep={currentStep} steps={AI_CREATE_STEPS} goToStep={goToStep} />
+          <StepsSidebar currentStep={currentStep} steps={AI_CREATE_STEPS} goToStep={safeGoToStep} />
         </div>
       </Portal>
 
@@ -173,9 +198,11 @@ export default function AIMasterPortfolioCreatePage() {
           <div className="flex flex-col w-[1359px] max-lg:w-[928px] h-[800px] max-lg:h-[732px] rounded-[16px] bg-[#F8F8F8] shadow-[0_0_4px_rgba(0,0,0,0.20)] p-[40px] gap-[32px] overflow-y-auto">
             <div className="flex flex-col gap-[40px] items-end">
               <div className="flex items-start gap-[40px] w-full">
-                <img
+                <Image
                   src="/icons/AITeamieChatIcon.svg"
                   alt="티미 채팅 아이콘"
+                  width={80}
+                  height={80}
                   className="w-[80px] max-lg:w-[60px] h-[80px] max-lg:h-[60px] mt-[24px]"
                 />
                 <div className="relative w-full h-full">
@@ -185,7 +212,7 @@ export default function AIMasterPortfolioCreatePage() {
                     {currentStep === 2 && <Step3 ref={step3Ref} />}
                   </div>
                   <Image
-                    className="absolute top-[0] left-[-6px] translate-x-[-50%] translate-y-[50%]"
+                    className="absolute top-0 left-[-6px] translate-x-[-50%] translate-y-[50%]"
                     src="/icons/spike-left.svg"
                     alt="spike-left"
                     width={30}
@@ -205,7 +232,7 @@ export default function AIMasterPortfolioCreatePage() {
                   </button>
 
                   <button
-                    className="rounded-[6px] border-[1px] border-[#81D7D4] bg-[#81D7D4] p-[6px] px-[32px] text-[#FFF] cursor-pointer  disabled:opacity-50"
+                    className="rounded-[6px] border-[1px] border-[#81D7D4] bg-[#81D7D4] p-[6px] px-[32px] text-[#FFF] cursor-pointer disabled:opacity-50"
                     onClick={handleMainButtonClick}
                     disabled={isMainButtonDisabled()}
                   >
@@ -213,7 +240,7 @@ export default function AIMasterPortfolioCreatePage() {
                   </button>
                 </div>
                 <Image
-                  className="absolute top-[0] right-[-6px] translate-x-[50%] translate-y-[50%]"
+                  className="absolute top-0 right-[-6px] translate-x-[50%] translate-y-[50%]"
                   src="/icons/spike-right.svg"
                   alt="spike-right"
                   width={30}
@@ -230,20 +257,16 @@ export default function AIMasterPortfolioCreatePage() {
           onConfirm={() => {
             const payload = step3Ref.current?.buildDraftPayload() ?? [];
             patchQuestions(
-              {
-                portfolioId: Number(portfolioId),
-                body: payload,
-              },
+              { portfolioId, body: payload },
               {
                 onSuccess: () => {
                   queryClient.invalidateQueries({
-                    queryKey: ['master-portfolio-questions', Number(portfolioId)],
+                    queryKey: ['master-portfolio-questions', portfolioId],
                   });
-
-                  mutate(
-                    { portfolioId: Number(portfolioId) },
+                  generate(
+                    { portfolioId },
                     {
-                      onSuccess: () => setShowConfirmModal(true),
+                      onSuccess: () => setShowConfirmModal(false),
                       onError: (error) => {
                         console.error('포트폴리오 생성 실패:', error);
                         alert('포트폴리오 생성 중 오류가 발생했습니다.');
