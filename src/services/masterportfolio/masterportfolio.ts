@@ -54,7 +54,9 @@ export const patchMasterPortfolioQuestions = async (
 };
 
 // 마스터 포트폴리오 상세 정보를 가져오는 함수(마스터포트폴리오)
-export const fetchMasterPortfolioDetail = async (portfolioId: number) => {
+export const fetchMasterPortfolioDetail = async (
+  portfolioId: number
+): Promise<MasterPortfolioDetailResponse['result']> => {
   const res: AxiosResponse<MasterPortfolioDetailResponse> = await axiosInstance.get(
     `/api/v1/master-portfolios/${portfolioId}`
   );
