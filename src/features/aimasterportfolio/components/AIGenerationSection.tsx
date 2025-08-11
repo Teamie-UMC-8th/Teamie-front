@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  useMasterPortfolioStatus,
-  useMasterPortfolioDetail,
-} from '@/hooks/queries/useGetMasterPortfolio';
-import { useGetPersonalRetro } from '@/hooks/queries/useGetPersonalRetro';
+import { useMasterPortfolioStatus } from '@/hooks/queries/useGetMasterPortfolio';
 import { useRouter, useParams } from 'next/navigation';
 import { useState } from 'react';
 

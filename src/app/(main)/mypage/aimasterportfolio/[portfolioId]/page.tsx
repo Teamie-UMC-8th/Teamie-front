@@ -11,7 +11,6 @@ import { useUpdateContribution } from '@/hooks/mutations/useUpdateContribution';
 import { usePatchMasterPortfolio } from '@/hooks/mutations/usePatchMasterPortfolio';
 import AIGenerationSection from '@/features/aimasterportfolio/components/AIGenerationSection';
 import MenuButton from '@/features/aimasterportfolio/components/MenuButton';
-import BackButton from '@/components/BackButton';
 import { CATEGORY_MAP, CATEGORY_LIST, CategoryKey } from '@/constants/category';
 import ContributionSlider from '@/components/ContributionSlider';
 import { useRouter } from 'next/navigation';
