@@ -50,7 +50,6 @@ export default function ProjectHomePage() {
     handleConfirmChangeLeader,
     handleCloseChangeLeaderModal,
     handleUpdateTeamMember,
-    handleJoinProject,
     // 상태 설정 함수
     setTeamGoal,
     setTeamRules,
