@@ -14,7 +14,10 @@ interface Step2Props {
 export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Props) {
   const [openModal, setOpenModal] = useState(false);
   const [selectedLogContent, setSelectedLogContent] = useState('');
+  const [selectedLogTitle, setSelectedLogTitle] = useState('');
+  const [selectedLogDate, setSelectedLogDate] = useState('');
   const [localSelectedIndexes, setLocalSelectedIndexes] = useState<number[]>([]);
+  const [modalRecordIndex, setModalRecordIndex] = useState<number | null>(null);
   const portfolioId = useParams().portfolioId;
   const { data: masterPortfolioDetailRecords } = useMasterPortfolioDetailRecords(
     Number(portfolioId)
@@ -54,6 +57,24 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
 
   const length = localSelectedIndexes.length;
 
+  // ISO or arbitrary date string -> YYYY.MM.DD
+  function formatToYYYYMMDD(dateString: string): string {
+    if (!dateString) return '';
+    // Already in YYYY.MM.DD
+    if (/^\d{4}\.\d{2}\.\d{2}$/.test(dateString)) return dateString;
+    // If begins with YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}/.test(dateString)) {
+      const [y, m, d] = dateString.slice(0, 10).split('-');
+      return `${y}.${m}.${d}`;
+    }
+    const parsed = new Date(dateString);
+    if (Number.isNaN(parsed.getTime())) return dateString;
+    const y = parsed.getFullYear();
+    const m = String(parsed.getMonth() + 1).padStart(2, '0');
+    const d = String(parsed.getDate()).padStart(2, '0');
+    return `${y}.${m}.${d}`;
+  }
+
   return (
     <div className="flex flex-col items-center gap-[36px] max-lg:gap-[28px]">
       <div className="self-start items-start flex flex-col">
@@ -92,21 +113,21 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
           <br /> 회의록 없이 마스터 포트폴리오를 생성할게요.
         </div>
       ) : (
-        <div className="w-full max-lg:w-[475px] max-lg:h-[512px] border-[1.5px] border-[#898989] rounded-[20px] p-[16px] max-h-[512px] overflow-y-auto">
-          <div className="grid grid-cols-2 max-lg:grid-cols-1 gap-[16px]">
+        <div className="w-[934px] max-lg:w-[475px] h-[512px] border-[1.5px] border-[#898989] rounded-[20px] p-[24px] max-h-[512px] overflow-y-auto">
+          <div className="grid grid-cols-2 max-lg:grid-cols-1 gap-[20px]">
             {masterPortfolioDetailRecords?.map((record, index) => {
               const isSelected = localSelectedIndexes.includes(index);
               return (
                 <div key={record.id} className="flex flex-col gap-[8px]">
                   <div
                     onClick={() => toggleCardSelection(index)}
-                    className={`flex flex-col w-full max-lg:w-[419px] rounded-[8px] p-[16px] cursor-pointer shadow-[0_0_4px_rgba(0,0,0,0.25)] ${
+                    className={`flex flex-col w-[427px] h-[205px] max-lg:w-[419px] rounded-[8px] p-[16px] cursor-pointer shadow-[0_0_4px_rgba(0,0,0,0.25)] ${
                       isSelected
                         ? 'bg-[#DAF3F3] border-[2px] border-[#81D7D4]'
                         : 'bg-[#F8F8F8] border border-transparent'
                     }`}
                   >
-                    <div className="p-2 rounded-[4px] border border-[#E7E7E7] bg-white text-black text-[18px] leading-[26px] font-normal tracking-[0.72px]">
+                    <div className="pl-[12px] w-[395px] h-[46px] p-2 rounded-[4px] border border-[#E7E7E7] bg-white text-black text-[18px] leading-[26px] font-normal tracking-[0.72px] flex items-center justify-start text-center">
                       {record.name}
                     </div>
 
@@ -115,11 +136,11 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
                         일자
                       </div>
                       <div className="flex-9 text-black text-[14px] leading-[22px] font-normal tracking-[0.56px]">
-                        {record.date}
+                        {formatToYYYYMMDD(record.date)}
                       </div>
                     </div>
 
-                    <div className="w-full flex gap-[8px] mt-[8px]">
+                    <div className="w-[395px] h-[83px] flex gap-[8px] mt-[8px]">
                       <div className="flex-1 text-[#898989] text-[14px] leading-[22px] font-normal tracking-[0.56px] whitespace-pre">
                         회의록
                       </div>
@@ -135,10 +156,13 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
                         <div className="absolute inset-0 bg-[rgba(0,0,0,0.1)] opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-[4px]" />
                         {record.meetingRecords}
                         <button
-                          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-[12px] py-[4px] text-[14px] font-semibold rounded-[4px] shadow opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
+                          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-[12px] py-[4px] text-[14px] font-semibold rounded-[4px] shadow opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 cursor-pointer"
                           onClick={(e) => {
                             e.stopPropagation();
                             setSelectedLogContent(record.meetingRecords);
+                            setSelectedLogTitle(record.name);
+                            setSelectedLogDate(formatToYYYYMMDD(record.date));
+                            setModalRecordIndex(index);
                             setOpenModal(true);
                           }}
                         >
@@ -157,9 +181,15 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
       <MeetingLogModal
         isOpen={openModal}
         onClose={() => setOpenModal(false)}
-        title="일정A"
-        date="2025.05.25"
+        title={selectedLogTitle || '회의록'}
+        date={selectedLogDate}
         content={selectedLogContent}
+        onSelect={() => {
+          if (modalRecordIndex !== null) {
+            toggleCardSelection(modalRecordIndex);
+          }
+          setOpenModal(false);
+        }}
       />
     </div>
   );

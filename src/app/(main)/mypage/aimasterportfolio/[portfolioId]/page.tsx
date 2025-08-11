@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   useMasterPortfolioDetail,
   useMasterPortfolioStatus,
@@ -125,18 +125,16 @@ export default function MasterPortfolioDetail() {
   const [contribution, setContribution] = useState(0); // 초기값 0으로 변경
   const { data: status, isLoading: statusLoading } = useMasterPortfolioStatus(portfolioId);
   const router = useRouter();
+  const detailRef = useRef<HTMLDivElement>(null);
+  const taskRef = useRef<HTMLDivElement>(null);
+  const resultRef = useRef<HTMLDivElement>(null);
+  const learnRef = useRef<HTMLDivElement>(null);
 
   // 프로젝트 정보 가져오기
   const { data: projectHomeData, isLoading: projectLoading } = useProjectHome(data?.projectId || 0);
 
   // 마스터 포트폴리오 목록에서 현재 포트폴리오의 날짜 정보 가져오기
   const { data: portfolioListData } = useMasterPortfolioList();
-
-  useEffect(() => {
-    if (status?.result.status === 'DONE') {
-      router.push(`/mypage/aimasterportfolio/${portfolioId}/final`);
-    }
-  }, [status, portfolioId, router]);
 
   // API 데이터가 로드되면 상태 업데이트
   useEffect(() => {
@@ -152,6 +150,17 @@ export default function MasterPortfolioDetail() {
       );
     }
   }, [data]);
+
+  // DONE 화면용 내용 채우기
+  // useEffect(() => {
+  //   console.log("1", data)
+  //   if (data) {
+  //     if (detailRef.current) detailRef.current.innerText = data.detailInfo || '';
+  //     if (taskRef.current) taskRef.current.innerText = data.assignedTask || '';
+  //     if (resultRef.current) resultRef.current.innerText = data.keyAchievement || '';
+  //     if (learnRef.current) learnRef.current.innerText = data.insight || '';
+  //   }
+  // }, [data, status?.result.status]);
 
   const handleContributionChange = (newContribution: number) => {
     setContribution(newContribution);
@@ -177,6 +186,11 @@ export default function MasterPortfolioDetail() {
         },
       });
     }
+  };
+
+  const handleCopyField = (ref: React.RefObject<HTMLDivElement | null>) => {
+    const text = ref.current?.innerText ?? '';
+    navigator.clipboard.writeText(text);
   };
 
   if (isLoading || statusLoading || projectLoading)
@@ -218,7 +232,87 @@ export default function MasterPortfolioDetail() {
               마스터 포트폴리오
             </h2>
           </section>
-          <AIGenerationSection contribution={contribution} />
+          {status?.result.status === 'DONE' ? (
+            <div className="w-[1492px] max-lg:w-[928px] h-auto rounded-[16px] bg-[#F8F8F8] shadow-[0_0_8px_rgba(0,0,0,0.25)] p-[40px] max-lg:px-[28px] py-[40px] flex flex-col gap-[28px] max-lg:gap-[53px]">
+              {/* 상세 정보 */}
+              <div className="flex w-full max-lg:flex-col max-lg:gap-[8px] relative group">
+                <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
+                  상세 정보
+                </div>
+                <div
+                  ref={detailRef}
+                  className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4"
+                >
+                  {data.detailInfo}
+                </div>
+                <button
+                  onClick={() => handleCopyField(detailRef)}
+                  className="absolute top-[8px] right-[8px] justify-end max-lg:hidden cursor-pointer opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity"
+                >
+                  <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
+                </button>
+              </div>
+
+              {/* 담당 업무 */}
+              <div className="flex w-full max-lg:flex-col max-lg:gap-[8px] relative group">
+                <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
+                  담당 업무
+                </div>
+                <div
+                  ref={taskRef}
+                  className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4"
+                >
+                  {data.assignedTask}
+                </div>
+                <button
+                  onClick={() => handleCopyField(taskRef)}
+                  className="absolute top-[8px] right-[8px] justify-end max-lg:hidden cursor-pointer opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity"
+                >
+                  <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
+                </button>
+              </div>
+
+              {/* 주요 성과 */}
+              <div className="flex w-full max-lg:flex-col max-lg:gap-[8px] relative group">
+                <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
+                  주요 성과
+                </div>
+                <div
+                  ref={resultRef}
+                  className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4"
+                >
+                  {data.keyAchievement}
+                </div>
+                <button
+                  onClick={() => handleCopyField(resultRef)}
+                  className="absolute top-[8px] right-[8px] justify-end max-lg:hidden cursor-pointer opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity"
+                >
+                  <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
+                </button>
+              </div>
+
+              {/* 배운 점 */}
+              <div className="flex w-full max-lg:flex-col max-lg:gap-[8px] relative group">
+                <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
+                  배운 점
+                </div>
+                <div
+                  ref={learnRef}
+                  className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4"
+                >
+                  {data.insight}
+                </div>
+                <button
+                  onClick={() => handleCopyField(learnRef)}
+                  className="absolute top-[8px] right-[8px] justify-end max-lg:hidden cursor-pointer opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity"
+                >
+                  <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
+                </button>
+              </div>
+            </div>
+          ) : (
+            <AIGenerationSection contribution={contribution} />
+          )}
         </section>
       </div>
     </main>

@@ -202,7 +202,7 @@ export default function AIMasterPortfolioCreatePage() {
                   className="w-[80px] max-lg:w-[60px] h-[80px] max-lg:h-[60px] mt-[24px]"
                 />
                 <div className="relative w-full h-full">
-                  <div className="w-full h-full bg-white border-none rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.10)] p-[50px] max-lg:px-[36px] max-lg:py-[32px] max-lg:text-[16px] max-lg:leading-[24px]">
+                  <div className="w-full h-full bg-white border-none rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.10)] p-[40px] max-lg:px-[36px] max-lg:py-[32px] max-lg:text-[16px] max-lg:leading-[24px]">
                     {currentStep === 0 && <Step1 />}
                     {currentStep === 1 && (
                       <Step2
@@ -225,7 +225,7 @@ export default function AIMasterPortfolioCreatePage() {
               <div className="relative w-fit h-full">
                 <div className="w-fit h-full bg-white border-none rounded-[16px] shadow-[0_0_15px_rgba(0,0,0,0.10)] px-[34px] py-[24px] flex gap-[16px]">
                   <button
-                    className="rounded-[6px] border-[1.5px] border-[#898989] bg-[#FFF] p-[6px] px-[32px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="rounded-[6px] font-semibold border-[1px] border-[#898989] bg-[#FFF] p-[6px] px-[32px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={handleSubButtonClick}
                     disabled={
                       (currentStep === 2 && isPatchQuestionsPending) ||
@@ -241,7 +241,7 @@ export default function AIMasterPortfolioCreatePage() {
                   </button>
 
                   <button
-                    className="rounded-[6px] border-[1px] border-[#81D7D4] bg-[#81D7D4] p-[6px] px-[32px] text-[#FFF] cursor-pointer disabled:opacity-50 flex items-center justify-center min-w-[120px] h-[40px]"
+                    className="rounded-[6px] font-semibold border-[1px] border-[#81D7D4] bg-[#81D7D4] p-[6px] px-[32px] text-[#FFF] cursor-pointer disabled:opacity-50 flex items-center justify-center min-w-[120px] h-[40px]"
                     onClick={handleMainButtonClick}
                     disabled={isMainButtonDisabled() || isPostingQuestions || isGenerating}
                   >
@@ -249,7 +249,25 @@ export default function AIMasterPortfolioCreatePage() {
                       isGenerating ? (
                         '생성 중…'
                       ) : (
-                        'AI 마스터 포트폴리오 생성하기'
+                        <div className="flex items-center gap-[10px]">
+                          <span className="relative w-[36px] h-[36px]">
+                            <Image
+                              src="/icons/backgroundCoin.svg"
+                              alt="coin-bg"
+                              width={24}
+                              height={24}
+                              className="w-[36px] h-[36px]"
+                            />
+                            <Image
+                              src="/icons/coin.svg"
+                              alt="coin"
+                              width={32}
+                              height={32}
+                              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[20px] h-[20px]"
+                            />
+                          </span>
+                          <span>AI 마스터 포트폴리오 생성하기</span>
+                        </div>
                       )
                     ) : isPostingQuestions ? (
                       <img

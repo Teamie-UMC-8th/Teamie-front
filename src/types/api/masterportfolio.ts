@@ -39,7 +39,8 @@ export interface PostMasterPortfolioQuestionRequest {
 }
 
 export interface MasterPortfolioQuestion {
-  id?: number;
+  id?: number; // deprecated, use questionId
+  questionId?: number;
   question: string;
   questionType: 'YES_NO' | 'TEXT';
   answer: 'YES' | 'NO' | null;
