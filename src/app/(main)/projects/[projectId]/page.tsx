@@ -298,7 +298,6 @@ export default function ProjectHomePage() {
             projectName={projectName}
             inviteCode={inviteCode}
             expiresAt={expiresAt}
-            onJoinClick={handleJoinProject}
           />
         </Portal>
       )}
