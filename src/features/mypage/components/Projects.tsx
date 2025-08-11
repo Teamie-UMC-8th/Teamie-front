@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { formatDateRange } from '@/utils/formatDate';
 import { useState, useRef, useEffect } from 'react';
 import { MasterPortfolio } from '@/types/api/masterportfolio';
+import { CATEGORY_MAP } from '@/constants/category';
 
 export default function Projects() {
   const pathname = usePathname();
@@ -87,7 +88,9 @@ export default function Projects() {
   const isUpdating = updateMainTask.isPending;
 
   return (
-    <div className={`grid grid-cols-2 gap-[24px] ${!isMyPage ? 'max-lg:grid-cols-1' : ''}`}>
+    <div
+      className={`grid grid-cols-2 max-lg:w-[868px] gap-[24px]${!isMyPage ? 'max-lg:grid-cols-1' : ''}`}
+    >
       {data?.data?.map((item: MasterPortfolio) => (
         <Link
           key={item.portfolioId}
@@ -125,11 +128,15 @@ export default function Projects() {
                 {item.projectName}
               </p>
               <div
-                className={`absolute right-[8px] ${
-                  item.category === '동아리' ? 'bg-[#CDE3C9]' : 'bg-[#FBD5D5]'
-                } w-[80px] h-[32px] rounded-[4px] flex items-center justify-center max-lg:right-[4px]`}
+                className={`absolute right-[8px] w-[80px] h-[32px] rounded-[4px] flex items-center justify-center max-lg:right-[4px]`}
+                style={{
+                  backgroundColor:
+                    CATEGORY_MAP[item.category as keyof typeof CATEGORY_MAP]?.color || '#C8C8C8',
+                }}
               >
-                <span className="text-[16px]">{item.category}</span>
+                <span className="text-[16px]">
+                  {CATEGORY_MAP[item.category as keyof typeof CATEGORY_MAP]?.label || item.category}
+                </span>
               </div>
             </div>
 
@@ -142,7 +149,7 @@ export default function Projects() {
                 </div>
               )}
               <div className="flex mb-[12px] items-center">
-                <div className="text-[16px] text-[#505050] mr-[38px] ml-[12px] ">기도</div>
+                <div className="text-[16px] text-[#505050] mr-[38px] ml-[12px] ">기여도</div>
                 <div className="text-[16px] text-black mr-[24px]">{item.contributionRate}%</div>
                 <div
                   className=" bg-white border border-[#E7E7E7] rounded-[2px] w-[286px] h-[10px]
