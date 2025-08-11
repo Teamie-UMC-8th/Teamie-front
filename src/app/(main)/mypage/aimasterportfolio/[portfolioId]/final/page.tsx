@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 import {
   useMasterPortfolioDetail,
@@ -12,7 +12,6 @@ import { useUpdateContribution } from '@/hooks/mutations/useUpdateContribution';
 import { usePatchMasterPortfolio } from '@/hooks/mutations/usePatchMasterPortfolio';
 import { CATEGORY_MAP, CATEGORY_LIST, CategoryKey } from '@/constants/category';
 import ContributionSlider from '@/components/ContributionSlider';
-import BackButton from '@/components/BackButton';
 import MenuButton from '@/features/aimasterportfolio/components/MenuButton';
 import { useProjectHome } from '@/hooks/mutations/useProjectHome';
 import { formatDate } from '@/utils/formatDate';
@@ -85,6 +84,7 @@ const STYLES = {
 };
 
 export default function AIMasterPortfolioPage() {
+  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey>('ACTIVITY');
   const [contribution, setContribution] = useState(0); // 초기값 0, API에서 로드될 예정
   const detailRef = useRef<HTMLDivElement>(null);
@@ -180,7 +180,13 @@ export default function AIMasterPortfolioPage() {
     <main className="flex flex-col gap-4 max-w-[1600px] mx-auto">
       <div className="flex flex-col gap-[12px] px-[30px]">
         <div className="flex items-center gap-[20px] max-lg:gap-[8px]">
-          <BackButton />
+          <button
+            onClick={() => router.push('/mypage')}
+            aria-label="뒤로가기"
+            className="cursor-pointer"
+          >
+            <Image src="/icons/arrow-left.svg" alt="뒤로가기" width={24} height={24} />
+          </button>
           <h1 className="font-[Pretendard] font-bold text-[24px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap gap-[1437px]">
             {projectData.title}
           </h1>
