@@ -25,7 +25,7 @@ export default function AddTaskButton({ stepId, className = '' }: AddTaskButtonP
       onClick={handleClick}
       disabled={createTaskMutation.isPending}
     >
-      {createTaskMutation.isPending ? '업무 추가 중...' : '+ 업무 추가'}
+      + 업무 추가
     </button>
   );
 }
