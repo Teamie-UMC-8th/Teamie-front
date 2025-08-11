@@ -49,8 +49,9 @@ export default function Analyzefin() {
                 className="absolute top-[0px] left-[0px] py-[42px] px-[90px] text-[18px]
               max-lg:px-[92px] max-lg:py-[36px]"
               >
-                <p>기업 분석이 완료되었습니다.</p>
-                <p>해당 내용을 바탕으로 첨삭을 진행할게요.</p>
+                <p>기업 분석 정보 생성을 완료했어요.</p>
+                <p>아래 내용에서 추가 또는 수정하고 싶으신 부분이 있다면, 작성해주세요.</p>
+                <p>작성해주신 최종 기업 분석 정보를 바탕으로 첨삭을 진행할게요.</p>
               </div>
             </div>
           </div>

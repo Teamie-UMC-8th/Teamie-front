@@ -9,7 +9,6 @@ interface AddTeamProfileModalProps {
   projectName?: string;
   inviteCode?: string;
   expiresAt?: string;
-  onJoinClick?: () => void;
 }
 
 export default function AddTeamProfileModal({
@@ -17,7 +16,6 @@ export default function AddTeamProfileModal({
   projectName = '프로젝트',
   inviteCode = 'INVITE123',
   expiresAt = '2024-12-31',
-  onJoinClick,
 }: AddTeamProfileModalProps) {
   const [showCopyModal, setShowCopyModal] = useState(false);
   const router = useRouter();

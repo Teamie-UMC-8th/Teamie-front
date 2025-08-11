@@ -50,7 +50,6 @@ export default function ProjectHomePage() {
     handleConfirmChangeLeader,
     handleCloseChangeLeaderModal,
     handleUpdateTeamMember,
-    handleJoinProject,
     // 상태 설정 함수
     setTeamGoal,
     setTeamRules,
@@ -298,7 +297,6 @@ export default function ProjectHomePage() {
             projectName={projectName}
             inviteCode={inviteCode}
             expiresAt={expiresAt}
-            onJoinClick={handleJoinProject}
           />
         </Portal>
       )}

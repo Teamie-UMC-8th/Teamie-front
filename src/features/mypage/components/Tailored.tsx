@@ -39,51 +39,41 @@ export default function Tailored() {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-[24px] max-lg:grid-cols-2">
+    <div className="grid grid-cols-2 max-lg:w-[868px] gap-[24px] max-lg:grid-cols-2">
       {data.data.map((correction: Correction) => (
         <Link
           key={correction.correctionId}
           href={`/mypage/tailoredportfolio/${correction.correctionId}`}
         >
           <button
-            className="bg-[#F8F8F8] w-[465px] h-[156px] rounded-[8px] grid justify-center cursor-pointer
+            className="bg-[#F8F8F8] w-[465px] h-[190px] rounded-[8px] px-[13px] cursor-pointer
             max-lg:w-[421px] max-lg:h-[180px]"
             style={{ boxShadow: '0px 0px 4px 0px #00000033' }}
           >
-            <div
-              className="relative bg-white w-[439px] h-[48px] rounded-[4px] border-[1px] border-[#E7E7E7] flex flex-col justify-center mt-[12px]
-            max-lg:w-[397px] max-lg:h-[40px] max-lg:ml-[22px]"
-            >
-              <p
-                className="absolute text-[18px] left-[12px] truncate max-w-[80%]
-              max-lg:text-[16px]"
-              >
-                {correction.title}
-              </p>
+            {/* 제목 영역 */}
+            <div className="bg-white w-full h-[48px] rounded-[4px] border border-[#E7E7E7] flex items-center px-[12px] mb-[16px]">
+              <p className="text-[18px] text-black truncate">{correction.title}</p>
             </div>
 
-            <div className=" w-[439px] h-[60px]">
-              <div className="flex mb-[12px]">
-                <div
-                  className="text-[16px] text-[#898989] ml-[14px] mr-[20px] w-[60px]
-                max-lg:ml-[36px]"
-                >
-                  생성 일자
-                </div>
-                <div className="text-[16px] text-black text-left">
+            {/* 정보 영역 */}
+            <div className="space-y-[12px] ml-[12px]">
+              <div className="flex items-center">
+                <span className="text-[16px] text-[#505050] w-[60px] text-left">생성 일자</span>
+                <span className="text-[16px] text-black ml-[16px]">
                   {formatDate(correction.createdAt)}
-                </div>
+                </span>
               </div>
-              <div className="flex">
-                <div
-                  className="text-[16px] text-[#898989] mr-[20px] w-[60px]
-                max-lg:ml-[36px]"
-                >
-                  직무
-                </div>
-                <div className="text-[16px] text-black truncate flex-1 text-left">
+              <div className="flex items-center">
+                <span className="text-[16px] text-[#505050] w-[60px] text-left">기업명</span>
+                <span className="text-[16px] text-black ml-[16px] truncate">
+                  {correction.title.split(' ')[0] || '기업명'}
+                </span>
+              </div>
+              <div className="flex items-center">
+                <span className="text-[16px] text-[#505050] w-[60px] text-left">직무명</span>
+                <span className="text-[16px] text-black ml-[16px] truncate">
                   {correction.jobTitle}
-                </div>
+                </span>
               </div>
             </div>
           </button>

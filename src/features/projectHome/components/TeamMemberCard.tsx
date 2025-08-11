@@ -8,7 +8,6 @@ interface TeamMemberCardProps {
   isLeader?: boolean;
   currentUserEmail?: string;
   onClick?: () => void;
-  onUpdate?: (field: string, value: string) => void;
 }
 
 export default function TeamMemberCard({
@@ -19,7 +18,6 @@ export default function TeamMemberCard({
   isLeader = false,
   currentUserEmail,
   onClick,
-  onUpdate,
 }: TeamMemberCardProps) {
   // 본인의 프로필 카드인지 확인
   const isCurrentUser = currentUserEmail === email;
