@@ -29,7 +29,7 @@ export default function MenuButton() {
         >
           <div className="flex flex-col" onClick={() => setOpen(false)}>
             <button
-              onClick={() => router.push('/mypage')}
+              onClick={() => router.push(`/projects/${projectId}`)}
               className="px-[24px] py-[4px] text-[18px] text-left leading-[26px] font-normal text-black cursor-pointer"
             >
               프로젝트 홈으로 이동
