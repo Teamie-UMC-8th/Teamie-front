@@ -15,6 +15,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   user: UserProfile | null;
   logout: () => void;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,7 +30,7 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const { data: userData, error: userError } = useUser();
+  const { data: userData, error: userError, isLoading } = useUser();
   const { data: projects = [] } = useUserProjects(!!userData);
 
   // 사용자 정보와 프로젝트 정보를 합친 완전한 user 객체 (UI용)
@@ -44,13 +45,14 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   }, [userData, projects]);
 
   useEffect(() => {
-    // 인증 검사는 userData 기준으로 (프로젝트 정보와 무관)
-    if (userData && !userError) {
-      setIsAuthenticated(true);
-    } else if (userError) {
-      setIsAuthenticated(false);
+    if (!isLoading) {
+      if (userData && !userError) {
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+      }
     }
-  }, [userData, userError]);
+  }, [userData, userError, isLoading]);
 
   const logout = async () => {
     try {
@@ -69,8 +71,9 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       isAuthenticated,
       user,
       logout,
+      isLoading,
     }),
-    [isAuthenticated, user, logout]
+    [isAuthenticated, user, isLoading]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

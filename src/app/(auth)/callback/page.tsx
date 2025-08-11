@@ -1,14 +1,16 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 
 function CallbackContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    router.push('/home/tasks');
-  }, [router]);
+    const next = searchParams.get('next');
+    router.replace(next || '/home/tasks');
+  }, [router, searchParams]);
 
   return null;
 }

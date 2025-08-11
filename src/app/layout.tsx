@@ -26,18 +26,33 @@ const PUBLIC_ROUTES = ['/login'];
 function AuthWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
+    if (isLoading) {
+      return;
+    }
+
     const isProtectedRoute = PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
-    const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
+    const isLoginPage = pathname === '/login';
+
+    // 현재 전체 경로(쿼리 포함)
+    const search = typeof window !== 'undefined' ? window.location.search : '';
+    const currentFullPath = `${pathname}${search}`;
 
     if (isProtectedRoute && !isAuthenticated) {
-      router.push('/login');
-    } else if (isPublicRoute && isAuthenticated) {
-      router.push('/home/tasks');
+      // 의도 경로를 next로 넘기며 로그인 페이지로 이동
+      const nextParam = encodeURIComponent(currentFullPath);
+      router.replace(`/login?next=${nextParam}`);
+      return;
     }
-  }, [pathname, isAuthenticated, router]);
+
+    if (isLoginPage && isAuthenticated) {
+      const params = new URLSearchParams(search);
+      const next = params.get('next');
+      router.replace(next || '/home/tasks');
+    }
+  }, [pathname, isAuthenticated, router, isLoading]);
 
   return <>{children}</>;
 }
