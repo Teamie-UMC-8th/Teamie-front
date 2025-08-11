@@ -41,21 +41,22 @@ export default function AIGenerationSection({ contribution }: AIGenerationSectio
       <p className="w-[275px] h-[56px] font-[Pretendard] text-[20px] leading-[28px] font-semibold text-[#000000] text-center mb-[32px]">
         Teamie의 AI, 티미와 함께 마스터 포트폴리오를 생성해보세요!
       </p>
-      <button
-        onClick={handleStartClick}
-        className="flex items-center justify-center gap-[10px] px-[40px] py-[10px] cursor-pointer border border-[#81D7D4] rounded-[6px] font-[Pretendard] font-bold text-[18px] leading-[26px] text-white bg-[#81D7D4] mb-[20px]"
-      >
-        시작하기
-      </button>
-
-      {showToast && (
-        <div
-          className="w-[205px] h-[42px] px-[20px] py-[8px] bg-[#F8F8F8] border-[1.5px] border-[#BBBBBB] rounded-[6px] 
-          text-[18px] text-[#505050]] flex items-center justify-center whitespace-nowrap leading-[26px] text-center"
+      <div className="relative">
+        <button
+          onClick={handleStartClick}
+          className="flex items-center justify-center gap-[10px] px-[40px] py-[10px] cursor-pointer border border-[#81D7D4] rounded-[6px] font-[Pretendard] font-bold text-[18px] leading-[26px] text-white bg-[#81D7D4] mb-[20px]"
         >
-          기여도를 입력해주세요.
-        </div>
-      )}
+          시작하기
+        </button>
+
+        {showToast && (
+          <div className="absolute left-1/2 -translate-x-1/2 mt-[4px] top-full z-10">
+            <div className="w-[205px] h-[42px] px-[20px] py-[8px] bg-[#F8F8F8] border-[1.5px] border-[#BBBBBB] rounded-[6px] text-[18px] text-[#505050]] flex items-center justify-center whitespace-nowrap leading-[26px] text-center">
+              기여도를 입력해주세요.
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

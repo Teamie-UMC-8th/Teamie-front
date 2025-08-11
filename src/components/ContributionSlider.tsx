@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 interface ContributionSliderProps {
   value: number;
@@ -11,6 +11,11 @@ export default function ContributionSlider({ value, onChange }: ContributionSlid
   const barRef = useRef<HTMLDivElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(value);
+
+  // props의 value가 변경될 때 inputValue 동기화
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
 
   const handleBarClick = (e: React.MouseEvent) => {
     if (!barRef.current) return;
