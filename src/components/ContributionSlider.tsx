@@ -51,10 +51,7 @@ export default function ContributionSlider({ value, onChange }: ContributionSlid
           onClick={handleBarClick}
           className="w-[299px] h-[20px] bg-white border border-[#BBBBBB] rounded-[3px] overflow-hidden cursor-pointer relative"
         >
-          <div
-            className="h-full bg-[#81D7D4] transition-all duration-300"
-            style={{ width: `${value}%` }}
-          />
+          <div className="h-full bg-[#81D7D4]" style={{ width: `${value}%` }} />
         </div>
         {isEditing ? (
           <input
