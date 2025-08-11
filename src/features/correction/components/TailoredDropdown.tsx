@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const TAILORED_OPTIONS = [
   { label: '수업', color: 'bg-[#BED9FB]' },
@@ -13,8 +13,26 @@ const TAILORED_OPTIONS = [
 export default function TailoredDropdown() {
   const [selected, setSelected] = useState(TAILORED_OPTIONS[0]); // '정규직' 초기값
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
+
+  // 빈 곳 클릭 시 드롭다운 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   const handleSelect = (option: (typeof TAILORED_OPTIONS)[number]) => {
     setSelected(option);
@@ -22,7 +40,7 @@ export default function TailoredDropdown() {
   };
 
   return (
-    <div className="relative inline-block">
+    <div className="relative inline-block" ref={dropdownRef}>
       <div className="flex">
         {/* 선택된 상태 표시 */}
         <button

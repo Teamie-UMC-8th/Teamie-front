@@ -4,7 +4,7 @@ import React, { useRef, useState } from 'react';
 import { useUploadTaskFile, useDeleteTaskFile } from '@/hooks/mutations/useFileUploadMutations';
 import { useParams } from 'next/navigation';
 
-type UploadedFile = File & { serverId?: number };
+type UploadedFile = File & { serverId?: number; fileUrl?: string };
 
 export default function FileUploader() {
   // 업로드된 파일 목록을 상태로 관리
@@ -23,22 +23,60 @@ export default function FileUploader() {
   // 파일 입력 변경 시 업로드된 파일을 상태에 추가
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const uploadedFiles: UploadedFile[] = Array.from(e.target.files);
-      setFiles((prev) => [...prev, ...uploadedFiles]);
+      const uploadedFiles: UploadedFile[] = Array.from(e.target.files).filter(
+        (file) => file && file.name
+      );
 
-      uploadedFiles.forEach((file) => {
-        if (typeof taskId === 'string') {
+      // 중복 파일 체크 및 필터링
+      const newFiles = uploadedFiles.filter((newFile) => {
+        const isDuplicate = files.some(
+          (existingFile) =>
+            existingFile.name === newFile.name &&
+            existingFile.size === newFile.size &&
+            existingFile.lastModified === newFile.lastModified
+        );
+
+        if (isDuplicate) {
+          console.log('⚠️ 중복 파일 감지:', newFile.name);
+          alert(`파일 "${newFile.name}"이(가) 이미 업로드되어 있습니다.`);
+          return false;
+        }
+
+        return true;
+      });
+
+      if (newFiles.length === 0) {
+        // 파일 입력 초기화
+        if (inputRef.current) {
+          inputRef.current.value = '';
+        }
+        return;
+      }
+
+      setFiles((prev) => [...prev, ...newFiles]);
+
+      newFiles.forEach((file) => {
+        if (typeof taskId === 'string' && file && file.name) {
           uploadMutation.mutate(
             { taskId: Number(taskId), file },
             {
               onSuccess: (data) => {
                 setFiles((prev) =>
-                  prev.map((f) => (f === file ? { ...f, serverId: data.result.id } : f))
+                  prev.map((f) =>
+                    f === file
+                      ? {
+                          ...f,
+                          serverId: data.result.id,
+                          fileUrl: data.result.fileUrl,
+                          name: file.name,
+                        }
+                      : f
+                  )
                 );
-                console.log('파일 업로드 성공:', data.result);
+                console.log('✅ 파일 업로드 성공:', data.result);
               },
               onError: (error: Error) => {
-                console.error('파일 업로드 실패:', error);
+                console.error('❌ 파일 업로드 실패:', error);
                 alert(error.message || '파일 업로드에 실패했습니다.');
                 // 실패한 파일 제거
                 setFiles((prev) => prev.filter((f) => f !== file));
@@ -48,6 +86,11 @@ export default function FileUploader() {
         }
       });
     }
+
+    // 파일 입력 초기화 (같은 파일을 다시 선택할 수 있도록)
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
   };
 
   // 드래그 앤 드롭으로 파일을 놓았을 때 파일을 상태에 추가 및 업로드 트리거
@@ -55,22 +98,56 @@ export default function FileUploader() {
     e.preventDefault();
     setIsDragging(false);
     if (e.dataTransfer.files) {
-      const droppedFiles: UploadedFile[] = Array.from(e.dataTransfer.files);
-      setFiles((prev) => [...prev, ...droppedFiles]);
+      const droppedFiles: UploadedFile[] = Array.from(e.dataTransfer.files).filter(
+        (file) => file && file.name
+      );
 
-      droppedFiles.forEach((file) => {
-        if (typeof taskId === 'string') {
+      // 중복 파일 체크 및 필터링
+      const newFiles = droppedFiles.filter((newFile) => {
+        const isDuplicate = files.some(
+          (existingFile) =>
+            existingFile.name === newFile.name &&
+            existingFile.size === newFile.size &&
+            existingFile.lastModified === newFile.lastModified
+        );
+
+        if (isDuplicate) {
+          console.log('⚠️ 중복 파일 감지:', newFile.name);
+          alert(`파일 "${newFile.name}"이(가) 이미 업로드되어 있습니다.`);
+          return false;
+        }
+
+        return true;
+      });
+
+      if (newFiles.length === 0) {
+        return;
+      }
+
+      setFiles((prev) => [...prev, ...newFiles]);
+
+      newFiles.forEach((file) => {
+        if (typeof taskId === 'string' && file && file.name) {
           uploadMutation.mutate(
             { taskId: Number(taskId), file },
             {
               onSuccess: (data) => {
                 setFiles((prev) =>
-                  prev.map((f) => (f === file ? { ...f, serverId: data.result.id } : f))
+                  prev.map((f) =>
+                    f === file
+                      ? {
+                          ...f,
+                          serverId: data.result.id,
+                          fileUrl: data.result.fileUrl,
+                          name: file.name,
+                        }
+                      : f
+                  )
                 );
-                console.log('파일 업로드 성공:', data.result);
+                console.log('✅ 파일 업로드 성공:', data.result);
               },
               onError: (error: Error) => {
-                console.error('파일 업로드 실패:', error);
+                console.error('❌ 파일 업로드 실패:', error);
                 alert(error.message || '파일 업로드에 실패했습니다.');
                 // 실패한 파일 제거
                 setFiles((prev) => prev.filter((f) => f !== file));
@@ -93,11 +170,40 @@ export default function FileUploader() {
     setIsDragging(false);
   };
 
+  // 파일 삭제 핸들러
+  const handleFileDelete = (file: UploadedFile, index: number) => {
+    if (file.serverId) {
+      deleteMutation.mutate(file.serverId, {
+        onSuccess: (data) => {
+          console.log('✅ 파일 삭제 성공:', data.message || '파일이 삭제되었습니다.');
+          setFiles((prev) => prev.filter((_, i) => i !== index));
+          // 파일 삭제 후 입력 초기화
+          if (inputRef.current) {
+            inputRef.current.value = '';
+          }
+        },
+        onError: (error: Error) => {
+          console.error('❌ 파일 삭제 실패:', error);
+          alert(error.message || '파일 삭제에 실패했습니다.');
+        },
+      });
+    } else {
+      // 서버에 업로드되지 않은 파일은 바로 제거
+      setFiles((prev) => prev.filter((_, i) => i !== index));
+      // 파일 삭제 후 입력 초기화
+      if (inputRef.current) {
+        inputRef.current.value = '';
+      }
+    }
+  };
+
   return (
     <div className="flex ml-[28px] gap-[20px]">
       {/* 파일 목록 렌더링 */}
       {files.map((file, index) => {
-        const ext = file.name.split('.').pop()?.toLowerCase();
+        // file.name이 undefined일 수 있으므로 안전하게 처리
+        const fileName = file?.name || 'Unknown File';
+        const ext = fileName.split('.').pop()?.toLowerCase();
 
         // 파일 종류 / 파일 아이콘 구분
         let filePreview = '/icons/file-preview.svg';
@@ -110,7 +216,7 @@ export default function FileUploader() {
         } else if (ext === 'txt') {
           filePreview = '/icons/txt-file.svg';
           fileIcon = hoveredIndex === index ? '/icons/delete-file-icon.svg' : '/icons/txt-icon.svg';
-        } else if (ext === 'jpg') {
+        } else if (ext === 'jpg' || ext === 'jpeg') {
           filePreview = '/icons/jpg-file.svg';
           fileIcon = hoveredIndex === index ? '/icons/delete-file-icon.svg' : '/icons/jpg-icon.svg';
         } else if (ext === 'png') {
@@ -140,23 +246,7 @@ export default function FileUploader() {
                   src="/icons/delete-file-icon.svg"
                   alt="삭제 아이콘"
                   className="w-[20px] h-[20px] cursor-pointer"
-                  onClick={() => {
-                    if (file.serverId) {
-                      deleteMutation.mutate(file.serverId, {
-                        onSuccess: (data) => {
-                          console.log('파일 삭제 성공:', data.message);
-                          setFiles((prev) => prev.filter((_, i) => i !== index));
-                        },
-                        onError: (error: Error) => {
-                          console.error('파일 삭제 실패:', error);
-                          alert(error.message || '파일 삭제에 실패했습니다.');
-                        },
-                      });
-                    } else {
-                      // 서버에 업로드되지 않은 파일은 바로 제거
-                      setFiles((prev) => prev.filter((_, i) => i !== index));
-                    }
-                  }}
+                  onClick={() => handleFileDelete(file, index)}
                 />
               ) : (
                 <img
@@ -165,19 +255,27 @@ export default function FileUploader() {
                   className="w-[20px] h-[20px] cursor-pointer"
                 />
               )}
-              <p className="text-[16px] truncate">{file.name}</p>
+              <p className="text-[16px] truncate">{fileName}</p>
             </div>
             {hoveredIndex === index && (
               <button
                 type="button"
                 className="absolute top-[8px] right-[8px] cursor-pointer"
                 onClick={() => {
-                  const url = URL.createObjectURL(file);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = file.name;
-                  a.click();
-                  URL.revokeObjectURL(url);
+                  // 서버 URL이 있으면 그것을 사용, 없으면 로컬 URL 생성
+                  if (file.fileUrl) {
+                    const a = document.createElement('a');
+                    a.href = file.fileUrl;
+                    a.download = fileName;
+                    a.click();
+                  } else {
+                    const url = URL.createObjectURL(file);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  }
                 }}
               >
                 <img src="/icons/download-file-icon.svg" alt="다운로드" />

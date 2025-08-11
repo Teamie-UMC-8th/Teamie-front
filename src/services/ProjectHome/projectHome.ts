@@ -16,7 +16,7 @@ import {
   TeamMember,
   PostItData,
 } from '@/types/api/projectHome';
-// import { projectHomeMockData } from '@/constants/projectHomeMockData';
+
 import { ApiErrorResponse } from '@/types/api/error';
 import { AxiosError } from 'axios';
 
@@ -64,13 +64,6 @@ export const checkAuthStatus = async () => {
  * 프로젝트 홈 데이터를 조회하는 API
  */
 export const getProjectHome = async (projectId: number): Promise<ProjectHomeResponse> => {
-  // 실제 API 테스트를 위해 주석 처리
-  // if (process.env.NODE_ENV === 'development') {
-  //   // 실제 API 호출을 시뮬레이션하기 위한 지연
-  //   await new Promise((resolve) => setTimeout(resolve, 1000));
-  //   return projectHomeMockData;
-  // }
-
   try {
     console.log(`API 호출 시도: /api/v1/projects/${projectId}`);
     console.log('Base URL:', process.env.NEXT_PUBLIC_API_BASE_URL);
@@ -83,7 +76,6 @@ export const getProjectHome = async (projectId: number): Promise<ProjectHomeResp
     const isAuthenticated = await checkAuthStatus();
     if (!isAuthenticated) {
       console.error('인증되지 않은 상태입니다. 로그인이 필요합니다.');
-      // return projectHomeMockData;
       throw new Error('인증되지 않은 상태입니다. 로그인이 필요합니다.');
     }
 
@@ -125,8 +117,6 @@ export const getProjectHome = async (projectId: number): Promise<ProjectHomeResp
       console.error('401 Unauthorized: 로그인이 필요합니다.');
     }
 
-    // API 호출 실패 시 mock 데이터 반환
-    // return projectHomeMockData;
     throw error;
   }
 };
