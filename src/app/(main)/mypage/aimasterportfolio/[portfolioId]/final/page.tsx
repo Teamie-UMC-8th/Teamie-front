@@ -41,9 +41,9 @@ function CategorySelector({
         >
           <div
             className="w-[80px] h-[32px] rounded-[4px] px-[12px] py-[4px] text-black font-[Pretendard] text-[16px] leading-[24px] flex items-center justify-center whitespace-nowrap"
-            style={{ backgroundColor: CATEGORY_MAP[selected].color }}
+            style={{ backgroundColor: CATEGORY_MAP[selected]?.color ?? '#FFFFFF' }}
           >
-            {CATEGORY_MAP[selected].label}
+            {CATEGORY_MAP[selected]?.label ?? '분류'}
           </div>
           <svg
             width="14"
@@ -85,7 +85,7 @@ const STYLES = {
 
 export default function AIMasterPortfolioPage() {
   const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState<CategoryKey>('ACTIVITY');
+  const [selectedCategory, setSelectedCategory] = useState<CategoryKey>('COURSE');
   const [contribution, setContribution] = useState(0); // 초기값 0, API에서 로드될 예정
   const detailRef = useRef<HTMLDivElement>(null);
   const taskRef = useRef<HTMLDivElement>(null);
@@ -115,7 +115,12 @@ export default function AIMasterPortfolioPage() {
       setContribution(portfolioDetail.contributionRate);
     }
     if (portfolioDetail?.category) {
-      setSelectedCategory(portfolioDetail.category as CategoryKey);
+      const key = String(portfolioDetail.category).toUpperCase();
+      setSelectedCategory(
+        (CATEGORY_MAP as Record<string, { label: string; color: string }>)[key]
+          ? (key as CategoryKey)
+          : 'COURSE'
+      );
     }
   }, [portfolioDetail]);
 

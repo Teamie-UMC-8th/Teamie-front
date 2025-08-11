@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { formatDateRange } from '@/utils/formatDate';
 import { useState, useRef, useEffect } from 'react';
 import { MasterPortfolio } from '@/types/api/masterportfolio';
+import { CATEGORY_MAP, type CategoryKey } from '@/constants/category';
 
 export default function Projects() {
   const pathname = usePathname();
@@ -86,6 +87,21 @@ export default function Projects() {
 
   const isUpdating = updateMainTask.isPending;
 
+  const normalizeCategory = (raw?: string): CategoryKey => {
+    if (!raw) return 'COURSE';
+    const trimmed = String(raw).trim();
+    const upper = trimmed.toUpperCase();
+    if ((CATEGORY_MAP as Record<string, unknown>)[upper]) return upper as CategoryKey;
+    const alias: Record<string, CategoryKey> = {
+      수업: 'COURSE',
+      동아리: 'CLUB',
+      대외활동: 'ACTIVITY',
+      프로젝트: 'PROJECT',
+      기타: 'OTHER',
+    };
+    return alias[trimmed] ?? 'COURSE';
+  };
+
   return (
     <div className={`grid grid-cols-2 gap-[24px] ${!isMyPage ? 'max-lg:grid-cols-1' : ''}`}>
       {data?.data?.map((item: MasterPortfolio) => (
@@ -124,13 +140,18 @@ export default function Projects() {
               <p className="absolute text-[18px] left-[12px] max-lg:text-[16px] truncate max-w-[60%]">
                 {item.projectName}
               </p>
-              <div
-                className={`absolute right-[8px] ${
-                  item.category === '동아리' ? 'bg-[#CDE3C9]' : 'bg-[#FBD5D5]'
-                } w-[80px] h-[32px] rounded-[4px] flex items-center justify-center max-lg:right-[4px]`}
-              >
-                <span className="text-[16px]">{item.category}</span>
-              </div>
+              {(() => {
+                const key = normalizeCategory(item.category as string);
+                const { label, color } = CATEGORY_MAP[key];
+                return (
+                  <div
+                    className="absolute right-[8px] w-[80px] h-[32px] rounded-[4px] flex items-center justify-center max-lg:right-[4px]"
+                    style={{ backgroundColor: color }}
+                  >
+                    <span className="text-[16px]">{label}</span>
+                  </div>
+                );
+              })()}
             </div>
 
             <div className="relative w-[439px] h-[96px] mx-[13px] pt-[16px] pb-[20px] mt-[-36px] max-lg:w-[397px] max-lg:h-[96px] max-lg:ml-[12px]">
