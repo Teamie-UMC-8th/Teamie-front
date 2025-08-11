@@ -70,7 +70,7 @@ export default function StepHeader({
       onMouseLeave={() => setIsHovered(false)}
     >
       <button onClick={onToggle} className="cursor-pointer w-full">
-        <div className="flex bg-[#DAF3F3] w-full h-[4.25rem] items-center justify-between rounded-[0.5rem]">
+        <div className="relative flex bg-[#DAF3F3] w-full h-[4.25rem] items-center justify-center rounded-[0.5rem]">
           {isEditing ? (
             <input
               type="text"
@@ -78,12 +78,12 @@ export default function StepHeader({
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditName(e.target.value)}
               onBlur={handleBlur}
               onKeyDown={handleKeyPress}
-              className="flex-1 mx-auto text-center font-medium text-[1.125rem] bg-transparent border-none outline-none"
+              className="absolute inset-0 mx-auto text-center font-medium text-[1.125rem] bg-transparent border-none outline-none"
               autoFocus
             />
           ) : (
             <span
-              className="font-medium text-[1.125rem] mx-auto cursor-pointer"
+              className="font-medium text-[1.125rem] cursor-pointer"
               onDoubleClick={handleDoubleClick}
             >
               {stepName}
@@ -91,7 +91,7 @@ export default function StepHeader({
           )}
           {showDelete && isHovered ? (
             <span
-              className="w-[2rem] h-[2rem] mr-[0.25rem] flex items-center justify-center"
+              className="absolute right-2 w-[2rem] h-[2rem] flex items-center justify-center"
               onClick={handleIconClick}
               role="button"
               tabIndex={0}
@@ -104,7 +104,7 @@ export default function StepHeader({
           ) : (
             <img
               src="/icons/arrow-down.svg"
-              className={`w-[2rem] h-[2rem] mr-[0.25rem] ${isOpen ? 'rotate-180' : ''}`}
+              className={`absolute right-2 w-[2rem] h-[2rem] ${isOpen ? 'rotate-180' : ''}`}
             />
           )}
         </div>
