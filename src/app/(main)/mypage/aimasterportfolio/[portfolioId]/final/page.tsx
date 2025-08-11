@@ -172,13 +172,9 @@ export default function AIMasterPortfolioPage() {
     }
   }, [portfolioDetail]);
 
-  const handleCopyAll = () => {
-    const detail = detailRef.current?.innerText ?? '';
-    const task = taskRef.current?.innerText ?? '';
-    const result = resultRef.current?.innerText ?? '';
-    const learn = learnRef.current?.innerText ?? '';
-    const fullText = `상세 정보:\n${detail}\n\n담당 업무:\n${task}\n\n주요 성과:\n${result}\n\n배운 점:\n${learn}`;
-    navigator.clipboard.writeText(fullText);
+  const handleCopyField = (ref: React.RefObject<HTMLDivElement | null>) => {
+    const text = ref.current?.innerText ?? '';
+    navigator.clipboard.writeText(text);
   };
 
   return (
@@ -228,53 +224,71 @@ export default function AIMasterPortfolioPage() {
 
           <div className="w-[1492px] max-lg:w-[928px] h-auto rounded-[16px] bg-[#F8F8F8] shadow-[0_0_8px_rgba(0,0,0,0.25)] p-[40px] max-lg:px-[28px] py-[40px] flex flex-col gap-[28px] max-lg:gap-[53px]">
             {/* 상세 정보 */}
-            <div className="flex w-full max-lg:flex-col max-lg:gap-[8px] relative">
+            <div className="flex w-full max-lg:flex-col max-lg:gap-[8px] relative group">
               <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
                 상세 정보
               </div>
               <div
                 ref={detailRef}
-                className="w-full lg:flex-[9.4] h-[162px] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 overflow-y-auto"
+                className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4"
               />
               <button
-                onClick={handleCopyAll}
-                className="absolute top-[8px] right-[8px] justify-end max-lg:hidden cursor-pointer"
+                onClick={() => handleCopyField(detailRef)}
+                className="absolute top-[8px] right-[8px] justify-end max-lg:hidden cursor-pointer opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity"
               >
                 <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
               </button>
             </div>
 
             {/* 담당 업무 */}
-            <div className="flex w-full max-lg:flex-col max-lg:gap-[8px]">
+            <div className="flex w-full max-lg:flex-col max-lg:gap-[8px] relative group">
               <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
                 담당 업무
               </div>
               <div
                 ref={taskRef}
-                className="w-full lg:flex-[9.4] h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 overflow-y-auto"
+                className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4"
               />
+              <button
+                onClick={() => handleCopyField(taskRef)}
+                className="absolute top-[8px] right-[8px] justify-end max-lg:hidden cursor-pointer opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity"
+              >
+                <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
+              </button>
             </div>
 
             {/* 주요 성과 */}
-            <div className="flex w-full max-lg:flex-col max-lg:gap-[8px]">
+            <div className="flex w-full max-lg:flex-col max-lg:gap-[8px] relative group">
               <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
                 주요 성과
               </div>
               <div
                 ref={resultRef}
-                className="w-full lg:flex-[9.4] h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 overflow-y-auto"
+                className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4"
               />
+              <button
+                onClick={() => handleCopyField(resultRef)}
+                className="absolute top-[8px] right-[8px] justify-end max-lg:hidden cursor-pointer opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity"
+              >
+                <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
+              </button>
             </div>
 
             {/* 배운 점 */}
-            <div className="flex w-full max-lg:flex-col max-lg:gap-[8px]">
+            <div className="flex w-full max-lg:flex-col max-lg:gap-[8px] relative group">
               <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
                 배운 점
               </div>
               <div
                 ref={learnRef}
-                className="w-full lg:flex-[9.4] h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 overflow-y-auto"
+                className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4"
               />
+              <button
+                onClick={() => handleCopyField(learnRef)}
+                className="absolute top-[8px] right-[8px] justify-end max-lg:hidden cursor-pointer opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity"
+              >
+                <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
+              </button>
             </div>
           </div>
         </section>
