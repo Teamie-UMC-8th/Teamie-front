@@ -11,16 +11,16 @@ function LoginContent() {
   const handleLogin = () => {
     const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-    const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
 
-    // callback으로 돌아올 때 next를 유지하도록 쿼리에 포함
+    // callback(경로)은 백엔드가 redirect_url 기준으로 '/callback'을 붙이는 경우가 많으므로
+    // 여기서는 origin만 전달하여 '/callback/callback' 중복을 방지합니다.
+    const redirectUrl = encodeURIComponent(origin);
+
+    // callback 이후 복귀 경로 유지
     const nextQuery = nextParam ? `&next=${encodeURIComponent(nextParam)}` : '';
 
-    if (isLocalhost) {
-      window.location.href = `${backendUrl}/auth/kakao?redirect_url=http://localhost:3000/callback${nextQuery}`;
-    } else {
-      window.location.href = `${backendUrl}/auth/kakao?redirect_url=${encodeURIComponent(window.location.origin + '/callback')}${nextQuery}`;
-    }
+    window.location.href = `${backendUrl}/auth/kakao?redirect_url=${redirectUrl}${nextQuery}`;
   };
 
   return (
