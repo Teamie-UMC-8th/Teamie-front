@@ -94,7 +94,7 @@ export default function Navbar() {
       className="w-full border-b-[0.125rem] border-[#E7E7E7] bg-white h-[3.625rem] z-10 relative"
       ref={navbarRef}
     >
-      <div className="flex items-center h-full px-[1.313rem] min-w-[1024px]">
+      <div className="flex items-center h-full pl-[1.313rem] min-w-[1024px]">
         {/* 로고 */}
         <img
           src="/logo.svg"

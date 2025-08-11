@@ -71,7 +71,7 @@ export default function ProjectSelect() {
           max-lg:ml-[496px]"
           >
             <img src="/icons/CorrectionStartBubble.svg" alt="첨삭 시작 말풍선" />
-            <Link href="/mypage/tailoredportfolio">
+            <Link href="/mypage/tailoredportfolio/1">
               <img
                 src="/icons/CorrectionStartButton.svg"
                 alt="첨삭 시작 버튼"

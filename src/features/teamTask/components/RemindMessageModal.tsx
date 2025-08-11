@@ -31,7 +31,7 @@ export default function RemindMessageModal({
     const locationText = location || '미정';
 
     // 날짜를 0월0일 형식으로 변환
-    const [year, month, day] = date.split('-').map(Number);
+    const [, month, day] = date.split('-').map(Number);
     const dateMonthDay = `${month}월 ${day}일`;
 
     return `⏰ 다가오는 일정 알려드려요!

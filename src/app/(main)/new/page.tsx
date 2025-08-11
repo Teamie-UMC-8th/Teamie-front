@@ -56,6 +56,22 @@ export default function New() {
     }
   );
 
+  // 프로젝트명 입력 제한 함수
+  const handleProjectNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+
+    // 한글, 영문, 숫자, 공백, 하이픈만 허용하는 정규식
+    const allowedPattern = /^[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9\s-]*$/;
+
+    if (allowedPattern.test(value) && value.length <= 20) {
+      setProjectName(value);
+    }
+  };
+
+  // 버튼 비활성화 조건
+  const isButtonDisabled =
+    createProjectMutation.isPending || hasAttemptedCreation || !projectName.trim();
+
   const handleCreateProject = () => {
     if (!projectName.trim() || hasAttemptedCreation) {
       return;
@@ -116,17 +132,16 @@ export default function New() {
                 createProjectMutation.isPending || hasAttemptedCreation ? 'cursor-not-allowed' : ''
               }`}
               value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
+              onChange={handleProjectNameChange}
               disabled={createProjectMutation.isPending || hasAttemptedCreation}
+              maxLength={20}
             />
             <button
               className={`self-center px-[0.75rem] py-[0.25rem] whitespace-nowrap bg-[#81D7D4] rounded-[0.25rem] text-white font-bold text-[1.125rem] ${
-                createProjectMutation.isPending || hasAttemptedCreation
-                  ? 'bg-[#BAE5E4] cursor-not-allowed'
-                  : 'cursor-pointer'
+                isButtonDisabled ? 'bg-[#BAE5E4] cursor-not-allowed' : 'cursor-pointer'
               }`}
               onClick={handleCreateProject}
-              disabled={createProjectMutation.isPending || hasAttemptedCreation}
+              disabled={isButtonDisabled}
             >
               생성하기
             </button>
@@ -151,7 +166,7 @@ export default function New() {
               </span>
             </h2>
 
-            <div className="bg-[#FFFFFF] p-[2.5rem] border-[0.125rem] border-[#BBBBBB] rounded-[0.75rem] relative">
+            <div className="bg-[#FFFFFF] p-[2rem] border-[0.125rem] border-[#BBBBBB] rounded-[0.75rem] relative">
               <div className="bg-[#F8F8F8] rounded-[0.75rem] relative">
                 <p className="lg:px-[6.5rem] px-[4rem] py-[2rem] lg:text-[1.125rem] text-[1rem] text-center">
                   💡 프로젝트에 참여해 주세요!

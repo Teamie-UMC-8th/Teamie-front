@@ -52,15 +52,13 @@ export default function TaskItem({
           {/* 진행상태 (필수) */}
           <div className="flex items-center justify-between gap-[2px] text-[14px]">
             {/* 마감기한 (선택) */}
-            {deadline ? (
-              <span className={deadlineTextColor}>{formatDate(deadline)}까지</span>
-            ) : (
-              <span className="text-[#898989]">마감일 없음</span>
-            )}
+            <span className="min-w-[7.5rem]">
+              {deadline && <span className={deadlineTextColor}>{formatDate(deadline)}까지</span>}
+            </span>
 
             {/* 진행상태 배지 */}
             <div
-              className={`flex items-center justify-center px-2 py-0.5 w-[63px] h-[22px] rounded-full font-semibold ${statusStyle.bg} ${statusStyle.text}`}
+              className={`flex items-center justify-center px-2 py-0.5 w-[63px] h-[22px] rounded-full font-regular ${statusStyle.bg} ${statusStyle.text}`}
             >
               {status}
             </div>

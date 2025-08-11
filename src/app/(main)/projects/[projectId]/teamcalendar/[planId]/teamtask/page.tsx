@@ -234,13 +234,13 @@ export default function TeamTaskDetailPage() {
     return `${hour}:${minute}`;
   };
 
-  // 모달용 날짜 형식 (MM.DD)
-  const formatDateForModal = (date: Date | undefined) => {
-    if (!date) return '';
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    return `${month}.${day}`;
-  };
+  // 모달용 날짜 형식 (MM.DD) - 현재 사용되지 않음
+  // const formatDateForModal = (date: Date | undefined) => {
+  //   if (!date) return '';
+  //   const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  //   const day = date.getDate().toString().padStart(2, '0');
+  //   return `${month}.${day}`;
+  // };
 
   const handleDateChange = (date: Date) => {
     setSelectedDate(date);

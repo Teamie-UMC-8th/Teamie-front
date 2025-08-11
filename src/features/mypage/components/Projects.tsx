@@ -17,6 +17,7 @@ export default function Projects() {
 
   const [editingTask, setEditingTask] = useState<number | null>(null);
   const [editValue, setEditValue] = useState('');
+  const [selectedProjects, setSelectedProjects] = useState<Set<number>>(new Set());
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleTaskClick = (portfolioId: number, currentTask: string) => {
@@ -52,6 +53,30 @@ export default function Projects() {
     handleTaskSave(portfolioId);
   };
 
+  const handleProjectSelect = (portfolioId: number, e: React.MouseEvent) => {
+    if (isAnalyzeFinPage) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      setSelectedProjects((prev) => {
+        const newSet = new Set(prev);
+        if (newSet.has(portfolioId)) {
+          newSet.delete(portfolioId);
+        } else {
+          if (newSet.size < 6) {
+            newSet.add(portfolioId);
+          }
+        }
+        return newSet;
+      });
+    }
+  };
+
+  const getSelectionOrder = (portfolioId: number) => {
+    if (!isAnalyzeFinPage || !selectedProjects.has(portfolioId)) return null;
+    return Array.from(selectedProjects).indexOf(portfolioId) + 1;
+  };
+
   useEffect(() => {
     if (editingTask && inputRef.current) {
       inputRef.current.focus();
@@ -64,17 +89,31 @@ export default function Projects() {
   return (
     <div className={`grid grid-cols-2 gap-[24px] ${!isMyPage ? 'max-lg:grid-cols-1' : ''}`}>
       {data?.data?.map((item: MasterPortfolio) => (
-        <Link key={item.portfolioId} href={`/mypage/aimasterportfolio/${item.portfolioId}`}>
+        <Link
+          key={item.portfolioId}
+          href={isAnalyzeFinPage ? '#' : `/mypage/aimasterportfolio/${item.portfolioId}`}
+        >
           <button
-            className={`bg-[#F8F8F8] w-[465px] h-[192px] rounded-[8px] grid justify-center cursor-pointer ${
+            className={`w-[465px] h-[192px] rounded-[8px] grid justify-center cursor-pointer transition-all duration-100 ${
               !isAnalyzeFinPage && 'max-lg:w-[421px] max-lg:h-[180px]'
+            } ${
+              isAnalyzeFinPage && selectedProjects.has(item.portfolioId)
+                ? 'bg-[#81D7D41A] border-3 border-[#81D7D4]'
+                : 'bg-[#F8F8F8]'
             }`}
-            style={{ boxShadow: '0px 0px 4px 0px #00000033' }}
+            style={{
+              boxShadow:
+                isAnalyzeFinPage && selectedProjects.has(item.portfolioId)
+                  ? '0px 0px 8px 0px #81D7D466'
+                  : '0px 0px 4px 0px #00000033',
+            }}
             onClick={(e) => {
               // 주요 업무 영역이 편집 중이면 Link 클릭을 막음
               if (editingTask === item.portfolioId) {
                 e.preventDefault();
                 e.stopPropagation();
+              } else {
+                handleProjectSelect(item.portfolioId, e);
               }
             }}
           >
@@ -94,11 +133,21 @@ export default function Projects() {
               </div>
             </div>
 
-            <div className="w-[439px] h-[96px] mx-[13px] pt-[16px] pb-[20px] mt-[-36px] max-lg:w-[397px] max-lg:h-[96px] max-lg:ml-[12px]">
+            <div className="relative w-[439px] h-[96px] mx-[13px] pt-[16px] pb-[20px] mt-[-36px] max-lg:w-[397px] max-lg:h-[96px] max-lg:ml-[12px]">
+              {isAnalyzeFinPage && selectedProjects.has(item.portfolioId) && (
+                <div className="absolute -bottom-[24px] -right-[0px] w-[28px] h-[28px] bg-[#505050] rounded-[4px] flex items-center justify-center">
+                  <span className="text-white text-[16px] font-bold">
+                    {getSelectionOrder(item.portfolioId)}
+                  </span>
+                </div>
+              )}
               <div className="flex mb-[12px] items-center">
-                <div className="text-[16px] text-[#505050] mr-[38px] ml-[12px] ">기여도</div>
+                <div className="text-[16px] text-[#505050] mr-[38px] ml-[12px] ">기도</div>
                 <div className="text-[16px] text-black mr-[24px]">{item.contributionRate}%</div>
-                <div className=" bg-white border border-[#E7E7E7] rounded-[2px] w-[286px] h-[10px]">
+                <div
+                  className=" bg-white border border-[#E7E7E7] rounded-[2px] w-[286px] h-[10px]
+                max-lg:w-[248px]"
+                >
                   <div
                     className="bg-[#81D7D4] rounded-[2px] h-[8px]"
                     style={{ width: `${item.contributionRate}%` }}
@@ -130,10 +179,12 @@ export default function Projects() {
                     className={`text-[16px] truncate flex-1 px-1 py-1 rounded transition-colors text-left h-6 flex items-center ${
                       isUpdating
                         ? 'cursor-not-allowed opacity-50'
-                        : 'cursor-pointer hover:bg-gray-100'
+                        : isAnalyzeFinPage
+                          ? 'cursor-default'
+                          : 'cursor-pointer hover:bg-gray-100'
                     }`}
                     onClick={(e) => {
-                      if (isUpdating) return;
+                      if (isUpdating || isAnalyzeFinPage) return;
                       e.preventDefault();
                       e.stopPropagation();
                       handleTaskClick(item.portfolioId, item.mainTask);

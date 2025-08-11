@@ -1,19 +1,15 @@
-"use client";
+'use client';
 
-import { useParams, useRouter } from "next/navigation";
-import { useState, useMemo, useEffect } from "react";
-import {
-  Calendar as BigCalendar,
-  momentLocalizer,
-  Views,
-} from "react-big-calendar";
-import moment from "moment";
-import "react-big-calendar/lib/css/react-big-calendar.css";
+import { useParams, useRouter } from 'next/navigation';
+import { useState, useMemo, useEffect } from 'react';
+import { Calendar as BigCalendar, momentLocalizer, Views } from 'react-big-calendar';
+import moment from 'moment';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 
-import CalendarButton from "@/features/teamclendar/CalendarButton";
-import CustomDateCellWrapper from "@/features/teamclendar/CustomDateCellWrapper";
-import CalendarEventBox from "@/features/teamclendar/components/CalendarEventBox";
-import { useGetCalendarPlans } from "@/hooks/queries/useGetTeamCalendar";
+import CalendarButton from '@/features/teamclendar/CalendarButton';
+import CustomDateCellWrapper from '@/features/teamclendar/CustomDateCellWrapper';
+import CalendarEventBox from '@/features/teamclendar/components/CalendarEventBox';
+import { useGetCalendarPlans } from '@/hooks/queries/useGetTeamCalendar';
 
 const localizer = momentLocalizer(moment);
 
@@ -25,20 +21,17 @@ export default function TeamCalendar() {
 
   // 현재 보고 있는 달의 첫 날 ~ 마지막 날 계산
   const startDate = useMemo(
-    () => moment(currentDate).startOf("month").toISOString(),
+    () => moment(currentDate).startOf('month').toISOString(),
     [currentDate]
   );
-  const endDate = useMemo(
-    () => moment(currentDate).endOf("month").toISOString(),
-    [currentDate]
-  );
+  const endDate = useMemo(() => moment(currentDate).endOf('month').toISOString(), [currentDate]);
 
   // API 요청: 일정 목록
   const {
     data: calendarData,
     isLoading,
     refetch, // ✅ refetch 포함
-  } = useGetCalendarPlans(projectId ?? "", startDate, endDate);
+  } = useGetCalendarPlans(projectId ?? '', startDate, endDate);
 
   // ✅ 창이 다시 focus될 때 refetch 실행
   useEffect(() => {
@@ -46,9 +39,9 @@ export default function TeamCalendar() {
       refetch();
     };
 
-    window.addEventListener("focus", handleFocus);
+    window.addEventListener('focus', handleFocus);
     return () => {
-      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener('focus', handleFocus);
     };
   }, [refetch]);
 
@@ -65,22 +58,22 @@ export default function TeamCalendar() {
 
   // events 변경 시 콘솔 출력 (일정 자동 반영 확인용)
   useEffect(() => {
-    console.log("일정 반영 확인:", events);
+    console.log('일정 반영 확인:', events);
   }, [events]);
 
-  const handleEventClick = (event: any) => {
+  const handleEventClick = (event: { id: string }) => {
     router.push(`/projects/${projectId}/teamcalendar/${event.id}/teamtask`);
   };
 
   const handlePrevMonth = () => {
-    setCurrentDate(moment(currentDate).subtract(1, "month").toDate());
+    setCurrentDate(moment(currentDate).subtract(1, 'month').toDate());
   };
 
   const handleNextMonth = () => {
-    setCurrentDate(moment(currentDate).add(1, "month").toDate());
+    setCurrentDate(moment(currentDate).add(1, 'month').toDate());
   };
 
-  const formattedTitle = moment(currentDate).format("YYYY년 M월");
+  const formattedTitle = moment(currentDate).format('YYYY년 M월');
 
   if (isLoading) {
     return (
@@ -94,8 +87,10 @@ export default function TeamCalendar() {
     <div>
       {/* 제목 */}
       <div className="w-full lg:max-w-[1415px] flex flex-col">
-        <h2 className="mb-[16px] font-[Pretendard] font-bold text-[24px] leading-[29px] tracking-[0.04em] whitespace-nowrap text-[#000000]
-        max-lg:text-[22px] max-lg:leading-[28px] max-lg:font-[600] max-lg:tracking-[0]">
+        <h2
+          className="mb-[16px] font-[Pretendard] font-bold text-[24px] leading-[29px] tracking-[0.04em] whitespace-nowrap text-[#000000]
+        max-lg:text-[22px] max-lg:leading-[28px] max-lg:font-[600] max-lg:tracking-[0]"
+        >
           팀 캘린더
         </h2>
         <hr className="w-full border-t-[2px] border-[#E7E7E7] rotate-180 mb-[44px]" />
@@ -104,11 +99,19 @@ export default function TeamCalendar() {
       {/* 월 네비게이션 */}
       <div className="flex justify-start items-center font-semibold text-[20px] leading-[29px] text-black mb-[47px]">
         <button onClick={handlePrevMonth}>
-          <img src="/icons/Vector-left.svg" alt="왼쪽" className="w-[24px] h-[24px] cursor-pointer" />
+          <img
+            src="/icons/Vector-left.svg"
+            alt="왼쪽"
+            className="w-[24px] h-[24px] cursor-pointer"
+          />
         </button>
         <span className="mx-4">{formattedTitle}</span>
         <button onClick={handleNextMonth}>
-          <img src="/icons/Vector-right.svg" alt="오른쪽" className="w-[24px] h-[24px] cursor-pointer" />
+          <img
+            src="/icons/Vector-right.svg"
+            alt="오른쪽"
+            className="w-[24px] h-[24px] cursor-pointer"
+          />
         </button>
         <div className="ml-auto">
           <CalendarButton />
@@ -126,7 +129,7 @@ export default function TeamCalendar() {
         endAccessor="end"
         date={currentDate}
         onNavigate={() => {}} // 기본 이동 비활성화 (커스텀 버튼 사용 중)
-        style={{ height: "calc(100vh - 300px)", backgroundColor: "white" }}
+        style={{ height: 'calc(100vh - 300px)', backgroundColor: 'white' }}
         components={{
           dateCellWrapper: (props) => (
             <CustomDateCellWrapper

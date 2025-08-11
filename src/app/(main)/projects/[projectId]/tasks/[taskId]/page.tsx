@@ -12,7 +12,6 @@ import FileUploader from '@/features/tasks/components/FileUploader';
 import TaskDropdown from '@/features/tasks/components/TaskDropdown';
 import {
   useUpdateTaskDetail,
-  useTaskDeleteHandler,
   useTaskMemoHandler,
   useDeleteTask,
 } from '@/hooks/mutations/useTaskDetail';
@@ -29,7 +28,7 @@ export default function TaskDetailPage() {
   const [isEditingName, setIsEditingName] = useState(false); // 업무 이름 수정 모드
   const [editingName, setEditingName] = useState(''); // 수정 중인 업무 이름
 
-  const { memo, setMemo, handleMemoChange, handleMemoBlur } = useTaskMemoHandler();
+  const { memo, handleMemoChange, handleMemoBlur } = useTaskMemoHandler();
   const updateTaskMutation = useUpdateTaskDetail();
   const deleteTaskMutation = useDeleteTask();
   const router = useRouter();

@@ -1,39 +1,28 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { Suspense, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 function LoginContent() {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
-
-  useEffect(() => {
-    // AuthProvider를 통해 이미 인증된 상태로 확인되면,
-    // 사용자가 실수로 로그인 페이지에 접근했더라도 홈으로 보내줍니다.
-    if (isAuthenticated) {
-      router.push('/home/tasks');
-    }
-  }, [isAuthenticated, router]);
+  const searchParams = useSearchParams();
+  const nextParam = searchParams.get('next');
 
   const handleLogin = () => {
-    // 백엔드의 카카오 소셜 로그인 시작점으로 리디렉션합니다.
     const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-    // 환경에 따라 다른 URL 사용
     const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
 
+    // callback으로 돌아올 때 next를 유지하도록 쿼리에 포함
+    const nextQuery = nextParam ? `&next=${encodeURIComponent(nextParam)}` : '';
+
     if (isLocalhost) {
-      // 로컬 환경에서는 redirect_url 파라미터 추가
-      window.location.href = `${backendUrl}/auth/kakao?redirect_url=http://localhost:3000/`;
+      window.location.href = `${backendUrl}/auth/kakao?redirect_url=http://localhost:3000/callback${nextQuery}`;
     } else {
-      // 배포 환경에서는 기본 URL 사용
-      window.location.href = `${backendUrl}/auth/kakao`;
+      window.location.href = `${backendUrl}/auth/kakao?redirect_url=${encodeURIComponent(window.location.origin + '/callback')}${nextQuery}`;
     }
   };
 
-  // 아직 인증되지 않은 사용자에게만 이 페이지가 보여집니다.
-  // (인증된 사용자는 위 useEffect에 의해 리디렉션됩니다.)
   return (
     <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-b from-white via-white to-[#B6F5DF]/50">
       <div className="flex flex-col items-start lg:gap-[1.813rem] gap-[1.5rem]">
