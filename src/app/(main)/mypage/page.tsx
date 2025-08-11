@@ -204,7 +204,10 @@ export default function MyPage() {
           className="flex flex-col ml-[143px] mt-[0px]
         max-lg:ml-[0rem] max-lg:mt-[5rem]"
         >
-          <div className="flex items-center justify-between mb-[2.5rem] w-[954px]">
+          <div
+            className="flex items-center justify-between mb-[2.5rem] w-[954px]
+          max-lg:w-[866px]"
+          >
             <h2 className="text-[1.375rem] font-bold ">포트폴리오</h2>
             <div className="flex items-center gap-4 h-[20px]">
               {/* AI 첨삭일 때만 + 버튼 표시 */}

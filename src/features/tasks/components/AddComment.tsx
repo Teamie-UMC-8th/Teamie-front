@@ -218,7 +218,7 @@ export default function AddComment() {
     updateCocommentMutation(
       { cocommentId: editCocommentId!, content: editCocommentContent.trim() },
       {
-        onSuccess: (data) => {
+        onSuccess: () => {
           setEditCocommentId(null);
           setEditCocommentContent('');
 

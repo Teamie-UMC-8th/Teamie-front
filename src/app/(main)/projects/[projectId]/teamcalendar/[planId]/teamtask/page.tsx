@@ -108,7 +108,7 @@ export default function TeamTaskDetailPage() {
 
   // 참석자 정보 (프로젝트 홈의 사용자 목록 사용)
   const availableProfiles =
-    projectHomeData?.result?.users?.map((user: { id: number; name: string }) => ({
+    projectHomeData?.result?.project?.users?.map((user: { id: number; name: string }) => ({
       userId: user.id,
       userName: user.name,
     })) || [];
@@ -159,23 +159,23 @@ export default function TeamTaskDetailPage() {
 
   // 현재 사용자가 프로젝트 홈의 프로필 카드에 연동되어 있는지 확인하는 함수
   const isCurrentUserProjectMember = () => {
-    if (!currentUser || !projectHomeData?.result?.users) {
+    if (!currentUser || !projectHomeData?.result?.project?.users) {
       console.log('권한 확인 실패: 사용자 정보 또는 프로젝트 데이터 없음', {
         currentUser,
-        projectUsers: projectHomeData?.result?.users,
+        projectUsers: projectHomeData?.result?.project?.users,
       });
       return false;
     }
 
     // 프로젝트 홈과 동일한 방식: 이메일로 비교
-    const isMember = projectHomeData.result.users.some(
+    const isMember = projectHomeData.result.project?.users.some(
       (user: { email: string }) => user.email === currentUser.email
     );
 
     console.log('프로젝트 홈 권한 확인:', {
       currentUserEmail: currentUser.email,
       currentUserName: currentUser.name,
-      projectUsers: projectHomeData.result.users.map(
+      projectUsers: projectHomeData.result.project?.users.map(
         (u: { id: number; name: string; email: string }) => ({
           id: u.id,
           name: u.name,
