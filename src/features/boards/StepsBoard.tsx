@@ -137,7 +137,7 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
                             style={{
                               ...provided.draggableProps.style,
                               width: '100%',
-                              height: '7.625rem',
+                              height: 'auto',
                             }}
                           >
                             <div {...provided.dragHandleProps}>
