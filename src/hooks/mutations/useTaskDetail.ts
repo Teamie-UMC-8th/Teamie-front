@@ -105,7 +105,7 @@ export const useTaskMemoHandler = () => {
 export const useTaskDeleteHandler = () => {
   const deleteTaskMutation = useDeleteTaskDetail();
 
-  const handleDelete = async (taskId: number, projectId: number) => {
+  const handleDelete = async (taskId: number) => {
     try {
       const result = await deleteTaskMutation.mutateAsync(taskId);
 

@@ -2,7 +2,6 @@ import axiosInstance from '@/lib/axiosInstance';
 import {
   AddCommentRequest,
   AddCommentResponse,
-  GetCommentsRequest,
   GetCommentsResponse,
   AddCocommentRequest,
   AddCocommentResponse,

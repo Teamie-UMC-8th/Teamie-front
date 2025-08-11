@@ -9,9 +9,6 @@ import {
 } from '@/services/taskDetail/addComment';
 import {
   AddCommentResponse,
-  GetCommentsResponse,
-  AddCocommentResponse,
-  UpdateCocommentResponse,
   DeleteCocommentResponse,
   DeleteCommentResponse,
 } from '@/types/api/comment';
@@ -55,7 +52,7 @@ export const useAddCocomment = () => {
   return useMutation({
     mutationFn: ({ commentId, content }: { commentId: number; content: string }) =>
       addCocomment(commentId, { content }),
-    onSuccess: (_data: AddCocommentResponse, variables) => {
+    onSuccess: () => {
       // 대댓글 추가 성공 시 관련 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ['taskComments'] });
       queryClient.removeQueries({ queryKey: ['taskComments'] });
@@ -73,7 +70,7 @@ export const useUpdateCocomment = () => {
   return useMutation({
     mutationFn: ({ cocommentId, content }: { cocommentId: number; content: string }) =>
       updateCocomment(cocommentId, { content }),
-    onSuccess: (_data: UpdateCocommentResponse, variables) => {
+    onSuccess: () => {
       // 대댓글 수정 성공 시 관련 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ['taskComments'] });
       queryClient.removeQueries({ queryKey: ['taskComments'] });

@@ -1,10 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { useAuth } from '../../../contexts/AuthContext';
+import { Suspense, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
 
@@ -56,5 +56,13 @@ export default function LoginPage() {
         카카오 로그인
       </button>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
   );
 }
