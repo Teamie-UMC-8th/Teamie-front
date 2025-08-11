@@ -87,10 +87,8 @@ export default function AIMasterPortfolioPage() {
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey>('COURSE');
   const [contribution, setContribution] = useState(0); // 초기값 0, API에서 로드될 예정
-  const detailRef = useRef<HTMLDivElement>(null);
-  const taskRef = useRef<HTMLDivElement>(null);
-  const resultRef = useRef<HTMLDivElement>(null);
-  const learnRef = useRef<HTMLDivElement>(null);
+  // copy helper: ref를 쓰지 않고 문자열 직접 복사
+  const copyText = (text?: string) => navigator.clipboard.writeText(text ?? '');
 
   const params = useParams();
   const portfolioId = Number(params.portfolioId);
@@ -163,14 +161,7 @@ export default function AIMasterPortfolioPage() {
     }
   };
 
-  useEffect(() => {
-    if (portfolioDetail) {
-      if (detailRef.current) detailRef.current.innerText = portfolioDetail.detailInfo;
-      if (taskRef.current) taskRef.current.innerText = portfolioDetail.assignedTask;
-      if (resultRef.current) resultRef.current.innerText = portfolioDetail.keyAchievement;
-      if (learnRef.current) learnRef.current.innerText = portfolioDetail.insight;
-    }
-  }, [portfolioDetail]);
+  // DOM 주입 대신 JSX로 렌더링하므로 별도 효과 불필요
 
   const handleCopyField = (ref: React.RefObject<HTMLDivElement | null>) => {
     const text = ref.current?.innerText ?? '';
@@ -228,12 +219,11 @@ export default function AIMasterPortfolioPage() {
               <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
                 상세 정보
               </div>
-              <div
-                ref={detailRef}
-                className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4"
-              />
+              <div className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 whitespace-pre-line break-words">
+                {portfolioDetail?.detailInfo}
+              </div>
               <button
-                onClick={() => handleCopyField(detailRef)}
+                onClick={() => copyText(portfolioDetail?.detailInfo)}
                 className="absolute top-[8px] right-[8px] justify-end max-lg:hidden cursor-pointer opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity"
               >
                 <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
@@ -245,12 +235,11 @@ export default function AIMasterPortfolioPage() {
               <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
                 담당 업무
               </div>
-              <div
-                ref={taskRef}
-                className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4"
-              />
+              <div className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 whitespace-pre-line break-words">
+                {portfolioDetail?.assignedTask}
+              </div>
               <button
-                onClick={() => handleCopyField(taskRef)}
+                onClick={() => copyText(portfolioDetail?.assignedTask)}
                 className="absolute top-[8px] right-[8px] justify-end max-lg:hidden cursor-pointer opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity"
               >
                 <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
@@ -262,12 +251,11 @@ export default function AIMasterPortfolioPage() {
               <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
                 주요 성과
               </div>
-              <div
-                ref={resultRef}
-                className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4"
-              />
+              <div className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 whitespace-pre-line break-words">
+                {portfolioDetail?.keyAchievement}
+              </div>
               <button
-                onClick={() => handleCopyField(resultRef)}
+                onClick={() => copyText(portfolioDetail?.keyAchievement)}
                 className="absolute top-[8px] right-[8px] justify-end max-lg:hidden cursor-pointer opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity"
               >
                 <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
@@ -279,12 +267,11 @@ export default function AIMasterPortfolioPage() {
               <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
                 배운 점
               </div>
-              <div
-                ref={learnRef}
-                className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4"
-              />
+              <div className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 whitespace-pre-line break-words">
+                {portfolioDetail?.insight}
+              </div>
               <button
-                onClick={() => handleCopyField(learnRef)}
+                onClick={() => copyText(portfolioDetail?.insight)}
                 className="absolute top-[8px] right-[8px] justify-end max-lg:hidden cursor-pointer opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity"
               >
                 <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
