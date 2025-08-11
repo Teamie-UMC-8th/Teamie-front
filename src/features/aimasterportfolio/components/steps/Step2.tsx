@@ -55,12 +55,11 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
   const length = localSelectedIndexes.length;
 
   return (
-    <div className="flex flex-col gap-[36px] max-lg:gap-[28px] items-center">
-      <div>
+    <div className="flex flex-col items-center gap-[36px] max-lg:gap-[28px]">
+      <div className="self-start items-start flex flex-col">
         <strong>
           포트폴리오 생성 시에 참고하면 좋을 회의록이 있다면 최대 8개까지 선택해주세요.
         </strong>
-        <br />
         아래 내용들이 포함된 회의록이 있다면, 생성에 큰 도움이 돼요!
         <br />
         <br />
@@ -71,9 +70,14 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
           <li>실제로 달성한 정량적 성과와 받은 피드백</li>
           <li>어려웠던 점과 극복한 방법</li>
         </ul>
+        <br />
+        회의록은 필수로 선택하지 않아도 되지만, 양질의 회의록이 많다면 좋은 마스터 포트폴리오를
+        생성할 수 있어요.
+        <br />
+        제가 참고할 회의록을 모두 선택하셨다면, 생성을 시작할게요!
       </div>
 
-      <div className="w-fit flex flex-col justify-center items-center border-[2px] border-[#81D7D4] bg-[#DAF3F3] rounded-[100px] py-[16px] px-[36px]">
+      <div className="w-fit self-center flex flex-col justify-center items-center border-[2px] border-[#81D7D4] bg-[#DAF3F3] rounded-[100px] py-[16px] px-[36px]">
         <h3 className="text-[#000000] text-[20px] max-lg:text-[18px] leading-[28px] max-lg:leading-[26px] font-normal tracking-[0.8px]">
           생성 시 최대 <strong>N Credit</strong>이 사용됩니다
         </h3>
@@ -83,7 +87,7 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
       </div>
 
       {masterPortfolioDetailRecords?.length === 0 ? (
-        <div className="bg-[#F8F8F8] rounded-[8px] shadow-[0_0_4px_rgba(0,0,0,0.20)] px-[16px] py-[24px] text-[#505050] text-center min-w-[660px] mt-8">
+        <div className="w-fit self-center bg-[#F8F8F8] rounded-[8px] shadow-[0_0_4px_rgba(0,0,0,0.20)] px-[16px] py-[24px] text-[#505050] text-center min-w-[660px] mt-8">
           {user?.name}님이 참석한 일정에 작성된 회의록이 없어요.
           <br /> 회의록 없이 마스터 포트폴리오를 생성할게요.
         </div>
