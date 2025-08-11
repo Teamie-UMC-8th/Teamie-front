@@ -56,6 +56,22 @@ export default function New() {
     }
   );
 
+  // 프로젝트명 입력 제한 함수
+  const handleProjectNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+
+    // 한글, 영문, 숫자, 공백, 하이픈만 허용하는 정규식
+    const allowedPattern = /^[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9\s-]*$/;
+
+    if (allowedPattern.test(value) && value.length <= 20) {
+      setProjectName(value);
+    }
+  };
+
+  // 버튼 비활성화 조건
+  const isButtonDisabled =
+    createProjectMutation.isPending || hasAttemptedCreation || !projectName.trim();
+
   const handleCreateProject = () => {
     if (!projectName.trim() || hasAttemptedCreation) {
       return;
@@ -116,17 +132,16 @@ export default function New() {
                 createProjectMutation.isPending || hasAttemptedCreation ? 'cursor-not-allowed' : ''
               }`}
               value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
+              onChange={handleProjectNameChange}
               disabled={createProjectMutation.isPending || hasAttemptedCreation}
+              maxLength={20}
             />
             <button
               className={`self-center px-[0.75rem] py-[0.25rem] whitespace-nowrap bg-[#81D7D4] rounded-[0.25rem] text-white font-bold text-[1.125rem] ${
-                createProjectMutation.isPending || hasAttemptedCreation
-                  ? 'bg-[#BAE5E4] cursor-not-allowed'
-                  : 'cursor-pointer'
+                isButtonDisabled ? 'bg-[#BAE5E4] cursor-not-allowed' : 'cursor-pointer'
               }`}
               onClick={handleCreateProject}
-              disabled={createProjectMutation.isPending || hasAttemptedCreation}
+              disabled={isButtonDisabled}
             >
               생성하기
             </button>
