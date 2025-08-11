@@ -13,7 +13,7 @@ export default function TaskItem({
   deadline,
   assignee,
 }: TaskItemComponentProps) {
-  const { displayAssignees, /* cardHeight, */ deadlineTextColor } = useTaskItems({
+  const { displayAssignees, cardHeight, deadlineTextColor } = useTaskItems({
     task: { id: taskId, title, status, deadline, assignee },
   });
 
@@ -23,8 +23,7 @@ export default function TaskItem({
   return (
     <Link
       href={`/projects/${projectId}/tasks/${taskId}`}
-      className={`block w-[325px] h-[122px]`}
-      /* 위 height만 &{cardHeight}으로 바꾸면 담당자 없을 시에 카드 높이 조정 122px -> 90px */
+      className={`block w-[325px] ${cardHeight}`}
     >
       <div className="bg-white w-full h-full rounded-[8px] border border-[#BBBBBB] p-4 flex items-start gap-3">
         <label className="inline-flex items-center flex-shrink-0 mt-1">
