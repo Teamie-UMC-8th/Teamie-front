@@ -86,3 +86,37 @@ export const TASK_STATUS_STYLES: Record<string, { bg: string; text: string }> = 
   완료: { bg: 'bg-[#D1D5DB]', text: 'text-[#505050]' },
   '시작 전': { bg: 'bg-[#E7E7E7]', text: 'text-[#505050]' },
 } as const;
+
+export interface MyTaskManager {
+  userId: number;
+  name: string;
+  imageUrl: string;
+}
+
+export interface MyTaskTask {
+  id: number;
+  name: string;
+  status: 'ONGOING' | 'COMPLETED' | 'NOTSTART';
+  deadline: string;
+  managers: MyTaskManager[];
+}
+
+export interface MyTaskProject {
+  projectId: number;
+  projectName: string;
+  tasks: MyTaskTask[];
+}
+
+export interface MyTaskPageInfo {
+  nextCursor: unknown;
+  hasNextPage: boolean;
+}
+
+export interface MyTaskResponse {
+  isSuccess: boolean;
+  error: ApiErrorResponse | null;
+  result: {
+    data: MyTaskProject[];
+    pageInfo: MyTaskPageInfo;
+  };
+}
