@@ -15,9 +15,6 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
   const createStepMutation = useCreateStep();
   const deleteStepMutation = useDeleteStep();
   const updateStepMutation = useUpdateStep();
-  const [isAddingStep, setIsAddingStep] = useState(false);
-  const [newStepName, setNewStepName] = useState('');
-
   // STEP 추가 제한 (최대 8개)
   const canAddStep = steps.length < 8;
 
@@ -34,20 +31,14 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
   };
 
   // STEP 추가 처리
-  const handleAddStep = async (stepName: string = '') => {
+  const handleAddStep = async () => {
     if (!canAddStep) return;
-
-    const finalStepName = stepName.trim() || '빈 STEP';
 
     try {
       const response = await createStepMutation.mutateAsync({
         projectId: parseInt(projectId),
-        name: finalStepName,
+        name: '빈 STEP',
       });
-
-      // 성공 시 입력 필드 초기화
-      setNewStepName('');
-      setIsAddingStep(false);
 
       // 새로 생성된 스텝을 자동으로 열기
       if (response.result?.stepId) {
@@ -57,21 +48,6 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
       console.error('STEP 생성 실패:', error);
       alert('STEP 생성에 실패했습니다.');
     }
-  };
-
-  // STEP 추가 모드 토글
-  const toggleAddStepMode = () => {
-    if (canAddStep) {
-      setIsAddingStep(!isAddingStep);
-      if (!isAddingStep) {
-        setNewStepName('');
-      }
-    }
-  };
-
-  // 포커스 아웃 시 자동 저장
-  const handleBlur = () => {
-    handleAddStep(newStepName);
   };
 
   // STEP 삭제 처리
@@ -194,30 +170,13 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
         {/* STEP 추가 버튼 */}
         {canAddStep && (
           <div className="flex flex-col">
-            <div className="flex bg-[#F8F8F8] w-full h-[4.25rem] items-center justify-between rounded-[0.5rem]">
-              {isAddingStep ? (
-                <input
-                  type="text"
-                  value={newStepName}
-                  onChange={(e) => setNewStepName(e.target.value)}
-                  placeholder="STEP 이름을 입력하세요"
-                  className="flex-1 mx-auto text-center font-medium text-[1.125rem] bg-transparent border-none outline-none placeholder-gray-500"
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      handleAddStep(newStepName);
-                    }
-                  }}
-                  onBlur={handleBlur}
-                  autoFocus
-                />
-              ) : (
-                <button
-                  onClick={toggleAddStepMode}
-                  className="w-full h-full font-medium text-[1.125rem] transition-colors duration-200 text-[#898989] cursor-pointer hover:text-[#666666]"
-                >
-                  + STEP 추가
-                </button>
-              )}
+            <div className="flex bg-[#F8F8F8] w-full h-[4.25rem] items-center justify-center rounded-[0.5rem]">
+              <button
+                onClick={handleAddStep}
+                className="w-full h-full font-medium text-[1.125rem] transition-colors duration-200 text-[#898989] cursor-pointer hover:text-[#666666]"
+              >
+                + STEP 추가
+              </button>
             </div>
           </div>
         )}
