@@ -30,7 +30,7 @@ export default function ProjectHomePage() {
     isTextFieldModalOpen,
     isAddTeamModalOpen,
     isChangeLeaderModalOpen,
-    selectedMemberId,
+    // selectedMemberId,
     textFieldModalType,
     postIts,
     teamGoal,

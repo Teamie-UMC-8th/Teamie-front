@@ -12,8 +12,7 @@ import { useUser } from '@/hooks/mutations/useUser';
 import CommentMenuDropdown from './CommentDropdown';
 import EditComment from './EditComment';
 import ReplyComment from './ReplyComment';
-import { deleteComment } from './DeleteComment';
-import { Comment, Cocomment } from '@/types/api/comment';
+import { Comment } from '@/types/api/comment';
 
 export default function AddComment() {
   // 댓글 입력 상태 관리
@@ -30,7 +29,6 @@ export default function AddComment() {
 
   // 대댓글에 대한 대댓글 입력 상태 관리
   const [replyToCocommentId, setReplyToCocommentId] = useState<number | null>(null);
-  const [cocommentReplyValue, setCocommentReplyValue] = useState('');
 
   // 삭제된 대댓글 ID 추적
   const [deletedCocommentIds, setDeletedCocommentIds] = useState<Set<number>>(new Set());
@@ -49,9 +47,9 @@ export default function AddComment() {
   } = useGetComments(taskId);
   const { mutate: addCommentMutation, isPending: isAddingComment } = useAddComment();
   const { mutate: addCocommentMutation, isPending: isAddingCocomment } = useAddCocomment();
-  const { mutate: updateCocommentMutation, isPending: isUpdatingCocomment } = useUpdateCocomment();
+  const { mutate: updateCocommentMutation } = useUpdateCocomment();
   const { mutate: deleteCocommentMutation, isPending: isDeletingCocomment } = useDeleteCocomment();
-  const { mutate: deleteCommentMutation, isPending: isDeletingComment } = useDeleteComment();
+  const { mutate: deleteCommentMutation } = useDeleteComment();
 
   // 댓글 데이터가 로드되면 상태 업데이트
   useEffect(() => {

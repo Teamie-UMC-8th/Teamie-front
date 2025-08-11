@@ -46,7 +46,9 @@ export const uploadTaskFile = async (taskId: number, file: File): Promise<Upload
       }
 
       // API에서 반환한 구체적인 에러 메시지가 있다면 사용
-      const errorData = (error.response as { data?: any }).data;
+      const errorData = (
+        error.response as { data?: { error?: { reason?: string }; message?: string } }
+      ).data;
       if (errorData?.error?.reason) {
         throw new Error(errorData.error.reason);
       } else if (errorData?.message) {
@@ -90,7 +92,9 @@ export const deleteTaskFile = async (taskFileId: number): Promise<DeleteFileResp
       }
 
       // API에서 반환한 구체적인 에러 메시지가 있다면 사용
-      const errorData = (error.response as { data?: any }).data;
+      const errorData = (
+        error.response as { data?: { error?: { reason?: string }; message?: string } }
+      ).data;
       if (errorData?.error?.reason) {
         throw new Error(errorData.error.reason);
       } else if (errorData?.message) {

@@ -85,7 +85,9 @@ export const updateTaskDetail = async (
       'status' in error.response &&
       error.response.status === 400
     ) {
-      const errorData = (error.response as { data?: any }).data;
+      const errorData = (
+        error.response as { data?: { error?: { reason?: string }; message?: string } }
+      ).data;
       console.error('🔍 400 Bad Request 상세 정보:', {
         status: error.response.status,
         data: errorData,
@@ -147,7 +149,9 @@ export const deleteTaskDetail = async (taskId: number): Promise<DeleteTaskRespon
       }
 
       // API에서 반환한 구체적인 에러 메시지가 있다면 사용
-      const errorData = (error.response as { data?: any }).data;
+      const errorData = (
+        error.response as { data?: { error?: { reason?: string }; message?: string } }
+      ).data;
       if (errorData?.error?.reason) {
         throw new Error(errorData.error.reason);
       } else if (errorData?.message) {
