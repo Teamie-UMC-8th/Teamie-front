@@ -1,7 +1,4 @@
-import {
-  postMasterPortfolioGenerate,
-  postMasterPortfolioQuestions,
-} from '@/services/masterportfolio/masterportfolio';
+import { postMasterPortfolioGenerate } from '@/services/masterportfolio/masterportfolio';
 import { useMutation } from '@tanstack/react-query';
 
 interface QuestionMutationVariables {
