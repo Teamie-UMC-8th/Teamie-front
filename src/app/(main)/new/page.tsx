@@ -166,7 +166,7 @@ export default function New() {
               </span>
             </h2>
 
-            <div className="bg-[#FFFFFF] p-[2.5rem] border-[0.125rem] border-[#BBBBBB] rounded-[0.75rem] relative">
+            <div className="bg-[#FFFFFF] p-[2rem] border-[0.125rem] border-[#BBBBBB] rounded-[0.75rem] relative">
               <div className="bg-[#F8F8F8] rounded-[0.75rem] relative">
                 <p className="lg:px-[6.5rem] px-[4rem] py-[2rem] lg:text-[1.125rem] text-[1rem] text-center">
                   💡 프로젝트에 참여해 주세요!
