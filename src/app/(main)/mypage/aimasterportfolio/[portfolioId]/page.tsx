@@ -132,7 +132,7 @@ export default function MasterPortfolioDetail() {
 
   // API 데이터가 로드되면 상태 업데이트
   useEffect(() => {
-    if (data?.contributionRate) {
+    if (data?.contributionRate !== undefined && data?.contributionRate !== null) {
       setContribution(data.contributionRate);
     }
     if (data?.category) {

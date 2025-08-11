@@ -108,7 +108,10 @@ export default function AIMasterPortfolioPage() {
 
   // API 데이터가 로드되면 상태 업데이트
   useEffect(() => {
-    if (portfolioDetail?.contributionRate) {
+    if (
+      portfolioDetail?.contributionRate !== undefined &&
+      portfolioDetail?.contributionRate !== null
+    ) {
       setContribution(portfolioDetail.contributionRate);
     }
     if (portfolioDetail?.category) {
