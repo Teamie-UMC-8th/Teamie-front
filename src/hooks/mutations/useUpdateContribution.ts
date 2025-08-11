@@ -16,9 +16,12 @@ export const useUpdateContribution = () => {
       });
       return data.result;
     },
-    onSuccess: () => {
-      // 마스터 포트폴리오 목록 캐시 무효화
+    onSuccess: (_data, variables) => {
+      // 마스터 포트폴리오 목록 및 상세 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ['master-portfolios'] });
+      if (variables?.portfolioId !== undefined) {
+        queryClient.invalidateQueries({ queryKey: ['master-portfolio', variables.portfolioId] });
+      }
     },
     onError: (error) => {
       console.error('기여도 업데이트 실패:', error);

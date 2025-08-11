@@ -1,31 +1,41 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
-import { useMasterPortfolioDetail } from '@/hooks/queries/useGetMasterPortfolio';
+import { useEffect, useRef, useState } from 'react';
+import {
+  useMasterPortfolioDetail,
+  useMasterPortfolioStatus,
+  useMasterPortfolioList,
+} from '@/hooks/queries/useGetMasterPortfolio';
 import { useUpdateContribution } from '@/hooks/mutations/useUpdateContribution';
-import ManualWriteSection from '@/features/aimasterportfolio/components/ManualWriteSection';
+import { usePatchMasterPortfolio } from '@/hooks/mutations/usePatchMasterPortfolio';
 import AIGenerationSection from '@/features/aimasterportfolio/components/AIGenerationSection';
 import MenuButton from '@/features/aimasterportfolio/components/MenuButton';
-import BackButton from '@/components/BackButton';
 import { CATEGORY_MAP, CATEGORY_LIST, CategoryKey } from '@/constants/category';
 import ContributionSlider from '@/components/ContributionSlider';
+import { useRouter } from 'next/navigation';
+import { useProjectHome } from '@/hooks/mutations/useProjectHome';
+import { formatDate } from '@/utils/formatDate';
+import Image from 'next/image';
 
 const STYLES = {
   tag: 'w-[99px] h-[37px] bg-[#DAF3F3] rounded-[4px] px-[18px] py-[6px] flex items-center justify-center font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-[#000000] whitespace-nowrap',
   text: 'font-[Pretendard] font-normal text-[20px] leading-[30px] text-[#000000] whitespace-nowrap',
-  methodButton:
-    'px-[12px] py-[4px] rounded-[4px] flex items-center justify-center gap-[8px] font-[Pretendard] text-[18px] leading-[26px] whitespace-nowrap transition-all',
 } as const;
 
-type GenerationMethod = 'ai' | 'manual';
-
 function ProjectHeader({ title }: { title: string }) {
+  const router = useRouter();
   return (
     <div className="flex flex-col gap-[12px] px-[30px]">
       <div className="flex items-center gap-[20px] max-lg:gap-[8px]">
-        <BackButton />
-        <h1 className="font-[Pretendard] font-bold text-[22px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap gap-[1437px]">
+        <button
+          onClick={() => router.push('/mypage')}
+          aria-label="뒤로가기"
+          className="cursor-pointer"
+        >
+          <Image src="/icons/arrow-left.svg" alt="뒤로가기" width={24} height={24} />
+        </button>
+        <h1 className="font-[Pretendard] font-bold text-[24px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap gap-[1437px]">
           {title}
         </h1>
         <MenuButton />
@@ -36,7 +46,7 @@ function ProjectHeader({ title }: { title: string }) {
 
 function ProjectPeriod({ startDate, endDate }: { startDate: string; endDate: string }) {
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-[28px]">
       <div className={STYLES.tag}>진행 기간</div>
       <time className={STYLES.text}>
         {startDate} ~ {endDate}
@@ -67,9 +77,9 @@ function CategorySelector({
         >
           <div
             className="w-[80px] h-[32px] rounded-[4px] px-[12px] py-[4px] text-black font-[Pretendard] text-[16px] leading-[24px] flex items-center justify-center whitespace-nowrap"
-            style={{ backgroundColor: CATEGORY_MAP[selected].color }}
+            style={{ backgroundColor: CATEGORY_MAP[selected]?.color ?? '#FFFFFF' }}
           >
-            {CATEGORY_MAP[selected].label}
+            {CATEGORY_MAP[selected]?.label ?? '분류'}
           </div>
           <svg
             width="14"
@@ -104,50 +114,52 @@ function CategorySelector({
   );
 }
 
-function GenerationMethodSelector({
-  method,
-  onMethodChange,
-}: {
-  method: GenerationMethod;
-  onMethodChange: (method: GenerationMethod) => void;
-}) {
-  const methods = [
-    { id: 'ai' as const, label: 'AI 생성', hasIcon: true },
-    { id: 'manual' as const, label: '직접 작성', hasIcon: false },
-  ];
-  return (
-    <div className="flex items-center gap-0 bg-white p-[4px] rounded-[8px] border border-[#e7e7e7]">
-      {methods.map(({ id, label, hasIcon }) => {
-        const isSelected = method === id;
-        return (
-          <button
-            key={id}
-            onClick={() => onMethodChange(id)}
-            className={`${STYLES.methodButton} ${isSelected ? 'bg-[#81D7D4] text-white font-bold cursor-default' : 'bg-[#ffffff] text-[#BBBBBB] font-normal hover:font-bold cursor-pointer'}`}
-          >
-            {hasIcon && (
-              <img
-                src="/icons/coin.svg"
-                alt="AI 아이콘"
-                className="w-[24px] h-[24px] object-contain"
-              />
-            )}
-            {label}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
 export default function MasterPortfolioDetail() {
   const params = useParams();
   const portfolioId = Number(params.portfolioId);
   const { data, isLoading, error } = useMasterPortfolioDetail(portfolioId);
   const updateContribution = useUpdateContribution();
-  const [generationMethod, setGenerationMethod] = useState<GenerationMethod>('ai');
-  const [selectedCategory, setSelectedCategory] = useState<CategoryKey>('ACTIVITY');
-  const [contribution, setContribution] = useState(50);
+  const patchMasterPortfolio = usePatchMasterPortfolio();
+  const [selectedCategory, setSelectedCategory] = useState<CategoryKey>('COURSE');
+  const [contribution, setContribution] = useState(0); // 초기값 0으로 변경
+  const { data: status, isLoading: statusLoading } = useMasterPortfolioStatus(portfolioId);
+  const router = useRouter();
+  const detailRef = useRef<HTMLDivElement>(null);
+  const taskRef = useRef<HTMLDivElement>(null);
+  const resultRef = useRef<HTMLDivElement>(null);
+  const learnRef = useRef<HTMLDivElement>(null);
+
+  // 프로젝트 정보 가져오기
+  const { data: projectHomeData, isLoading: projectLoading } = useProjectHome(data?.projectId || 0);
+
+  // 마스터 포트폴리오 목록에서 현재 포트폴리오의 날짜 정보 가져오기
+  const { data: portfolioListData } = useMasterPortfolioList();
+
+  // API 데이터가 로드되면 상태 업데이트
+  useEffect(() => {
+    if (data?.contributionRate !== undefined && data?.contributionRate !== null) {
+      setContribution(data.contributionRate);
+    }
+    if (data?.category) {
+      const key = String(data.category).toUpperCase();
+      setSelectedCategory(
+        (CATEGORY_MAP as Record<string, { label: string; color: string }>)[key]
+          ? (key as CategoryKey)
+          : 'COURSE'
+      );
+    }
+  }, [data]);
+
+  // DONE 화면용 내용 채우기
+  // useEffect(() => {
+  //   console.log("1", data)
+  //   if (data) {
+  //     if (detailRef.current) detailRef.current.innerText = data.detailInfo || '';
+  //     if (taskRef.current) taskRef.current.innerText = data.assignedTask || '';
+  //     if (resultRef.current) resultRef.current.innerText = data.keyAchievement || '';
+  //     if (learnRef.current) learnRef.current.innerText = data.insight || '';
+  //   }
+  // }, [data, status?.result.status]);
 
   const handleContributionChange = (newContribution: number) => {
     setContribution(newContribution);
@@ -157,15 +169,45 @@ export default function MasterPortfolioDetail() {
     });
   };
 
-  if (isLoading) return <div>포트폴리오 상세 정보를 불러오는 중...</div>;
+  const handleCategoryChange = (newCategory: CategoryKey) => {
+    setSelectedCategory(newCategory);
+    if (data) {
+      patchMasterPortfolio.mutate({
+        portfolioId,
+        body: {
+          detailInfo: data.detailInfo || '',
+          assignedTask: data.assignedTask || '',
+          keyAchievement: data.keyAchievement || '',
+          insight: data.insight || '',
+          contributionRate: contribution,
+          mainTask: data.mainTask || '',
+          category: newCategory,
+        },
+      });
+    }
+  };
+
+  const handleCopyField = (ref: React.RefObject<HTMLDivElement | null>) => {
+    const text = ref.current?.innerText ?? '';
+    navigator.clipboard.writeText(text);
+  };
+
+  if (isLoading || statusLoading || projectLoading)
+    return <div>포트폴리오 상세 정보를 불러오는 중...</div>;
   if (error) return <div>포트폴리오 상세 정보를 불러오는데 실패했습니다.</div>;
   if (!data) return <div>포트폴리오 정보를 찾을 수 없습니다.</div>;
 
+  // API 데이터에서 프로젝트 정보 추출
+  const project = projectHomeData?.result?.project;
+  const currentPortfolio = portfolioListData?.data?.find((p) => p.portfolioId === portfolioId);
+
   const projectData = {
-    title: '프로젝트 A',
-    startDate: '2025.04.02',
-    endDate: '2025.06.20',
-    contribution: 74,
+    title: project?.name || currentPortfolio?.projectName || '프로젝트 이름 없음',
+    startDate: currentPortfolio?.startDate
+      ? formatDate(currentPortfolio.startDate)
+      : '날짜 정보 없음',
+    endDate: currentPortfolio?.endDate ? formatDate(currentPortfolio.endDate) : '날짜 정보 없음',
+    contribution: contribution,
   };
 
   return (
@@ -173,10 +215,10 @@ export default function MasterPortfolioDetail() {
       <ProjectHeader title={projectData.title} />
       <hr className="w-[1600px] max-lg:w-[976px] h-0 border-t-[2px] border-[#E7E7E7]" />
       <div className="flex flex-col gap-4 pr-[30px] pl-[30px] pt-[40px] pb-[12px]">
-        <section className="flex items-center pb-[60px] max-lg:flex-col max-lg:items-start">
+        <section className="flex items-center justify-between pb-[60px] max-lg:flex-col max-lg:items-start">
           <div className="flex flex-nowrap gap-[200px] max-lg:gap-[100px]">
             <ProjectPeriod startDate={projectData.startDate} endDate={projectData.endDate} />
-            <CategorySelector selected={selectedCategory} onSelect={setSelectedCategory} />
+            <CategorySelector selected={selectedCategory} onSelect={handleCategoryChange} />
           </div>
           <div className="flex flex-wrap max-lg:mt-[60px] lg:ml-[200px]">
             <ContributionSlider value={contribution} onChange={handleContributionChange} />
@@ -188,13 +230,88 @@ export default function MasterPortfolioDetail() {
             <h2 className="text-[20px] leading-[28px] font-semibold text-[#000000] font-[Pretendard]">
               마스터 포트폴리오
             </h2>
-            <GenerationMethodSelector
-              method={generationMethod}
-              onMethodChange={setGenerationMethod}
-            />
           </section>
-          {generationMethod === 'manual' && <ManualWriteSection />}
-          {generationMethod === 'ai' && <AIGenerationSection contribution={contribution} />}
+          {status?.result.status === 'DONE' ? (
+            <div className="w-[1492px] max-lg:w-[928px] h-auto rounded-[16px] bg-[#F8F8F8] shadow-[0_0_8px_rgba(0,0,0,0.25)] p-[40px] max-lg:px-[28px] py-[40px] flex flex-col gap-[28px] max-lg:gap-[53px]">
+              {/* 상세 정보 */}
+              <div className="flex w-full max-lg:flex-col max-lg:gap-[8px] relative group">
+                <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
+                  상세 정보
+                </div>
+                <div
+                  ref={detailRef}
+                  className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4"
+                >
+                  {data.detailInfo}
+                </div>
+                <button
+                  onClick={() => handleCopyField(detailRef)}
+                  className="absolute top-[8px] right-[8px] justify-end max-lg:hidden cursor-pointer opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity"
+                >
+                  <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
+                </button>
+              </div>
+
+              {/* 담당 업무 */}
+              <div className="flex w-full max-lg:flex-col max-lg:gap-[8px] relative group">
+                <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
+                  담당 업무
+                </div>
+                <div
+                  ref={taskRef}
+                  className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4"
+                >
+                  {data.assignedTask}
+                </div>
+                <button
+                  onClick={() => handleCopyField(taskRef)}
+                  className="absolute top-[8px] right-[8px] justify-end max-lg:hidden cursor-pointer opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity"
+                >
+                  <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
+                </button>
+              </div>
+
+              {/* 주요 성과 */}
+              <div className="flex w-full max-lg:flex-col max-lg:gap-[8px] relative group">
+                <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
+                  주요 성과
+                </div>
+                <div
+                  ref={resultRef}
+                  className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4"
+                >
+                  {data.keyAchievement}
+                </div>
+                <button
+                  onClick={() => handleCopyField(resultRef)}
+                  className="absolute top-[8px] right-[8px] justify-end max-lg:hidden cursor-pointer opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity"
+                >
+                  <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
+                </button>
+              </div>
+
+              {/* 배운 점 */}
+              <div className="flex w-full max-lg:flex-col max-lg:gap-[8px] relative group">
+                <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
+                  배운 점
+                </div>
+                <div
+                  ref={learnRef}
+                  className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4"
+                >
+                  {data.insight}
+                </div>
+                <button
+                  onClick={() => handleCopyField(learnRef)}
+                  className="absolute top-[8px] right-[8px] justify-end max-lg:hidden cursor-pointer opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity"
+                >
+                  <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
+                </button>
+              </div>
+            </div>
+          ) : (
+            <AIGenerationSection contribution={contribution} />
+          )}
         </section>
       </div>
     </main>

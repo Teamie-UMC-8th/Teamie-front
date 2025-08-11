@@ -1,9 +1,13 @@
 import {
   fetchMasterPortfolioDetail,
+  fetchMasterPortfolioDetailRecords,
   fetchMasterPortfolioList,
   getMasterPortfolioGeneratedResult,
+  getMasterPortfolioStatus,
+  fetchMasterPortfolioQuestions,
 } from '@/services/masterportfolio/masterportfolio';
 import { useQuery } from '@tanstack/react-query';
+import type { MasterPortfolioDetailResponse } from '@/types/api/masterportfolio';
 
 // 마스터 포트폴리오 목록을 가져오는 훅(마이페이지)
 export const useMasterPortfolioList = (cursor?: string) => {
@@ -16,7 +20,7 @@ export const useMasterPortfolioList = (cursor?: string) => {
 
 // 마스터 포트폴리오 상세 정보를 가져오는 훅(마스터포트폴리오)
 export const useMasterPortfolioDetail = (projectId: number) => {
-  return useQuery({
+  return useQuery<MasterPortfolioDetailResponse['result']>({
     queryKey: ['master-portfolio', projectId],
     queryFn: () => fetchMasterPortfolioDetail(projectId),
     staleTime: 1000 * 60 * 5,
@@ -30,5 +34,30 @@ export const useGetMasterPortfolioGeneratedResult = (portfolioId: number) => {
     queryFn: () => getMasterPortfolioGeneratedResult(portfolioId),
     staleTime: 1000 * 60 * 5,
     enabled: !!portfolioId, // portfolioId가 존재할 때만 요청
+  });
+};
+
+export const useMasterPortfolioDetailRecords = (projectId: number) => {
+  return useQuery({
+    queryKey: ['master-portfolio-detail-records', projectId],
+    queryFn: () => fetchMasterPortfolioDetailRecords(projectId),
+    staleTime: 1000 * 60 * 5,
+    enabled: !!projectId,
+  });
+};
+
+export const useMasterPortfolioStatus = (projectId: number) => {
+  return useQuery({
+    queryKey: ['master-portfolio-status', projectId],
+    queryFn: () => getMasterPortfolioStatus(projectId),
+    staleTime: 1000 * 60 * 5,
+    enabled: !!projectId,
+  });
+};
+
+export const useMasterPortfolioQuestions = (portfolioId: number) => {
+  return useQuery({
+    queryKey: ['master-portfolio-questions', portfolioId],
+    queryFn: () => fetchMasterPortfolioQuestions(portfolioId),
   });
 };

@@ -87,6 +87,21 @@ export default function Projects() {
 
   const isUpdating = updateMainTask.isPending;
 
+  const normalizeCategory = (raw?: string): CategoryKey => {
+    if (!raw) return 'COURSE';
+    const trimmed = String(raw).trim();
+    const upper = trimmed.toUpperCase();
+    if ((CATEGORY_MAP as Record<string, unknown>)[upper]) return upper as CategoryKey;
+    const alias: Record<string, CategoryKey> = {
+      수업: 'COURSE',
+      동아리: 'CLUB',
+      대외활동: 'ACTIVITY',
+      프로젝트: 'PROJECT',
+      기타: 'OTHER',
+    };
+    return alias[trimmed] ?? 'COURSE';
+  };
+
   return (
     <div
       className={`grid grid-cols-2 max-lg:w-[868px] gap-[24px]${!isMyPage ? 'max-lg:grid-cols-1' : ''}`}

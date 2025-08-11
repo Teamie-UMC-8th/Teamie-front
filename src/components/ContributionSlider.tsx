@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 interface ContributionSliderProps {
   value: number;
@@ -11,6 +11,11 @@ export default function ContributionSlider({ value, onChange }: ContributionSlid
   const barRef = useRef<HTMLDivElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(value);
+
+  // props의 value가 변경될 때 inputValue 동기화
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
 
   const handleBarClick = (e: React.MouseEvent) => {
     if (!barRef.current) return;
@@ -40,16 +45,13 @@ export default function ContributionSlider({ value, onChange }: ContributionSlid
       <div className="w-[99px] h-[37px] bg-[#DAF3F3] rounded-[4px] px-[18px] py-[6px] flex items-center justify-center font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-[#000000] whitespace-nowrap">
         기여도
       </div>
-      <div className="flex items-center gap-[28px]">
+      <div className="flex items-center gap-[21px]">
         <div
           ref={barRef}
           onClick={handleBarClick}
           className="w-[299px] h-[20px] bg-white border border-[#BBBBBB] rounded-[3px] overflow-hidden cursor-pointer relative"
         >
-          <div
-            className="h-full bg-[#81D7D4] transition-all duration-300"
-            style={{ width: `${value}%` }}
-          />
+          <div className="h-full bg-[#81D7D4]" style={{ width: `${value}%` }} />
         </div>
         {isEditing ? (
           <input

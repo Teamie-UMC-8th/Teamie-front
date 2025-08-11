@@ -5,21 +5,35 @@ import Image from 'next/image';
 interface AIConfirmModalProps {
   onConfirm: () => void;
   onCancel: () => void;
+  confirmText?: string;
+  cancelText?: string;
+  isLoading?: boolean;
+  disableConfirm?: boolean;
+  disableCancel?: boolean;
 }
 
-export default function AIConfirmModal({ onConfirm, onCancel }: AIConfirmModalProps) {
+export default function AIConfirmModal({
+  onConfirm,
+  onCancel,
+  confirmText = '생성',
+  cancelText = '취소',
+  isLoading = false,
+  disableConfirm = false,
+  disableCancel = false,
+}: AIConfirmModalProps) {
+  const confirmLabel = isLoading ? '생성 중…' : confirmText;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
       <div className="relative w-[498px] h-[264px] bg-[#F8F8F8] shadow-[0_0_15px_rgba(0,0,0,0.2)] rounded-[12px] px-[32px] pt-[60px] pb-[40px]">
-        {/* 닫기 버튼 */}
         <button
-          className="absolute top-[8px] right-[8px] w-[24px] h-[24px] cursor-pointer"
+          className="absolute top-[8px] right-[8px] w-[24px] h-[24px] cursor-pointer disabled:opacity-50"
           onClick={onCancel}
+          disabled={disableCancel || isLoading}
         >
           <img src="/icons/곱하기.svg" alt="닫기" className="w-[24px] h-[24px]" />
         </button>
 
-        {/* 메시지 */}
         <div className="flex flex-col items-center justify-center text-center mb-[4px]">
           <div className="flex items-center gap-[6px]">
             <Image src="/icons/coin.svg" alt="credit" width={24} height={24} />
@@ -39,17 +53,17 @@ export default function AIConfirmModal({ onConfirm, onCancel }: AIConfirmModalPr
         <div className="flex justify-center gap-[28px]">
           <button
             onClick={onCancel}
-            className="w-[103px] h-[34px] bg-[#FFFFFF] border border-[#000000] rounded-[4px] 
-                     text-[18px] leading-[26px] font-[Pretendard] font-normal text-[#000000] cursor-pointer"
+            className="w-[103px] h-[34px] bg-[#FFFFFF] border border-[#000000] rounded-[4px] text-[18px] leading-[26px] font-[Pretendard] font-normal text-[#000000] cursor-pointer disabled:opacity-50"
+            disabled={disableCancel || isLoading}
           >
-            취소
+            {cancelText}
           </button>
           <button
             onClick={onConfirm}
-            className="w-[103px] h-[34px] bg-[#FFFFFF] border border-[#000000] rounded-[4px] 
-                     text-[18px] leading-[26px] font-[Pretendard] font-normal text-[#000000] cursor-pointer"
+            className="w-[103px] h-[34px] bg-[#FFFFFF] border border-[#000000] rounded-[4px] text-[18px] leading-[26px] font-[Pretendard] font-normal text-[#000000] cursor-pointer disabled:opacity-50"
+            disabled={disableConfirm || isLoading}
           >
-            생성
+            {confirmLabel}
           </button>
         </div>
       </div>
