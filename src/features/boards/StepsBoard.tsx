@@ -194,7 +194,7 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
         {/* STEP 추가 버튼 */}
         {canAddStep && (
           <div className="flex flex-col">
-            <div className="flex bg-[#DAF3F3] w-full h-[4.25rem] items-center justify-between rounded-[0.5rem]">
+            <div className="flex bg-[#F8F8F8] w-full h-[4.25rem] items-center justify-between rounded-[0.5rem]">
               {isAddingStep ? (
                 <input
                   type="text"
