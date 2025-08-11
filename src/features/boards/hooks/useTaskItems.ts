@@ -33,7 +33,7 @@ export const useTaskItems = ({ task }: UseTaskItemsProps): UseTaskItemsReturn =>
   // 마감기한 텍스트 색상 결정
   const deadlineTextColor = useMemo(() => {
     if (!task.deadline) return 'text-[#898989]';
-    return isDeadlineOverdue ? 'text-red-500' : 'text-[#898989]';
+    return isDeadlineOverdue ? 'text-[#D81B1B]' : 'text-[#898989]';
   }, [task.deadline, isDeadlineOverdue]);
 
   return {
