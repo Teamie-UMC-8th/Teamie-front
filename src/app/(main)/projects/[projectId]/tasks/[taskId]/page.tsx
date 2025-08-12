@@ -8,6 +8,7 @@ import AddProfileButton from '@/components/AddProfileButton';
 import BackButton from '@/components/BackButton';
 import DeleteButton from '@/components/DeleteButton';
 import DatePicker from '@/components/DatePicker';
+import MemoField from '@/features/tasks/components/MemoField';
 import AddComment from '@/features/tasks/components/AddComment';
 import FileUploader from '@/features/tasks/components/FileUploader';
 import TaskDropdown from '@/features/tasks/components/TaskDropdown';
@@ -29,7 +30,7 @@ export default function TaskDetailPage() {
   const [isEditingName, setIsEditingName] = useState(false); // 업무 이름 수정 모드
   const [editingName, setEditingName] = useState(''); // 수정 중인 업무 이름
 
-  const { memo, handleMemoChange, handleMemoBlur } = useTaskMemoHandler();
+  const { handleMemoBlur } = useTaskMemoHandler();
   const updateTaskMutation = useUpdateTaskDetail();
   const deleteTaskMutation = useDeleteTask();
   const router = useRouter();
@@ -566,21 +567,12 @@ export default function TaskDetailPage() {
         </div>
 
         {/* 비고 */}
-        <div
-          className="flex flex-row mt-[40px] ml-[40px]
-        max-lg:ml-[24px]"
-        >
-          <div className="min-w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px]">
-            비고
-          </div>
-          <textarea
-            value={memo || task.memo || ''}
-            onChange={(e) => handleMemoChange(e.target.value)}
-            onBlur={() => handleMemoBlur(taskId, data)}
-            className="min-w-[1288px] h-[84px] px-[20px] py-[16px] border-[2px] rounded-[6px] border-[#BBBBBB] ml-[28px] 
-          max-lg:w-[735px] max-lg:min-w-[735px] resize-none"
-          />
-        </div>
+        <MemoField
+          taskId={taskId}
+          taskData={data}
+          initialMemo={task.memo}
+          onMemoBlur={handleMemoBlur}
+        />
 
         <AddComment />
       </div>
