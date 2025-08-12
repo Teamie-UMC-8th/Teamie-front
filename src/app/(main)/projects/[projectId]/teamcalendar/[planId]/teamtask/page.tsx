@@ -295,6 +295,20 @@ export default function TeamTaskDetailPage() {
     setIsRemindModalOpen(!isRemindModalOpen);
   };
 
+  // 선택한 날짜가 지나지 않았는지 확인하는 함수 (선택한 날짜가 지나면 버튼이 안보임)
+  const isSelectedDateNotPassed = (selectedDate: Date | undefined) => {
+    if (!selectedDate) return false;
+
+    const now = new Date();
+    const selectedDateOnly = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate()
+    );
+
+    return now < selectedDateOnly;
+  };
+
   const handleTitleEdit = () => {
     setIsEditingTitle(true);
     setEditingTitle(scheduleName);
@@ -390,8 +404,10 @@ export default function TeamTaskDetailPage() {
       <div className="mt-[6px] max-lg:w-[910px] flex flex-col">
         {/* 구분선 */}
         <div className="border-[#E7E7E7] border-[1px] w-full" />
-        {/* 리마인드 메세지 */}
-        <RemindMessageButton onClick={toggleRemindModal} />
+        {/* 리마인드 메세지 - 선택한 날짜가 지나지 않았을 때만 표시 */}
+        {isSelectedDateNotPassed(selectedDate) && (
+          <RemindMessageButton onClick={toggleRemindModal} />
+        )}
       </div>
 
       {/* 업무 상세 정보 */}

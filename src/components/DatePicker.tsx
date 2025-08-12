@@ -48,7 +48,7 @@ export default function DatePicker({
     const prevMonthDays = prevMonth.getDate();
     for (let i = firstDayOfWeek - 1; i >= 0; i--) {
       days.push({
-        date: new Date(year, month - 1, prevMonthDays - i),
+        date: new Date(Date.UTC(year, month - 1, prevMonthDays - i)),
         isCurrentMonth: false,
       });
     }
@@ -56,7 +56,7 @@ export default function DatePicker({
     // 현재 달의 날들
     for (let i = 1; i <= daysInMonth; i++) {
       days.push({
-        date: new Date(year, month, i),
+        date: new Date(Date.UTC(year, month, i)),
         isCurrentMonth: true,
       });
     }
@@ -64,7 +64,7 @@ export default function DatePicker({
     // 다음 달의 날들로 완성
     for (let i = 1; i <= 42 - days.length; i++) {
       days.push({
-        date: new Date(year, month + 1, i),
+        date: new Date(Date.UTC(year, month + 1, i)),
         isCurrentMonth: false,
       });
     }
