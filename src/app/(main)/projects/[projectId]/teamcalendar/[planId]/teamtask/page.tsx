@@ -295,7 +295,7 @@ export default function TeamTaskDetailPage() {
     setIsRemindModalOpen(!isRemindModalOpen);
   };
 
-  // 선택한 날짜가 지나지 않았는지 확인하는 함수 (선택한 날짜가 지나면 버튼이 안보임)
+  // 선택한 날짜까지는 버튼이 보이는 함수 (선택한 날짜 이후부터는 버튼이 안보임)
   const isSelectedDateNotPassed = (selectedDate: Date | undefined) => {
     if (!selectedDate) return false;
 
@@ -305,8 +305,9 @@ export default function TeamTaskDetailPage() {
       selectedDate.getMonth(),
       selectedDate.getDate()
     );
+    const nowOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    return now < selectedDateOnly;
+    return nowOnly <= selectedDateOnly;
   };
 
   const handleTitleEdit = () => {
@@ -414,7 +415,7 @@ export default function TeamTaskDetailPage() {
       <div className="flex flex-col">
         <div
           className="flex mt-[40px] ml-[40px] items-center gap-[160px] w-[1100px]
-        max-lg:flex-col max-lg:items-start max-lg:ml-[24px] max-lg:gap-[40px]"
+        max-lg:flex-col max-lg:items-start max-lg:ml-[24px] max-lg:gap-[40px] max-lg:mt-[20px]"
         >
           {/* 일자 */}
           <div className="flex items-center relative">
