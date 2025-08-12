@@ -88,7 +88,7 @@ export default function TeamMemberCard({
 
           <div
             className="flex items-center mt-[8px]
-      max-lg:ml-[38px]"
+      max-lg:ml-[20px]"
           >
             {isLeader && (
               <img src="/icons/Leader-Icon.svg" alt="리더 아이콘" className="mr-[8px]" />
