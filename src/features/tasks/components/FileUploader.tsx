@@ -16,6 +16,12 @@ export default function FileUploader() {
   const inputRef = useRef<HTMLInputElement | null>(null);
   // 파일 카드 hover 상태 인덱스
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  // 토스트 메시지 상태
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [isToastVisible, setIsToastVisible] = useState(false);
+  const [showFormatToast, setShowFormatToast] = useState(false);
+  const [isFormatToastVisible, setIsFormatToastVisible] = useState(false);
 
   const { taskId } = useParams();
   const uploadMutation = useUploadTaskFile();
@@ -28,8 +34,54 @@ export default function FileUploader() {
         (file) => file && file.name
       );
 
+      // 허용된 파일 형식 필터링
+      const allowedExtensions = ['pdf', 'txt', 'jpg', 'jpeg', 'png'];
+      const invalidFiles = uploadedFiles.filter((file) => {
+        const ext = file.name.split('.').pop()?.toLowerCase();
+        return !ext || !allowedExtensions.includes(ext);
+      });
+
+      let validFiles = uploadedFiles.filter((file) => {
+        const ext = file.name.split('.').pop()?.toLowerCase();
+        if (!ext || !allowedExtensions.includes(ext)) {
+          console.log('⚠️ 지원하지 않는 파일 형식:', file.name);
+          return false;
+        }
+        return true;
+      });
+
+      // 지원되지 않는 형식 토스트 메시지
+      if (invalidFiles.length > 0) {
+        setShowFormatToast(true);
+        setIsFormatToastVisible(true);
+        setTimeout(() => {
+          setIsFormatToastVisible(false);
+          setTimeout(() => setShowFormatToast(false), 300);
+        }, 1700);
+      }
+
+      // 파일 개수 제한 체크 및 처리 (전체 파일 기준)
+      if (files.length + uploadedFiles.length > 3) {
+        // 순서대로 3개까지만 선택
+        const maxAllowedFiles = 3 - files.length;
+        const allowedFiles = validFiles.slice(0, maxAllowedFiles);
+        const rejectedFiles = validFiles.slice(maxAllowedFiles);
+
+        // 개수 제한 토스트 메시지 (전체 파일 기준으로 체크)
+        setToastMessage(`파일은 최대 3개까지 업로드할 수 있습니다.`);
+        setShowToast(true);
+        setIsToastVisible(true);
+        setTimeout(() => {
+          setIsToastVisible(false);
+          setTimeout(() => setShowToast(false), 300);
+        }, 1700);
+
+        // 허용된 파일들만 처리
+        validFiles = allowedFiles;
+      }
+
       // 중복 파일 체크 및 필터링
-      const newFiles = uploadedFiles.filter((newFile) => {
+      const newFiles = validFiles.filter((newFile) => {
         const isDuplicate = files.some(
           (existingFile) =>
             existingFile.name === newFile.name &&
@@ -103,8 +155,56 @@ export default function FileUploader() {
         (file) => file && file.name
       );
 
+      // 허용된 파일 형식 필터링
+      const allowedExtensions = ['pdf', 'txt', 'jpg', 'jpeg', 'png'];
+      const invalidFiles = droppedFiles.filter((file) => {
+        const ext = file.name.split('.').pop()?.toLowerCase();
+        return !ext || !allowedExtensions.includes(ext);
+      });
+
+      let validFiles = droppedFiles.filter((file) => {
+        const ext = file.name.split('.').pop()?.toLowerCase();
+        if (!ext || !allowedExtensions.includes(ext)) {
+          console.log('⚠️ 지원하지 않는 파일 형식:', file.name);
+          return false;
+        }
+        return true;
+      });
+
+      // 파일 개수 제한 체크 및 처리 (전체 파일 기준)
+      if (files.length + droppedFiles.length > 3) {
+        // 순서대로 3개까지만 선택
+        const maxAllowedFiles = 3 - files.length;
+        const allowedFiles = validFiles.slice(0, maxAllowedFiles);
+        const rejectedFiles = validFiles.slice(maxAllowedFiles);
+
+        // 개수 제한 토스트 메시지 (전체 파일 기준으로 체크)
+        setToastMessage(
+          `파일은 최대 3개까지 업로드할 수 있습니다. (${rejectedFiles.length}개 파일 제외됨)`
+        );
+        setShowToast(true);
+        setIsToastVisible(true);
+        setTimeout(() => {
+          setIsToastVisible(false);
+          setTimeout(() => setShowToast(false), 300);
+        }, 1700);
+
+        // 허용된 파일들만 처리
+        validFiles = allowedFiles;
+      }
+
+      // 지원되지 않는 형식 토스트 메시지
+      if (invalidFiles.length > 0) {
+        setShowFormatToast(true);
+        setIsFormatToastVisible(true);
+        setTimeout(() => {
+          setIsFormatToastVisible(false);
+          setTimeout(() => setShowFormatToast(false), 300);
+        }, 1700);
+      }
+
       // 중복 파일 체크 및 필터링
-      const newFiles = droppedFiles.filter((newFile) => {
+      const newFiles = validFiles.filter((newFile) => {
         const isDuplicate = files.some(
           (existingFile) =>
             existingFile.name === newFile.name &&
@@ -199,7 +299,7 @@ export default function FileUploader() {
   };
 
   return (
-    <div className="flex ml-[28px] gap-[20px]">
+    <div className="flex ml-[28px] gap-[20px] relative">
       {/* 파일 목록 렌더링 */}
       {files.map((file, index) => {
         // file.name이 undefined일 수 있으므로 안전하게 처리
@@ -321,6 +421,31 @@ export default function FileUploader() {
         onChange={handleFileChange}
         className="hidden"
       />
+
+      {/* 토스트 메시지들 */}
+      <div className="absolute bottom-0 left-[calc(100%+20px)] flex flex-col gap-4 z-10">
+        {/* 파일 개수 제한 토스트 */}
+        {showToast && (
+          <div
+            className={`bg-[#F8F8F8] text-[#505050] border border-[#BBBBBB] px-[20px] py-[8px] rounded-md text-[18px] whitespace-nowrap transition-opacity duration-300 ${
+              isToastVisible ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
+            {toastMessage}
+          </div>
+        )}
+
+        {/* 지원되지 않는 형식 토스트 */}
+        {showFormatToast && (
+          <div
+            className={`bg-[#F8F8F8] text-[#505050] border border-[#BBBBBB] px-[20px] py-[8px] rounded-md text-[18px] whitespace-nowrap transition-opacity duration-300 ${
+              isFormatToastVisible ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
+            pdf, txt, jpg, png 파일만 업로드 가능합니다.
+          </div>
+        )}
+      </div>
     </div>
   );
 }
