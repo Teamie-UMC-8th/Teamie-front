@@ -7,6 +7,7 @@ export interface Manager {
 }
 
 export interface FileItem {
+  id: number;
   fileUrl: string;
 }
 

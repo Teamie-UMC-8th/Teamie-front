@@ -61,20 +61,23 @@ export default function DatePicker({
       });
     }
 
+    // 현재 달의 실제 주 수 계산
+    const totalDaysIncludingPrev = firstDayOfWeek + daysInMonth;
+    const totalWeeks = Math.ceil(totalDaysIncludingPrev / 7);
+
+    // 필요한 총 날짜 수 계산 (5주 또는 6주)
+    const totalDaysNeeded = totalWeeks * 7;
+
     // 다음 달의 날들로 완성
-    for (let i = 1; i <= 42 - days.length; i++) {
+    const remainingDays = totalDaysNeeded - days.length;
+    for (let i = 1; i <= remainingDays; i++) {
       days.push({
         date: new Date(year, month + 1, i),
         isCurrentMonth: false,
       });
     }
 
-    // 실제로 필요한 주 수 계산 (이전 달 날짜 + 현재 달 날짜)
-    const totalDays = days.length;
-    const totalWeeks = Math.ceil(totalDays / 7);
-    const totalDaysNeeded = totalWeeks * 7;
-
-    return days.slice(0, totalDaysNeeded);
+    return days;
   };
 
   // const formatDate = (date: Date) => {
@@ -101,7 +104,7 @@ export default function DatePicker({
 
   // 현재 달의 주 수 계산
   const totalWeeks = Math.ceil(days.length / 7);
-  const containerHeight = totalWeeks === 5 ? 'h-[342px]' : 'h-[382px]';
+  const containerHeight = totalWeeks === 5 ? 'h-[342px]' : 'h-[386px]';
 
   const monthNames = [
     'Jan',

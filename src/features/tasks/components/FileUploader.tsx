@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useUploadTaskFile, useDeleteTaskFile } from '@/hooks/mutations/useFileUploadMutations';
 import { useParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import { checkTaskDetail } from '@/services/taskDetail/checkTaskDetail';
 
-type UploadedFile = File & { serverId?: number; fileUrl?: string };
+type UploadedFile = File & { serverId?: number | string; fileUrl?: string };
 
 export default function FileUploader() {
   // 업로드된 파일 목록을 상태로 관리
@@ -23,9 +25,78 @@ export default function FileUploader() {
   const [showFormatToast, setShowFormatToast] = useState(false);
   const [isFormatToastVisible, setIsFormatToastVisible] = useState(false);
 
+  // 삭제 확인 모달 상태
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [fileToDelete, setFileToDelete] = useState<{ file: UploadedFile; index: number } | null>(
+    null
+  );
+
   const { taskId } = useParams();
   const uploadMutation = useUploadTaskFile();
   const deleteMutation = useDeleteTaskFile();
+
+  // 서버에서 파일 목록 가져오기
+  const { data: taskData } = useQuery({
+    queryKey: ['taskDetail', taskId],
+    queryFn: () => checkTaskDetail(Number(taskId)),
+    enabled: !!taskId,
+  });
+
+  // 서버 파일 목록을 로컬 상태와 동기화 (서버 응답 그대로 반영)
+  useEffect(() => {
+    if (!taskData?.result?.files) return;
+
+    console.log('📥 서버 파일 목록 동기화:', taskData.result.files);
+
+    const serverFiles: UploadedFile[] = taskData.result.files.map((file, index) => {
+      // fileUrl에서 파일명 추출
+      let fileName = `파일 ${index + 1}`;
+      if (file.fileUrl) {
+        try {
+          const urlParts = file.fileUrl.split('/');
+          const lastPart = urlParts[urlParts.length - 1];
+          if (lastPart && lastPart.includes('.')) {
+            fileName = decodeURIComponent(lastPart);
+          }
+        } catch {
+          console.log('파일명 추출 실패, 기본값 사용:', fileName);
+        }
+      }
+
+      return {
+        name: fileName,
+        size: 0,
+        type: '',
+        lastModified: Date.now(),
+        fileUrl: file.fileUrl,
+        serverId: file.id, // 실제 서버 파일 ID 사용
+      } as UploadedFile;
+    });
+
+    console.log('🔄 파일 목록 동기화 (서버 기준):', {
+      count: serverFiles.length,
+      serverFileIds: serverFiles.map((f) => f.serverId),
+    });
+
+    // 서버 파일과 로컬 파일을 병합 (중복 제거)
+    setFiles((prevFiles) => {
+      const serverFileIds = new Set(serverFiles.map((f) => f.serverId));
+      const localFiles = prevFiles.filter((f) => !serverFileIds.has(f.serverId));
+
+      console.log('🔄 파일 병합:', {
+        serverFilesCount: serverFiles.length,
+        localFilesCount: localFiles.length,
+        mergedCount: serverFiles.length + localFiles.length,
+      });
+
+      return [...serverFiles, ...localFiles];
+    });
+  }, [taskData?.result?.files]);
+
+  // 파일 목록 변경 추적
+  useEffect(() => {
+    console.log('🎨 파일 목록 변경됨:', { filesCount: files.length, files });
+  }, [files]);
 
   // 파일 입력 변경 시 업로드된 파일을 상태에 추가
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,18 +107,14 @@ export default function FileUploader() {
 
       // 허용된 파일 형식 필터링
       const allowedExtensions = ['pdf', 'txt', 'jpg', 'jpeg', 'png'];
+      const validFiles = uploadedFiles.filter((file) => {
+        const ext = file.name.split('.').pop()?.toLowerCase();
+        return ext && allowedExtensions.includes(ext);
+      });
+
       const invalidFiles = uploadedFiles.filter((file) => {
         const ext = file.name.split('.').pop()?.toLowerCase();
         return !ext || !allowedExtensions.includes(ext);
-      });
-
-      let validFiles = uploadedFiles.filter((file) => {
-        const ext = file.name.split('.').pop()?.toLowerCase();
-        if (!ext || !allowedExtensions.includes(ext)) {
-          console.log('⚠️ 지원하지 않는 파일 형식:', file.name);
-          return false;
-        }
-        return true;
       });
 
       // 지원되지 않는 형식 토스트 메시지
@@ -60,15 +127,18 @@ export default function FileUploader() {
         }, 1700);
       }
 
-      // 파일 개수 제한 체크 및 처리 (전체 파일 기준)
-      if (files.length + uploadedFiles.length > 3) {
-        // 순서대로 3개까지만 선택
-        const maxAllowedFiles = 3 - files.length;
-        const allowedFiles = validFiles.slice(0, maxAllowedFiles);
-        const rejectedFiles = validFiles.slice(maxAllowedFiles);
+      // 현재 서버 파일 개수 계산 (서버에서 가져온 파일들 + 업로드 중인 파일들)
+      const serverFiles = taskData?.result?.files || [];
+      const uploadingFiles = files.filter(
+        (f) => typeof f.serverId === 'string' && f.serverId.includes('temp')
+      );
 
-        // 개수 제한 토스트 메시지 (전체 파일 기준으로 체크)
-        setToastMessage(`파일은 최대 3개까지 업로드할 수 있습니다.`);
+      // 3개 제한에 맞춰 처리
+      const maxAllowedFiles = Math.max(0, 3 - serverFiles.length - uploadingFiles.length);
+
+      if (maxAllowedFiles === 0) {
+        // 이미 3개 파일이 있는 경우
+        setToastMessage('파일은 최대 3개까지 업로드할 수 있습니다.');
         setShowToast(true);
         setIsToastVisible(true);
         setTimeout(() => {
@@ -76,12 +146,14 @@ export default function FileUploader() {
           setTimeout(() => setShowToast(false), 300);
         }, 1700);
 
-        // 허용된 파일들만 처리
-        validFiles = allowedFiles;
+        if (inputRef.current) {
+          inputRef.current.value = '';
+        }
+        return;
       }
 
       // 중복 파일 체크 및 필터링
-      const newFiles = validFiles.filter((newFile) => {
+      const nonDuplicateFiles = validFiles.filter((newFile) => {
         const isDuplicate = files.some(
           (existingFile) =>
             existingFile.name === newFile.name &&
@@ -91,48 +163,84 @@ export default function FileUploader() {
 
         if (isDuplicate) {
           console.log('⚠️ 중복 파일 감지:', newFile.name);
-          alert(`파일 "${newFile.name}"이(가) 이미 업로드되어 있습니다.`);
           return false;
         }
 
         return true;
       });
 
+      // 허용된 개수만큼만 선택
+      const filesToUpload = nonDuplicateFiles.slice(0, maxAllowedFiles);
+      const rejectedFiles = nonDuplicateFiles.slice(maxAllowedFiles);
+
+      // 개수 제한 토스트 메시지
+      if (rejectedFiles.length > 0 || invalidFiles.length > 0) {
+        setToastMessage(`파일은 최대 3개까지 업로드할 수 있습니다.`);
+        setShowToast(true);
+        setIsToastVisible(true);
+        setTimeout(() => {
+          setIsToastVisible(false);
+          setTimeout(() => setShowToast(false), 300);
+        }, 1700);
+      }
+
+      const newFiles = filesToUpload;
+
       if (newFiles.length === 0) {
-        // 파일 입력 초기화
         if (inputRef.current) {
           inputRef.current.value = '';
         }
         return;
       }
 
-      setFiles((prev) => [...prev, ...newFiles]);
-
+      // 파일 업로드 (즉시 UI 업데이트)
       newFiles.forEach((file) => {
         if (typeof taskId === 'string' && file && file.name) {
+          console.log('📤 파일 업로드 API 호출:', {
+            taskId: Number(taskId),
+            fileName: file.name,
+            fileSize: file.size,
+            fileType: file.type,
+          });
+
           uploadMutation.mutate(
             { taskId: Number(taskId), file },
             {
               onSuccess: (data) => {
-                setFiles((prev) =>
-                  prev.map((f) =>
-                    f === file
-                      ? {
-                          ...f,
-                          serverId: data.result.id,
-                          fileUrl: data.result.fileUrl,
-                          name: file.name,
-                        }
-                      : f
-                  )
-                );
-                console.log('✅ 파일 업로드 성공:', data.result);
+                console.log('✅ 파일 업로드 성공 - 응답 데이터:', data);
+                console.log('✅ 파일 업로드 성공 - 응답 구조:', {
+                  hasResult: !!data.result,
+                  resultKeys: data.result ? Object.keys(data.result) : null,
+                  id: data.result?.id,
+                  fileUrl: data.result?.fileUrl,
+                });
+
+                setFiles((prev) => {
+                  console.log('🔄 setFiles 호출 - 이전 파일 목록:', prev);
+                  const newFileList = [
+                    ...prev,
+                    {
+                      name: file.name,
+                      size: file.size,
+                      type: file.type,
+                      lastModified: file.lastModified,
+                      serverId: data.result.id,
+                      fileUrl: data.result.fileUrl,
+                    } as UploadedFile,
+                  ];
+                  console.log('🔄 setFiles 호출 - 새로운 파일 목록:', newFileList);
+                  return newFileList;
+                });
               },
               onError: (error: Error) => {
                 console.error('❌ 파일 업로드 실패:', error);
+                console.error('❌ 파일 업로드 실패 상세:', {
+                  taskId: Number(taskId),
+                  fileName: file.name,
+                  errorMessage: error.message,
+                  errorStack: error.stack,
+                });
                 alert(error.message || '파일 업로드에 실패했습니다.');
-                // 실패한 파일 제거
-                setFiles((prev) => prev.filter((f) => f !== file));
               },
             }
           );
@@ -140,7 +248,7 @@ export default function FileUploader() {
       });
     }
 
-    // 파일 입력 초기화 (같은 파일을 다시 선택할 수 있도록)
+    // 파일 입력 초기화
     if (inputRef.current) {
       inputRef.current.value = '';
     }
@@ -157,41 +265,15 @@ export default function FileUploader() {
 
       // 허용된 파일 형식 필터링
       const allowedExtensions = ['pdf', 'txt', 'jpg', 'jpeg', 'png'];
+      const validFiles = droppedFiles.filter((file) => {
+        const ext = file.name.split('.').pop()?.toLowerCase();
+        return ext && allowedExtensions.includes(ext);
+      });
+
       const invalidFiles = droppedFiles.filter((file) => {
         const ext = file.name.split('.').pop()?.toLowerCase();
         return !ext || !allowedExtensions.includes(ext);
       });
-
-      let validFiles = droppedFiles.filter((file) => {
-        const ext = file.name.split('.').pop()?.toLowerCase();
-        if (!ext || !allowedExtensions.includes(ext)) {
-          console.log('⚠️ 지원하지 않는 파일 형식:', file.name);
-          return false;
-        }
-        return true;
-      });
-
-      // 파일 개수 제한 체크 및 처리 (전체 파일 기준)
-      if (files.length + droppedFiles.length > 3) {
-        // 순서대로 3개까지만 선택
-        const maxAllowedFiles = 3 - files.length;
-        const allowedFiles = validFiles.slice(0, maxAllowedFiles);
-        const rejectedFiles = validFiles.slice(maxAllowedFiles);
-
-        // 개수 제한 토스트 메시지 (전체 파일 기준으로 체크)
-        setToastMessage(
-          `파일은 최대 3개까지 업로드할 수 있습니다. (${rejectedFiles.length}개 파일 제외됨)`
-        );
-        setShowToast(true);
-        setIsToastVisible(true);
-        setTimeout(() => {
-          setIsToastVisible(false);
-          setTimeout(() => setShowToast(false), 300);
-        }, 1700);
-
-        // 허용된 파일들만 처리
-        validFiles = allowedFiles;
-      }
 
       // 지원되지 않는 형식 토스트 메시지
       if (invalidFiles.length > 0) {
@@ -203,8 +285,29 @@ export default function FileUploader() {
         }, 1700);
       }
 
+      // 현재 서버 파일 개수 계산 (서버에서 가져온 파일들 + 업로드 중인 파일들)
+      const serverFiles = taskData?.result?.files || [];
+      const uploadingFiles = files.filter(
+        (f) => typeof f.serverId === 'string' && f.serverId.includes('temp')
+      );
+
+      // 3개 제한에 맞춰 처리
+      const maxAllowedFiles = Math.max(0, 3 - serverFiles.length - uploadingFiles.length);
+
+      if (maxAllowedFiles === 0) {
+        // 이미 3개 파일이 있는 경우
+        setToastMessage('파일은 최대 3개까지 업로드할 수 있습니다.');
+        setShowToast(true);
+        setIsToastVisible(true);
+        setTimeout(() => {
+          setIsToastVisible(false);
+          setTimeout(() => setShowToast(false), 300);
+        }, 1700);
+        return;
+      }
+
       // 중복 파일 체크 및 필터링
-      const newFiles = validFiles.filter((newFile) => {
+      const nonDuplicateFiles = validFiles.filter((newFile) => {
         const isDuplicate = files.some(
           (existingFile) =>
             existingFile.name === newFile.name &&
@@ -214,44 +317,74 @@ export default function FileUploader() {
 
         if (isDuplicate) {
           console.log('⚠️ 중복 파일 감지:', newFile.name);
-          alert(`파일 "${newFile.name}"이(가) 이미 업로드되어 있습니다.`);
           return false;
         }
 
         return true;
       });
 
+      // 허용된 개수만큼만 선택
+      const filesToUpload = nonDuplicateFiles.slice(0, maxAllowedFiles);
+      const rejectedFiles = nonDuplicateFiles.slice(maxAllowedFiles);
+
+      // 개수 제한 토스트 메시지
+      if (rejectedFiles.length > 0 || invalidFiles.length > 0) {
+        setToastMessage(`파일은 최대 3개까지 업로드할 수 있습니다.`);
+        setShowToast(true);
+        setIsToastVisible(true);
+        setTimeout(() => {
+          setIsToastVisible(false);
+          setTimeout(() => setShowToast(false), 300);
+        }, 1700);
+      }
+
+      const newFiles = filesToUpload;
+
       if (newFiles.length === 0) {
         return;
       }
 
-      setFiles((prev) => [...prev, ...newFiles]);
-
+      // 파일 업로드 (즉시 UI 업데이트)
       newFiles.forEach((file) => {
         if (typeof taskId === 'string' && file && file.name) {
           uploadMutation.mutate(
             { taskId: Number(taskId), file },
             {
               onSuccess: (data) => {
-                setFiles((prev) =>
-                  prev.map((f) =>
-                    f === file
-                      ? {
-                          ...f,
-                          serverId: data.result.id,
-                          fileUrl: data.result.fileUrl,
-                          name: file.name,
-                        }
-                      : f
-                  )
-                );
                 console.log('✅ 파일 업로드 성공:', data.result);
+                console.log('✅ 파일 업로드 성공 - 응답 구조:', {
+                  hasResult: !!data.result,
+                  resultKeys: data.result ? Object.keys(data.result) : null,
+                  id: data.result?.id,
+                  fileUrl: data.result?.fileUrl,
+                });
+
+                setFiles((prev) => {
+                  console.log('🔄 setFiles 호출 (드래그) - 이전 파일 목록:', prev);
+                  const newFileList = [
+                    ...prev,
+                    {
+                      name: file.name,
+                      size: file.size,
+                      type: file.type,
+                      lastModified: file.lastModified,
+                      serverId: data.result.id,
+                      fileUrl: data.result.fileUrl,
+                    } as UploadedFile,
+                  ];
+                  console.log('🔄 setFiles 호출 (드래그) - 새로운 파일 목록:', newFileList);
+                  return newFileList;
+                });
               },
               onError: (error: Error) => {
                 console.error('❌ 파일 업로드 실패:', error);
+                console.error('❌ 파일 업로드 실패 상세:', {
+                  taskId: Number(taskId),
+                  fileName: file.name,
+                  errorMessage: error.message,
+                  errorStack: error.stack,
+                });
                 alert(error.message || '파일 업로드에 실패했습니다.');
-                // 실패한 파일 제거
-                setFiles((prev) => prev.filter((f) => f !== file));
               },
             }
           );
@@ -271,25 +404,44 @@ export default function FileUploader() {
     setIsDragging(false);
   };
 
-  // 파일 삭제 핸들러
-  const handleFileDelete = (file: UploadedFile, index: number) => {
-    if (file.serverId) {
+  // 파일 삭제 확인 모달 표시
+  const handleDeleteClick = (file: UploadedFile, index: number) => {
+    setFileToDelete({ file, index });
+    setShowDeleteModal(true);
+  };
+
+  // 파일 삭제 실행
+  const handleConfirmDelete = () => {
+    if (!fileToDelete) return;
+
+    const { file, index } = fileToDelete;
+    console.log('🔍 파일 삭제 시도:', { file, index, serverId: file.serverId });
+
+    // 모달 닫기
+    setShowDeleteModal(false);
+    setFileToDelete(null);
+
+    if (file.serverId && typeof file.serverId === 'number') {
+      console.log('📡 서버 파일 삭제 API 호출:', { taskFileId: file.serverId });
+
+      // 즉시 UI에서 파일 제거
+      setFiles((prev) => prev.filter((f) => f.serverId !== file.serverId));
+
+      // 백그라운드에서 서버 삭제 처리
       deleteMutation.mutate(file.serverId, {
         onSuccess: (data) => {
           console.log('✅ 파일 삭제 성공:', data.message || '파일이 삭제되었습니다.');
-          setFiles((prev) => prev.filter((_, i) => i !== index));
-          // 파일 삭제 후 입력 초기화
-          if (inputRef.current) {
-            inputRef.current.value = '';
-          }
         },
         onError: (error: Error) => {
           console.error('❌ 파일 삭제 실패:', error);
           alert(error.message || '파일 삭제에 실패했습니다.');
+          // 실패 시 파일을 다시 추가
+          setFiles((prev) => [...prev, file]);
         },
       });
     } else {
-      // 서버에 업로드되지 않은 파일은 바로 제거
+      console.log('🗑️ 로컬 파일 삭제');
+      // 로컬 파일은 즉시 제거
       setFiles((prev) => prev.filter((_, i) => i !== index));
       // 파일 삭제 후 입력 초기화
       if (inputRef.current) {
@@ -298,12 +450,18 @@ export default function FileUploader() {
     }
   };
 
+  // 삭제 모달 닫기
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setFileToDelete(null);
+  };
+
   return (
     <div className="flex ml-[28px] gap-[20px] relative">
       {/* 파일 목록 렌더링 */}
       {files.map((file, index) => {
         // file.name이 undefined일 수 있으므로 안전하게 처리
-        const fileName = file?.name || 'Unknown File';
+        const fileName = file?.name || `파일 ${index + 1}`;
         const ext = fileName.split('.').pop()?.toLowerCase();
 
         // 파일 종류 / 파일 아이콘 구분
@@ -351,7 +509,7 @@ export default function FileUploader() {
                   width={20}
                   height={20}
                   className="w-[20px] h-[20px] cursor-pointer"
-                  onClick={() => handleFileDelete(file, index)}
+                  onClick={() => handleDeleteClick(file, index)}
                 />
               ) : (
                 <Image
@@ -446,6 +604,47 @@ export default function FileUploader() {
           </div>
         )}
       </div>
+
+      {/* 삭제 확인 모달 */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-[#00000033] bg-opacity-50 flex items-center justify-center z-50">
+          <div
+            className="bg-[#F8F8F8] rounded-[12px] px-[60px] py-[66px] w-[460px] h-[214px] relative"
+            style={{ boxShadow: '0px 0px 15px 0px #00000033' }}
+          >
+            {/* 닫기 버튼 */}
+            <button
+              onClick={handleCancelDelete}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            >
+              <Image src="/icons/CloseModal.svg" alt="닫기" width={20} height={20} />
+            </button>
+
+            {/* 모달 내용 */}
+            <div className="text-center">
+              <h3 className="text-[20px] font-semibold text-black mb-6">
+                이 파일을 정말 삭제하시겠습니까?
+              </h3>
+
+              {/* 버튼 */}
+              <div className="flex gap-[28px] justify-center">
+                <button
+                  onClick={handleCancelDelete}
+                  className="px-[28px] py-[4px] border border-black bg-[#FFFFFF] text-[18px] rounded-[4px] "
+                >
+                  취소
+                </button>
+                <button
+                  onClick={handleConfirmDelete}
+                  className="px-[28px] py-[4px] border border-black bg-[#FFFFFF] text-[18px] rounded-[4px] "
+                >
+                  삭제
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

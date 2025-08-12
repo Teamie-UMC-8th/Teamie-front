@@ -479,8 +479,8 @@ export default function TaskDetailPage() {
             <Image
               src="/icons/deadline-calendar.svg"
               alt="마감기한"
-              width={20}
-              height={20}
+              width={32}
+              height={32}
               className="ml-[10px] cursor-pointer"
               onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
             />
