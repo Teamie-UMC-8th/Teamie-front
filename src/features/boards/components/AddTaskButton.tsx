@@ -21,7 +21,7 @@ export default function AddTaskButton({ stepId, className = '' }: AddTaskButtonP
 
   return (
     <button
-      className={`flex bg-[#FFFFFF] text-[#898989] w-[20.313rem] h-[2.75rem] items-center justify-center rounded-[0.5rem] text-[1rem] cursor-pointer border border-[#BBBBBB] border-[0.094rem] ${className}`}
+      className={`flex bg-[#FFFFFF] text-[#898989] w-[20.313rem] h-[2.75rem] items-center justify-center rounded-[0.5rem] text-[1rem] cursor-pointer border border-[#BBBBBB] ${className}`}
       onClick={handleClick}
       disabled={createTaskMutation.isPending}
     >
