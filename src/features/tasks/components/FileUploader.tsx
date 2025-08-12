@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
+import Image from 'next/image';
 import { useUploadTaskFile, useDeleteTaskFile } from '@/hooks/mutations/useFileUploadMutations';
 import { useParams } from 'next/navigation';
 
@@ -234,24 +235,30 @@ export default function FileUploader() {
             onMouseLeave={() => setHoveredIndex(null)}
           >
             <div className="flex-1 flex items-center justify-center">
-              <img
+              <Image
                 src={filePreview}
                 alt={`${ext?.toUpperCase() || 'File'} 파일`}
+                width={88}
+                height={88}
                 className="w-[88px] h-[88px]"
               />
             </div>
             <div className="border-t-[2px] border-[#BBBBBB] px-[12px] py-[5px] flex items-center gap-[8px]">
               {hoveredIndex === index ? (
-                <img
+                <Image
                   src="/icons/delete-file-icon.svg"
                   alt="삭제 아이콘"
+                  width={20}
+                  height={20}
                   className="w-[20px] h-[20px] cursor-pointer"
                   onClick={() => handleFileDelete(file, index)}
                 />
               ) : (
-                <img
+                <Image
                   src={fileIcon}
                   alt={`${ext?.toUpperCase() || 'File'} 아이콘`}
+                  width={20}
+                  height={20}
                   className="w-[20px] h-[20px] cursor-pointer"
                 />
               )}
@@ -278,7 +285,7 @@ export default function FileUploader() {
                   }
                 }}
               >
-                <img src="/icons/download-file-icon.svg" alt="다운로드" />
+                <Image src="/icons/download-file-icon.svg" alt="다운로드" width={20} height={20} />
               </button>
             )}
           </div>
@@ -296,7 +303,13 @@ export default function FileUploader() {
         } grid place-items-center cursor-pointer`}
       >
         <div className="flex flex-col items-center">
-          <img src="/icons/file-upload.svg" alt="파일 업로드" className="w-[88px] h-[88px]" />
+          <Image
+            src="/icons/file-upload.svg"
+            alt="파일 업로드"
+            width={88}
+            height={88}
+            className="w-[88px] h-[88px]"
+          />
           <div className="text-[#898989] text-[16px]">파일 업로드</div>
         </div>
       </label>
