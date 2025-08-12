@@ -12,6 +12,7 @@ interface AddProfileButtonProps {
   onChange?: (selectedUserIds: number[]) => void;
   onPermissionCheck?: () => boolean;
   initialSelectedIds?: number[];
+  alertMessage?: string; // 추가: 권한 없을 때 표시할 메시지
 }
 
 export default function AddProfileButton({
@@ -19,6 +20,7 @@ export default function AddProfileButton({
   onChange,
   onPermissionCheck,
   initialSelectedIds = [],
+  alertMessage = '프로젝트 멤버만 수정할 수 있습니다.', // 기본값 설정
 }: AddProfileButtonProps) {
   const [selectedProfiles, setSelectedProfiles] = useState<Manager[]>([]);
 
@@ -52,7 +54,7 @@ export default function AddProfileButton({
       console.log('AddProfileButton - 권한 점검 결과:', hasPermission);
 
       if (!hasPermission) {
-        alert('프로젝트 멤버만 참석자를 수정할 수 있습니다.');
+        alert(alertMessage);
         return;
       }
     }
@@ -94,7 +96,7 @@ export default function AddProfileButton({
       console.log('AddProfileButton - 권한 점검 결과:', hasPermission);
 
       if (!hasPermission) {
-        alert('프로젝트 멤버만 참석자를 수정할 수 있습니다.');
+        alert(alertMessage);
         return;
       }
     }

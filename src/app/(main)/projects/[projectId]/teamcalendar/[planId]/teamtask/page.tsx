@@ -495,6 +495,7 @@ export default function TeamTaskDetailPage() {
             profiles={availableProfiles}
             onChange={handleAttendeesChange}
             onPermissionCheck={isCurrentUserProjectMember}
+            alertMessage="프로젝트 멤버만 참석자를 수정할 수 있습니다."
           />
         </div>
 
