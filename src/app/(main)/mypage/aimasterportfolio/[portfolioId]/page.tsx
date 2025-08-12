@@ -240,7 +240,7 @@ export default function MasterPortfolioDetail() {
                 </div>
                 <div
                   ref={detailRef}
-                  className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4"
+                  className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 whitespace-pre-wrap"
                 >
                   {data.detailInfo}
                 </div>
@@ -259,7 +259,7 @@ export default function MasterPortfolioDetail() {
                 </div>
                 <div
                   ref={taskRef}
-                  className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4"
+                  className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 whitespace-pre-wrap"
                 >
                   {data.assignedTask}
                 </div>
@@ -278,7 +278,7 @@ export default function MasterPortfolioDetail() {
                 </div>
                 <div
                   ref={resultRef}
-                  className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4"
+                  className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 whitespace-pre-wrap"
                 >
                   {data.keyAchievement}
                 </div>
@@ -297,7 +297,7 @@ export default function MasterPortfolioDetail() {
                 </div>
                 <div
                   ref={learnRef}
-                  className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4"
+                  className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 whitespace-pre-wrap"
                 >
                   {data.insight}
                 </div>
