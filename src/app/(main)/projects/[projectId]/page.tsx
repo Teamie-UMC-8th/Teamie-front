@@ -259,7 +259,10 @@ export default function ProjectHomePage() {
           </button>
         </div>
         {/* 프로필 카드 */}
-        <div className="grid grid-cols-4 gap-x-[52px] gap-y-[48px] mt-[24px]">
+        <div
+          className="grid grid-cols-4 gap-x-[52px] gap-y-[48px] mt-[24px]
+        max-lg:grid-cols-1 max-lg:gap-y-[24px]"
+        >
           {teamMembers.map((member) => (
             <TeamMemberCard
               key={member.id}
