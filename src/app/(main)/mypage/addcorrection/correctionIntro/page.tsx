@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable @next/next/no-img-element */
 
 import CorrectionRequestStartButton from '@/features/correction/components/CorrectionRequestStartButton';
 

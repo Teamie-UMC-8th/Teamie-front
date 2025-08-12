@@ -17,6 +17,77 @@ export interface CorrectionListResponse {
   };
 }
 
+// AI 첨삭 생성 요청 타입
+export interface CreateCorrectionRequest {
+  title: string;
+  submissionTarget: string;
+  jobTitle: string;
+  jd: string;
+}
+
+// AI 첨삭 생성 응답 타입
+export interface CreateCorrectionResponse {
+  isSuccess: boolean;
+  error: null;
+  result: {
+    id: number;
+    title: string;
+    submissionTarget: string;
+    jobTitle: string;
+    companyInsight: string | null;
+    jd: string;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+    user: {
+      id: number;
+    };
+  };
+}
+
+// RAG 시작 응답 타입
+export interface StartRagResponse {
+  isSuccess: boolean;
+  error: null;
+  result: {
+    id: number;
+    title: string;
+    submissionTarget: string;
+    jobTitle: string;
+    companyInsight: string | null;
+    jd: string;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
+// RAG 데이터 조회 응답 타입
+export interface RagDataResponse {
+  isSuccess: boolean;
+  error: null;
+  result: {
+    keywords: string[];
+    links: string[];
+  };
+}
+
+//기업 분석 정보 조회 응답 타입
+export interface CompanyInsightResponse {
+  isSuccess: boolean;
+  error: null;
+  result: {
+    companyInsight: string;
+  };
+}
+
+export interface PatchCompanyInsightRequest {
+  companyInsight: string;
+}
+
+// 회사 인사이트 수정 응답(생성 응답과 동일한 객체 형태 반환)
+export type PatchCompanyInsightResponse = CreateCorrectionResponse;
+
 // AI 첨삭 상세 정보 응답 타입
 export interface CorrectionDetailResponse {
   isSuccess: boolean;
