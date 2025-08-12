@@ -17,7 +17,7 @@ export interface TaskDetailResponse {
   result: {
     name: string;
     deadline: string; // 예: '2024-07-10 00:00:00 ' (끝에 공백 포함)
-    status: 'ONGOING' | 'COMPLETE' | 'NOTSTART';
+    status: 'ONGOING' | 'COMPLETED' | 'NOTSTART';
     memo: string;
     managers: Manager[];
     files: FileItem[];
@@ -29,7 +29,7 @@ export interface TaskDetailResponse {
 export interface UpdateTaskRequest {
   name: string;
   deadline: string; // 예: '2024-07-10 00:00:00'
-  status: 'ONGOING' | 'COMPLETE' | 'NOTSTART'; // API 응답에 맞춰 COMPLETE로 수정
+  status: 'ONGOING' | 'COMPLETED' | 'NOTSTART'; // API 응답에 맞춰 COMPLETE로 수정
   memo: string;
   managerIds: number[];
   existingFileUrls: string[];
@@ -43,7 +43,7 @@ export interface UpdateTaskResponse {
   result: {
     name: string;
     deadline: string;
-    status: 'ONGOING' | 'COMPLETE' | 'NOTSTART'; // API 응답에 맞춰 COMPLETE로 수정
+    status: 'ONGOING' | 'COMPLETED' | 'NOTSTART'; // API 응답에 맞춰 COMPLETE로 수정
     memo: string;
     managers: Manager[];
     stepId: number;

@@ -23,18 +23,20 @@ export default function AddProfileButton({
   alertMessage = '프로젝트 멤버만 수정할 수 있습니다.', // 기본값 설정
 }: AddProfileButtonProps) {
   const [selectedProfiles, setSelectedProfiles] = useState<Manager[]>([]);
+  const isInitialized = useRef(false);
 
-  // 초기 선택된 프로필 설정
+  // 초기 선택된 프로필 설정 (한 번만 실행)
   useEffect(() => {
-    if (initialSelectedIds.length > 0 && profiles.length > 0) {
+    if (!isInitialized.current && initialSelectedIds.length > 0 && profiles.length > 0) {
       const initialProfiles = profiles.filter((profile) =>
         initialSelectedIds.includes(profile.userId)
       );
-      if (initialProfiles.length > 0 && selectedProfiles.length === 0) {
+      if (initialProfiles.length > 0) {
         setSelectedProfiles(initialProfiles);
       }
+      isInitialized.current = true;
     }
-  }, [initialSelectedIds, profiles, selectedProfiles.length]);
+  }, [initialSelectedIds, profiles]);
 
   const remainingProfiles = profiles
     .filter((p) => !selectedProfiles.find((s) => s.userId === p.userId))
@@ -61,6 +63,7 @@ export default function AddProfileButton({
 
     const updated = [...selectedProfiles, profile];
     setSelectedProfiles(updated);
+
     console.log(
       'AddProfileButton - onChange 호출:',
       updated.map((p) => p.userId)
@@ -101,15 +104,15 @@ export default function AddProfileButton({
       }
     }
 
-    setSelectedProfiles((prev) => {
-      const filtered = prev.filter((p) => p.userId !== profile.userId);
-      console.log(
-        'AddProfileButton - onChange 호출 (제거):',
-        filtered.map((p) => p.userId)
-      );
-      onChange?.(filtered.map((p) => p.userId));
-      return filtered;
-    });
+    // 즉시 UI 업데이트
+    const filtered = selectedProfiles.filter((p) => p.userId !== profile.userId);
+    setSelectedProfiles(filtered);
+
+    console.log(
+      'AddProfileButton - onChange 호출 (제거):',
+      filtered.map((p) => p.userId)
+    );
+    onChange?.(filtered.map((p) => p.userId));
     setDropdownOpen(false); // 드롭다운을 닫음
   };
 

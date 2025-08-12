@@ -30,8 +30,23 @@ export const checkTaskDetail = async (taskId: number): Promise<TaskDetailRespons
         memo: response.data.result.memo,
         stepId: response.data.result.stepId,
         managersCount: response.data.result.managers?.length || 0,
+        managers: response.data.result.managers, // 담당자 배열 추가
         filesCount: response.data.result.files?.length || 0,
+        files: response.data.result.files, // 파일 배열 추가
       });
+
+      // 담당자 정보 상세 로깅
+      if (response.data.result.managers && response.data.result.managers.length > 0) {
+        console.log(
+          '👥 API 응답 - 담당자 상세 정보:',
+          response.data.result.managers.map((manager: { userId: number; userName: string }) => ({
+            userId: manager.userId,
+            userName: manager.userName,
+          }))
+        );
+      } else {
+        console.log('👥 API 응답 - 담당자 없음');
+      }
     }
 
     return response.data;

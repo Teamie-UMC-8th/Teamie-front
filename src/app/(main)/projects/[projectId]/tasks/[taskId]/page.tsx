@@ -2,6 +2,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { checkTaskDetail } from '@/services/taskDetail/checkTaskDetail';
 import AddProfileButton from '@/components/AddProfileButton';
 import BackButton from '@/components/BackButton';
@@ -83,8 +84,23 @@ export default function TaskDetailPage() {
           status: data.result.status,
           stepId: data.result.stepId,
           managersCount: data.result.managers?.length || 0,
+          managers: data.result.managers, // 담당자 배열 추가
           filesCount: data.result.files?.length || 0,
+          files: data.result.files, // 파일 배열 추가
         });
+
+        // 담당자 정보 상세 로깅
+        if (data.result.managers && data.result.managers.length > 0) {
+          console.log(
+            '👥 담당자 상세 정보:',
+            data.result.managers.map((manager: { userId: number; userName: string }) => ({
+              userId: manager.userId,
+              userName: manager.userName,
+            }))
+          );
+        } else {
+          console.log('👥 담당자 없음');
+        }
       }
     }
   }, [data]);
@@ -205,34 +221,31 @@ export default function TaskDetailPage() {
       return;
     }
 
-    // 상태 업데이트를 다음 렌더링 사이클로 지연
-    setTimeout(() => {
-      console.log('handleManagersChange - API 호출 시도:', {
+    console.log('handleManagersChange - API 호출 시도:', {
+      taskId,
+      selectedUserIds,
+    });
+
+    if (data?.result) {
+      const updateData = {
+        ...data.result,
+        managerIds: selectedUserIds,
+        existingFileUrls: data.result.files?.map((f) => f.fileUrl) ?? [],
+      };
+
+      console.log('🔧 담당자 변경 - 전송할 데이터:', {
         taskId,
-        selectedUserIds,
+        updateData,
+        managerIds: updateData.managerIds,
+        managersCount: updateData.managerIds.length,
+        originalManagers: data.result.managers,
       });
 
-      if (data?.result) {
-        const updateData = {
-          ...data.result,
-          managerIds: selectedUserIds,
-          existingFileUrls: data.result.files?.map((f) => f.fileUrl) ?? [],
-        };
-
-        console.log('🔧 담당자 변경 - 전송할 데이터:', {
-          taskId,
-          updateData,
-          managerIds: updateData.managerIds,
-          managersCount: updateData.managerIds.length,
-          originalManagers: data.result.managers,
-        });
-
-        updateTaskMutation.mutate({
-          taskId,
-          data: updateData,
-        });
-      }
-    }, 0);
+      updateTaskMutation.mutate({
+        taskId,
+        data: updateData,
+      });
+    }
   };
 
   const handleDateChange = (date: Date) => {
@@ -462,9 +475,11 @@ export default function TaskDetailPage() {
                 })()}
               </div>
             </div>
-            <img
+            <Image
               src="/icons/deadline-calendar.svg"
               alt="마감기한"
+              width={20}
+              height={20}
               className="ml-[10px] cursor-pointer"
               onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
             />
