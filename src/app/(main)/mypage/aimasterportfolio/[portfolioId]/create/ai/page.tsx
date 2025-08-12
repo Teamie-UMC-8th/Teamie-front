@@ -10,6 +10,7 @@ import Step2 from '@/features/aimasterportfolio/components/steps/Step2';
 import Step3, { type Step3Handle } from '@/features/aimasterportfolio/components/steps/Step3';
 import { useRouter, useParams, useSearchParams, usePathname } from 'next/navigation';
 import AIConfirmModal from '@/features/aimasterportfolio/components/AIConfirmModal';
+import LoadingModal from '@/features/aimasterportfolio/components/MasterLoadingModal';
 import {
   useMasterPortfolioDetail,
   useMasterPortfolioStatus,
@@ -65,7 +66,7 @@ export default function AIMasterPortfolioCreatePage() {
     if (!status) return;
 
     if (status === 'DONE') {
-      router.replace(`/mypage/aimasterportfolio/${portfolioId}/final`);
+      router.replace(`/mypage/aimasterportfolio/${portfolioId}`);
       return;
     }
 
@@ -303,6 +304,8 @@ export default function AIMasterPortfolioCreatePage() {
           onConfirm={() => {
             if (isGenerating) return;
             setIsGenerating(true);
+            // 생성 시작과 동시에 확인 모달을 닫아 중첩 표시를 방지
+            setShowConfirmModal(false);
             const payload = step3Ref.current?.buildDraftPayload() ?? [];
             patchQuestions(
               { portfolioId, body: payload },
@@ -337,6 +340,8 @@ export default function AIMasterPortfolioCreatePage() {
           }}
         />
       )}
+
+      {isGenerating && <LoadingModal isOpen />}
     </>
   );
 }

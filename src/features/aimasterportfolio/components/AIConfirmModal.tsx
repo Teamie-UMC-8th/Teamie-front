@@ -23,6 +23,8 @@ export default function AIConfirmModal({
 }: AIConfirmModalProps) {
   const confirmLabel = isLoading ? '생성 중…' : confirmText;
 
+  // 로딩 중에도 확인 모달은 그대로 두고 버튼만 비활성화합니다.
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
       <div className="relative w-[498px] h-[264px] bg-[#F8F8F8] shadow-[0_0_15px_rgba(0,0,0,0.2)] rounded-[12px] px-[32px] pt-[60px] pb-[40px]">
