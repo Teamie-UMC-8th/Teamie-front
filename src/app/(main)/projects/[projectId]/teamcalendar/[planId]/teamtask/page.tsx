@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
+import Image from 'next/image';
 import axiosInstance from '@/lib/axiosInstance';
 import AddProfileButton from '@/components/AddProfileButton';
 import BackButton from '@/components/BackButton';
@@ -428,9 +429,11 @@ export default function TeamTaskDetailPage() {
             >
               {formatDate(selectedDate)}
             </div>
-            <img
+            <Image
               src="/icons/deadline-calendar.svg"
               alt="TimePicker"
+              width={32}
+              height={32}
               className="ml-[20px] cursor-pointer"
               onClick={toggleDatePicker}
             />
@@ -457,9 +460,11 @@ export default function TeamTaskDetailPage() {
                 {selectedTime ? formatTime(selectedTime) : ''}
               </div>
             </div>
-            <img
+            <Image
               src="/icons/timePicker.svg"
               alt="타임 피커"
+              width={32}
+              height={32}
               className="ml-[16px] cursor-pointer"
               onClick={toggleTimePicker}
             />
