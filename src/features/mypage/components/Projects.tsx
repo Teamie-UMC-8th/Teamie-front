@@ -14,7 +14,7 @@ import { CATEGORY_MAP } from '@/constants/category';
 
 export default function Projects() {
   const pathname = usePathname();
-  const isAnalyzeFinPage = pathname === '/mypage/addcorrection/projectSelect';
+  const isProjectSelectPage = pathname === '/mypage/addcorrection/projectSelect';
   const isMyPage = pathname === '/mypage';
   const { data } = useMasterPortfolioList();
   const { data: selectable } = useCorrectionProjects();
@@ -59,7 +59,7 @@ export default function Projects() {
   };
 
   const handleProjectSelect = (portfolioId: number, e: React.MouseEvent) => {
-    if (isAnalyzeFinPage) {
+    if (isProjectSelectPage) {
       e.preventDefault();
       e.stopPropagation();
 
@@ -78,7 +78,7 @@ export default function Projects() {
   };
 
   const getSelectionOrder = (portfolioId: number) => {
-    if (!isAnalyzeFinPage || !selectedProjects.has(portfolioId)) return null;
+    if (!isProjectSelectPage || !selectedProjects.has(portfolioId)) return null;
     return Array.from(selectedProjects).indexOf(portfolioId) + 1;
   };
 
@@ -96,12 +96,12 @@ export default function Projects() {
   return (
     <div
       className={`grid grid-cols-2 ${
-        isAnalyzeFinPage ? 'max-lg:w-full' : 'max-lg:w-[868px]'
-      } ${isAnalyzeFinPage ? 'gap-x-[24px] gap-y-[24px]' : ''}${
-        !isMyPage ? ' max-lg:grid-cols-1' : ''
-      }`}
+        isProjectSelectPage
+          ? 'max-lg:w-full gap-x-[24px] gap-y-[24px]'
+          : 'max-lg:w-[868px] gap-[24px]'
+      }${!isMyPage ? ' max-lg:grid-cols-1' : ''}`}
     >
-      {(isAnalyzeFinPage
+      {(isProjectSelectPage
         ? (selectable || []).map((p) => ({
             projectId: p.id,
             portfolioId: p.id,
@@ -116,26 +116,26 @@ export default function Projects() {
       ).map((item: MasterPortfolio) => (
         <Link
           key={item.portfolioId}
-          href={isAnalyzeFinPage ? '#' : `/mypage/aimasterportfolio/${item.portfolioId}`}
+          href={isProjectSelectPage ? '#' : `/mypage/aimasterportfolio/${item.portfolioId}`}
         >
           {(() => {
             const masterProjectIdSet = new Set(
               (data?.data || []).map((mp: MasterPortfolio) => Number(mp.projectId))
             );
             const isDisabledOnSelectPage =
-              isAnalyzeFinPage && !masterProjectIdSet.has(Number(item.projectId));
+              isProjectSelectPage && !masterProjectIdSet.has(Number(item.projectId));
             return (
               <button
                 className={`relative w-[465px] h-[192px] rounded-[8px] grid justify-center cursor-pointer transition-all duration-100 ${
-                  !isAnalyzeFinPage && 'max-lg:w-[421px] max-lg:h-[180px]'
+                  !isProjectSelectPage && 'max-lg:w-[421px] max-lg:h-[180px]'
                 } ${
-                  isAnalyzeFinPage && selectedProjects.has(item.portfolioId)
+                  isProjectSelectPage && selectedProjects.has(item.portfolioId)
                     ? 'bg-[#81D7D41A] border-3 border-[#81D7D4]'
                     : 'bg-[#F8F8F8]'
                 }`}
                 style={{
                   boxShadow:
-                    isAnalyzeFinPage && selectedProjects.has(item.portfolioId)
+                    isProjectSelectPage && selectedProjects.has(item.portfolioId)
                       ? '0px 0px 8px 0px #81D7D466'
                       : '0px 0px 4px 0px #00000033',
                 }}
@@ -185,7 +185,7 @@ export default function Projects() {
                       마스터 포트폴리오가 작성되지 않은 프로젝트입니다.
                     </div>
                   )}
-                  {isAnalyzeFinPage && selectedProjects.has(item.portfolioId) && (
+                  {isProjectSelectPage && selectedProjects.has(item.portfolioId) && (
                     <div className="absolute -bottom-[24px] -right-[0px] w-[28px] h-[28px] bg-[#505050] rounded-[4px] flex items-center justify-center">
                       <span className="text-white text-[16px] font-bold">
                         {getSelectionOrder(item.portfolioId)}
@@ -230,12 +230,12 @@ export default function Projects() {
                         className={`text-[16px] truncate flex-1 px-1 py-1 rounded transition-colors text-left h-6 flex items-center ${
                           isUpdating
                             ? 'cursor-not-allowed opacity-50'
-                            : isAnalyzeFinPage
+                            : isProjectSelectPage
                               ? 'cursor-default'
                               : 'cursor-pointer hover:bg-gray-100'
                         }`}
                         onClick={(e) => {
-                          if (isUpdating || isAnalyzeFinPage) return;
+                          if (isUpdating || isProjectSelectPage) return;
                           e.preventDefault();
                           e.stopPropagation();
                           handleTaskClick(item.portfolioId, item.mainTask);
