@@ -14,6 +14,8 @@ import {
 export default function AiLoadingPage() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
+  const idParamStr = searchParams.get('correctionId') ?? '';
+  const companyNameQuery = searchParams.get('companyName') ?? '';
   const router = useRouter();
   const [companyName, setCompanyName] = useState<string>('');
   const [keywords, setKeywords] = useState<string[]>([]);
@@ -61,21 +63,9 @@ export default function AiLoadingPage() {
   // 실제 데이터 로드 (기업명, 검색어, 링크, 기업 분석 정보)
   useEffect(() => {
     console.log('[Analyzing] effect start');
-    const idParam = searchParams.get('correctionId');
-    const companyNameFromQuery = searchParams.get('companyName');
+    const companyNameFromQuery = companyNameQuery;
     if (companyNameFromQuery) setCompanyName(companyNameFromQuery);
-    let correctionId = idParam ? Number(idParam) : NaN;
-
-    // 쿼리에 id가 없을 때 세션스토리지 값으로 보조 조회
-    if (!correctionId && typeof window !== 'undefined') {
-      try {
-        const last = window.sessionStorage.getItem('lastCorrectionId');
-        if (last) {
-          correctionId = Number(last);
-          console.log('[Analyzing] using lastCorrectionId from sessionStorage:', correctionId);
-        }
-      } catch {}
-    }
+    const correctionId = idParamStr ? Number(idParamStr) : NaN;
     if (!correctionId) return;
 
     // 다른 ID로 전환될 때 이전 상태 초기화
@@ -91,13 +81,6 @@ export default function AiLoadingPage() {
       setCompanyInsight('');
       lastIdRef.current = correctionId;
     }
-
-    // 디버그: 쿼리 파라미터 및 변환된 ID 로그
-    console.log('[Analyzing] query params:', {
-      idParam,
-      correctionId,
-      companyNameFromQuery,
-    });
 
     // 1) 세션스토리지 prefetch가 있으면 즉시 반영
     try {
@@ -140,7 +123,13 @@ export default function AiLoadingPage() {
       }
     } catch {}
 
-    // 2) 백그라운드에서 한 번 더 신선한 데이터로 동기화
+    // 디버그: 쿼리 파라미터 및 변환된 ID 로그
+    console.log('[Analyzing] query params:', {
+      idParam: idParamStr,
+      correctionId,
+      companyNameFromQuery,
+    });
+
     fetchCorrectionDetail(correctionId)
       .then((res) => {
         console.log('[Analyzing] correction detail:', res);
@@ -196,7 +185,7 @@ export default function AiLoadingPage() {
 
     // analyzing 페이지에서는 폴링하지 않음 (LoadingModal에서 준비 완료 후 진입)
     return undefined;
-  }, [searchParams]);
+  }, [idParamStr, companyNameQuery]);
 
   const handleNextClick = async (e: React.MouseEvent) => {
     e.preventDefault();

@@ -84,12 +84,20 @@ export default function LoadingModal({
   const startedRef = useRef(false);
   const pollingStopRef = useRef(false);
 
-  const waitForRagReady = async (correctionId: number) => {
-    const maxAttempts = 60;
+  const waitForRagReady = async (
+    correctionId: number
+  ): Promise<{
+    rag: Awaited<ReturnType<typeof fetchRagData>>;
+    insight: Awaited<ReturnType<typeof fetchCompanyInsight>>;
+  }> => {
     const delayMs = 2000;
     let consecutiveReady = 0;
-    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-      if (pollingStopRef.current) return false;
+    let attempt = 0;
+    while (true) {
+      attempt += 1;
+      if (pollingStopRef.current) {
+        throw new Error('Polling stopped');
+      }
       try {
         const [rag, insight] = await Promise.all([
           fetchRagData(correctionId),
@@ -101,11 +109,13 @@ export default function LoadingModal({
           typeof insight?.companyInsight === 'string' && insight.companyInsight.trim().length > 0;
         const ready = hasKeywords && hasLinks && hasInsight;
         console.log(
-          `[LoadingModal] RAG polling ${attempt}/${maxAttempts} -> keywords:${hasKeywords} links:${hasLinks} insight:${hasInsight} ready:${ready} (consec=${consecutiveReady})`
+          `[LoadingModal] RAG polling ${attempt} -> keywords:${hasKeywords} links:${hasLinks} insight:${hasInsight} ready:${ready} (consec=${consecutiveReady})`
         );
         if (ready) {
           consecutiveReady += 1;
-          if (consecutiveReady >= 2) return true;
+          if (consecutiveReady >= 2) {
+            return { rag, insight };
+          }
         } else {
           consecutiveReady = 0;
         }
@@ -114,7 +124,6 @@ export default function LoadingModal({
       }
       await new Promise((res) => setTimeout(res, delayMs));
     }
-    return false;
   };
 
   // 단계 진행 타이머
@@ -195,37 +204,36 @@ export default function LoadingModal({
 
     const run = async () => {
       try {
+        // 새로운 생성 시작 전에 이전 prefetch/마지막 ID 흔적 제거
+        try {
+          const keysToRemove: string[] = [];
+          for (let i = 0; i < sessionStorage.length; i += 1) {
+            const k = sessionStorage.key(i);
+            if (!k) continue;
+            if (k.startsWith('analyzingPrefetch:')) keysToRemove.push(k);
+          }
+          keysToRemove.forEach((k) => sessionStorage.removeItem(k));
+          sessionStorage.removeItem('lastCorrectionId');
+        } catch {}
+
         console.log('[LoadingModal] start create correction with payload:', payload);
         const created = await createCorrection.mutateAsync(payload);
         try {
           sessionStorage.setItem('lastCorrectionId', String(created.id));
         } catch {}
-        const ready = await waitForRagReady(created.id);
-        if (!ready) {
-          console.warn('[LoadingModal] RAG not ready within time limit. Proceeding anyway.');
-        }
-        // 준비 완료 후 즉시 상세/라그/인사이트 조회하여 prefetch 데이터 저장
-        const [detail, rag, insight] = await Promise.all([
-          fetchCorrectionDetail(created.id).catch((e) => {
-            console.warn('[LoadingModal] prefetch: correction detail failed', e);
-            return null as unknown as Awaited<ReturnType<typeof fetchCorrectionDetail>>;
-          }),
-          fetchRagData(created.id).catch((e) => {
-            console.warn('[LoadingModal] prefetch: RAG data failed', e);
-            return null as unknown as Awaited<ReturnType<typeof fetchRagData>>;
-          }),
-          fetchCompanyInsight(created.id).catch((e) => {
-            console.warn('[LoadingModal] prefetch: company insight failed', e);
-            return null as unknown as Awaited<ReturnType<typeof fetchCompanyInsight>>;
-          }),
-        ]);
+        const { rag, insight } = await waitForRagReady(created.id);
+        // 준비 완료 후 즉시 상세 조회하여 prefetch 데이터 저장 (rag/insight는 위에서 확보)
+        const detail = await fetchCorrectionDetail(created.id).catch((e) => {
+          console.warn('[LoadingModal] prefetch: correction detail failed', e);
+          return null as unknown as Awaited<ReturnType<typeof fetchCorrectionDetail>>;
+        });
         const prefetch = {
           id: created.id,
           timestamp: Date.now(),
           detail,
           rag,
           insight,
-        };
+        } as const;
         try {
           sessionStorage.setItem(`analyzingPrefetch:${created.id}`, JSON.stringify(prefetch));
         } catch (e) {
