@@ -44,10 +44,14 @@ export async function fetchCorrectionDetail(
 export async function createCorrection(
   correctionData: CreateCorrectionRequest
 ): Promise<CreateCorrectionResponse['result']> {
+  // 디버그: 전송 직전 페이로드 로그
+  console.log('[API] POST /api/v1/portfolio-corrections payload:', correctionData);
   const { data } = await axiosInstance.post<CreateCorrectionResponse>(
     '/api/v1/portfolio-corrections',
     correctionData
   );
+  // 디버그: 응답 로그
+  console.log('[API] POST /api/v1/portfolio-corrections response:', data);
 
   if (!data.result) {
     throw new Error('AI 첨삭 생성에 실패했습니다.');
@@ -57,10 +61,13 @@ export async function createCorrection(
 }
 
 export async function startRag(correctionId: number): Promise<StartRagResponse['result']> {
+  // 디버그: RAG 시작 요청 로그
+  console.log('[API] POST /api/v1/portfolio-corrections/{id}/rag id:', correctionId);
   const { data } = await axiosInstance.post<StartRagResponse>(
     `/api/v1/portfolio-corrections/${correctionId}/rag`,
     {}
   );
+  console.log('[API] RAG 시작 응답:', data);
 
   if (!data.result) {
     throw new Error('RAG 시작에 실패했습니다.');

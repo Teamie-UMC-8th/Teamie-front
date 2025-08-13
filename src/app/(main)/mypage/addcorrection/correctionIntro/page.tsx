@@ -25,29 +25,43 @@ export default function CorrectionIntro() {
       return;
     }
 
-    createCorrection.mutate(
-      {
-        title,
-        jobTitle,
-        jd,
-        submissionTarget: '포트폴리오',
+    const payload = {
+      title,
+      jobTitle,
+      jd,
+      submissionTarget: '포트폴리오',
+    } as const;
+
+    // 디버그: 요청 페이로드 로그
+    console.log('[AI 첨삭 생성] 요청 페이로드:', payload);
+
+    createCorrection.mutate(payload, {
+      onSuccess: (data) => {
+        // 디버그: 성공 응답 로그
+        console.log('[AI 첨삭 생성] 성공 응답:', data);
+        try {
+          sessionStorage.setItem('lastCorrectionId', String(data.id));
+        } catch {}
+        router.push(
+          `/mypage/addcorrection/analyzing?correctionId=${data.id}&companyName=${encodeURIComponent(
+            title
+          )}`
+        );
       },
-      {
-        onSuccess: (data) => {
-          try {
-            sessionStorage.setItem('lastCorrectionId', String(data.id));
-          } catch {}
-          router.push(
-            `/mypage/addcorrection/analyzing?correctionId=${data.id}&companyName=${encodeURIComponent(
-              title
-            )}`
-          );
-        },
-        onError: () => {
-          alert('첨삭 생성에 실패했습니다. 다시 시도해주세요.');
-        },
-      }
-    );
+      onError: (error) => {
+        // 디버그: 실패 응답 로그
+        console.error('[AI 첨삭 생성] 실패:', error);
+        // 가능한 경우 서버 응답 본문도 함께 출력
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const responseData = (error as any)?.response?.data;
+          if (responseData) {
+            console.error('[AI 첨삭 생성] 서버 응답 데이터:', responseData);
+          }
+        } catch {}
+        alert('첨삭 생성에 실패했습니다. 다시 시도해주세요.');
+      },
+    });
   };
 
   /* TODO: Sidebar 제거 후 간격 재조정 */
