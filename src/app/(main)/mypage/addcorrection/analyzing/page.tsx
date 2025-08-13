@@ -231,6 +231,22 @@ export default function AiLoadingPage() {
     router.push('/mypage/addcorrection/projectSelect');
   };
 
+  // 임시저장 후 마이페이지로 이동
+  const handleTempSaveAndExit = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const idParam = searchParams.get('correctionId');
+    const correctionId = idParam ? Number(idParam) : NaN;
+    try {
+      if (correctionId && companyInsight && companyInsight !== lastSavedRef.current) {
+        await patchCompanyInsight(correctionId, { companyInsight });
+        lastSavedRef.current = companyInsight;
+      }
+    } catch (err) {
+      console.error('[Analyzing] temporary save failed:', err);
+    }
+    router.push('/mypage');
+  };
+
   // 포커스 아웃 시 즉시 저장 보장
   const handleInsightBlur = async () => {
     if (!correctionIdNum) return;
@@ -399,7 +415,10 @@ export default function AiLoadingPage() {
           >
             <img src="/icons/NextPageBubble-ProjectSelect.svg" alt="다음으로 말풍선" />
             <div className="absolute left-[52px] top-[36px] flex items-center gap-[24px]">
-              <button className="px-[32px] py-[6px] text-black text-[18px] font-medium border border-[#898989] rounded-[6px] bg-[#FFFFFF] cursor-pointer">
+              <button
+                onClick={handleTempSaveAndExit}
+                className="px-[32px] py-[6px] text-black text-[18px] font-medium border border-[#898989] rounded-[6px] bg-[#FFFFFF] cursor-pointer"
+              >
                 임시저장
               </button>
               <Link href="/mypage/addcorrection/projectSelect" onClick={handleNextClick}>

@@ -1,12 +1,15 @@
 'use client';
 
-import Link from 'next/dist/client/link';
+// no Link usage; using programmatic navigation for conditional routing
+import { useRouter } from 'next/navigation';
 import { useCorrectionList } from '@/hooks/mutations/useGetCorrection';
 import { formatDate } from '@/utils/formatDate';
 import { Correction } from '@/types/api/correction';
+import { fetchCorrectionDetail } from '@/services/correction/correction';
 
 export default function Tailored() {
   const { data, isLoading, error } = useCorrectionList();
+  const router = useRouter();
 
   if (isLoading) {
     return (
@@ -43,43 +46,75 @@ export default function Tailored() {
   return (
     <div className="grid grid-cols-2 max-lg:w-[868px] gap-[24px] max-lg:grid-cols-2">
       {corrections.map((correction: Correction) => (
-        <Link
+        <button
           key={correction.correctionId}
-          href={`/mypage/tailoredportfolio/${correction.correctionId}`}
-        >
-          <button
-            className="bg-[#F8F8F8] w-[465px] h-[190px] rounded-[8px] px-[13px] cursor-pointer
-            max-lg:w-[421px] max-lg:h-[180px]"
-            style={{ boxShadow: '0px 0px 4px 0px #00000033' }}
-          >
-            {/* 제목 영역 */}
-            <div className="bg-white w-full h-[48px] rounded-[4px] border border-[#E7E7E7] flex items-center px-[12px] mb-[16px]">
-              <p className="text-[18px] text-black truncate">{correction.title}</p>
-            </div>
+          onClick={async (e) => {
+            e.preventDefault();
+            // 1) 세션 캐시에 analyzing 프리패치가 남아있으면 이어서 진행
+            let hasAnalyzingCache = false;
+            try {
+              hasAnalyzingCache = !!sessionStorage.getItem(
+                `analyzingPrefetch:${correction.correctionId}`
+              );
+            } catch {}
 
-            {/* 정보 영역 */}
-            <div className="space-y-[12px] ml-[12px]">
-              <div className="flex items-center">
-                <span className="text-[16px] text-[#505050] w-[60px] text-left">생성 일자</span>
-                <span className="text-[16px] text-black ml-[16px]">
-                  {formatDate(correction.createdAt)}
-                </span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-[16px] text-[#505050] w-[60px] text-left">기업명</span>
-                <span className="text-[16px] text-black ml-[16px] truncate">
-                  {correction.submissionTarget || '기업명'}
-                </span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-[16px] text-[#505050] w-[60px] text-left">직무명</span>
-                <span className="text-[16px] text-black ml-[16px] truncate">
-                  {correction.jobTitle}
-                </span>
-              </div>
+            if (hasAnalyzingCache) {
+              router.push(
+                `/mypage/addcorrection/analyzing?correctionId=${correction.correctionId}&submissionTarget=${encodeURIComponent(
+                  correction.submissionTarget || ''
+                )}`
+              );
+              return;
+            }
+
+            // 2) 서버 상태로 분기. 상세 조회에 status가 있다면 NOT_STARTED 등 진행 중으로 간주
+            try {
+              const detail = await fetchCorrectionDetail(correction.correctionId);
+              const status = (detail as unknown as { status?: string })?.status;
+              if (status && status !== 'DONE') {
+                router.push(
+                  `/mypage/addcorrection/analyzing?correctionId=${correction.correctionId}&submissionTarget=${encodeURIComponent(
+                    correction.submissionTarget || ''
+                  )}`
+                );
+                return;
+              }
+            } catch {}
+
+            // 3) 기본: 완료 상태이거나 판단 불가 → 기존 상세 페이지로 이동
+            router.push(`/mypage/tailoredportfolio/${correction.correctionId}`);
+          }}
+          className="bg-[#F8F8F8] w-[465px] h-[190px] rounded-[8px] px-[13px] cursor-pointer
+            max-lg:w-[421px] max-lg:h-[180px]"
+          style={{ boxShadow: '0px 0px 4px 0px #00000033' }}
+        >
+          {/* 제목 영역 */}
+          <div className="bg-white w-full h-[48px] rounded-[4px] border border-[#E7E7E7] flex items-center px-[12px] mb-[16px]">
+            <p className="text-[18px] text-black truncate">{correction.title}</p>
+          </div>
+
+          {/* 정보 영역 */}
+          <div className="space-y-[12px] ml-[12px]">
+            <div className="flex items-center">
+              <span className="text-[16px] text-[#505050] w-[60px] text-left">생성 일자</span>
+              <span className="text-[16px] text-black ml-[16px]">
+                {formatDate(correction.createdAt)}
+              </span>
             </div>
-          </button>
-        </Link>
+            <div className="flex items-center">
+              <span className="text-[16px] text-[#505050] w-[60px] text-left">기업명</span>
+              <span className="text-[16px] text-black ml-[16px] truncate">
+                {correction.submissionTarget || '기업명'}
+              </span>
+            </div>
+            <div className="flex items-center">
+              <span className="text-[16px] text-[#505050] w-[60px] text-left">직무명</span>
+              <span className="text-[16px] text-black ml-[16px] truncate">
+                {correction.jobTitle}
+              </span>
+            </div>
+          </div>
+        </button>
       ))}
     </div>
   );
