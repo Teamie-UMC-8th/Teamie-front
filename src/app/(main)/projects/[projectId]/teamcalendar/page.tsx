@@ -5,8 +5,6 @@ import { useState, useMemo, useEffect } from 'react';
 import { Calendar as BigCalendar, momentLocalizer, Views } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-
-import CalendarButton from '@/features/teamclendar/CalendarButton';
 import CustomDateCellWrapper from '@/features/teamclendar/CustomDateCellWrapper';
 import CalendarEventBox from '@/features/teamclendar/components/CalendarEventBox';
 import { useGetCalendarPlans } from '@/hooks/queries/useGetTeamCalendar';
@@ -45,15 +43,78 @@ export default function TeamCalendar() {
     };
   }, [refetch]);
 
-  // Calendar 표시용 events 가공
+  // Calendar 표시용 events 가공 (timezone-safe)
   const events =
     calendarData?.result.flatMap((entry) =>
-      (entry.list ?? []).map((plan) => ({
-        id: String(plan.planId),
-        title: plan.title,
-        start: new Date(plan.startDate),
-        end: new Date(plan.endDate),
-      }))
+      (entry.list ?? []).map((plan) => {
+        const anyPlan = plan as any;
+
+        // 1) startDate/endDate가 있으면 그대로 사용
+        if (anyPlan.startDate || anyPlan.endDate) {
+          const start = anyPlan.startDate ? new Date(anyPlan.startDate) : new Date();
+          const end = anyPlan.endDate
+            ? new Date(anyPlan.endDate)
+            : new Date(new Date(start).getTime() + 60 * 1000);
+          return {
+            id: String(anyPlan.planId),
+            title: anyPlan.name || anyPlan.title || '빈 일정',
+            start,
+            end,
+          };
+        }
+
+        // 2) date만 있는 경우: 'YYYY-MM-DD' 또는 'YYYY-MM-DDTHH:mm:ss'
+        const dateStr: string | undefined = anyPlan.date || entry.date;
+        let start: Date;
+        let end: Date;
+
+        if (dateStr) {
+          // 안전 파싱: 문자열에서 연-월-일 및 선택적 시:분 추출 후 local Date 생성
+          const m = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}):(\d{2})(?::(\d{2}))?)?/);
+          if (m) {
+            const year = Number(m[1]);
+            const monthIdx = Number(m[2]) - 1; // 0-based
+            const day = Number(m[3]);
+            const hour = anyPlan.startHour
+              ? Number(anyPlan.startHour.split(':')[0])
+              : m[4]
+                ? Number(m[4])
+                : 0;
+            const minute = anyPlan.startHour
+              ? Number(anyPlan.startHour.split(':')[1])
+              : m[5]
+                ? Number(m[5])
+                : 0;
+            const second = m[6] ? Number(m[6]) : 0;
+            start = new Date(year, monthIdx, day, hour, minute, second);
+
+            // 종료 시간: endHour 우선, 없으면 시작 + 1분
+            if (anyPlan.endHour) {
+              const [eh, em] = String(anyPlan.endHour).split(':');
+              end = new Date(year, monthIdx, day, Number(eh), Number(em) || 0, 0);
+            } else {
+              end = new Date(start.getTime() + 60 * 1000);
+            }
+          } else {
+            // 포맷 예측 실패 시 안전 fallback
+            start = new Date();
+            end = new Date(start.getTime() + 60 * 1000);
+          }
+        } else {
+          // date가 전혀 없는 경우
+          start = new Date();
+          end = new Date(start.getTime() + 60 * 1000);
+        }
+
+        const isAllDay = !anyPlan.startHour && !anyPlan.endHour;
+        return {
+          id: String(anyPlan.planId),
+          title: anyPlan.name || anyPlan.title || '빈 일정',
+          start,
+          end,
+          ...(isAllDay ? { allDay: true } : {}),
+        };
+      })
     ) || [];
 
   // events 변경 시 콘솔 출력 (일정 자동 반영 확인용)
@@ -113,9 +174,7 @@ export default function TeamCalendar() {
             className="w-[24px] h-[24px] cursor-pointer"
           />
         </button>
-        <div className="ml-auto">
-          <CalendarButton />
-        </div>
+        <div className="ml-auto"></div>
       </div>
 
       {/* 캘린더 */}
@@ -142,6 +201,14 @@ export default function TeamCalendar() {
           ),
           event: CalendarEventBox, // ✅ 커스텀 일정 카드 디자인
         }}
+        eventPropGetter={() => ({
+          style: {
+            backgroundColor: '#B6F5DF',
+            border: 'none',
+            color: '#000000',
+            borderRadius: '4px',
+          },
+        })}
         popup
         toolbar={false}
       />
