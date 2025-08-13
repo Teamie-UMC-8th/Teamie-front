@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 
 interface RemindMessageModalProps {
   isOpen: boolean;
@@ -80,9 +81,11 @@ ${scheduleName} - ${dateMonthDay} ${time} (${relativeDate})
         className="w-[564px] h-[328px] bg-white rounded-[12px] px-[40px] py-[32px] relative flex flex-col items-center"
         style={{ boxShadow: '0px 0px 15px 0px #00000033' }}
       >
-        <img
+        <Image
           src="/icons/CloseModal.svg"
           alt="닫기"
+          width={24}
+          height={24}
           className="absolute top-[8px] right-[8px] cursor-pointer"
           onClick={onClose}
         />
@@ -108,7 +111,7 @@ ${scheduleName} - ${dateMonthDay} ${time} (${relativeDate})
             className="absolute top-[12px] right-[12px] cursor-pointer"
             onClick={handleCopyText}
           >
-            <img src="/icons/copy_url.svg" alt="copy_url" />
+            <Image src="/icons/copy_url.svg" alt="copy_url" width={24} height={24} />
           </button>
 
           {/* 복사 완료 토스트 */}

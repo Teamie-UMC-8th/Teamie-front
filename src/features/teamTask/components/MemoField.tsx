@@ -14,7 +14,6 @@ export default function MemoField({ value, onChange, onBlur }: MemoFieldProps) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onBlur={(e) => onBlur?.(e.target.value)}
-        placeholder="비고를 입력해주세요."
         className="w-[1290px] min-w-[1109px] h-[84px] px-[20px] py-[16px] border-[2px] rounded-[6px] border-[#BBBBBB] ml-[28px] max-lg:w-[738px] max-lg:h-[72px] max-lg:min-w-[735px]"
       />
     </div>

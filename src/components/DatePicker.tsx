@@ -85,7 +85,11 @@ export default function DatePicker({
   // };
 
   const handleDateSelect = (date: Date) => {
-    onDateChange(date);
+    // 한국 시간 기준으로 23:59 설정
+    const selectedDate = new Date(date);
+    // 로컬 시간대 기준으로 23:59 설정
+    selectedDate.setHours(23, 59, 0, 0);
+    onDateChange(selectedDate);
     onToggle();
   };
 

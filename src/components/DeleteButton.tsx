@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Image from 'next/image';
 import DeleteButtonModal from './DeleteButtonModal';
 
 type DeleteButtonProps = {
@@ -26,7 +27,13 @@ export default function DeleteButton({
   return (
     <>
       <button onClick={() => setIsModalOpen(true)} className={`${className} cursor-pointer`}>
-        <img src="/icons/delete.svg" alt="삭제" className="w-[36px] h-[36px]" />
+        <Image
+          src="/icons/delete.svg"
+          alt="삭제"
+          width={36}
+          height={36}
+          className="w-[36px] h-[36px]"
+        />
       </button>
 
       {isModalOpen && (

@@ -40,7 +40,6 @@ export default function MeetingRecordsField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onBlur={(e) => onBlur?.(e.target.value)}
-        placeholder="회의록을 입력해주세요."
         className="w-[1415px] h-[428px] px-[20px] py-[16px] border-[2px] rounded-[6px] border-[#BBBBBB] mt-[15px]
       max-lg:w-[865px] max-lg:min-w-[369px]"
       />

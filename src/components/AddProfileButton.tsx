@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 
 interface Manager {
   userId: number;
@@ -122,9 +123,11 @@ export default function AddProfileButton({
           }`}
           onClick={() => handleRemove(profile)}
         >
-          <img
+          <Image
             src="/icons/profile-image.svg"
             alt={profile.userName}
+            width={28}
+            height={28}
             className="w-[28px] h-[28px] rounded-full ml-[5px] my-[4px]"
           />
           <span className="ml-[8px] text-[16px]">{profile.userName}</span>
@@ -137,9 +140,11 @@ export default function AddProfileButton({
           onClick={toggleDropdown}
           className="flex items-center justify-center w-[36px] h-[36px]"
         >
-          <img
+          <Image
             src="/icons/plus-circle.svg"
             alt="사용자 추가"
+            width={32}
+            height={32}
             className="w-[32px] h-[32px] cursor-pointer"
           />
         </button>
@@ -160,9 +165,11 @@ export default function AddProfileButton({
                 onClick={() => handleSelect(profile)}
                 className="flex items-center w-[95px] h-[36px] bg-white rounded-[30px] shadow-[1px_1px_4px_rgba(0,0,0,0.25)] my-[6px] mx-[8px] cursor-pointer"
               >
-                <img
+                <Image
                   src="/icons/profile-image.svg"
                   alt={profile.userName}
+                  width={28}
+                  height={28}
                   className="w-[28px] h-[28px] rounded-full ml-[5px] my-[4px]"
                 />
                 <span className="ml-[8px] text-[16px]">{profile.userName}</span>

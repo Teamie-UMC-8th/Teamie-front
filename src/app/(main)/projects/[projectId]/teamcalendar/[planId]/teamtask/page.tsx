@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
+import Image from 'next/image';
 import axiosInstance from '@/lib/axiosInstance';
 import AddProfileButton from '@/components/AddProfileButton';
 import BackButton from '@/components/BackButton';
@@ -295,6 +296,21 @@ export default function TeamTaskDetailPage() {
     setIsRemindModalOpen(!isRemindModalOpen);
   };
 
+  // 선택한 날짜까지는 버튼이 보이는 함수 (선택한 날짜 이후부터는 버튼이 안보임)
+  const isSelectedDateNotPassed = (selectedDate: Date | undefined) => {
+    if (!selectedDate) return false;
+
+    const now = new Date();
+    const selectedDateOnly = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate()
+    );
+    const nowOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    return nowOnly <= selectedDateOnly;
+  };
+
   const handleTitleEdit = () => {
     setIsEditingTitle(true);
     setEditingTitle(scheduleName);
@@ -390,15 +406,17 @@ export default function TeamTaskDetailPage() {
       <div className="mt-[6px] max-lg:w-[910px] flex flex-col">
         {/* 구분선 */}
         <div className="border-[#E7E7E7] border-[1px] w-full" />
-        {/* 리마인드 메세지 */}
-        <RemindMessageButton onClick={toggleRemindModal} />
+        {/* 리마인드 메세지 - 선택한 날짜가 지나지 않았을 때만 표시 */}
+        {isSelectedDateNotPassed(selectedDate) && (
+          <RemindMessageButton onClick={toggleRemindModal} />
+        )}
       </div>
 
       {/* 업무 상세 정보 */}
       <div className="flex flex-col">
         <div
           className="flex mt-[40px] ml-[40px] items-center gap-[160px] w-[1100px]
-        max-lg:flex-col max-lg:items-start max-lg:ml-[24px] max-lg:gap-[40px]"
+        max-lg:flex-col max-lg:items-start max-lg:ml-[24px] max-lg:gap-[40px] max-lg:mt-[20px]"
         >
           {/* 일자 */}
           <div className="flex items-center relative">
@@ -411,9 +429,11 @@ export default function TeamTaskDetailPage() {
             >
               {formatDate(selectedDate)}
             </div>
-            <img
+            <Image
               src="/icons/deadline-calendar.svg"
               alt="TimePicker"
+              width={32}
+              height={32}
               className="ml-[20px] cursor-pointer"
               onClick={toggleDatePicker}
             />
@@ -440,9 +460,11 @@ export default function TeamTaskDetailPage() {
                 {selectedTime ? formatTime(selectedTime) : ''}
               </div>
             </div>
-            <img
+            <Image
               src="/icons/timePicker.svg"
               alt="타임 피커"
+              width={32}
+              height={32}
               className="ml-[16px] cursor-pointer"
               onClick={toggleTimePicker}
             />
@@ -505,7 +527,7 @@ export default function TeamTaskDetailPage() {
           onBlur={(value) => {
             // 프로젝트 홈 권한 체크
             if (!isCurrentUserProjectMember()) {
-              alert('프로젝트 멤버만 비고를 수정할 수 있습니다.');
+              console.log('프로젝트 멤버만 비고를 수정할 수 있습니다.');
               return;
             }
 
@@ -526,7 +548,7 @@ export default function TeamTaskDetailPage() {
           onBlur={(value) => {
             // 프로젝트 홈 권한 체크
             if (!isCurrentUserProjectMember()) {
-              alert('프로젝트 멤버만 회의록을 수정할 수 있습니다.');
+              console.log('프로젝트 멤버만 회의록을 수정할 수 있습니다.');
               return;
             }
 
