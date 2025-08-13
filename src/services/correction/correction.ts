@@ -95,12 +95,13 @@ export async function startRag(correctionId: number): Promise<StartRagResponse['
       `/api/v1/portfolio-corrections/${correctionId}/rag`
     );
     data = resp.data;
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const error = err as { message?: string; response?: { status?: number; data?: unknown } };
     console.error('[API] RAG 시작 요청 실패:', {
       id: correctionId,
-      message: err?.message,
-      status: err?.response?.status,
-      response: err?.response?.data,
+      message: error?.message,
+      status: error?.response?.status,
+      response: error?.response?.data,
     });
     throw err;
   }
@@ -147,10 +148,15 @@ export async function patchCompanyInsight(
   correctionId: number,
   body: PatchCompanyInsightRequest
 ): Promise<PatchCompanyInsightResponse['result']> {
+  console.log('[API] PATCH /api/v1/portfolio-corrections/{id}/company-insight request:', {
+    correctionId,
+    length: (body?.companyInsight || '').length,
+  });
   const { data } = await axiosInstance.patch<PatchCompanyInsightResponse>(
     `/api/v1/portfolio-corrections/${correctionId}/company-insight`,
     body
   );
+  console.log('[API] PATCH /api/v1/portfolio-corrections/{id}/company-insight response:', data);
 
   if (!data.result) {
     throw new Error('기업 분석 정보 업데이트에 실패했습니다.');

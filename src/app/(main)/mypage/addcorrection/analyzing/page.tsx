@@ -23,6 +23,8 @@ export default function AiLoadingPage() {
   const [companyInsight, setCompanyInsight] = useState<string>('');
   const lastIdRef = useRef<number | null>(null);
   const loadedFromPrefetchRef = useRef<boolean>(false);
+  const lastSavedRef = useRef<string>('');
+  const correctionIdNum = idParamStr ? Number(idParamStr) : NaN;
 
   useEffect(() => {
     const scrollContainer = scrollContainerRef.current;
@@ -201,6 +203,8 @@ export default function AiLoadingPage() {
           '...'
         );
         setCompanyInsight(res.companyInsight ?? '');
+        // 최초 로드 시 마지막 저장값 동기화
+        lastSavedRef.current = res.companyInsight ?? '';
       })
       .catch((error) => {
         console.error('[Analyzing] failed to fetch company insight:', error);
@@ -221,9 +225,29 @@ export default function AiLoadingPage() {
           length: companyInsight.length,
         });
         await patchCompanyInsight(correctionId, { companyInsight });
+        lastSavedRef.current = companyInsight;
       } catch {}
     }
     router.push('/mypage/addcorrection/projectSelect');
+  };
+
+  // 포커스 아웃 시 즉시 저장 보장
+  const handleInsightBlur = async () => {
+    if (!correctionIdNum) return;
+    const value = companyInsight;
+    try {
+      if (value.trim().length === 0) return;
+      if (value === lastSavedRef.current) return;
+      console.log('[Analyzing] blur -> request save:', {
+        correctionId: correctionIdNum,
+        length: value.length,
+      });
+      await patchCompanyInsight(correctionIdNum, { companyInsight: value });
+      console.log('[Analyzing] blur -> save success');
+      lastSavedRef.current = value;
+    } catch (err) {
+      console.error('[Analyzing] blur save failed:', err);
+    }
   };
   return (
     <div
@@ -362,6 +386,7 @@ export default function AiLoadingPage() {
                       max-lg:w-[608px] max-lg:h-[360px]"
                       value={companyInsight}
                       onChange={(e) => setCompanyInsight(e.target.value)}
+                      onBlur={handleInsightBlur}
                     />
                   </div>
                 </div>
