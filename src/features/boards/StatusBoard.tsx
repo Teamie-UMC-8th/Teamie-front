@@ -51,7 +51,10 @@ export default function StatusBoard({ statusGroups, projectId }: StatusBoardProp
                   title={task.taskName}
                   status={task.displayStatus}
                   deadline={task.deadline}
-                  assignee={task.managers.map((manager) => manager.userName)}
+                  assignee={task.managers.map((manager) => ({
+                    name: manager.name,
+                    imageUrl: manager.imageUrl,
+                  }))}
                 />
               ))}
             </div>
