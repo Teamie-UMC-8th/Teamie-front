@@ -6,6 +6,7 @@ import { Calendar as BigCalendar, momentLocalizer, Views } from 'react-big-calen
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import CustomDateCellWrapper from '@/features/teamclendar/CustomDateCellWrapper';
+import axiosInstance from '@/lib/axiosInstance';
 import CalendarEventBox from '@/features/teamclendar/components/CalendarEventBox';
 import { useGetCalendarPlans } from '@/hooks/queries/useGetTeamCalendar';
 
@@ -13,6 +14,7 @@ const localizer = momentLocalizer(moment);
 
 export default function TeamCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [projectCreatedAtISO, setProjectCreatedAtISO] = useState<string | undefined>(undefined);
   const router = useRouter();
   const params = useParams();
   const projectId = params.projectId?.toString();
@@ -42,6 +44,26 @@ export default function TeamCalendar() {
       window.removeEventListener('focus', handleFocus);
     };
   }, [refetch]);
+
+  // 프로젝트 생성일을 조회해 해당 일 이전 날짜 차단
+  useEffect(() => {
+    const fetchProjectMeta = async () => {
+      try {
+        if (!projectId) return;
+        const { data } = await axiosInstance.get(`/api/v1/projects/${projectId}`);
+        const createdAt = data?.result?.project?.createdAt || data?.result?.createdAt;
+        if (createdAt) {
+          // 날짜 비교 오차 방지를 위해 'YYYY-MM-DD'로 전달 (타임존 영향 제거)
+          const creationDay = moment(createdAt).format('YYYY-MM-DD');
+          setProjectCreatedAtISO(creationDay);
+        }
+      } catch (e) {
+        // 생성일을 못 가져오면 제한 없이 동작
+        setProjectCreatedAtISO(undefined);
+      }
+    };
+    fetchProjectMeta();
+  }, [projectId]);
 
   // Calendar 표시용 events 가공 (timezone-safe)
   const events =
@@ -96,7 +118,7 @@ export default function TeamCalendar() {
               end = new Date(start.getTime() + 60 * 1000);
             }
           } else {
-            // 포맷 예측 실패 시 안전 fallback
+            // 포맷 예측 실패 시 안전 fallback (0분 이벤트 방지: +1분)
             start = new Date();
             end = new Date(start.getTime() + 60 * 1000);
           }
@@ -122,8 +144,15 @@ export default function TeamCalendar() {
     console.log('일정 반영 확인:', events);
   }, [events]);
 
-  const handleEventClick = (event: { id: string }) => {
-    router.push(`/projects/${projectId}/teamcalendar/${event.id}/teamtask`);
+  const handleEventClick = (event: { id: string; title?: string }) => {
+    const target = `/projects/${projectId}/teamcalendar/${event.id}/teamtask`;
+    console.log('onSelectEvent: 팀태스크로 이동', {
+      projectId,
+      planId: event.id,
+      title: event.title,
+      target,
+    });
+    router.push(target);
   };
 
   const handlePrevMonth = () => {
@@ -197,6 +226,7 @@ export default function TeamCalendar() {
               startDate={startDate}
               endDate={endDate}
               setCurrentDate={setCurrentDate}
+              projectCreatedAtISO={projectCreatedAtISO}
             />
           ),
           event: CalendarEventBox, // ✅ 커스텀 일정 카드 디자인

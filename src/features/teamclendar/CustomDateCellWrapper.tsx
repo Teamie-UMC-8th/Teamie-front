@@ -15,6 +15,7 @@ interface CustomDateCellWrapperProps {
   currentDate?: Date;
   setCurrentDate: (date: Date) => void;
   latestPlanDate?: string; // 가장 최근 일정 날짜 추가
+  projectCreatedAtISO?: string; // 프로젝트 생성일 (이전 날짜에는 추가/호버 비활성화)
 }
 
 export default function CustomDateCellWrapper({
@@ -26,6 +27,7 @@ export default function CustomDateCellWrapper({
   setCurrentDate,
   currentDate = new Date(),
   latestPlanDate,
+  projectCreatedAtISO,
 }: CustomDateCellWrapperProps) {
   const [hovered, setHovered] = useState(false);
   const router = useRouter();
@@ -35,8 +37,13 @@ export default function CustomDateCellWrapper({
   // 오늘 날짜 이후인지 확인 (오늘 포함)
   const isTodayOrAfter = moment(value).isSameOrAfter(moment(), 'day');
 
-  // 플러스 버튼을 표시할 수 있는지 확인 (모든 날짜에서 오늘 이후만)
-  const canShowPlusButton = isTodayOrAfter;
+  // 프로젝트 생성일 이전인지 확인
+  const isBeforeProjectCreation = projectCreatedAtISO
+    ? moment(value).isBefore(moment(projectCreatedAtISO), 'day')
+    : false;
+
+  // 플러스 버튼 표시 조건: 오늘 이후이면서, 프로젝트 생성일 이후만
+  const canShowPlusButton = isTodayOrAfter && !isBeforeProjectCreation;
 
   const handleClick = () => {
     if (!projectId || !canShowPlusButton) return;
@@ -74,29 +81,17 @@ export default function CustomDateCellWrapper({
     );
   };
 
+  const hoverActive = hovered && canShowPlusButton;
+
   return (
     <div
-      className={`relative w-full h-full transition-all duration-200 rounded-[4px] z-[10] overflow-visible ${hovered ? 'shadow-[0_0_10px_rgba(0,0,0,0.25)] cursor-pointer' : ''}`}
-      onMouseEnter={() => setHovered(true)}
+      className={`relative w-full h-full transition-all duration-200 rounded-[4px] z-[50] overflow-visible ${hoverActive ? 'shadow-[0_0_10px_rgba(0,0,0,0.25)] cursor-pointer' : ''}`}
+      onMouseEnter={() => {
+        if (canShowPlusButton) setHovered(true);
+      }}
       onMouseLeave={() => setHovered(false)}
     >
       {children}
-
-      {/* 플러스 버튼 */}
-      <div
-        className="absolute top-[8px] right-[8px] z-[60]"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-      >
-        {hovered && (
-          <button
-            className="flex items-center justify-center rounded-[4px] cursor-pointer"
-            onClick={handleClick}
-          >
-            <img src="/icons/AddProject.svg" alt="일정 추가" className="w-[24px] h-[24px]" />
-          </button>
-        )}
-      </div>
       {/* 플러스 버튼 - 현재 달의 날짜이면서 최근 일정 이후 날짜에서만 표시 */}
       {canShowPlusButton && (
         <div
