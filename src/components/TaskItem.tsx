@@ -3,6 +3,7 @@
 import { formatDate } from '@/utils/formatDate';
 import { useTaskItems } from '@/features/boards/hooks/useTaskItems';
 import { TaskItemComponentProps, TASK_STATUS_STYLES } from '@/types/api/tasks';
+import { useUpdateTaskStatus } from '@/hooks/mutations/useUpdateTaskStatus';
 import Link from 'next/link';
 
 export default function TaskItem({
@@ -12,17 +13,39 @@ export default function TaskItem({
   status,
   deadline,
   assignee,
-  imageUrl, // imageUrl props 추가
 }: TaskItemComponentProps) {
   const { displayAssignees, cardHeight, deadlineTextColor } = useTaskItems({
     task: { id: taskId, title, status, deadline, assignee },
   });
+
+  const updateTaskStatusMutation = useUpdateTaskStatus();
 
   const statusStyle = TASK_STATUS_STYLES[status] || TASK_STATUS_STYLES['시작 전'];
 
   const stop = (e: React.SyntheticEvent) => {
     e.stopPropagation();
   };
+
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+
+    // 현재 상태에 따라 토글
+    let newStatus: 'ONGOING' | 'COMPLETED';
+    if (status === '완료') {
+      newStatus = 'ONGOING'; // 완료 → 진행 중
+    } else {
+      newStatus = 'COMPLETED'; // 진행 중 또는 시작 전 → 완료
+    }
+
+    // 새로운 API로 status만 업데이트
+    updateTaskStatusMutation.mutate({
+      taskId,
+      status: newStatus,
+    });
+  };
+
+  // 체크박스 상태 결정 (완료 상태일 때만 체크됨)
+  const isChecked = status === '완료';
 
   return (
     <Link
@@ -38,6 +61,8 @@ export default function TaskItem({
         >
           <input
             type="checkbox"
+            checked={isChecked}
+            onChange={handleCheckboxChange}
             className="peer appearance-none w-[20px] h-[20px] border-2 border-[#898989] rounded bg-white cursor-pointer checked:bg-[#81D7D4]"
             onClick={stop}
             onMouseDown={stop}

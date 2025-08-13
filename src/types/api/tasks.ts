@@ -122,3 +122,17 @@ export interface MyTaskResponse {
     pageInfo: MyTaskPageInfo;
   };
 }
+
+// 업무 상태 변경 API 관련 타입
+export interface UpdateTaskStatusRequest {
+  status: 'NOTSTART' | 'ONGOING' | 'COMPLETED';
+}
+
+export interface UpdateTaskStatusResponse {
+  isSuccess: boolean;
+  error: ApiErrorResponse | null;
+  result: {
+    taskId: number;
+    status: 'NOTSTART' | 'ONGOING' | 'COMPLETED';
+  } | null;
+}
