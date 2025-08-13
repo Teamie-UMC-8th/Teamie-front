@@ -394,17 +394,18 @@ export default function AiLoadingPage() {
             </div>
           </div>
           <div
-            className="relative ml-[1068px] mt-[20px]
-          max-lg:ml-[660px]"
+            className="relative ml-[930px] mt-[20px]
+          max-lg:ml-[500px]"
           >
-            <img src="/icons/NextPageBubble.svg" alt="다음으로 말풍선" />
-            <Link href="/mypage/addcorrection/projectSelect" onClick={handleNextClick}>
-              <img
-                src="/icons/NextPage.svg"
-                alt="다음으로"
-                className="absolute top-[36px] left-[52px] cursor-pointer"
-              />
-            </Link>
+            <img src="/icons/NextPageBubble-ProjectSelect.svg" alt="다음으로 말풍선" />
+            <div className="absolute left-[52px] top-[36px] flex items-center gap-[24px]">
+              <button className="px-[32px] py-[6px] text-black text-[18px] font-medium border border-[#898989] rounded-[6px] bg-[#FFFFFF] cursor-pointer">
+                임시저장
+              </button>
+              <Link href="/mypage/addcorrection/projectSelect" onClick={handleNextClick}>
+                <img src="/icons/NextPage.svg" alt="다음으로" className="cursor-pointer" />
+              </Link>
+            </div>
           </div>
         </div>
       </div>
