@@ -46,12 +46,16 @@ export const useMasterPortfolioDetailRecords = (projectId: number) => {
   });
 };
 
-export const useMasterPortfolioStatus = (projectId: number) => {
+export const useMasterPortfolioStatus = (
+  projectId: number,
+  options?: { enabled?: boolean; refetchInterval?: number | false }
+) => {
   return useQuery({
     queryKey: ['master-portfolio-status', projectId],
     queryFn: () => getMasterPortfolioStatus(projectId),
     staleTime: 1000 * 60 * 5,
-    enabled: !!projectId,
+    enabled: options?.enabled ?? !!projectId,
+    refetchInterval: options?.refetchInterval,
   });
 };
 

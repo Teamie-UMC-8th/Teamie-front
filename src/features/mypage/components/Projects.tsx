@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 import { formatDateRange } from '@/utils/formatDate';
 import { useState, useRef, useEffect } from 'react';
 import { MasterPortfolio } from '@/types/api/masterportfolio';
-import { CATEGORY_MAP } from '@/constants/category';
+import { CATEGORY_MAP, CategoryKey } from '@/constants/category';
 
 export default function Projects() {
   const pathname = usePathname();

@@ -10,6 +10,7 @@ import Step2 from '@/features/aimasterportfolio/components/steps/Step2';
 import Step3, { type Step3Handle } from '@/features/aimasterportfolio/components/steps/Step3';
 import { useRouter, useParams, useSearchParams, usePathname } from 'next/navigation';
 import AIConfirmModal from '@/features/aimasterportfolio/components/AIConfirmModal';
+import LoadingModal from '@/features/aimasterportfolio/components/MasterLoadingModal';
 import {
   useMasterPortfolioDetail,
   useMasterPortfolioStatus,
@@ -30,8 +31,12 @@ export default function AIMasterPortfolioCreatePage() {
   const searchParams = useSearchParams();
   const portfolioId = Number(params.portfolioId);
 
+  const [isGenerating, setIsGenerating] = useState(false);
+
   const { data: portfolio } = useMasterPortfolioDetail(portfolioId);
-  const { data: statusData } = useMasterPortfolioStatus(portfolioId);
+  const { data: statusData } = useMasterPortfolioStatus(portfolioId, {
+    refetchInterval: isGenerating ? 2000 : false,
+  });
   const { data: retro } = useGetPersonalRetro(portfolio?.projectId as number);
   const { mutate: patchQuestions, isPending: isPatchQuestionsPending } =
     usePatchMasterPortfolioQuestions();
@@ -45,7 +50,6 @@ export default function AIMasterPortfolioCreatePage() {
   const [selectedRecordIds, setSelectedRecordIds] = useState<number[]>([]);
   const step3Ref = useRef<Step3Handle>(null);
   const [isPostingQuestions, setIsPostingQuestions] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [synced, setSynced] = useState(false);
 
   useEffect(() => {
@@ -65,7 +69,9 @@ export default function AIMasterPortfolioCreatePage() {
     if (!status) return;
 
     if (status === 'DONE') {
-      router.replace(`/mypage/aimasterportfolio/${portfolioId}/final`);
+      // 생성 완료 시 상세 데이터 강제 갱신 후 이동
+      queryClient.invalidateQueries({ queryKey: ['master-portfolio', portfolioId] });
+      router.replace(`/mypage/aimasterportfolio/${portfolioId}`);
       return;
     }
 
@@ -303,6 +309,8 @@ export default function AIMasterPortfolioCreatePage() {
           onConfirm={() => {
             if (isGenerating) return;
             setIsGenerating(true);
+            // 생성 시작과 동시에 확인 모달을 닫아 중첩 표시를 방지
+            setShowConfirmModal(false);
             const payload = step3Ref.current?.buildDraftPayload() ?? [];
             patchQuestions(
               { portfolioId, body: payload },
@@ -318,8 +326,9 @@ export default function AIMasterPortfolioCreatePage() {
                       onError: (error) => {
                         console.error('포트폴리오 생성 실패:', error);
                         alert('포트폴리오 생성 중 오류가 발생했습니다.');
+                        setIsGenerating(false);
                       },
-                      onSettled: () => setIsGenerating(false),
+                      onSettled: () => {},
                     }
                   );
                 },
@@ -337,6 +346,8 @@ export default function AIMasterPortfolioCreatePage() {
           }}
         />
       )}
+
+      {isGenerating && <LoadingModal isOpen />}
     </>
   );
 }
