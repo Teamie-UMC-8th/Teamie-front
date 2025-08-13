@@ -95,9 +95,11 @@ export default function Projects() {
 
   return (
     <div
-      className={`grid grid-cols-2 max-lg:w-[868px] ${
-        isAnalyzeFinPage ? 'gap-x-[24px] gap-y-[24px]' : ''
-      }${!isMyPage ? ' max-lg:grid-cols-1' : ''}`}
+      className={`grid grid-cols-2 ${
+        isAnalyzeFinPage ? 'max-lg:w-full' : 'max-lg:w-[868px]'
+      } ${isAnalyzeFinPage ? 'gap-x-[24px] gap-y-[24px]' : ''}${
+        !isMyPage ? ' max-lg:grid-cols-1' : ''
+      }`}
     >
       {(isAnalyzeFinPage
         ? (selectable || []).map((p) => ({
