@@ -9,6 +9,9 @@ import {
   PatchCompanyInsightRequest,
   PatchCompanyInsightResponse,
   CorrectionProjectsResponse,
+  PostGenerateCorrectionRequest,
+  PostGenerateCorrectionResponse,
+  GetGeneratedCorrectionResponse,
 } from '@/types/api/correction';
 import axiosInstance from '@/lib/axiosInstance';
 
@@ -48,6 +51,41 @@ export async function fetchCorrectionList(
     }
   }
 
+  return data.result;
+}
+
+// 생성 결과 조회 (projects + firstCorrection)
+export async function fetchGeneratedCorrection(
+  correctionId: number
+): Promise<GetGeneratedCorrectionResponse['result']> {
+  console.log('[API] GET /api/v1/portfolio-corrections/{id} (generated)', { correctionId });
+  const { data } = await axiosInstance.get<GetGeneratedCorrectionResponse>(
+    `/api/v1/portfolio-corrections/${correctionId}`
+  );
+  console.log('[API] GET /api/v1/portfolio-corrections/{id} response:', data);
+  if (!data.result) {
+    throw new Error('생성된 첨삭 결과를 가져올 수 없습니다.');
+  }
+  return data.result;
+}
+
+// 선택된 프로젝트들로 첨삭 생성
+export async function postGenerateCorrection(
+  correctionId: number,
+  payload: PostGenerateCorrectionRequest
+): Promise<PostGenerateCorrectionResponse['result']> {
+  console.log('[API] POST /api/v1/portfolio-corrections/{id}/generate', {
+    correctionId,
+    count: payload?.selectedProjects?.length,
+  });
+  const { data } = await axiosInstance.post<PostGenerateCorrectionResponse>(
+    `/api/v1/portfolio-corrections/${correctionId}/generate`,
+    payload
+  );
+  console.log('[API] POST /api/v1/portfolio-corrections/{id}/generate response:', data);
+  if (!data.result) {
+    throw new Error('첨삭 생성에 실패했습니다.');
+  }
   return data.result;
 }
 

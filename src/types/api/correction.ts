@@ -109,6 +109,68 @@ export interface CorrectionProjectsResponse {
   result: CorrectionSelectableProject[];
 }
 
+// 첨삭 생성(선택 프로젝트들 기반) 요청/응답 타입
+export interface PostGenerateCorrectionRequest {
+  selectedProjects: number[]; // projectId 리스트
+}
+
+export interface CorrectionGenerateItem {
+  projectId: number;
+  projectName: string;
+  correctionResult: {
+    detailInfo: unknown;
+    assignedTasks: unknown;
+    keyAchievements: unknown;
+    insights: unknown;
+  };
+}
+
+export interface PostGenerateCorrectionResponse {
+  isSuccess: boolean;
+  error: null;
+  result: CorrectionGenerateItem[];
+}
+
+// 생성 결과 조회 응답 타입 (projects + firstCorrection)
+export interface GeneratedProjectsItem {
+  id: number;
+  name: string;
+}
+
+export interface GeneratedLineItem {
+  line_number: string;
+  original_content: string;
+  type: number;
+  review_comment: string;
+}
+
+export interface GeneratedFieldBlock {
+  lines: GeneratedLineItem[];
+  field_summary: string;
+}
+
+export interface GeneratedCorrectionResult {
+  detailInfo: GeneratedFieldBlock;
+  assignedTasks: GeneratedFieldBlock;
+  keyAchievements: GeneratedFieldBlock;
+  insights: GeneratedFieldBlock;
+}
+
+export interface FirstCorrectionBlock {
+  projectId: number;
+  projectName: string;
+  correctionResult: GeneratedCorrectionResult;
+}
+
+export interface GetGeneratedCorrectionResponse {
+  isSuccess: boolean;
+  error: null;
+  result: {
+    projects: GeneratedProjectsItem[];
+    firstCorrection: FirstCorrectionBlock;
+  };
+}
+
 // AI 첨삭 상세 정보 응답 타입
 export interface CorrectionDetailResponse {
   isSuccess: boolean;

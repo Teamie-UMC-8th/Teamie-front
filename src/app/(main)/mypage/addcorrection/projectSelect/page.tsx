@@ -1,9 +1,80 @@
 'use client';
 
 import Projects from '@/features/mypage/components/Projects';
-import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useMemo, useState } from 'react';
+import MasterLoadingModal from '@/features/aimasterportfolio/components/MasterLoadingModal';
+import { fetchGeneratedCorrection, postGenerateCorrection } from '@/services/correction/correction';
 
 export default function ProjectSelect() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const correctionIdFromQuery =
+    Number(searchParams.get('correctionId')) || Number(searchParams.get('id'));
+  const correctionId = useMemo(() => {
+    if (Number.isFinite(correctionIdFromQuery) && correctionIdFromQuery > 0)
+      return correctionIdFromQuery;
+    try {
+      const last = Number(sessionStorage.getItem('lastCorrectionId'));
+      return Number.isFinite(last) ? last : NaN;
+    } catch {
+      return correctionIdFromQuery;
+    }
+  }, [correctionIdFromQuery]);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  // Projects 컴포넌트에서 선택된 포트폴리오 ID들을 sessionStorage에 저장하도록 하고, 여기서 읽어 사용
+  const getSelectedProjectIds = (): number[] => {
+    try {
+      const raw = sessionStorage.getItem('projectSelect:selected');
+      const arr = raw ? (JSON.parse(raw) as number[]) : [];
+      return Array.isArray(arr)
+        ? arr
+            .slice(0, 6)
+            .map((n) => Number(n))
+            .filter(Number.isFinite)
+        : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const waitUntilGenerated = useCallback(async (id: number) => {
+    const maxWaitMs = 120000; // 2분
+    const start = Date.now();
+    while (true) {
+      const result = await fetchGeneratedCorrection(id).catch(() => null);
+      if (
+        result &&
+        Array.isArray(result.projects) &&
+        result.projects.length > 0 &&
+        result.firstCorrection
+      ) {
+        try {
+          sessionStorage.setItem(`generatedCorrection:${id}`, JSON.stringify(result));
+        } catch {}
+        return result;
+      }
+      if (Date.now() - start > maxWaitMs) throw new Error('Timeout waiting for generated data.');
+      await new Promise((res) => setTimeout(res, 2000));
+    }
+  }, []);
+
+  const handleGenerate = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const ids = getSelectedProjectIds();
+    if (!correctionId || ids.length === 0) return;
+    try {
+      setIsGenerating(true);
+      await postGenerateCorrection(correctionId, { selectedProjects: ids });
+      await waitUntilGenerated(correctionId);
+      router.push(`/mypage/tailoredportfolio/${correctionId}`);
+    } catch (err) {
+      console.error('[ProjectSelect] generate failed:', err);
+      alert('첨삭 생성에 실패했습니다. 다시 시도해주세요.');
+      setIsGenerating(false);
+    }
+  };
   return (
     <div
       className="ml-[300px]
@@ -71,14 +142,15 @@ export default function ProjectSelect() {
           max-lg:ml-[496px]"
           >
             <img src="/icons/CorrectionStartBubble.svg" alt="첨삭 시작 말풍선" />
-            <Link href="/mypage/tailoredportfolio/1">
-              <img
-                src="/icons/CorrectionStartButton.svg"
-                alt="첨삭 시작 버튼"
-                className="absolute top-[36px] left-[52px] cursor-pointer"
-              />
-            </Link>
+            <button
+              onClick={handleGenerate}
+              className="absolute top-[36px] left-[52px] cursor-pointer"
+            >
+              <img src="/icons/CorrectionStartButton.svg" alt="첨삭 시작 버튼" />
+            </button>
           </div>
+
+          {isGenerating && <MasterLoadingModal isOpen startFromLast />}
         </div>
       </div>
     </div>

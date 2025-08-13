@@ -72,6 +72,11 @@ export default function Projects() {
             newSet.add(portfolioId);
           }
         }
+        // 선택 목록을 ProjectSelect 페이지에서 사용할 수 있도록 보존
+        try {
+          const arr = Array.from(newSet.values());
+          sessionStorage.setItem('projectSelect:selected', JSON.stringify(arr));
+        } catch {}
         return newSet;
       });
     }
