@@ -1,6 +1,5 @@
 @import 'tailwindcss';
 
-
 /* 요일 헤더 간 눈금선 제거 */
 .rbc-month-view .rbc-month-header .rbc-header:last-child {
   border-right: none !important;
@@ -10,7 +9,6 @@
 .rbc-month-header {
   border-bottom: 2px solid #bbbbbb !important; /* gray-300 */
 }
-
 
 .rbc-month-row .rbc-date-cell {
   border-left: none !important;
@@ -37,15 +35,15 @@
   border: none !important;
   box-shadow: none !important;
   overflow: visible !important; /*가장 자리 호버 추가*/
-} 
+}
 
 /* 각 주간(week row)마다 가로줄 구분선 추가 */
 .rbc-month-row {
-  border-bottom: 2px solid #BBBBBB !important;
+  border-bottom: 2px solid #bbbbbb !important;
 }
 
-.rbc-header  {
-  border-bottom: 2px solid #BBBBBB !important;
+.rbc-header {
+  border-bottom: 2px solid #bbbbbb !important;
 }
 
 /* 날짜 숫자 왼쪽 정렬 */
@@ -59,7 +57,7 @@
   text-align: left !important;
   padding-left: 13px !important;
   padding-top: 12px !important;
-  font-weight: 500; 
+  font-weight: 500;
 }
 
 /* 누락된 항목 (추가해야 함) */
@@ -76,18 +74,18 @@
   color: #000000 !important;
   text-align: center;
   text-transform: uppercase !important;
-  padding-bottom: 20px !important; 
+  padding-bottom: 20px !important;
 }
 
 /* 일요일만 빨간색 */
 .rbc-month-header .rbc-header:first-child {
-  color: #D81B1B !important;
+  color: #d81b1b !important;
 }
 
 /* 오늘 날짜 표시하는 거 제거 */
 .rbc-day-bg.rbc-today {
   background-color: transparent !important;
-} 
+}
 
 /* 이벤트가 많은 날도 자동 높이 확장 허용 */
 .rbc-month-row {
@@ -100,5 +98,11 @@
   overflow: visible !important;
   text-overflow: unset !important;
   display: block !important;
-  word-break: keep-all !important;  
+  word-break: keep-all !important;
+}
+
+/* 드래그 라인 인디케이터 대비용: 캘린더 셀은 overflow visible */
+.rbc-day-bg,
+.rbc-date-cell {
+  overflow: visible !important;
 }
