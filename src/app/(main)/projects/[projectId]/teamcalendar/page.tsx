@@ -9,6 +9,7 @@ import CustomDateCellWrapper from '@/features/teamclendar/CustomDateCellWrapper'
 import axiosInstance from '@/lib/axiosInstance';
 import CalendarEventBox from '@/features/teamclendar/components/CalendarEventBox';
 import { useGetCalendarPlans } from '@/hooks/queries/useGetTeamCalendar';
+import { useGetDashboard } from '@/hooks/queries/useGetDashboard';
 
 const localizer = momentLocalizer(moment);
 
@@ -26,6 +27,7 @@ export default function TeamCalendar() {
   const router = useRouter();
   const params = useParams();
   const projectId = params.projectId?.toString();
+  const projectIdNum = projectId ? Number(projectId) : undefined;
 
   // 현재 보고 있는 달의 첫 날 ~ 마지막 날 계산
   const startDate = useMemo(
@@ -40,6 +42,12 @@ export default function TeamCalendar() {
     isLoading,
     refetch, // ✅ refetch 포함
   } = useGetCalendarPlans(projectId ?? '', startDate, endDate);
+
+  // 대시보드(업무) 데이터도 함께 조회하여 캘린더에 표시
+  const { data: dashboardData } = useGetDashboard({
+    projectId: projectIdNum as number,
+    view: 'status',
+  } as any);
 
   // ✅ 창이 다시 focus될 때 refetch 실행
   useEffect(() => {
@@ -74,7 +82,7 @@ export default function TeamCalendar() {
   }, [projectId]);
 
   // Calendar 표시용 events 가공 (timezone-safe)
-  const events: CalendarEventType[] =
+  const planEvents: CalendarEventType[] =
     calendarData?.result.flatMap((entry) =>
       (entry.list ?? []).flatMap((plan) => {
         const anyPlan = plan as any;
@@ -148,6 +156,37 @@ export default function TeamCalendar() {
         ];
       })
     ) || [];
+
+  // 업무 대시보드 -> 캘린더 이벤트 변환 (마감일 기준, 해당 월 범위만)
+  const dashboardEvents: CalendarEventType[] = useMemo(() => {
+    if (!dashboardData) return [];
+    const startM = moment(startDate);
+    const endM = moment(endDate);
+
+    // statusGroups 또는 steps 중 존재하는 구조에서 tasks를 추출
+    const tasks =
+      'statusGroups' in dashboardData
+        ? (dashboardData.statusGroups || []).flatMap((g: any) => g.tasks || [])
+        : 'steps' in dashboardData
+          ? (dashboardData.steps || []).flatMap((s: any) => s.tasks || [])
+          : [];
+
+    return tasks
+      .filter((t: any) => !!t?.deadline)
+      .map((t: any) => ({
+        id: `task:${String(t.taskId)}`,
+        title: `${t.taskName} 마감`,
+        start: new Date(t.deadline),
+        end: new Date(new Date(t.deadline).getTime() + 60 * 1000),
+        allDay: true,
+      }))
+      .filter((ev: CalendarEventType) => {
+        const m = moment(ev.start);
+        return m.isSameOrAfter(startM, 'day') && m.isSameOrBefore(endM, 'day');
+      });
+  }, [dashboardData, startDate, endDate]);
+
+  const events: CalendarEventType[] = [...planEvents, ...dashboardEvents];
 
   // events 변경 시 콘솔 출력 (일정 자동 반영 확인용)
   useEffect(() => {
@@ -249,16 +288,20 @@ export default function TeamCalendar() {
             </div>
           ), // ✅ 커스텀 일정 카드 디자인 - 클릭 가능 보장
         }}
-        eventPropGetter={() => ({
-          style: {
-            backgroundColor: '#B6F5DF',
-            border: 'none',
-            color: '#000000',
-            borderRadius: '4px',
-            position: 'relative',
-            zIndex: 60,
-          },
-        })}
+        eventPropGetter={(event: any) => {
+          const isTask = typeof event?.id === 'string' && String(event.id).startsWith('task:');
+          const bg = isTask ? '#DAF3F3' : '#B6F5DF';
+          return {
+            style: {
+              backgroundColor: bg,
+              border: 'none',
+              color: '#000000',
+              borderRadius: '4px',
+              position: 'relative',
+              zIndex: 60,
+            },
+          };
+        }}
         popup
         toolbar={false}
       />

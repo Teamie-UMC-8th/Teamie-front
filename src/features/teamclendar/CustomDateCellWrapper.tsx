@@ -87,7 +87,7 @@ export default function CustomDateCellWrapper({
 
   // 드래그 앤 드롭: 드래그 진입 시 상단 라인 인디케이터 표시
   const [isDragOver, setIsDragOver] = useState(false);
-  const [indicatorY, setIndicatorY] = useState<number>(16);
+  const [indicatorY, setIndicatorY] = useState<number>(4);
   const indicatorVisible = isDragOver && canShowPlusButton;
 
   // 드롭할 목표 날짜 문자열 (로컬 자정)
@@ -164,7 +164,7 @@ export default function CustomDateCellWrapper({
           className="pointer-events-none absolute left-1/2 -translate-x-1/2"
           style={{
             top: indicatorY,
-            width: '196px',
+            width: '100%',
             height: '3px',
             borderRadius: '10px',
             backgroundColor: '#81D7D4',
