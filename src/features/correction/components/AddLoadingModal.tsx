@@ -139,7 +139,7 @@ export default function LoadingModal({ isOpen, startFromLast = false }: LoadingM
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
       <div className="relative w-[524px] h-[248px] bg-[#FFFFFF] shadow-[0_0_15px_rgba(0,0,0,0.2)] rounded-[16px] flex flex-col items-center justify-center">
-        <div className="flex flex-col items-center px-[32px] gap-[16px] text-center">
+        <div className="flex flex-col items-center px-[32px] text-center">
           <Image src={currentFrame} alt="loading" width={140} height={140} priority />
           <p className="font-semibold text-[20px] leading-[28px] text-[#000000]">
             {current.message}
