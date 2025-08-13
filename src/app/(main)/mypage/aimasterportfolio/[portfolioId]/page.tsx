@@ -6,6 +6,7 @@ import {
   useMasterPortfolioDetail,
   useMasterPortfolioStatus,
   useMasterPortfolioList,
+  useGetMasterPortfolioGeneratedResult,
 } from '@/hooks/queries/useGetMasterPortfolio';
 import { useUpdateContribution } from '@/hooks/mutations/useUpdateContribution';
 import { usePatchMasterPortfolio } from '@/hooks/mutations/usePatchMasterPortfolio';
@@ -123,6 +124,7 @@ export default function MasterPortfolioDetail() {
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey>('COURSE');
   const [contribution, setContribution] = useState(0); // 초기값 0으로 변경
   const { data: status, isLoading: statusLoading } = useMasterPortfolioStatus(portfolioId);
+  const { data: generated } = useGetMasterPortfolioGeneratedResult(portfolioId);
   const router = useRouter();
   const detailRef = useRef<HTMLDivElement>(null);
   const taskRef = useRef<HTMLDivElement>(null);
@@ -210,6 +212,12 @@ export default function MasterPortfolioDetail() {
     contribution: contribution,
   };
 
+  // 생성 결과가 저장되지 않은 경우 즉시 표시하기 위한 fallback
+  const detailInfo = data.detailInfo || generated?.result?.detailInfo || '';
+  const assignedTask = data.assignedTask || generated?.result?.assignedTask || '';
+  const keyAchievement = data.keyAchievement || generated?.result?.keyAchievement || '';
+  const insight = data.insight || generated?.result?.insight || '';
+
   return (
     <main className="flex flex-col gap-4 max-w-[1600px] mx-auto">
       <ProjectHeader title={projectData.title} />
@@ -242,7 +250,7 @@ export default function MasterPortfolioDetail() {
                   ref={detailRef}
                   className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 whitespace-pre-wrap"
                 >
-                  {data.detailInfo}
+                  {detailInfo}
                 </div>
                 <button
                   onClick={() => handleCopyField(detailRef)}
@@ -261,7 +269,7 @@ export default function MasterPortfolioDetail() {
                   ref={taskRef}
                   className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 whitespace-pre-wrap"
                 >
-                  {data.assignedTask}
+                  {assignedTask}
                 </div>
                 <button
                   onClick={() => handleCopyField(taskRef)}
@@ -280,7 +288,7 @@ export default function MasterPortfolioDetail() {
                   ref={resultRef}
                   className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 whitespace-pre-wrap"
                 >
-                  {data.keyAchievement}
+                  {keyAchievement}
                 </div>
                 <button
                   onClick={() => handleCopyField(resultRef)}
@@ -299,7 +307,7 @@ export default function MasterPortfolioDetail() {
                   ref={learnRef}
                   className="w-full lg:flex-[9.4] min-h-[162px] bg-white border-[1.5px] border-[#BBBBBB] rounded-[8px] p-4 whitespace-pre-wrap"
                 >
-                  {data.insight}
+                  {insight}
                 </div>
                 <button
                   onClick={() => handleCopyField(learnRef)}
