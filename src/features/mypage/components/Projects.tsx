@@ -93,6 +93,51 @@ export default function Projects() {
 
   // 카테고리 정규화 유틸은 다른 곳에서 사용 중이므로 여기서는 제거 (미사용 경고 방지)
 
+  // ProjectSelect 페이지에서는 선택 가능한 카드가 항상 상단에 오도록 정렬/병합
+  const cardsToRender: MasterPortfolio[] = (() => {
+    if (!isProjectSelectPage) {
+      return (data?.data || []) as MasterPortfolio[];
+    }
+    const selectableCards: MasterPortfolio[] = (selectable || []).map((p) => ({
+      projectId: p.id,
+      portfolioId: p.id,
+      projectName: p.name,
+      category: 'PROJECT',
+      contributionRate: 0,
+      startDate: p.createdAt,
+      endDate: p.updatedAt,
+      mainTask: '',
+    })) as unknown as MasterPortfolio[];
+    // 선택 가능/불가능 분리 정렬
+    const masterList = ((data?.data || []) as MasterPortfolio[]) || [];
+    const masterIdSet = new Set(
+      masterList
+        .map((mp: MasterPortfolio) => Number(mp.projectId as unknown as number))
+        .filter((n) => Number.isFinite(n)) as number[]
+    );
+    const masterNameSet = new Set(
+      masterList
+        .map((mp: MasterPortfolio) =>
+          String(mp.projectName || '')
+            .trim()
+            .toLowerCase()
+        )
+        .filter((s) => s.length > 0)
+    );
+    const withFlag = selectableCards.map((c) => {
+      const id = Number(c.projectId as unknown as number);
+      const name = String(c.projectName || '')
+        .trim()
+        .toLowerCase();
+      const selectableById = Number.isFinite(id) && masterIdSet.has(id);
+      const selectableByName = name.length > 0 && masterNameSet.has(name);
+      const isSelectable = selectableById || selectableByName;
+      return { card: c, isSelectable } as { card: MasterPortfolio; isSelectable: boolean };
+    });
+    withFlag.sort((a, b) => (a.isSelectable === b.isSelectable ? 0 : a.isSelectable ? -1 : 1));
+    return withFlag.map((w) => w.card);
+  })();
+
   return (
     <div
       className={`grid grid-cols-2 ${
@@ -101,29 +146,37 @@ export default function Projects() {
           : 'max-lg:w-[868px] gap-[24px]'
       }${!isMyPage ? ' max-lg:grid-cols-1' : ''}`}
     >
-      {(isProjectSelectPage
-        ? (selectable || []).map((p) => ({
-            projectId: p.id,
-            portfolioId: p.id,
-            projectName: p.name,
-            category: 'PROJECT',
-            contributionRate: 0,
-            startDate: p.createdAt,
-            endDate: p.updatedAt,
-            mainTask: '',
-          }))
-        : data?.data || []
-      ).map((item: MasterPortfolio) => (
+      {cardsToRender.map((item: MasterPortfolio) => (
         <Link
           key={item.portfolioId}
           href={isProjectSelectPage ? '#' : `/mypage/aimasterportfolio/${item.portfolioId}`}
         >
           {(() => {
+            const masterList = (data?.data || []) as MasterPortfolio[];
             const masterProjectIdSet = new Set(
-              (data?.data || []).map((mp: MasterPortfolio) => Number(mp.projectId))
+              masterList
+                .map((mp: MasterPortfolio) => {
+                  const num = Number(mp.projectId as unknown as number);
+                  return Number.isFinite(num) ? num : NaN;
+                })
+                .filter((n) => Number.isFinite(n)) as number[]
             );
-            const isDisabledOnSelectPage =
-              isProjectSelectPage && !masterProjectIdSet.has(Number(item.projectId));
+            const masterProjectNameSet = new Set(
+              masterList
+                .map((mp: MasterPortfolio) =>
+                  String(mp.projectName || '')
+                    .trim()
+                    .toLowerCase()
+                )
+                .filter((s) => s.length > 0)
+            );
+            const candidateId = Number(item.projectId as unknown as number);
+            const candidateName = String(item.projectName || '')
+              .trim()
+              .toLowerCase();
+            const idMatch = Number.isFinite(candidateId) && masterProjectIdSet.has(candidateId);
+            const nameMatch = candidateName.length > 0 && masterProjectNameSet.has(candidateName);
+            const isDisabledOnSelectPage = isProjectSelectPage && !(idMatch || nameMatch);
             return (
               <button
                 className={`relative w-[465px] h-[192px] rounded-[8px] grid justify-center cursor-pointer transition-all duration-100 ${
