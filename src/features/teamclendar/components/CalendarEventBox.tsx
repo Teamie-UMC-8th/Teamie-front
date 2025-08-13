@@ -28,7 +28,7 @@ export default function CalendarEventBox({ event }: { event: CalendarEvent }) {
   return (
     <div
       onClick={handleClick}
-      className=" z-[60] w-full h-full rounded-[4px] px-[22px] py-[4px] text-[16px] leading-[24px] text-black overflow-hidden whitespace-nowrap text-ellipsis flex items-center justify-center cursor-pointer"
+      className="relative z-[60] w-full h-full rounded-[4px] px-[22px] py-[4px] text-[16px] leading-[24px] text-black overflow-hidden whitespace-nowrap text-ellipsis flex items-center justify-center cursor-pointer pointer-events-auto"
       title={event.title ?? ''}
       role="button"
     >

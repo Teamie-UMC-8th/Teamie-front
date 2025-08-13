@@ -12,6 +12,14 @@ import { useGetCalendarPlans } from '@/hooks/queries/useGetTeamCalendar';
 
 const localizer = momentLocalizer(moment);
 
+type CalendarEventType = {
+  id: string;
+  title: string;
+  start: Date;
+  end: Date;
+  allDay?: boolean;
+};
+
 export default function TeamCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [projectCreatedAtISO, setProjectCreatedAtISO] = useState<string | undefined>(undefined);
@@ -66,10 +74,12 @@ export default function TeamCalendar() {
   }, [projectId]);
 
   // Calendar 표시용 events 가공 (timezone-safe)
-  const events =
+  const events: CalendarEventType[] =
     calendarData?.result.flatMap((entry) =>
-      (entry.list ?? []).map((plan) => {
+      (entry.list ?? []).flatMap((plan) => {
         const anyPlan = plan as any;
+        const rawId = anyPlan?.planId ?? anyPlan?.id ?? anyPlan?.scheduleId;
+        if (!rawId) return [] as CalendarEventType[];
 
         // 1) startDate/endDate가 있으면 그대로 사용
         if (anyPlan.startDate || anyPlan.endDate) {
@@ -77,12 +87,14 @@ export default function TeamCalendar() {
           const end = anyPlan.endDate
             ? new Date(anyPlan.endDate)
             : new Date(new Date(start).getTime() + 60 * 1000);
-          return {
-            id: String(anyPlan.planId),
-            title: anyPlan.name || anyPlan.title || '빈 일정',
-            start,
-            end,
-          };
+          return [
+            {
+              id: String(rawId),
+              title: anyPlan.name || anyPlan.title || '빈 일정',
+              start,
+              end,
+            },
+          ];
         }
 
         // 2) date만 있는 경우: 'YYYY-MM-DD' 또는 'YYYY-MM-DDTHH:mm:ss'
@@ -91,7 +103,6 @@ export default function TeamCalendar() {
         let end: Date;
 
         if (dateStr) {
-          // 안전 파싱: 문자열에서 연-월-일 및 선택적 시:분 추출 후 local Date 생성
           const m = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}):(\d{2})(?::(\d{2}))?)?/);
           if (m) {
             const year = Number(m[1]);
@@ -110,7 +121,6 @@ export default function TeamCalendar() {
             const second = m[6] ? Number(m[6]) : 0;
             start = new Date(year, monthIdx, day, hour, minute, second);
 
-            // 종료 시간: endHour 우선, 없으면 시작 + 1분
             if (anyPlan.endHour) {
               const [eh, em] = String(anyPlan.endHour).split(':');
               end = new Date(year, monthIdx, day, Number(eh), Number(em) || 0, 0);
@@ -118,24 +128,24 @@ export default function TeamCalendar() {
               end = new Date(start.getTime() + 60 * 1000);
             }
           } else {
-            // 포맷 예측 실패 시 안전 fallback (0분 이벤트 방지: +1분)
             start = new Date();
             end = new Date(start.getTime() + 60 * 1000);
           }
         } else {
-          // date가 전혀 없는 경우
           start = new Date();
           end = new Date(start.getTime() + 60 * 1000);
         }
 
         const isAllDay = !anyPlan.startHour && !anyPlan.endHour;
-        return {
-          id: String(anyPlan.planId),
-          title: anyPlan.name || anyPlan.title || '빈 일정',
-          start,
-          end,
-          ...(isAllDay ? { allDay: true } : {}),
-        };
+        return [
+          {
+            id: String(rawId),
+            title: anyPlan.name || anyPlan.title || '빈 일정',
+            start,
+            end,
+            ...(isAllDay ? { allDay: true } : {}),
+          },
+        ];
       })
     ) || [];
 
@@ -144,7 +154,11 @@ export default function TeamCalendar() {
     console.log('일정 반영 확인:', events);
   }, [events]);
 
-  const handleEventClick = (event: { id: string; title?: string }) => {
+  const handleEventClick = (event: { id?: string; title?: string }) => {
+    if (!event?.id || !projectId) {
+      console.warn('onSelectEvent: 유효하지 않은 이벤트 또는 projectId 누락', { projectId, event });
+      return;
+    }
     const target = `/projects/${projectId}/teamcalendar/${event.id}/teamtask`;
     console.log('onSelectEvent: 팀태스크로 이동', {
       projectId,
@@ -229,7 +243,11 @@ export default function TeamCalendar() {
               projectCreatedAtISO={projectCreatedAtISO}
             />
           ),
-          event: CalendarEventBox, // ✅ 커스텀 일정 카드 디자인
+          event: (props) => (
+            <div className="relative z-[60] pointer-events-auto">
+              <CalendarEventBox {...props} />
+            </div>
+          ), // ✅ 커스텀 일정 카드 디자인 - 클릭 가능 보장
         }}
         eventPropGetter={() => ({
           style: {
@@ -237,6 +255,8 @@ export default function TeamCalendar() {
             border: 'none',
             color: '#000000',
             borderRadius: '4px',
+            position: 'relative',
+            zIndex: 60,
           },
         })}
         popup

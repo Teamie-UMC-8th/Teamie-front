@@ -85,28 +85,30 @@ export default function CustomDateCellWrapper({
 
   return (
     <div
-      className={`relative w-full h-full transition-all duration-200 rounded-[4px] z-[50] overflow-visible ${hoverActive ? 'shadow-[0_0_10px_rgba(0,0,0,0.25)] cursor-pointer' : ''}`}
+      className={`relative w-full h-full transition-all duration-200 rounded-[4px] overflow-visible ${hoverActive ? 'shadow-[0_0_10px_rgba(0,0,0,0.25)] cursor-pointer' : ''}`}
       onMouseEnter={() => {
         if (canShowPlusButton) setHovered(true);
       }}
       onMouseLeave={() => setHovered(false)}
     >
       {children}
-      {/* 플러스 버튼 - 현재 달의 날짜이면서 최근 일정 이후 날짜에서만 표시 */}
+      {/* 플러스 버튼 - 가벼운 호버 센서 사용: 캘린더 이벤트 클릭을 막지 않음 */}
       {canShowPlusButton && (
-        <div
-          className="absolute top-[8px] right-[8px]"
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-        >
-          {hovered && (
-            <button
-              className="flex items-center justify-center rounded-[4px] cursor-pointer"
-              onClick={handleClick}
-            >
-              <img src="/icons/AddProject.svg" alt="일정 추가" className="w-[24px] h-[24px]" />
-            </button>
-          )}
+        <div className="absolute top-0 right-0 z-[70] w-[40px] h-[40px] pointer-events-auto">
+          <div
+            className="absolute top-[8px] right-[8px]"
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+          >
+            {hovered && (
+              <button
+                className="flex items-center justify-center rounded-[4px] cursor-pointer"
+                onClick={handleClick}
+              >
+                <img src="/icons/AddProject.svg" alt="일정 추가" className="w-[24px] h-[24px]" />
+              </button>
+            )}
+          </div>
         </div>
       )}
     </div>
