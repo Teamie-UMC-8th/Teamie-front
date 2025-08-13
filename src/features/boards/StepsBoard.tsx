@@ -147,7 +147,10 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
                                 title={task.taskName}
                                 status={mapTaskStatus(task.status)}
                                 deadline={task.deadline}
-                                assignee={task.managers.map((manager) => manager.userName)}
+                                assignee={task.managers.map((manager) => ({
+                                  name: manager.name,
+                                  imageUrl: manager.imageUrl,
+                                }))}
                               />
                             </div>
                           </div>

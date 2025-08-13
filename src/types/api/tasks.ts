@@ -19,7 +19,8 @@ export interface Task {
 // 담당자 타입
 export interface Manager {
   userId: number;
-  userName: string;
+  name: string;
+  imageUrl: string;
 }
 
 // TASK 생성 요청 타입
@@ -42,7 +43,7 @@ export interface TaskItem {
   title: string;
   status: string;
   deadline?: string;
-  assignee?: string[];
+  assignee?: { name: string; imageUrl: string }[];
 }
 
 // TaskItem 컴포넌트 Props
@@ -51,6 +52,7 @@ export type TaskItemProps = TaskItem;
 // TaskItem 컴포넌트 Props (projectId 포함)
 export interface TaskItemComponentProps extends TaskItemProps {
   projectId: string;
+  imageUrl?: string; // 프로필 이미지 URL 추가
 }
 
 // useTaskItems 훅 Props
@@ -62,7 +64,7 @@ export interface UseTaskItemsProps {
 export interface UseTaskItemsReturn {
   isDeadlineOverdue: boolean;
   displayAssignees: {
-    displayList: string[];
+    displayList: { name: string; imageUrl: string }[]; // string[]에서 객체 배열로 변경
     hasMore: boolean;
     totalCount: number;
   } | null;

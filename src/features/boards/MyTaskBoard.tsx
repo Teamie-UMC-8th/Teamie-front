@@ -59,7 +59,10 @@ export default function MyTaskBoard() {
                   title={task.name}
                   status={mapStatus(task.status)}
                   deadline={task.deadline}
-                  assignee={task.managers.map((m) => m.name)}
+                  assignee={task.managers.map((m) => ({
+                    name: m.name,
+                    imageUrl: m.imageUrl,
+                  }))}
                 />
               ))}
             </div>

@@ -6,12 +6,13 @@ import { useGetProject } from '@/hooks/queries/useGetProject';
 import { useJoinProject } from '@/hooks/mutations/useJoinProject';
 import { GetJoinProjectResponse } from '@/types/api/project';
 import { AxiosError } from 'axios';
-import { ApiErrorResponse, ApiResponse } from '@/types/api/error';
+import { ApiResponse } from '@/types/api/error';
+import Image from 'next/image';
 
 interface ProjectInfo {
   name: string;
-  projectId: string;
-  projectLeader: string;
+  projectId: string | undefined;
+  leaderName: string;
 }
 
 export default function JoinProject() {
@@ -22,9 +23,10 @@ export default function JoinProject() {
   const [projectInfo, setProjectInfo] = useState<ProjectInfo>({
     name: '',
     projectId: '',
-    projectLeader: '',
+    leaderName: '',
   });
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false); // 성공 상태 추가
 
   const inviteCode = params.inviteCode as string;
 
@@ -37,6 +39,7 @@ export default function JoinProject() {
       if (response.isSuccess) {
         setShowWelcomeModal(true);
         setIsLoading(false);
+        setIsSuccess(true); // 성공 상태 설정
 
         // 2초 후 프로젝트 페이지로 이동
         setTimeout(() => {
@@ -65,12 +68,13 @@ export default function JoinProject() {
       console.log('초대코드 유효성 확인 성공:', getProjectQuery.data);
       // 프로젝트 정보 설정
       const projectData: GetJoinProjectResponse = getProjectQuery.data;
-      if (projectData.result?.project) {
+      if (projectData.result) {
         setProjectInfo({
-          name: projectData.result.project.name,
-          projectId: projectData.result.project.id,
-          projectLeader: projectData.result.project.leader,
+          name: projectData.result.name,
+          projectId: String(projectData.result.projectId), // id → projectId로 변경
+          leaderName: projectData.result.leaderName,
         });
+        setIsSuccess(true); // 성공 상태 설정
       }
     } else if (getProjectQuery.isError) {
       console.error('초대코드 유효성 확인 오류:', getProjectQuery.error);
@@ -80,20 +84,18 @@ export default function JoinProject() {
         ApiResponse<{ project: { id: string } }>
       >;
       const errorCode = errorResponse.response?.data?.error?.errorCode;
+      projectInfo.projectId = errorResponse.response?.data?.error?.data?.projectId;
 
       if (errorCode === 'PROJECT4011') {
         // 잘못된 초대코드
         setError('초대 링크가 유효하지 않습니다.');
       } else if (errorCode === 'PROJECT4094') {
-        // 이미 참여한 프로젝트 - result에서 projectId를 추출하여 프로젝트 홈으로 리다이렉트
-        const projectId = errorResponse?.response?.data?.result?.project?.id;
-        if (projectId) {
-          console.log('이미 참여한 프로젝트입니다. 프로젝트 홈으로 이동합니다.');
-          router.push(`/projects/${projectId}`);
-        } else {
-          console.error('projectId가 없습니다.');
-          router.push('/home/tasks');
-        }
+        // 이미 참여한 프로젝트 - 에러 메시지만 표시하고 자동 리다이렉트 제거
+        setError('이미 참여한 프로젝트입니다.');
+
+        setTimeout(() => {
+          router.push(`/projects/${errorResponse.response?.data?.error?.data?.projectId}`);
+        }, 5000);
       } else if (errorCode === 'PROJECT4043') {
         // NOT_EXISTS 또는 CODE_EXPIRED - 에러 상태로 설정하여 에러 화면 표시
         setError('초대 링크가 만료되었습니다.');
@@ -115,15 +117,18 @@ export default function JoinProject() {
   const handleAccept = () => {
     setIsLoading(true);
     setError(null);
-    joinProjectMutation.mutate({ inviteCode });
+    console.log('projectInfo.projectId', projectInfo.projectId);
+    // string → number로 변경
+    joinProjectMutation.mutate({ projectId: Number(projectInfo.projectId) || 0 });
   };
 
-  if (getProjectQuery.isLoading) {
+  // 1. 로딩 상태 (pending)
+  if (getProjectQuery.isLoading || getProjectQuery.isFetching) {
     return null;
   }
 
-  // 에러 상태 (잘못된 코드 또는 만료된 코드)
-  if (error) {
+  // 2. 에러 상태 (error) - 성공이 확정되지 않은 경우
+  if (error && !isSuccess) {
     return (
       <div className="w-full bg-white flex items-center justify-center mt-[10rem]">
         <div className="flex flex-col items-center p-8 text-[1.375rem] font-semibold">
@@ -136,40 +141,45 @@ export default function JoinProject() {
     );
   }
 
-  // 정상 초대 상태
-  return (
-    <div className="min-h-screen w-full bg-white flex items-center justify-center">
-      <div className="flex flex-col items-center gap-6 p-8 text-center">
-        <h1 className="text-2xl font-bold text-gray-800">프로젝트에 참여하시겠습니까?</h1>
-        <p className="text-lg text-gray-600">
-          {projectInfo.projectLeader}님이 함께 프로젝트를 진행하고 싶어해요!
-        </p>
-        <button
-          onClick={handleAccept}
-          disabled={isLoading}
-          className={`px-8 py-3 text-white rounded-lg font-medium text-lg ${
-            isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#81D7D4] hover:bg-[#6BC7C4]'
-          }`}
-        >
-          수락
-        </button>
-      </div>
-
-      {/* 환영 모달 */}
-      {showWelcomeModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-[0_0_15px_0_rgba(0,0,0,0.2)] px-[7.5rem] py-[3.75rem] text-center">
-            {/* 아바타 자리 */}
-            <div className="mx-auto mb-[1.25rem] w-[4.5rem] h-[4.5rem] bg-[#D9D9D9]" />
-
-            {/* 텍스트 */}
-            <p className="text-[1.25rem] font-semibold">
-              환영합니다! <br />
-              프로젝트 A의 팀원이 되셨습니다.
-            </p>
-          </div>
+  // 3. 성공 상태 (success) - 성공이 확정된 경우에만 정상 UI 렌더
+  if (isSuccess && projectInfo.name) {
+    return (
+      <div className="min-h-screen w-full bg-white flex items-center justify-center">
+        <div className="flex flex-col items-center gap-6 p-8 text-center">
+          <h1 className="text-2xl font-bold text-[#000000]">프로젝트에 참여하시겠습니까?</h1>
+          <p className="text-lg text-[#898989]]">
+            {projectInfo.leaderName}님이 함께 프로젝트를 진행하고 싶어해요!
+          </p>
+          <button
+            onClick={handleAccept}
+            disabled={isLoading}
+            className="cursor-pointer px-8 py-3 text-white rounded-lg font-medium text-lg bg-[#81D7D4]"
+          >
+            수락
+          </button>
         </div>
-      )}
-    </div>
-  );
+
+        {/* 환영 모달 */}
+        {showWelcomeModal && (
+          <div className="fixed inset-0 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl shadow-[0_0_15px_0_rgba(0,0,0,0.2)] px-[7.5rem] py-[3.75rem] text-center">
+              {/* 아바타 자리 */}
+              <div className="mx-auto w-[7.5rem] h-[7.5rem]">
+                <Image src="/icons/welcomeTeamie.svg" alt="welcome" width={111} height={68} />
+              </div>
+
+              {/* 텍스트 */}
+              <p className="text-[1.25rem] font-semibold">
+                환영합니다! <br />
+                {projectInfo.name}의 팀원이 되셨습니다.
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // 4. 초기 상태 (아직 아무것도 결정되지 않은 경우)
+  return null;
 }

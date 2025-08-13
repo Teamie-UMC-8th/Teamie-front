@@ -12,6 +12,7 @@ export default function TaskItem({
   status,
   deadline,
   assignee,
+  imageUrl, // imageUrl props 추가
 }: TaskItemComponentProps) {
   const { displayAssignees, cardHeight, deadlineTextColor } = useTaskItems({
     task: { id: taskId, title, status, deadline, assignee },
@@ -66,18 +67,18 @@ export default function TaskItem({
           {/* 담당자 (선택) */}
           {displayAssignees && (
             <div className="mt-auto flex flex-wrap gap-2">
-              {displayAssignees.displayList.map((name, index) => (
+              {displayAssignees.displayList.map((assignee, index) => (
                 <div
                   key={index}
                   className="inline-flex items-center gap-[4px] rounded-[30px] p-[3px] pr-[9px]"
                   style={{ boxShadow: '1px 1px 4px 0 rgba(0,0,0,0.25)' }}
                 >
                   <img
-                    src="/icons/assignee.svg"
-                    alt="참석자 아이콘"
-                    className="w-[16px] h-[16px]"
+                    src={assignee.imageUrl || '/icons/assignee.svg'}
+                    alt={`${assignee.name} 프로필`}
+                    className="w-[16px] h-[16px] rounded-full object-cover"
                   />
-                  <span className="text-[12px]">{name}</span>
+                  <span className="text-[12px]">{assignee.name}</span>
                 </div>
               ))}
               {displayAssignees.hasMore && (
