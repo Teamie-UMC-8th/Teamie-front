@@ -8,6 +8,7 @@ import {
   CompanyInsightResponse,
   PatchCompanyInsightRequest,
   PatchCompanyInsightResponse,
+  CorrectionProjectsResponse,
 } from '@/types/api/correction';
 import axiosInstance from '@/lib/axiosInstance';
 
@@ -45,6 +46,21 @@ export async function fetchCorrectionList(
     } catch {
       // 보강 실패 시 원본 반환
     }
+  }
+
+  return data.result;
+}
+
+// 프로젝트 선택 화면: 선택 가능한 프로젝트 목록 조회
+export async function fetchCorrectionProjects(): Promise<CorrectionProjectsResponse['result']> {
+  console.log('[API] GET /api/v1/portfolio-corrections/projects');
+  const { data } = await axiosInstance.get<CorrectionProjectsResponse>(
+    '/api/v1/portfolio-corrections/projects'
+  );
+  console.log('[API] GET /api/v1/portfolio-corrections/projects response:', data);
+
+  if (!data.result) {
+    throw new Error('선택 가능한 프로젝트 목록을 가져올 수 없습니다.');
   }
 
   return data.result;

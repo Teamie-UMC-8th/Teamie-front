@@ -91,6 +91,24 @@ export interface PatchCompanyInsightRequest {
 // 회사 인사이트 수정 응답(생성 응답과 동일한 객체 형태 반환)
 export type PatchCompanyInsightResponse = CreateCorrectionResponse;
 
+// 프로젝트 선택 화면: 선택 가능한 프로젝트 목록 응답 타입
+export interface CorrectionSelectableProject {
+  id: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  goal: string;
+  role: string;
+  isCompleted: boolean;
+  completedAt: string | null;
+}
+
+export interface CorrectionProjectsResponse {
+  isSuccess: boolean;
+  error: null;
+  result: CorrectionSelectableProject[];
+}
+
 // AI 첨삭 상세 정보 응답 타입
 export interface CorrectionDetailResponse {
   isSuccess: boolean;

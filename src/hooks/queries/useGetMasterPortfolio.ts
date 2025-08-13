@@ -6,6 +6,7 @@ import {
   getMasterPortfolioStatus,
   fetchMasterPortfolioQuestions,
 } from '@/services/masterportfolio/masterportfolio';
+import { fetchCorrectionProjects } from '@/services/correction/correction';
 import { useQuery } from '@tanstack/react-query';
 import type { MasterPortfolioDetailResponse } from '@/types/api/masterportfolio';
 
@@ -59,5 +60,14 @@ export const useMasterPortfolioQuestions = (portfolioId: number) => {
   return useQuery({
     queryKey: ['master-portfolio-questions', portfolioId],
     queryFn: () => fetchMasterPortfolioQuestions(portfolioId),
+  });
+};
+
+// 추가: 프로젝트 선택 화면 전용 - 선택 가능한 프로젝트 목록 조회 훅
+export const useCorrectionProjects = () => {
+  return useQuery({
+    queryKey: ['correction-projects'],
+    queryFn: () => fetchCorrectionProjects(),
+    staleTime: 1000 * 60 * 5,
   });
 };
