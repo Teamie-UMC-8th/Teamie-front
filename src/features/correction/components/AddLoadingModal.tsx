@@ -2,11 +2,21 @@
 
 import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useCreateCorrection } from '@/hooks/mutations/useCreateCorrection';
+import {
+  fetchCompanyInsight,
+  fetchCorrectionDetail,
+  fetchRagData,
+} from '@/services/correction/correction';
+import { CreateCorrectionRequest } from '@/types/api/correction';
 
 interface LoadingModalProps {
   isOpen: boolean;
   /** 돌아왔을 때 마지막 단계부터 보여줄지 여부 */
   startFromLast?: boolean;
+  /** 생성 시작에 필요한 페이로드. 열릴 때 이 값이 있어야 프로세스를 시작합니다 */
+  payload?: CreateCorrectionRequest | null;
 }
 
 interface LoadingStep {
@@ -16,7 +26,13 @@ interface LoadingStep {
   durationMs: number;
 }
 
-export default function LoadingModal({ isOpen, startFromLast = false }: LoadingModalProps) {
+export default function LoadingModal({
+  isOpen,
+  startFromLast = false,
+  payload,
+}: LoadingModalProps) {
+  const router = useRouter();
+  const createCorrection = useCreateCorrection();
   const steps: LoadingStep[] = useMemo(
     () => [
       {
@@ -65,6 +81,41 @@ export default function LoadingModal({ isOpen, startFromLast = false }: LoadingM
 
   const stepTimerRef = useRef<number | null>(null);
   const frameTimerRef = useRef<number | null>(null);
+  const startedRef = useRef(false);
+  const pollingStopRef = useRef(false);
+
+  const waitForRagReady = async (correctionId: number) => {
+    const maxAttempts = 60;
+    const delayMs = 2000;
+    let consecutiveReady = 0;
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      if (pollingStopRef.current) return false;
+      try {
+        const [rag, insight] = await Promise.all([
+          fetchRagData(correctionId),
+          fetchCompanyInsight(correctionId),
+        ]);
+        const hasKeywords = Array.isArray(rag?.keywords) && rag.keywords.length > 0;
+        const hasLinks = Array.isArray(rag?.links) && rag.links.length > 0;
+        const hasInsight =
+          typeof insight?.companyInsight === 'string' && insight.companyInsight.trim().length > 0;
+        const ready = hasKeywords && hasLinks && hasInsight;
+        console.log(
+          `[LoadingModal] RAG polling ${attempt}/${maxAttempts} -> keywords:${hasKeywords} links:${hasLinks} insight:${hasInsight} ready:${ready} (consec=${consecutiveReady})`
+        );
+        if (ready) {
+          consecutiveReady += 1;
+          if (consecutiveReady >= 2) return true;
+        } else {
+          consecutiveReady = 0;
+        }
+      } catch {
+        consecutiveReady = 0;
+      }
+      await new Promise((res) => setTimeout(res, delayMs));
+    }
+    return false;
+  };
 
   // 단계 진행 타이머
   useEffect(() => {
@@ -128,8 +179,71 @@ export default function LoadingModal({ isOpen, startFromLast = false }: LoadingM
       setFrameIndex(0);
       if (stepTimerRef.current) window.clearTimeout(stepTimerRef.current);
       if (frameTimerRef.current) window.clearInterval(frameTimerRef.current);
+      startedRef.current = false;
+      pollingStopRef.current = true;
+    } else {
+      pollingStopRef.current = false;
     }
   }, [isOpen]);
+
+  // 비즈니스 로직: 열리면 생성 -> RAG 준비 대기 -> 페이지 이동
+  useEffect(() => {
+    if (!isOpen) return;
+    if (!payload) return;
+    if (startedRef.current) return;
+    startedRef.current = true;
+
+    const run = async () => {
+      try {
+        console.log('[LoadingModal] start create correction with payload:', payload);
+        const created = await createCorrection.mutateAsync(payload);
+        try {
+          sessionStorage.setItem('lastCorrectionId', String(created.id));
+        } catch {}
+        const ready = await waitForRagReady(created.id);
+        if (!ready) {
+          console.warn('[LoadingModal] RAG not ready within time limit. Proceeding anyway.');
+        }
+        // 준비 완료 후 즉시 상세/라그/인사이트 조회하여 prefetch 데이터 저장
+        const [detail, rag, insight] = await Promise.all([
+          fetchCorrectionDetail(created.id).catch((e) => {
+            console.warn('[LoadingModal] prefetch: correction detail failed', e);
+            return null as unknown as Awaited<ReturnType<typeof fetchCorrectionDetail>>;
+          }),
+          fetchRagData(created.id).catch((e) => {
+            console.warn('[LoadingModal] prefetch: RAG data failed', e);
+            return null as unknown as Awaited<ReturnType<typeof fetchRagData>>;
+          }),
+          fetchCompanyInsight(created.id).catch((e) => {
+            console.warn('[LoadingModal] prefetch: company insight failed', e);
+            return null as unknown as Awaited<ReturnType<typeof fetchCompanyInsight>>;
+          }),
+        ]);
+        const prefetch = {
+          id: created.id,
+          timestamp: Date.now(),
+          detail,
+          rag,
+          insight,
+        };
+        try {
+          sessionStorage.setItem(`analyzingPrefetch:${created.id}`, JSON.stringify(prefetch));
+        } catch (e) {
+          console.warn('[LoadingModal] failed to write prefetch to sessionStorage', e);
+        }
+        router.push(
+          `/mypage/addcorrection/analyzing?correctionId=${created.id}&companyName=${encodeURIComponent(
+            payload.title
+          )}`
+        );
+      } catch (error) {
+        console.error('[LoadingModal] failed during creation or RAG wait:', error);
+        alert('첨삭 생성에 실패했습니다. 다시 시도해주세요.');
+      }
+    };
+
+    void run();
+  }, [isOpen, payload, createCorrection, router]);
 
   if (!isOpen) return null;
 

@@ -2,14 +2,16 @@
 /* eslint-disable @next/next/no-img-element */
 
 import CorrectionRequestStartButton from '@/features/correction/components/CorrectionRequestStartButton';
-import { useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { useCreateCorrection } from '@/hooks/mutations/useCreateCorrection';
+import LoadingModal from '@/features/correction/components/AddLoadingModal';
+import { useRef, useState } from 'react';
+// import { useRouter } from 'next/navigation';
+import { CreateCorrectionRequest } from '@/types/api/correction';
 
 export default function CorrectionIntro() {
-  const router = useRouter();
-  const createCorrection = useCreateCorrection();
+  // const router = useRouter();
   const formRef = useRef<HTMLDivElement>(null);
+  const [isLoadingOpen, setIsLoadingOpen] = useState(false);
+  const [payload, setPayload] = useState<CreateCorrectionRequest | null>(null);
 
   const handleStart = () => {
     const container = formRef.current;
@@ -31,37 +33,9 @@ export default function CorrectionIntro() {
       jd,
       submissionTarget: '포트폴리오',
     } as const;
-
-    // 디버그: 요청 페이로드 로그
     console.log('[AI 첨삭 생성] 요청 페이로드:', payload);
-
-    createCorrection.mutate(payload, {
-      onSuccess: (data) => {
-        // 디버그: 성공 응답 로그
-        console.log('[AI 첨삭 생성] 성공 응답:', data);
-        try {
-          sessionStorage.setItem('lastCorrectionId', String(data.id));
-        } catch {}
-        router.push(
-          `/mypage/addcorrection/analyzing?correctionId=${data.id}&companyName=${encodeURIComponent(
-            title
-          )}`
-        );
-      },
-      onError: (error) => {
-        // 디버그: 실패 응답 로그
-        console.error('[AI 첨삭 생성] 실패:', error);
-        // 가능한 경우 서버 응답 본문도 함께 출력
-        try {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const responseData = (error as any)?.response?.data;
-          if (responseData) {
-            console.error('[AI 첨삭 생성] 서버 응답 데이터:', responseData);
-          }
-        } catch {}
-        alert('첨삭 생성에 실패했습니다. 다시 시도해주세요.');
-      },
-    });
+    setPayload(payload);
+    setIsLoadingOpen(true);
   };
 
   /* TODO: Sidebar 제거 후 간격 재조정 */
@@ -71,6 +45,7 @@ export default function CorrectionIntro() {
     max-lg:ml-[24px]"
     >
       <div className="flex flex-col items-center">
+        <LoadingModal isOpen={isLoadingOpen} payload={payload} />
         <div
           className="w-[1323px] h-[52px] bg-[#E9F8F8] rounded-tl-[8px] rounded-tr-[8px] px-[24px] py-[12px] font-semibold text-[20px]
         max-lg:w-[908px]"

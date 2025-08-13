@@ -20,6 +20,7 @@ export default function AiLoadingPage() {
   const [firstLinkName, setFirstLinkName] = useState<string>('');
   const [firstLinkUrl, setFirstLinkUrl] = useState<string>('');
   const [companyInsight, setCompanyInsight] = useState<string>('');
+  const lastIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     const scrollContainer = scrollContainerRef.current;
@@ -77,6 +78,20 @@ export default function AiLoadingPage() {
     }
     if (!correctionId) return;
 
+    // 다른 ID로 전환될 때 이전 상태 초기화
+    if (lastIdRef.current !== correctionId) {
+      console.log('[Analyzing] switching to new correctionId, clearing previous state:', {
+        from: lastIdRef.current,
+        to: correctionId,
+      });
+      setCompanyName(companyNameFromQuery || '');
+      setKeywords([]);
+      setFirstLinkName('');
+      setFirstLinkUrl('');
+      setCompanyInsight('');
+      lastIdRef.current = correctionId;
+    }
+
     // 디버그: 쿼리 파라미터 및 변환된 ID 로그
     console.log('[Analyzing] query params:', {
       idParam,
@@ -84,6 +99,48 @@ export default function AiLoadingPage() {
       companyNameFromQuery,
     });
 
+    // 1) 세션스토리지 prefetch가 있으면 즉시 반영
+    try {
+      const cached = sessionStorage.getItem(`analyzingPrefetch:${correctionId}`);
+      if (cached) {
+        const parsed = JSON.parse(cached) as {
+          id: number;
+          timestamp: number;
+          detail: Awaited<ReturnType<typeof fetchCorrectionDetail>> | null;
+          rag: Awaited<ReturnType<typeof fetchRagData>> | null;
+          insight: Awaited<ReturnType<typeof fetchCompanyInsight>> | null;
+        };
+        if (parsed && parsed.id === correctionId) {
+          if (parsed.detail?.title) setCompanyName(parsed.detail.title);
+          if (parsed.rag?.keywords) setKeywords(parsed.rag.keywords);
+          const first = parsed.rag?.links?.[0] as
+            | string
+            | { name: string; url: string }
+            | undefined;
+          if (first) {
+            try {
+              if (typeof first === 'string') {
+                const url = new URL(first);
+                const hostname = url.hostname.replace(/^www\./, '');
+                setFirstLinkName(hostname);
+                setFirstLinkUrl(first);
+              } else if (first && typeof first === 'object' && 'name' in first && 'url' in first) {
+                setFirstLinkName(first.name as string);
+                setFirstLinkUrl(first.url as string);
+              }
+            } catch {
+              setFirstLinkName('');
+              setFirstLinkUrl(typeof first === 'string' ? first : (first?.url ?? ''));
+            }
+          }
+          if (typeof parsed.insight?.companyInsight === 'string') {
+            setCompanyInsight(parsed.insight.companyInsight);
+          }
+        }
+      }
+    } catch {}
+
+    // 2) 백그라운드에서 한 번 더 신선한 데이터로 동기화
     fetchCorrectionDetail(correctionId)
       .then((res) => {
         console.log('[Analyzing] correction detail:', res);
@@ -137,73 +194,8 @@ export default function AiLoadingPage() {
         console.error('[Analyzing] failed to fetch company insight:', error);
       });
 
-    // RAG 시작 직후 데이터가 지연되어 도착할 수 있으므로, 일정 시간 폴링하여 재시도합니다.
-    let attempts = 0;
-    const maxAttempts = 15; // 총 15회 시도 (~30초)
-    const intervalMs = 2000;
-    const intervalId = window.setInterval(async () => {
-      attempts += 1;
-      console.log(`[Analyzing] polling attempt ${attempts}/${maxAttempts}`);
-      try {
-        const [rag, insight] = await Promise.all([
-          fetchRagData(correctionId).catch((e) => {
-            console.warn('[Analyzing] polling: RAG fetch failed', e);
-            return null as unknown as Awaited<ReturnType<typeof fetchRagData>>;
-          }),
-          fetchCompanyInsight(correctionId).catch((e) => {
-            console.warn('[Analyzing] polling: company insight fetch failed', e);
-            return null as unknown as Awaited<ReturnType<typeof fetchCompanyInsight>>;
-          }),
-        ]);
-
-        if (rag) {
-          if (Array.isArray(rag.keywords) && rag.keywords.length > 0) {
-            setKeywords(rag.keywords);
-          }
-          const fetchedLinks = rag.links ?? [];
-          if (fetchedLinks.length > 0) {
-            const raw = fetchedLinks[0] as string | { name: string; url: string };
-            try {
-              if (typeof raw === 'string') {
-                const url = new URL(raw);
-                const hostname = url.hostname.replace(/^www\./, '');
-                setFirstLinkName(hostname);
-                setFirstLinkUrl(raw);
-              } else if (raw && typeof raw === 'object' && 'name' in raw && 'url' in raw) {
-                setFirstLinkName(raw.name as string);
-                setFirstLinkUrl(raw.url as string);
-              }
-            } catch {
-              setFirstLinkName('');
-              setFirstLinkUrl(typeof raw === 'string' ? raw : (raw?.url ?? ''));
-            }
-          }
-        }
-
-        if (insight && insight.companyInsight) {
-          setCompanyInsight((prev) => prev || insight.companyInsight);
-        }
-
-        const ready =
-          !!rag &&
-          Array.isArray(rag.keywords) &&
-          rag.keywords.length > 0 &&
-          !!insight &&
-          typeof insight.companyInsight === 'string' &&
-          insight.companyInsight.length > 0;
-
-        if (ready || attempts >= maxAttempts) {
-          window.clearInterval(intervalId);
-          console.log('[Analyzing] polling finished. ready:', ready, 'attempts:', attempts);
-        }
-      } catch (e) {
-        console.warn('[Analyzing] polling iteration error:', e);
-      }
-    }, intervalMs);
-
-    return () => {
-      window.clearInterval(intervalId);
-    };
+    // analyzing 페이지에서는 폴링하지 않음 (LoadingModal에서 준비 완료 후 진입)
+    return undefined;
   }, [searchParams]);
 
   const handleNextClick = async (e: React.MouseEvent) => {
