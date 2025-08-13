@@ -2,8 +2,54 @@
 /* eslint-disable @next/next/no-img-element */
 
 import CorrectionRequestStartButton from '@/features/correction/components/CorrectionRequestStartButton';
+import { useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { useCreateCorrection } from '@/hooks/mutations/useCreateCorrection';
 
 export default function CorrectionIntro() {
+  const router = useRouter();
+  const createCorrection = useCreateCorrection();
+  const formRef = useRef<HTMLDivElement>(null);
+
+  const handleStart = () => {
+    const container = formRef.current;
+    const inputs = container?.querySelectorAll('input') ?? [];
+    const textarea = container?.querySelector('textarea');
+
+    const title = (inputs[0] as HTMLInputElement | undefined)?.value?.trim() ?? '';
+    const jobTitle = (inputs[1] as HTMLInputElement | undefined)?.value?.trim() ?? '';
+    const jd = (textarea as HTMLTextAreaElement | null)?.value?.trim() ?? '';
+
+    if (!title || !jobTitle || !jd) {
+      alert('기업명, 직무명, JD를 모두 입력해주세요.');
+      return;
+    }
+
+    createCorrection.mutate(
+      {
+        title,
+        jobTitle,
+        jd,
+        submissionTarget: '포트폴리오',
+      },
+      {
+        onSuccess: (data) => {
+          try {
+            sessionStorage.setItem('lastCorrectionId', String(data.id));
+          } catch {}
+          router.push(
+            `/mypage/addcorrection/analyzing?correctionId=${data.id}&companyName=${encodeURIComponent(
+              title
+            )}`
+          );
+        },
+        onError: () => {
+          alert('첨삭 생성에 실패했습니다. 다시 시도해주세요.');
+        },
+      }
+    );
+  };
+
   /* TODO: Sidebar 제거 후 간격 재조정 */
   return (
     <div
@@ -67,7 +113,7 @@ export default function CorrectionIntro() {
             max-lg:right-0"
             >
               <img src="/icons/SubBubble.svg" alt="말풍선" />
-              <div className="absolute top-[40px] left-[50px] flex-col">
+              <div className="absolute top-[40px] left-[50px] flex-col" ref={formRef}>
                 <p className="font-semibold text-[18px] ">기업명</p>
                 <input className="border border-[#BBBBBB] w-[645px] h-[42px] rounded-[4px] mt-[2px] px-[12px]" />
                 <p className="font-semibold text-[18px] mt-[16px]">직무명</p>
@@ -75,11 +121,7 @@ export default function CorrectionIntro() {
                 <p className="font-semibold text-[18px] mt-[16px]">Job Description</p>
                 <textarea className="border border-[#BBBBBB] w-[645px] h-[64px] rounded-[4px] mt-[2px] px-[12px] py-[10px] " />
 
-                <CorrectionRequestStartButton
-                  onStart={() => {
-                    // 시작 로직 작성
-                  }}
-                />
+                <CorrectionRequestStartButton onStart={handleStart} />
               </div>
             </div>
           </div>

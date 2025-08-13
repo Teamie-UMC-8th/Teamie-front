@@ -63,12 +63,14 @@ export interface StartRagResponse {
 }
 
 // RAG 데이터 조회 응답 타입
+export type RagLink = string | { name: string; url: string };
+
 export interface RagDataResponse {
   isSuccess: boolean;
   error: null;
   result: {
     keywords: string[];
-    links: string[];
+    links: RagLink[];
   };
 }
 

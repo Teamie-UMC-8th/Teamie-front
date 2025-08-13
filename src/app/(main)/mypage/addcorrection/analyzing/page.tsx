@@ -2,10 +2,24 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from 'next/link';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import {
+  fetchRagData,
+  fetchCorrectionDetail,
+  fetchCompanyInsight,
+  patchCompanyInsight,
+} from '@/services/correction/correction';
 
 export default function AiLoadingPage() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [companyName, setCompanyName] = useState<string>('');
+  const [keywords, setKeywords] = useState<string[]>([]);
+  const [firstLinkName, setFirstLinkName] = useState<string>('');
+  const [firstLinkUrl, setFirstLinkUrl] = useState<string>('');
+  const [companyInsight, setCompanyInsight] = useState<string>('');
 
   useEffect(() => {
     const scrollContainer = scrollContainerRef.current;
@@ -42,6 +56,60 @@ export default function AiLoadingPage() {
 
     return () => clearTimeout(timer);
   }, []);
+
+  // 실제 데이터 로드 (기업명, 검색어, 링크, 기업 분석 정보)
+  useEffect(() => {
+    const idParam = searchParams.get('correctionId');
+    const companyNameFromQuery = searchParams.get('companyName');
+    if (companyNameFromQuery) setCompanyName(companyNameFromQuery);
+    const correctionId = idParam ? Number(idParam) : NaN;
+    if (!correctionId) return;
+
+    fetchCorrectionDetail(correctionId)
+      .then((res) => setCompanyName(res.title || ''))
+      .catch(() => {});
+
+    fetchRagData(correctionId)
+      .then((res) => {
+        const fetchedLinks = res?.links ?? [];
+        setKeywords(res?.keywords ?? []);
+
+        if (fetchedLinks.length > 0) {
+          const raw = fetchedLinks[0] as string | { name: string; url: string };
+          try {
+            if (typeof raw === 'string') {
+              const url = new URL(raw);
+              const hostname = url.hostname.replace(/^www\./, '');
+              setFirstLinkName(hostname);
+              setFirstLinkUrl(raw);
+            } else if (raw && typeof raw === 'object' && 'name' in raw && 'url' in raw) {
+              setFirstLinkName(raw.name as string);
+              setFirstLinkUrl(raw.url as string);
+            }
+          } catch {
+            setFirstLinkName('');
+            setFirstLinkUrl(typeof raw === 'string' ? raw : (raw?.url ?? ''));
+          }
+        }
+      })
+      .catch(() => {});
+
+    fetchCompanyInsight(correctionId)
+      .then((res) => setCompanyInsight(res.companyInsight ?? ''))
+      .catch(() => {});
+  }, [searchParams]);
+
+  const handleNextClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const idParam = searchParams.get('correctionId');
+    const correctionId = idParam ? Number(idParam) : NaN;
+    if (correctionId && companyInsight) {
+      try {
+        await patchCompanyInsight(correctionId, { companyInsight });
+      } catch {}
+    }
+    router.push('/mypage/addcorrection/projectSelect');
+  };
   return (
     <div
       className="ml-[300px]
@@ -100,7 +168,9 @@ export default function AiLoadingPage() {
                       className="mr-[4px] translate-y-[-8px]
                   max-lg:text-[16px] max-lg:w-[608px] "
                     >
-                      기업명의 인재상과 사업 방향성, 강점과 약점을 분석할게요.
+                      {companyName
+                        ? `${companyName}의 인재상과 사업 방향성, 강점과 약점을 분석할게요.`
+                        : '기업명의 인재상과 사업 방향성, 강점과 약점을 분석할게요.'}
                     </div>
                   </div>
 
@@ -112,7 +182,7 @@ export default function AiLoadingPage() {
                     <div className="border-l-[2px] border-[#E7E7E7] h-[135px] ml-[4px] mr-[21px]" />
                     <div className="border border-[#BBBBBB] rounded-[6px] bg-[#F8F8F8] mt-[6px] w-[94px] h-[36px] px-[12px] py-[6px] flex items-center">
                       <img src="/icons/SearchIcon.svg" alt="검색 아이콘" className="mr-[2px]" />
-                      <p className="text-[16px]">검색어</p>
+                      <p className="text-[16px]">{keywords[0] ?? '검색어'}</p>
                     </div>
                   </div>
                   <div className="flex text-[18px] items-center">
@@ -122,12 +192,16 @@ export default function AiLoadingPage() {
                   <div className="flex">
                     <div className="border-l-[2px] border-[#E7E7E7] h-[260px] ml-[4px] mr-[21px]" />
                     <div
-                      className="border border-[#BBBBBB] rounded-[8px] bg-white w-[828px] h-[206px] mt-[6px] p-[12px] overflow-y-auto
+                      className="border border-[#BBBBBB] rounded-[8px] bg-[#F8F8F8] w-[828px] h-[206px] mt-[6px] p-[12px] overflow-y-auto
                 max-lg:w-[608px]"
                     >
                       <div className="flex items-center">
                         <img src="/icons/URLIcon.svg" alt="URL 아이콘" className="mr-[8px]" />
-                        <p>사이트명 사이트 주소주소주소</p>
+                        <p className="break-all">
+                          {firstLinkUrl
+                            ? `${firstLinkName} ${firstLinkUrl}`
+                            : '사이트명 사이트 주소주소주소'}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -141,9 +215,11 @@ export default function AiLoadingPage() {
                       <br />
                       작성해주신 최종 기업 분석 정보를 바탕으로 첨삭을 진행할게요.
                     </p>
-                    <textarea className="border border-[#BBBBBB] w-[940px] h-[362px] rounded-[8px] bg-white mt-[16px] ml-[26px] pl-[20px] py-[16px] pr-[10px]">
-                      내용
-                    </textarea>
+                    <textarea
+                      className="border border-[#BBBBBB] w-[940px] h-[362px] rounded-[8px] bg-white mt-[16px] ml-[26px] pl-[20px] py-[16px] pr-[10px]"
+                      value={companyInsight}
+                      onChange={(e) => setCompanyInsight(e.target.value)}
+                    />
                   </div>
                 </div>
               </div>
@@ -154,7 +230,7 @@ export default function AiLoadingPage() {
           max-lg:ml-[660px]"
           >
             <img src="/icons/NextPageBubble.svg" alt="다음으로 말풍선" />
-            <Link href="/mypage/addcorrection/projectSelect">
+            <Link href="/mypage/addcorrection/projectSelect" onClick={handleNextClick}>
               <img
                 src="/icons/NextPage.svg"
                 alt="다음으로"
