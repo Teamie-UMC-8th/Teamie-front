@@ -5,6 +5,8 @@ import { useTaskItems } from '@/features/boards/hooks/useTaskItems';
 import { TaskItemComponentProps, TASK_STATUS_STYLES } from '@/types/api/tasks';
 import { useUpdateTaskStatus } from '@/hooks/mutations/useUpdateTaskStatus';
 import Link from 'next/link';
+import { useState } from 'react';
+import CopyModal from './CopyModal';
 
 export default function TaskItem({
   projectId,
@@ -17,6 +19,7 @@ export default function TaskItem({
   const { displayAssignees, cardHeight, deadlineTextColor } = useTaskItems({
     task: { id: taskId, title, status, deadline, assignee },
   });
+  const [showCopyModal, setShowCopyModal] = useState(false);
 
   const updateTaskStatusMutation = useUpdateTaskStatus();
 
@@ -42,6 +45,10 @@ export default function TaskItem({
       taskId,
       status: newStatus,
     });
+
+    if (newStatus === 'COMPLETED') {
+      setShowCopyModal(true);
+    }
   };
 
   // 체크박스 상태 결정 (완료 상태일 때만 체크됨)
@@ -123,6 +130,16 @@ export default function TaskItem({
           )}
         </div>
       </div>
+      {showCopyModal && (
+        <CopyModal
+          isOpen={showCopyModal}
+          onClose={() => setShowCopyModal(false)}
+          headerText="헤더 내용을 입력해주세요."
+          messageText="본문 내용을 입력해주세요.<br>띄어쓰기가 있다면 <br> 태그를 사용하세요."
+          copySuccessText="복사 성공 메세지를 입력해주세요."
+          innerPaddingX="5rem"
+        />
+      )}
     </Link>
   );
 }
