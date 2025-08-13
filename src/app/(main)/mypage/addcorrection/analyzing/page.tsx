@@ -65,12 +65,25 @@ export default function AiLoadingPage() {
     const correctionId = idParam ? Number(idParam) : NaN;
     if (!correctionId) return;
 
+    // 디버그: 쿼리 파라미터 및 변환된 ID 로그
+    console.log('[Analyzing] query params:', {
+      idParam,
+      correctionId,
+      companyNameFromQuery,
+    });
+
     fetchCorrectionDetail(correctionId)
-      .then((res) => setCompanyName(res.title || ''))
-      .catch(() => {});
+      .then((res) => {
+        console.log('[Analyzing] correction detail:', res);
+        setCompanyName(res.title || '');
+      })
+      .catch((error) => {
+        console.error('[Analyzing] failed to fetch correction detail:', error);
+      });
 
     fetchRagData(correctionId)
       .then((res) => {
+        console.log('[Analyzing] RAG data response:', res);
         const fetchedLinks = res?.links ?? [];
         setKeywords(res?.keywords ?? []);
 
@@ -82,21 +95,35 @@ export default function AiLoadingPage() {
               const hostname = url.hostname.replace(/^www\./, '');
               setFirstLinkName(hostname);
               setFirstLinkUrl(raw);
+              console.log('[Analyzing] first link (parsed):', { name: hostname, url: raw });
             } else if (raw && typeof raw === 'object' && 'name' in raw && 'url' in raw) {
               setFirstLinkName(raw.name as string);
               setFirstLinkUrl(raw.url as string);
+              console.log('[Analyzing] first link (object):', raw);
             }
           } catch {
             setFirstLinkName('');
             setFirstLinkUrl(typeof raw === 'string' ? raw : (raw?.url ?? ''));
+            console.warn('[Analyzing] failed to parse first link, using raw value:', raw);
           }
         }
       })
-      .catch(() => {});
+      .catch((error) => {
+        console.error('[Analyzing] failed to fetch RAG data:', error);
+      });
 
     fetchCompanyInsight(correctionId)
-      .then((res) => setCompanyInsight(res.companyInsight ?? ''))
-      .catch(() => {});
+      .then((res) => {
+        console.log(
+          '[Analyzing] company insight fetched:',
+          (res?.companyInsight || '').slice(0, 200),
+          '...'
+        );
+        setCompanyInsight(res.companyInsight ?? '');
+      })
+      .catch((error) => {
+        console.error('[Analyzing] failed to fetch company insight:', error);
+      });
   }, [searchParams]);
 
   const handleNextClick = async (e: React.MouseEvent) => {
@@ -105,6 +132,10 @@ export default function AiLoadingPage() {
     const correctionId = idParam ? Number(idParam) : NaN;
     if (correctionId && companyInsight) {
       try {
+        console.log('[Analyzing] saving company insight before next step:', {
+          correctionId,
+          length: companyInsight.length,
+        });
         await patchCompanyInsight(correctionId, { companyInsight });
       } catch {}
     }
