@@ -1,23 +1,24 @@
 import { ApiErrorResponse } from './error';
 
 // 공통 타입 정의
-interface Manager {
+export interface Manager {
   userId: number;
   userName: string;
 }
 
-interface FileItem {
+export interface FileItem {
+  id: number;
   fileUrl: string;
 }
 
-// 업무 상세 조회 API 응답 타입 정의 (Swagger 명세와 일치)
+// 업무 상세 조회 API 응답 타입 정의
 export interface TaskDetailResponse {
   isSuccess: boolean;
   error: ApiErrorResponse | null;
   result: {
     name: string;
-    deadline: string; // 예: '2024-07-10 00:00:00 '
-    status: 'ONGOING' | 'COMPLETED' | 'NOTSTART'; // API 명세에 맞춰 수정
+    deadline: string; // 예: '2024-07-10 00:00:00 ' (끝에 공백 포함)
+    status: 'ONGOING' | 'COMPLETED' | 'NOTSTART';
     memo: string;
     managers: Manager[];
     files: FileItem[];
@@ -28,8 +29,8 @@ export interface TaskDetailResponse {
 // 업무 수정 API 요청 타입 정의
 export interface UpdateTaskRequest {
   name: string;
-  deadline: string; // 예: '2024-07-10 00:00:00 '
-  status: 'ONGOING' | 'COMPLETED' | 'NOTSTART'; // API 명세에 맞춰 수정
+  deadline: string; // 예: '2024-07-10 00:00:00'
+  status: 'ONGOING' | 'COMPLETED' | 'NOTSTART'; // API 응답에 맞춰 COMPLETE로 수정
   memo: string;
   managerIds: number[];
   existingFileUrls: string[];
@@ -43,7 +44,7 @@ export interface UpdateTaskResponse {
   result: {
     name: string;
     deadline: string;
-    status: 'ONGOING' | 'COMPLETED' | 'NOTSTART'; // API 명세에 맞춰 수정
+    status: 'ONGOING' | 'COMPLETED' | 'NOTSTART'; // API 응답에 맞춰 COMPLETE로 수정
     memo: string;
     managers: Manager[];
     stepId: number;

@@ -18,6 +18,12 @@ export const uploadTaskFile = async (taskId: number, file: File): Promise<Upload
     });
 
     console.log('✅ 파일 업로드 성공:', response.data);
+    console.log('📁 업로드된 파일 정보:', {
+      id: response.data.result?.id,
+      fileUrl: response.data.result?.fileUrl,
+      hasId: response.data.result && 'id' in response.data.result,
+      resultKeys: response.data.result ? Object.keys(response.data.result) : null,
+    });
     return response.data;
   } catch (error: unknown) {
     console.error('❌ 파일 업로드 실패:', error);

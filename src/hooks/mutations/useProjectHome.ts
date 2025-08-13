@@ -455,44 +455,53 @@ export const useProjectHomeState = (projectId: number) => {
     field: 'university' | 'role',
     value: string
   ) => {
-    // API를 통해 프로필 카드 수정
-    updateProfileMutation.mutate(
-      {
-        id: memberId.toString(),
-        role: field === 'role' ? value : '',
-      },
-      {
-        onSuccess: (data) => {
-          if (data.isSuccess) {
-            // 성공 시 로컬 상태 업데이트
-            setTeamMembers((prev) =>
-              prev.map((member) =>
-                member.id === memberId ? { ...member, [field]: value } : member
-              )
-            );
-          }
+    // 역할 수정만 API를 통해 처리
+    if (field === 'role') {
+      updateProfileMutation.mutate(
+        {
+          id: memberId.toString(),
+          role: value,
         },
-        onError: (error: Error) => {
-          console.error('프로필 카드 수정 실패:', error);
+        {
+          onSuccess: (data) => {
+            if (data.isSuccess) {
+              // 성공 시 로컬 상태 업데이트
+              setTeamMembers((prev) =>
+                prev.map((member) =>
+                  member.id === memberId ? { ...member, [field]: value } : member
+                )
+              );
+            }
+          },
+          onError: (error: Error) => {
+            console.error('프로필 카드 수정 실패:', error);
 
-          // 403 오류인 경우 사용자에게 알림
-          if ((error as AxiosError<ApiErrorResponse>).response?.data?.errorCode === 'PROJECT4031') {
-            alert('프로필 수정 권한이 없습니다. 프로젝트 멤버인지 확인해주세요.');
-          } else {
-            alert('프로필 수정에 실패했습니다. 다시 시도해주세요.');
-          }
+            // 403 오류인 경우 사용자에게 알림
+            if (
+              (error as AxiosError<ApiErrorResponse>).response?.data?.errorCode === 'PROJECT4031'
+            ) {
+              alert('프로필 수정 권한이 없습니다. 프로젝트 멤버인지 확인해주세요.');
+            } else {
+              alert('프로필 수정에 실패했습니다. 다시 시도해주세요.');
+            }
 
-          // 에러 시에도 로컬 상태 업데이트 (개발 환경)
-          if (process.env.NODE_ENV === 'development') {
-            setTeamMembers((prev) =>
-              prev.map((member) =>
-                member.id === memberId ? { ...member, [field]: value } : member
-              )
-            );
-          }
-        },
-      }
-    );
+            // 에러 시에도 로컬 상태 업데이트 (개발 환경)
+            if (process.env.NODE_ENV === 'development') {
+              setTeamMembers((prev) =>
+                prev.map((member) =>
+                  member.id === memberId ? { ...member, [field]: value } : member
+                )
+              );
+            }
+          },
+        }
+      );
+    } else if (field === 'university') {
+      // 학교 수정은 로컬 상태만 업데이트 (API 지원 안함)
+      setTeamMembers((prev) =>
+        prev.map((member) => (member.id === memberId ? { ...member, [field]: value } : member))
+      );
+    }
   };
 
   /**

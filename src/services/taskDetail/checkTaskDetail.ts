@@ -4,6 +4,7 @@ import {
   UpdateTaskRequest,
   UpdateTaskResponse,
   DeleteTaskResponse,
+  FileItem,
 } from '@/types/api/taskDetail';
 
 // 업무 상세 조회 함수
@@ -30,8 +31,39 @@ export const checkTaskDetail = async (taskId: number): Promise<TaskDetailRespons
         memo: response.data.result.memo,
         stepId: response.data.result.stepId,
         managersCount: response.data.result.managers?.length || 0,
+        managers: response.data.result.managers, // 담당자 배열 추가
         filesCount: response.data.result.files?.length || 0,
+        files: response.data.result.files, // 파일 배열 추가
       });
+
+      // 파일 정보 상세 로깅
+      if (response.data.result.files && response.data.result.files.length > 0) {
+        console.log('📁 API 응답 - 파일 상세 정보:', response.data.result.files);
+        console.log(
+          '📁 파일 구조 확인:',
+          response.data.result.files.map((file: FileItem) => ({
+            id: file.id,
+            fileUrl: file.fileUrl,
+            hasId: 'id' in file,
+            keys: Object.keys(file),
+          }))
+        );
+      } else {
+        console.log('📁 API 응답 - 파일 없음');
+      }
+
+      // 담당자 정보 상세 로깅
+      if (response.data.result.managers && response.data.result.managers.length > 0) {
+        console.log(
+          '👥 API 응답 - 담당자 상세 정보:',
+          response.data.result.managers.map((manager: { userId: number; userName: string }) => ({
+            userId: manager.userId,
+            userName: manager.userName,
+          }))
+        );
+      } else {
+        console.log('👥 API 응답 - 담당자 없음');
+      }
     }
 
     return response.data;

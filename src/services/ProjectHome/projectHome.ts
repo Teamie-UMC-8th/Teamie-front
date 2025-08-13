@@ -288,12 +288,16 @@ export const updateProfile = async (
   profileData: UpdateProfileRequest
 ): Promise<UpdateProfileResponse> => {
   try {
-    console.log('프로필 수정 API 호출 시도:', `/api/v1/users/me`, profileData);
+    console.log('프로필 수정 API 호출 시도:', `/api/v1/projects/${projectId}/profile`, profileData);
 
-    // 사용자 본인의 프로필을 수정하는 API 사용
-    const response = await axiosInstance.patch<UpdateProfileResponse>(`/api/v1/users/me`, {
-      school: profileData.role, // role을 school로 매핑
-    });
+    // 프로젝트 내 프로필 카드 수정 API 사용
+    const response = await axiosInstance.patch<UpdateProfileResponse>(
+      `/api/v1/projects/${projectId}/profile`,
+      {
+        id: profileData.id,
+        role: profileData.role,
+      }
+    );
 
     console.log('프로필 수정 성공:', response.data);
     return response.data;

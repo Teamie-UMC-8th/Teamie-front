@@ -76,20 +76,26 @@ export const useTaskMemoHandler = () => {
   }, []);
 
   const handleMemoBlur = useCallback(
-    (taskId: number, taskData: TaskDetailResponse | undefined) => {
+    (taskId: number, taskData: TaskDetailResponse | undefined, currentMemo: string) => {
       if (!taskData?.result) return;
 
-      updateTaskMutation.mutate({
-        taskId,
-        data: {
-          ...taskData.result,
-          memo: memo,
-          managerIds: taskData.result.managers.map((m) => m.userId),
-          existingFileUrls: taskData.result.files?.map((f) => f.fileUrl) ?? [],
-        },
-      });
+      // 비고 내용만 업데이트 (메모가 실제로 변경된 경우에만)
+      if (currentMemo !== taskData.result.memo) {
+        updateTaskMutation.mutate({
+          taskId,
+          data: {
+            name: taskData.result.name,
+            deadline: taskData.result.deadline,
+            status: taskData.result.status,
+            memo: currentMemo,
+            managerIds: taskData.result.managers.map((m) => m.userId),
+            existingFileUrls: taskData.result.files?.map((f) => f.fileUrl) ?? [],
+            stepId: taskData.result.stepId,
+          },
+        });
+      }
     },
-    [memo, updateTaskMutation]
+    [updateTaskMutation]
   );
 
   return {

@@ -2,11 +2,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { checkTaskDetail } from '@/services/taskDetail/checkTaskDetail';
 import AddProfileButton from '@/components/AddProfileButton';
 import BackButton from '@/components/BackButton';
 import DeleteButton from '@/components/DeleteButton';
 import DatePicker from '@/components/DatePicker';
+import MemoField from '@/features/tasks/components/MemoField';
 import AddComment from '@/features/tasks/components/AddComment';
 import FileUploader from '@/features/tasks/components/FileUploader';
 import TaskDropdown from '@/features/tasks/components/TaskDropdown';
@@ -28,7 +30,7 @@ export default function TaskDetailPage() {
   const [isEditingName, setIsEditingName] = useState(false); // 업무 이름 수정 모드
   const [editingName, setEditingName] = useState(''); // 수정 중인 업무 이름
 
-  const { memo, handleMemoChange, handleMemoBlur } = useTaskMemoHandler();
+  const { handleMemoBlur } = useTaskMemoHandler();
   const updateTaskMutation = useUpdateTaskDetail();
   const deleteTaskMutation = useDeleteTask();
   const router = useRouter();
@@ -83,8 +85,23 @@ export default function TaskDetailPage() {
           status: data.result.status,
           stepId: data.result.stepId,
           managersCount: data.result.managers?.length || 0,
+          managers: data.result.managers, // 담당자 배열 추가
           filesCount: data.result.files?.length || 0,
+          files: data.result.files, // 파일 배열 추가
         });
+
+        // 담당자 정보 상세 로깅
+        if (data.result.managers && data.result.managers.length > 0) {
+          console.log(
+            '👥 담당자 상세 정보:',
+            data.result.managers.map((manager: { userId: number; userName: string }) => ({
+              userId: manager.userId,
+              userName: manager.userName,
+            }))
+          );
+        } else {
+          console.log('👥 담당자 없음');
+        }
       }
     }
   }, [data]);
@@ -160,23 +177,23 @@ export default function TaskDetailPage() {
 
   // 현재 사용자가 프로젝트 홈의 프로필 카드에 연동되어 있는지 확인하는 함수
   const isCurrentUserProjectMember = () => {
-    if (!currentUser || !projectHomeData?.result?.users) {
+    if (!currentUser || !projectHomeData?.result?.project?.users) {
       console.log('권한 확인 실패: 사용자 정보 또는 프로젝트 데이터 없음', {
         currentUser,
-        projectUsers: projectHomeData?.result?.users,
+        projectUsers: projectHomeData?.result?.project?.users,
       });
       return false;
     }
 
     // 프로젝트 홈과 동일한 방식: 이메일로 비교
-    const isMember = projectHomeData.result.users.some(
+    const isMember = projectHomeData.result.project?.users.some(
       (user: { email: string }) => user.email === currentUser.email
     );
 
     console.log('프로젝트 홈 권한 확인:', {
       currentUserEmail: currentUser.email,
       currentUserName: currentUser.name,
-      projectUsers: projectHomeData.result.users.map(
+      projectUsers: projectHomeData.result.project?.users.map(
         (u: { id: number; name: string; email: string }) => ({
           id: u.id,
           name: u.name,
@@ -191,7 +208,7 @@ export default function TaskDetailPage() {
 
   // 담당자 정보 (프로젝트 홈의 사용자 목록 사용)
   const availableProfiles =
-    projectHomeData?.result?.users?.map((user: { id: number; name: string }) => ({
+    projectHomeData?.result?.project?.users?.map((user: { id: number; name: string }) => ({
       userId: user.id,
       userName: user.name,
     })) || [];
@@ -205,24 +222,31 @@ export default function TaskDetailPage() {
       return;
     }
 
-    // 상태 업데이트를 다음 렌더링 사이클로 지연
-    setTimeout(() => {
-      console.log('handleManagersChange - API 호출 시도:', {
+    console.log('handleManagersChange - API 호출 시도:', {
+      taskId,
+      selectedUserIds,
+    });
+
+    if (data?.result) {
+      const updateData = {
+        ...data.result,
+        managerIds: selectedUserIds,
+        existingFileUrls: data.result.files?.map((f) => f.fileUrl) ?? [],
+      };
+
+      console.log('🔧 담당자 변경 - 전송할 데이터:', {
         taskId,
-        selectedUserIds,
+        updateData,
+        managerIds: updateData.managerIds,
+        managersCount: updateData.managerIds.length,
+        originalManagers: data.result.managers,
       });
 
-      if (data?.result) {
-        updateTaskMutation.mutate({
-          taskId,
-          data: {
-            ...data.result,
-            managerIds: selectedUserIds,
-            existingFileUrls: data.result.files?.map((f) => f.fileUrl) ?? [],
-          },
-        });
-      }
-    }, 0);
+      updateTaskMutation.mutate({
+        taskId,
+        data: updateData,
+      });
+    }
   };
 
   const handleDateChange = (date: Date) => {
@@ -452,9 +476,11 @@ export default function TaskDetailPage() {
                 })()}
               </div>
             </div>
-            <img
+            <Image
               src="/icons/deadline-calendar.svg"
               alt="마감기한"
+              width={32}
+              height={32}
               className="ml-[10px] cursor-pointer"
               onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
             />
@@ -525,6 +551,7 @@ export default function TaskDetailPage() {
             onChange={handleManagersChange}
             onPermissionCheck={isCurrentUserProjectMember}
             initialSelectedIds={task.managers.map((m) => m.userId)}
+            alertMessage="프로젝트 멤버만 담당자를 수정할 수 있습니다."
           />
         </div>
 
@@ -540,21 +567,12 @@ export default function TaskDetailPage() {
         </div>
 
         {/* 비고 */}
-        <div
-          className="flex flex-row mt-[40px] ml-[40px]
-        max-lg:ml-[24px]"
-        >
-          <div className="min-w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px]">
-            비고
-          </div>
-          <textarea
-            value={memo || task.memo || ''}
-            onChange={(e) => handleMemoChange(e.target.value)}
-            onBlur={() => handleMemoBlur(taskId, data)}
-            className="min-w-[1288px] h-[84px] px-[20px] py-[16px] border-[2px] rounded-[6px] border-[#BBBBBB] ml-[28px] 
-          max-lg:w-[735px] max-lg:min-w-[735px] resize-none"
-          />
-        </div>
+        <MemoField
+          taskId={taskId}
+          taskData={data}
+          initialMemo={task.memo}
+          onMemoBlur={handleMemoBlur}
+        />
 
         <AddComment />
       </div>
