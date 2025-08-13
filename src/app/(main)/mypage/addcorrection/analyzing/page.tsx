@@ -19,8 +19,7 @@ export default function AiLoadingPage() {
   const router = useRouter();
   const [companyName, setCompanyName] = useState<string>('');
   const [keywords, setKeywords] = useState<string[]>([]);
-  const [firstLinkName, setFirstLinkName] = useState<string>('');
-  const [firstLinkUrl, setFirstLinkUrl] = useState<string>('');
+  const [links, setLinks] = useState<{ name: string; url: string }[]>([]);
   const [companyInsight, setCompanyInsight] = useState<string>('');
   const lastIdRef = useRef<number | null>(null);
   const loadedFromPrefetchRef = useRef<boolean>(false);
@@ -77,8 +76,7 @@ export default function AiLoadingPage() {
       });
       setCompanyName(companyNameFromQuery || '');
       setKeywords([]);
-      setFirstLinkName('');
-      setFirstLinkUrl('');
+      setLinks([]);
       setCompanyInsight('');
       lastIdRef.current = correctionId;
     }
@@ -97,25 +95,30 @@ export default function AiLoadingPage() {
         if (parsed && parsed.id === correctionId) {
           if (parsed.detail?.title) setCompanyName(parsed.detail.title);
           if (parsed.rag?.keywords) setKeywords(parsed.rag.keywords);
-          const first = parsed.rag?.links?.[0] as
-            | string
-            | { name: string; url: string }
-            | undefined;
-          if (first) {
-            try {
-              if (typeof first === 'string') {
-                const url = new URL(first);
-                const hostname = url.hostname.replace(/^www\./, '');
-                setFirstLinkName(hostname);
-                setFirstLinkUrl(first);
-              } else if (first && typeof first === 'object' && 'name' in first && 'url' in first) {
-                setFirstLinkName(first.name as string);
-                setFirstLinkUrl(first.url as string);
-              }
-            } catch {
-              setFirstLinkName('');
-              setFirstLinkUrl(typeof first === 'string' ? first : (first?.url ?? ''));
-            }
+          if (Array.isArray(parsed.rag?.links)) {
+            const normalized = parsed.rag.links
+              .map((raw) => {
+                try {
+                  if (typeof raw === 'string') {
+                    const url = new URL(raw);
+                    const hostname = url.hostname.replace(/^www\./, '');
+                    return { name: hostname, url: raw };
+                  }
+                  if (raw && typeof raw === 'object' && 'name' in raw && 'url' in raw) {
+                    return { name: String(raw.name), url: String(raw.url) };
+                  }
+                } catch {
+                  return typeof raw === 'string'
+                    ? { name: '', url: raw }
+                    : {
+                        name: String((raw as Record<string, unknown>)?.name || ''),
+                        url: String((raw as Record<string, unknown>)?.url || ''),
+                      };
+                }
+                return null;
+              })
+              .filter((v): v is { name: string; url: string } => !!v && !!v.url);
+            setLinks(normalized);
           }
           if (typeof parsed.insight?.companyInsight === 'string') {
             setCompanyInsight(parsed.insight.companyInsight);
@@ -160,26 +163,30 @@ export default function AiLoadingPage() {
         console.log('[Analyzing] RAG data response:', res);
         const fetchedLinks = res?.links ?? [];
         setKeywords(res?.keywords ?? []);
-
-        if (fetchedLinks.length > 0) {
-          const raw = fetchedLinks[0] as string | { name: string; url: string };
-          try {
-            if (typeof raw === 'string') {
-              const url = new URL(raw);
-              const hostname = url.hostname.replace(/^www\./, '');
-              setFirstLinkName(hostname);
-              setFirstLinkUrl(raw);
-              console.log('[Analyzing] first link (parsed):', { name: hostname, url: raw });
-            } else if (raw && typeof raw === 'object' && 'name' in raw && 'url' in raw) {
-              setFirstLinkName(raw.name as string);
-              setFirstLinkUrl(raw.url as string);
-              console.log('[Analyzing] first link (object):', raw);
-            }
-          } catch {
-            setFirstLinkName('');
-            setFirstLinkUrl(typeof raw === 'string' ? raw : (raw?.url ?? ''));
-            console.warn('[Analyzing] failed to parse first link, using raw value:', raw);
-          }
+        if (Array.isArray(fetchedLinks)) {
+          const normalized = fetchedLinks
+            .map((raw) => {
+              try {
+                if (typeof raw === 'string') {
+                  const url = new URL(raw);
+                  const hostname = url.hostname.replace(/^www\./, '');
+                  return { name: hostname, url: raw };
+                }
+                if (raw && typeof raw === 'object' && 'name' in raw && 'url' in raw) {
+                  return { name: String(raw.name), url: String(raw.url) };
+                }
+              } catch {
+                return typeof raw === 'string'
+                  ? { name: '', url: raw }
+                  : {
+                      name: String((raw as Record<string, unknown>)?.name || ''),
+                      url: String((raw as Record<string, unknown>)?.url || ''),
+                    };
+              }
+              return null;
+            })
+            .filter((v): v is { name: string; url: string } => !!v && !!v.url);
+          setLinks(normalized);
         }
       })
       .catch((error) => {
@@ -290,10 +297,25 @@ export default function AiLoadingPage() {
                     <p className="mr-[4px]">검색을 진행할게요.</p>
                   </div>
                   <div className="flex">
-                    <div className="border-l-[2px] border-[#E7E7E7] h-[135px] ml-[4px] mr-[21px]" />
-                    <div className="border border-[#BBBBBB] rounded-[6px] bg-[#F8F8F8] mt-[6px] w-[94px] h-[36px] px-[12px] py-[6px] flex items-center">
-                      <img src="/icons/SearchIcon.svg" alt="검색 아이콘" className="mr-[2px]" />
-                      <p className="text-[16px]">{keywords[0] ?? '검색어'}</p>
+                    <div className="border-l-[2px] border-[#E7E7E7] ml-[4px] mr-[21px]" />
+                    <div className="mt-[6px] flex flex-wrap gap-[8px]">
+                      {(keywords && keywords.length > 0 ? keywords : ['검색어']).map(
+                        (kw, idx, arr) => (
+                          <div
+                            key={`${String(kw)}-${idx}`}
+                            className={`border border-[#BBBBBB] rounded-[6px] bg-[#F8F8F8] h-[36px] px-[12px] py-[6px] flex items-center ${
+                              idx === arr.length - 1 ? 'mb-[40px]' : ''
+                            }`}
+                          >
+                            <img
+                              src="/icons/SearchIcon.svg"
+                              alt="검색 아이콘"
+                              className="mr-[2px]"
+                            />
+                            <p className="text-[16px]">{String(kw)}</p>
+                          </div>
+                        )
+                      )}
                     </div>
                   </div>
                   <div className="flex text-[18px] items-center">
@@ -306,13 +328,22 @@ export default function AiLoadingPage() {
                       className="border border-[#BBBBBB] rounded-[8px] bg-[#F8F8F8] w-[828px] h-[206px] mt-[6px] p-[12px] overflow-y-auto
                 max-lg:w-[608px]"
                     >
-                      <div className="flex items-center">
-                        <img src="/icons/URLIcon.svg" alt="URL 아이콘" className="mr-[8px]" />
-                        <p className="break-all">
-                          {firstLinkUrl
-                            ? `${firstLinkName} ${firstLinkUrl}`
-                            : '사이트명 사이트 주소주소주소'}
-                        </p>
+                      <div className="flex flex-col gap-[12px]">
+                        {(links.length > 0
+                          ? links
+                          : [{ name: '사이트명', url: '사이트 주소주소주소' }]
+                        ).map((item, idx) => (
+                          <a
+                            key={`${item.url}-${idx}`}
+                            href={item.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center"
+                          >
+                            <img src="/icons/URLIcon.svg" alt="URL 아이콘" className="mr-[8px]" />
+                            <p className="break-all">{`${item.name ? item.name + ' ' : ''}${item.url}`}</p>
+                          </a>
+                        ))}
                       </div>
                     </div>
                   </div>
