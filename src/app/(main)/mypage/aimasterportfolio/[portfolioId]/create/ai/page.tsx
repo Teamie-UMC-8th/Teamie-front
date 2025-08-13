@@ -31,12 +31,8 @@ export default function AIMasterPortfolioCreatePage() {
   const searchParams = useSearchParams();
   const portfolioId = Number(params.portfolioId);
 
-  const [isGenerating, setIsGenerating] = useState(false);
-
   const { data: portfolio } = useMasterPortfolioDetail(portfolioId);
-  const { data: statusData } = useMasterPortfolioStatus(portfolioId, {
-    refetchInterval: isGenerating ? 2000 : false,
-  });
+  const { data: statusData } = useMasterPortfolioStatus(portfolioId);
   const { data: retro } = useGetPersonalRetro(portfolio?.projectId as number);
   const { mutate: patchQuestions, isPending: isPatchQuestionsPending } =
     usePatchMasterPortfolioQuestions();
@@ -50,6 +46,7 @@ export default function AIMasterPortfolioCreatePage() {
   const [selectedRecordIds, setSelectedRecordIds] = useState<number[]>([]);
   const step3Ref = useRef<Step3Handle>(null);
   const [isPostingQuestions, setIsPostingQuestions] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [synced, setSynced] = useState(false);
 
   useEffect(() => {
@@ -69,8 +66,6 @@ export default function AIMasterPortfolioCreatePage() {
     if (!status) return;
 
     if (status === 'DONE') {
-      // 생성 완료 시 상세 데이터 강제 갱신 후 이동
-      queryClient.invalidateQueries({ queryKey: ['master-portfolio', portfolioId] });
       router.replace(`/mypage/aimasterportfolio/${portfolioId}`);
       return;
     }
@@ -328,7 +323,7 @@ export default function AIMasterPortfolioCreatePage() {
                         alert('포트폴리오 생성 중 오류가 발생했습니다.');
                         setIsGenerating(false);
                       },
-                      onSettled: () => {},
+                      onSettled: () => setIsGenerating(false),
                     }
                   );
                 },
