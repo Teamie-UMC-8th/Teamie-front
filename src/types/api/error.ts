@@ -2,7 +2,7 @@
 export interface ApiErrorResponse {
   errorCode: string;
   reason: string;
-  data: null;
+  data: { projectId: string } | null;
 }
 
 // 공통 API 응답 래퍼 타입

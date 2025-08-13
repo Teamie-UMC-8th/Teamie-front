@@ -24,16 +24,14 @@ export interface GetJoinProjectResponse {
   isSuccess: boolean;
   error: ApiErrorResponse | null;
   result: {
-    project?: {
-      id: string;
-      name: string;
-      leader: string;
-    };
+    projectId: number; // id → projectId로 변경
+    name: string;
+    leaderName: string; // leader → permission으로 변경
   } | null;
 }
 
 export interface PostJoinProjectRequest {
-  inviteCode: string;
+  projectId: number;
 }
 
 export interface PostJoinProjectResponse {
