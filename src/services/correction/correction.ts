@@ -30,9 +30,11 @@ export async function fetchCorrectionList(
 export async function fetchCorrectionDetail(
   correctionId: number
 ): Promise<CorrectionDetailResponse['result']> {
+  console.log('[API] GET /api/v1/portfolio-corrections/{id} id:', correctionId);
   const { data } = await axiosInstance.get<CorrectionDetailResponse>(
     `/api/v1/portfolio-corrections/${correctionId}`
   );
+  console.log('[API] GET /api/v1/portfolio-corrections/{id} response:', data);
 
   if (!data.result) {
     throw new Error('AI 첨삭 상세 정보를 가져올 수 없습니다.');
@@ -77,9 +79,11 @@ export async function startRag(correctionId: number): Promise<StartRagResponse['
 }
 
 export async function fetchRagData(correctionId: number): Promise<RagDataResponse['result']> {
+  console.log('[API] GET /api/v1/portfolio-corrections/{id}/rag id:', correctionId);
   const { data } = await axiosInstance.get<RagDataResponse>(
     `/api/v1/portfolio-corrections/${correctionId}/rag`
   );
+  console.log('[API] GET /api/v1/portfolio-corrections/{id}/rag response:', data);
 
   if (!data.result) {
     throw new Error('RAG 데이터 조회에 실패했습니다.');
@@ -91,9 +95,11 @@ export async function fetchRagData(correctionId: number): Promise<RagDataRespons
 export async function fetchCompanyInsight(
   correctionId: number
 ): Promise<CompanyInsightResponse['result']> {
+  console.log('[API] GET /api/v1/portfolio-corrections/{id}/company-insight id:', correctionId);
   const { data } = await axiosInstance.get<CompanyInsightResponse>(
     `/api/v1/portfolio-corrections/${correctionId}/company-insight`
   );
+  console.log('[API] GET /api/v1/portfolio-corrections/{id}/company-insight response:', data);
 
   if (!data.result) {
     throw new Error('기업 분석 정보 조회에 실패했습니다.');

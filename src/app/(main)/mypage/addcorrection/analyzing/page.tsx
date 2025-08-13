@@ -59,10 +59,22 @@ export default function AiLoadingPage() {
 
   // 실제 데이터 로드 (기업명, 검색어, 링크, 기업 분석 정보)
   useEffect(() => {
+    console.log('[Analyzing] effect start');
     const idParam = searchParams.get('correctionId');
     const companyNameFromQuery = searchParams.get('companyName');
     if (companyNameFromQuery) setCompanyName(companyNameFromQuery);
-    const correctionId = idParam ? Number(idParam) : NaN;
+    let correctionId = idParam ? Number(idParam) : NaN;
+
+    // 쿼리에 id가 없을 때 세션스토리지 값으로 보조 조회
+    if (!correctionId && typeof window !== 'undefined') {
+      try {
+        const last = window.sessionStorage.getItem('lastCorrectionId');
+        if (last) {
+          correctionId = Number(last);
+          console.log('[Analyzing] using lastCorrectionId from sessionStorage:', correctionId);
+        }
+      } catch {}
+    }
     if (!correctionId) return;
 
     // 디버그: 쿼리 파라미터 및 변환된 ID 로그
@@ -124,6 +136,74 @@ export default function AiLoadingPage() {
       .catch((error) => {
         console.error('[Analyzing] failed to fetch company insight:', error);
       });
+
+    // RAG 시작 직후 데이터가 지연되어 도착할 수 있으므로, 일정 시간 폴링하여 재시도합니다.
+    let attempts = 0;
+    const maxAttempts = 15; // 총 15회 시도 (~30초)
+    const intervalMs = 2000;
+    const intervalId = window.setInterval(async () => {
+      attempts += 1;
+      console.log(`[Analyzing] polling attempt ${attempts}/${maxAttempts}`);
+      try {
+        const [rag, insight] = await Promise.all([
+          fetchRagData(correctionId).catch((e) => {
+            console.warn('[Analyzing] polling: RAG fetch failed', e);
+            return null as unknown as Awaited<ReturnType<typeof fetchRagData>>;
+          }),
+          fetchCompanyInsight(correctionId).catch((e) => {
+            console.warn('[Analyzing] polling: company insight fetch failed', e);
+            return null as unknown as Awaited<ReturnType<typeof fetchCompanyInsight>>;
+          }),
+        ]);
+
+        if (rag) {
+          if (Array.isArray(rag.keywords) && rag.keywords.length > 0) {
+            setKeywords(rag.keywords);
+          }
+          const fetchedLinks = rag.links ?? [];
+          if (fetchedLinks.length > 0) {
+            const raw = fetchedLinks[0] as string | { name: string; url: string };
+            try {
+              if (typeof raw === 'string') {
+                const url = new URL(raw);
+                const hostname = url.hostname.replace(/^www\./, '');
+                setFirstLinkName(hostname);
+                setFirstLinkUrl(raw);
+              } else if (raw && typeof raw === 'object' && 'name' in raw && 'url' in raw) {
+                setFirstLinkName(raw.name as string);
+                setFirstLinkUrl(raw.url as string);
+              }
+            } catch {
+              setFirstLinkName('');
+              setFirstLinkUrl(typeof raw === 'string' ? raw : (raw?.url ?? ''));
+            }
+          }
+        }
+
+        if (insight && insight.companyInsight) {
+          setCompanyInsight((prev) => prev || insight.companyInsight);
+        }
+
+        const ready =
+          !!rag &&
+          Array.isArray(rag.keywords) &&
+          rag.keywords.length > 0 &&
+          !!insight &&
+          typeof insight.companyInsight === 'string' &&
+          insight.companyInsight.length > 0;
+
+        if (ready || attempts >= maxAttempts) {
+          window.clearInterval(intervalId);
+          console.log('[Analyzing] polling finished. ready:', ready, 'attempts:', attempts);
+        }
+      } catch (e) {
+        console.warn('[Analyzing] polling iteration error:', e);
+      }
+    }, intervalMs);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
   }, [searchParams]);
 
   const handleNextClick = async (e: React.MouseEvent) => {
@@ -186,9 +266,12 @@ export default function AiLoadingPage() {
               <div
                 ref={scrollContainerRef}
                 className="absolute top-[40px] left-[0px] px-[94px] w-[1100px] h-[480px] overflow-y-auto
-              max-lg:px-[93px] max-lg:py-[48px]"
+              max-lg:px-[93px] max-lg:pt-[48px]"
               >
-                <div className="mt-[-40px] pt-[50px]">
+                <div
+                  className="mt-[-40px] pt-[50px]
+                max-lg:pt-[0px]"
+                >
                   <div className="flex text-[18px] relative">
                     <div className="flex-col">
                       <img src="/icons/Cdot.svg" alt="포인터" className="mr-[16px]" />
@@ -197,7 +280,7 @@ export default function AiLoadingPage() {
                     </div>
                     <div
                       className="mr-[4px] translate-y-[-8px]
-                  max-lg:text-[16px] max-lg:w-[608px] "
+                      max-lg:w-[608px] "
                     >
                       {companyName
                         ? `${companyName}의 인재상과 사업 방향성, 강점과 약점을 분석할게요.`
@@ -247,7 +330,8 @@ export default function AiLoadingPage() {
                       작성해주신 최종 기업 분석 정보를 바탕으로 첨삭을 진행할게요.
                     </p>
                     <textarea
-                      className="border border-[#BBBBBB] w-[940px] h-[362px] rounded-[8px] bg-white mt-[16px] ml-[26px] pl-[20px] py-[16px] pr-[10px]"
+                      className="border border-[#BBBBBB] w-[940px] h-[362px] rounded-[8px] bg-white mt-[16px] ml-[26px] pl-[20px] py-[16px] pr-[10px]
+                      max-lg:w-[608px] max-lg:h-[360px]"
                       value={companyInsight}
                       onChange={(e) => setCompanyInsight(e.target.value)}
                     />
