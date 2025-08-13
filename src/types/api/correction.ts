@@ -3,6 +3,7 @@ export interface Correction {
   title: string;
   createdAt: string;
   jobTitle: string;
+  submissionTarget: string;
 }
 
 export interface CorrectionListResponse {
@@ -97,6 +98,7 @@ export interface CorrectionDetailResponse {
   result: {
     correctionId: number;
     title: string;
+    submissionTarget: string;
     createdAt: string;
     jobTitle: string;
     // API가 빈 껍데기이므로 기본적인 필드만 정의

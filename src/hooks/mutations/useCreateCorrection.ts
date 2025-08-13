@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createCorrection, startRag } from '@/services/correction/correction';
+import { createCorrection } from '@/services/correction/correction';
 import { CreateCorrectionRequest } from '@/types/api/correction';
 
 export const useCreateCorrection = () => {
@@ -11,15 +11,7 @@ export const useCreateCorrection = () => {
       const created = await createCorrection(correctionData);
       return created;
     },
-    onSuccess: (created) => {
-      // RAG는 백그라운드로 시작 (대기하지 않음)
-      try {
-        // fire-and-forget
-        void startRag(created.id);
-      } catch (e) {
-        // 실패해도 UI 흐름은 계속 진행
-        console.error('RAG 시작 실패(비동기):', e);
-      }
+    onSuccess: () => {
       // 첨삭 목록 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ['corrections'] });
     },

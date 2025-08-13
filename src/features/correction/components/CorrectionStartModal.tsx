@@ -1,6 +1,6 @@
 import { createPortal } from 'react-dom';
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import Image from 'next/image';
 
 type CorrectionStartButtonModalProps = {
   title: string;
@@ -36,14 +36,16 @@ export default function CorrectionStartButtonModal({
           className="absolute top-[8px] right-[8px] w-[24px] h-[24px] cursor-pointer"
           onClick={onCancel}
         >
-          <img src="/icons/곱하기.svg" alt="닫기" />
+          <Image src="/icons/곱하기.svg" alt="닫기" width={24} height={24} />
         </button>
 
         <div className="w-[251px] grid place-items-center">
           <div className="flex items-start">
-            <img
+            <Image
               src="/icons/CreditIcon.svg"
               alt="첨삭 모달 아이콘"
+              width={20}
+              height={20}
               className="mt-[2px] mr-[12px]"
             />
             <h3 className="text-[20px] font-semibold text-center text-black">{title}</h3>
@@ -60,14 +62,12 @@ export default function CorrectionStartButtonModal({
           >
             {cancelText}
           </button>
-          <Link href="/mypage/addcorrection/analyzing/">
-            <button
-              onClick={onConfirm}
-              className="w-[103px] h-[34px] border border-black rounded-[4px] text-[18px] cursor-pointer"
-            >
-              {confirmText}
-            </button>
-          </Link>
+          <button
+            onClick={onConfirm}
+            className="w-[103px] h-[34px] border border-black rounded-[4px] text-[18px] cursor-pointer"
+          >
+            {confirmText}
+          </button>
         </div>
       </div>
     </div>

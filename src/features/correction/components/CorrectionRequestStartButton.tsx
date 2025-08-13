@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import CorrectionStartButtonModal from './CorrectionStartModal';
+import Image from 'next/image';
 
 type CorrectionRequestStartButtonProps = {
   onStart: () => void;
@@ -26,9 +27,11 @@ export default function CorrectionStartButton({
   return (
     <>
       <button onClick={() => setIsModalOpen(true)} className={`${className} cursor-pointer `}>
-        <img
+        <Image
           src="/icons/CorrectionRequestStartButton.svg"
           alt="첨삭 의뢰 시작 버튼"
+          width={308}
+          height={48}
           className="mt-[14px] ml-[308px]"
         />
       </button>

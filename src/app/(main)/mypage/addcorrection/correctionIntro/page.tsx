@@ -18,20 +18,22 @@ export default function CorrectionIntro() {
     const inputs = container?.querySelectorAll('input') ?? [];
     const textarea = container?.querySelector('textarea');
 
-    const title = (inputs[0] as HTMLInputElement | undefined)?.value?.trim() ?? '';
+    const companyName = (inputs[0] as HTMLInputElement | undefined)?.value?.trim() ?? '';
     const jobTitle = (inputs[1] as HTMLInputElement | undefined)?.value?.trim() ?? '';
     const jd = (textarea as HTMLTextAreaElement | null)?.value?.trim() ?? '';
 
-    if (!title || !jobTitle || !jd) {
+    if (!companyName || !jobTitle || !jd) {
       alert('기업명, 직무명, JD를 모두 입력해주세요.');
       return;
     }
 
     const payload = {
-      title,
+      // title은 백엔드에서 이후 자동 생성/수정될 예정이므로 임시로 동일 값 전달
+      title: companyName,
       jobTitle,
       jd,
-      submissionTarget: '포트폴리오',
+      // 기업명은 submissionTarget에 전달
+      submissionTarget: companyName,
     } as const;
     console.log('[AI 첨삭 생성] 요청 페이로드:', payload);
     setPayload(payload);

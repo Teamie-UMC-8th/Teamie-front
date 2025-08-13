@@ -24,6 +24,29 @@ export async function fetchCorrectionList(
     throw new Error('AI 첨삭 목록을 가져올 수 없습니다.');
   }
 
+  // submissionTarget 누락 항목 보강 (상세 호출 통해 병합)
+  const list = data.result.data || [];
+  const missing = list.filter((item) => !item.submissionTarget);
+  if (missing.length > 0) {
+    try {
+      const details = await Promise.all(
+        missing.map((m) => fetchCorrectionDetail(m.correctionId).catch(() => null))
+      );
+      const idToSubmissionTarget: Record<number, string> = {};
+      details.forEach((det) => {
+        if (det && det.correctionId && det.submissionTarget) {
+          idToSubmissionTarget[det.correctionId] = det.submissionTarget;
+        }
+      });
+      data.result.data = list.map((item) => ({
+        ...item,
+        submissionTarget: item.submissionTarget || idToSubmissionTarget[item.correctionId],
+      }));
+    } catch {
+      // 보강 실패 시 원본 반환
+    }
+  }
+
   return data.result;
 }
 
@@ -65,10 +88,22 @@ export async function createCorrection(
 export async function startRag(correctionId: number): Promise<StartRagResponse['result']> {
   // 디버그: RAG 시작 요청 로그
   console.log('[API] POST /api/v1/portfolio-corrections/{id}/rag id:', correctionId);
-  const { data } = await axiosInstance.post<StartRagResponse>(
-    `/api/v1/portfolio-corrections/${correctionId}/rag`,
-    {}
-  );
+  let data: StartRagResponse | undefined;
+  try {
+    // 일부 서버는 본문이 없는 POST를 요구합니다. 빈 객체({}) 대신 본문 없이 전송합니다.
+    const resp = await axiosInstance.post<StartRagResponse>(
+      `/api/v1/portfolio-corrections/${correctionId}/rag`
+    );
+    data = resp.data;
+  } catch (err: any) {
+    console.error('[API] RAG 시작 요청 실패:', {
+      id: correctionId,
+      message: err?.message,
+      status: err?.response?.status,
+      response: err?.response?.data,
+    });
+    throw err;
+  }
   console.log('[API] RAG 시작 응답:', data);
 
   if (!data.result) {

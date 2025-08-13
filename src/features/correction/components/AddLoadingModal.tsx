@@ -8,6 +8,7 @@ import {
   fetchCompanyInsight,
   fetchCorrectionDetail,
   fetchRagData,
+  startRag,
 } from '@/services/correction/correction';
 import { CreateCorrectionRequest } from '@/types/api/correction';
 
@@ -51,7 +52,7 @@ export default function LoadingModal({
       {
         key: 'read',
         frames: ['/icons/read1.svg', '/icons/read2.svg'],
-        message: '티미가 포트폴리오를 읽고고 있어요...',
+        message: '티미가 포트폴리오를 읽고 있어요...',
         durationMs: 15_000,
       },
       {
@@ -85,14 +86,19 @@ export default function LoadingModal({
   const pollingStopRef = useRef(false);
 
   const waitForRagReady = async (
-    correctionId: number
+    correctionId: number,
+    options: { minWaitMs?: number; maxWaitMs?: number; minStableCount?: number } = {}
   ): Promise<{
     rag: Awaited<ReturnType<typeof fetchRagData>>;
     insight: Awaited<ReturnType<typeof fetchCompanyInsight>>;
   }> => {
     const delayMs = 2000;
+    const minWaitMs = options.minWaitMs ?? 15000; // 최소 대기 시간 보장
+    const maxWaitMs = options.maxWaitMs ?? 120000; // 최대 2분
+    const minStableCount = options.minStableCount ?? 3; // 연속 안정 횟수
     let consecutiveReady = 0;
     let attempt = 0;
+    const startAt = Date.now();
     while (true) {
       attempt += 1;
       if (pollingStopRef.current) {
@@ -113,7 +119,8 @@ export default function LoadingModal({
         );
         if (ready) {
           consecutiveReady += 1;
-          if (consecutiveReady >= 2) {
+          const elapsed = Date.now() - startAt;
+          if (consecutiveReady >= minStableCount && elapsed >= minWaitMs) {
             return { rag, insight };
           }
         } else {
@@ -121,6 +128,9 @@ export default function LoadingModal({
         }
       } catch {
         consecutiveReady = 0;
+      }
+      if (Date.now() - startAt > maxWaitMs) {
+        throw new Error('RAG readiness timeout');
       }
       await new Promise((res) => setTimeout(res, delayMs));
     }
@@ -218,10 +228,31 @@ export default function LoadingModal({
 
         console.log('[LoadingModal] start create correction with payload:', payload);
         const created = await createCorrection.mutateAsync(payload);
+        console.log('[LoadingModal] created correction id:', created.id);
         try {
           sessionStorage.setItem('lastCorrectionId', String(created.id));
         } catch {}
-        const { rag, insight } = await waitForRagReady(created.id);
+        // 생성 직후 RAG를 명시적으로 시작하여 POST를 보장
+        try {
+          console.log('[LoadingModal] start RAG explicitly for id:', created.id);
+          await startRag(created.id);
+          console.log('[LoadingModal] RAG started');
+        } catch (e) {
+          console.warn('[LoadingModal] startRAG POST failed (will proceed to poll):', e);
+        }
+        console.log('[LoadingModal] begin polling until RAG ready');
+        const { rag, insight } = await waitForRagReady(created.id, {
+          minWaitMs: 15000,
+          minStableCount: 3,
+        });
+        console.log(
+          '[LoadingModal] RAG ready. keywords:',
+          rag.keywords?.length,
+          'links:',
+          rag.links?.length,
+          'insight length:',
+          (insight.companyInsight || '').length
+        );
         // 준비 완료 후 즉시 상세 조회하여 prefetch 데이터 저장 (rag/insight는 위에서 확보)
         const detail = await fetchCorrectionDetail(created.id).catch((e) => {
           console.warn('[LoadingModal] prefetch: correction detail failed', e);
@@ -240,8 +271,8 @@ export default function LoadingModal({
           console.warn('[LoadingModal] failed to write prefetch to sessionStorage', e);
         }
         router.push(
-          `/mypage/addcorrection/analyzing?correctionId=${created.id}&companyName=${encodeURIComponent(
-            payload.title
+          `/mypage/addcorrection/analyzing?correctionId=${created.id}&submissionTarget=${encodeURIComponent(
+            payload.submissionTarget
           )}`
         );
       } catch (error) {

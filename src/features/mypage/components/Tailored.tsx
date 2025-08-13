@@ -38,9 +38,11 @@ export default function Tailored() {
     );
   }
 
+  const corrections = data?.data ?? [];
+
   return (
     <div className="grid grid-cols-2 max-lg:w-[868px] gap-[24px] max-lg:grid-cols-2">
-      {data.data.map((correction: Correction) => (
+      {corrections.map((correction: Correction) => (
         <Link
           key={correction.correctionId}
           href={`/mypage/tailoredportfolio/${correction.correctionId}`}
@@ -66,7 +68,7 @@ export default function Tailored() {
               <div className="flex items-center">
                 <span className="text-[16px] text-[#505050] w-[60px] text-left">기업명</span>
                 <span className="text-[16px] text-black ml-[16px] truncate">
-                  {correction.title.split(' ')[0] || '기업명'}
+                  {correction.submissionTarget || '기업명'}
                 </span>
               </div>
               <div className="flex items-center">

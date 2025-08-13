@@ -15,7 +15,7 @@ export default function AiLoadingPage() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const idParamStr = searchParams.get('correctionId') ?? '';
-  const companyNameQuery = searchParams.get('companyName') ?? '';
+  const companyNameQuery = searchParams.get('submissionTarget') ?? '';
   const router = useRouter();
   const [companyName, setCompanyName] = useState<string>('');
   const [keywords, setKeywords] = useState<string[]>([]);
@@ -23,6 +23,7 @@ export default function AiLoadingPage() {
   const [firstLinkUrl, setFirstLinkUrl] = useState<string>('');
   const [companyInsight, setCompanyInsight] = useState<string>('');
   const lastIdRef = useRef<number | null>(null);
+  const loadedFromPrefetchRef = useRef<boolean>(false);
 
   useEffect(() => {
     const scrollContainer = scrollContainerRef.current;
@@ -119,6 +120,19 @@ export default function AiLoadingPage() {
           if (typeof parsed.insight?.companyInsight === 'string') {
             setCompanyInsight(parsed.insight.companyInsight);
           }
+
+          // prefetch에 필요한 모든 데이터가 이미 준비되었으면 네트워크 재호출 생략
+          const hasReadyPrefetch =
+            Array.isArray(parsed.rag?.keywords) &&
+            parsed.rag!.keywords.length > 0 &&
+            Array.isArray(parsed.rag?.links) &&
+            parsed.rag!.links.length > 0 &&
+            typeof parsed.insight?.companyInsight === 'string' &&
+            parsed.insight.companyInsight.trim().length > 0;
+          if (hasReadyPrefetch) {
+            loadedFromPrefetchRef.current = true;
+            return; // effect 조기 종료 → 아래 fetch 호출 생략
+          }
         }
       }
     } catch {}
@@ -129,6 +143,8 @@ export default function AiLoadingPage() {
       correctionId,
       companyNameFromQuery,
     });
+
+    if (loadedFromPrefetchRef.current) return;
 
     fetchCorrectionDetail(correctionId)
       .then((res) => {
