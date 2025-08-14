@@ -9,7 +9,9 @@ import {
   fetchRagData,
   fetchCompanyInsight,
   patchCorrectionTitle,
+  fetchGeneratedCorrectionByProject,
 } from '@/services/correction/correction';
+import type { FirstCorrectionBlock, GeneratedLineItem } from '@/types/api/correction';
 import DeleteButton from '@/components/DeleteButton';
 import ReductionToggle from '@/features/correction/components/ReductionToggle';
 import TailoredDropdown from '@/features/correction/components/TailoredDropdown';
@@ -70,6 +72,30 @@ export default function TailoredPortfolio() {
       refetchGenerated();
     }
   }, [correctionId, refetchGenerated]);
+
+  // 선택된 탭에 해당하는 프로젝트 ID 계산 (서버 응답 or 세션 프리패치)
+  const selectedProjectId: number | undefined = (() => {
+    const list = (
+      generated?.projects && generated.projects.length > 0
+        ? (generated.projects as Array<{ id: number; name: string }>)
+        : cachedProjects
+    ) as Array<{ id: number; name: string }>;
+    const proj = Array.isArray(list) ? list[selectedProjectIndex] : undefined;
+    const id = Number(proj?.id);
+    return Number.isFinite(id) ? id : undefined;
+  })();
+
+  // 선택된 프로젝트의 생성 결과 조회
+  const { data: selectedCorrection } = useQuery({
+    queryKey: ['generated-correction-by-project', correctionId, selectedProjectId],
+    queryFn: () => fetchGeneratedCorrectionByProject(correctionId, selectedProjectId!),
+    enabled: !!correctionId && typeof selectedProjectId === 'number',
+    staleTime: 0,
+  });
+
+  // 표시용 현재 프로젝트 결과 (탭 변경 시 갱신)
+  const currentCorrection: FirstCorrectionBlock | undefined =
+    selectedCorrection || generated?.firstCorrection;
 
   // 세션 프리패치에 저장된 생성 결과가 있다면 우선 탭 이름에 사용 (네트워크 응답 전 즉시 표시)
   useEffect(() => {
@@ -255,9 +281,9 @@ export default function TailoredPortfolio() {
           <textarea
             className=" mt-[16px] border-[2px] border-[#BBBBBB] w-[1520px] h-[162px] rounded-[8px] px-[20px] py-[16px] text-[18px]
           max-lg:w-[928px] max-lg:h-[176px]"
-            defaultValue={
+            value={
               (companyInsight?.companyInsight || '').trim() ||
-              generated?.firstCorrection?.correctionResult?.insights?.field_summary ||
+              currentCorrection?.correctionResult?.insights?.field_summary ||
               ''
             }
             readOnly
@@ -320,7 +346,7 @@ export default function TailoredPortfolio() {
             진행 기간
           </div>
           <p className="text-black text-[20px] grid place-items-center ml-[28px]">
-            {generated?.firstCorrection?.projectName || ''}
+            {currentCorrection?.projectName || ''}
           </p>
           <div
             className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[154px] mr-[8px] font-semibold text-[18px]
@@ -363,7 +389,10 @@ export default function TailoredPortfolio() {
               className="w-[620px] h-[476px] text-[18px] mt-[8px]
             max-lg:text-[16px] max-lg:w-[784px]"
             >
-              {(generated?.firstCorrection?.correctionResult?.detailInfo?.lines || []).map((ln) => (
+              {(
+                currentCorrection?.correctionResult?.detailInfo?.lines ||
+                ([] as GeneratedLineItem[])
+              ).map((ln: GeneratedLineItem) => (
                 <p key={ln.line_number}>- {ln.original_content}</p>
               ))}
 

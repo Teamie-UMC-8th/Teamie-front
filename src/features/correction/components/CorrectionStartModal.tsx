@@ -36,7 +36,7 @@ export default function CorrectionStartButtonModal({
           className="absolute top-[8px] right-[8px] w-[24px] h-[24px] cursor-pointer"
           onClick={onCancel}
         >
-          <Image src="/icons/곱하기.svg" alt="닫기" width={24} height={24} />
+          <Image src="/icons/close.svg" alt="닫기" width={24} height={24} />
         </button>
 
         <div className="w-[251px] grid place-items-center">

@@ -14,7 +14,7 @@ export default function ChangeLeaderModal({ onClose, onConfirm }: ChangeLeaderMo
             className="absolute top-[8px] right-[8px] w-[24px] h-[24px] cursor-pointer"
             onClick={onClose}
           >
-            <img src="/icons/곱하기.svg" alt="닫기" />
+            <img src="/icons/close.svg" alt="닫기" />
           </button>
 
           <h1 className="text-[20px] leading-[28px] font-semibold text-center text-black">
