@@ -17,7 +17,7 @@ export default function TaskItem({
   deadline,
   assignee,
 }: TaskItemComponentProps) {
-  const { displayAssignees, cardHeight, deadlineTextColor } = useTaskItems({
+  const { displayAssignees, deadlineTextColor } = useTaskItems({
     task: { id: taskId, title, status, deadline, assignee },
   });
   const [showCopyModal, setShowCopyModal] = useState(false);
@@ -63,10 +63,7 @@ export default function TaskItem({
 
   return (
     <>
-      <Link
-        href={`/projects/${projectId}/tasks/${taskId}`}
-        className={`block w-[325px] h-[${cardHeight}]`}
-      >
+      <Link href={`/projects/${projectId}/tasks/${taskId}`} className="block w-[325px]">
         <div className="bg-white w-full h-full rounded-[8px] border border-[#BBBBBB] p-4 flex items-start gap-3">
           <label
             className="relative inline-flex items-center flex-shrink-0 mt-1"

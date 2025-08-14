@@ -136,7 +136,7 @@ export default function DashboardPage() {
         onToggle={handleViewToggle}
       />
 
-      <main className="flex-1 overflow-x-auto">
+      <main className="flex-1">
         <div
           className="min-w-[40rem]"
           style={{

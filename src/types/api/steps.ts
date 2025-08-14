@@ -38,3 +38,18 @@ export interface Step {
   stepName: string;
   tasks: Task[];
 }
+
+// Task의 Step 수정 요청 타입
+export interface UpdateTaskStepRequest {
+  newStepId: number;
+}
+
+// Task의 Step 수정 응답 타입
+export interface UpdateTaskStepResponse {
+  isSuccess: boolean;
+  error: ApiErrorResponse | null;
+  result: {
+    taskId: number;
+    newStepId: number;
+  } | null;
+}
