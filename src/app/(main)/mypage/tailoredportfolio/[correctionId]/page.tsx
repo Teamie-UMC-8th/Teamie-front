@@ -33,6 +33,7 @@ export default function TailoredPortfolio() {
   const [titleInput, setTitleInput] = useState<string>('');
   const titleRef = useRef<HTMLHeadingElement>(null);
   const [selectedProjectIndex, setSelectedProjectIndex] = useState<number>(0);
+  const [cachedProjects, setCachedProjects] = useState<Array<{ id: number; name: string }>>([]);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['correction-detail', correctionId],
@@ -40,11 +41,14 @@ export default function TailoredPortfolio() {
     enabled: !!correctionId,
   });
 
-  const { data: generated } = useQuery({
+  const { data: generated, refetch: refetchGenerated } = useQuery({
     queryKey: ['generated-correction', correctionId],
     queryFn: () => fetchGeneratedCorrection(correctionId),
     enabled: !!correctionId,
-    staleTime: 60_000,
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnReconnect: 'always',
+    refetchOnWindowFocus: false,
   });
 
   const { data: rag } = useQuery({
@@ -60,6 +64,24 @@ export default function TailoredPortfolio() {
     enabled: !!correctionId,
     staleTime: 60_000,
   });
+
+  useEffect(() => {
+    if (correctionId) {
+      refetchGenerated();
+    }
+  }, [correctionId, refetchGenerated]);
+
+  // 세션 프리패치에 저장된 생성 결과가 있다면 우선 탭 이름에 사용 (네트워크 응답 전 즉시 표시)
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(`generatedCorrection:${correctionId}`);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as { projects?: Array<{ id: number; name: string }> } | null;
+      if (parsed && Array.isArray(parsed.projects) && parsed.projects.length > 0) {
+        setCachedProjects(parsed.projects.map((p) => ({ id: Number(p.id), name: String(p.name) })));
+      }
+    } catch {}
+  }, [correctionId]);
 
   // 동기화: 서버에서 받은 제목을 에디터 값에 반영 (최초 로드 시 1회 설정)
   useEffect(() => {
@@ -260,17 +282,25 @@ export default function TailoredPortfolio() {
         className="flex mt-[80px] ml-[96px]
       max-lg:ml-[40px]"
       >
-        {['프로젝트 1', '프로젝트 2', '프로젝트 3'].map((label, idx) => {
+        {(generated?.projects && generated.projects.length > 0
+          ? (generated.projects as Array<{ id: number; name: string }>)
+          : cachedProjects
+        ).map((proj, idx) => {
           const isSelected = selectedProjectIndex === idx;
+          const label = proj?.name || `프로젝트 ${idx + 1}`;
           return (
             <div
-              key={label}
+              key={proj?.id ?? label}
               onClick={() => setSelectedProjectIndex(idx)}
               className={`${
                 isSelected ? 'bg-[#E9F8F8]' : 'bg-[#F8F8F8]'
               } relative px-[40px] py-[16px] rounded-tl-[8px] rounded-tr-[8px] cursor-pointer select-none`}
             >
-              <p className="font-bold text-[18px]">{label}</p>
+              <p
+                className={`font-bold text-[18px] ${isSelected ? 'text-black' : 'text-[#8A8A8A]'}`}
+              >
+                {label}
+              </p>
               {isSelected && (
                 <div className="absolute left-0 bottom-0 w-full h-[4px] bg-[#81D7D4]" />
               )}
