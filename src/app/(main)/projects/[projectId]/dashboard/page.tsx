@@ -18,6 +18,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import FilterPanel from '@/components/FilterPanel';
 import { TaskFilters } from '@/types/api/tasks';
 import { searchTasks } from '@/services/tasks/searchTasks';
+import { DashboardResponse } from '@/types/api/dashboard';
 
 export default function DashboardPage() {
   // 상태 관리: STEP 별로 보기 / 진행 상태별로 보기
@@ -28,7 +29,7 @@ export default function DashboardPage() {
     statuses: [],
     managerIds: [],
   });
-  const [filteredData, setFilteredData] = useState<any>(null);
+  const [filteredData, setFilteredData] = useState<DashboardResponse | null>(null);
   const [isFiltered, setIsFiltered] = useState(false);
 
   // API 상태값을 UI 상태값으로 변환하는 함수
@@ -42,20 +43,6 @@ export default function DashboardPage() {
         return '완료';
       default:
         return apiStatus;
-    }
-  };
-
-  // UI 상태값을 API 상태값으로 변환하는 함수
-  const getApiStatusValue = (displayStatus: string): string => {
-    switch (displayStatus) {
-      case '시작 전':
-        return 'NOTSTART';
-      case '진행 중':
-        return 'ONGOING';
-      case '완료':
-        return 'COMPLETED';
-      default:
-        return displayStatus;
     }
   };
 
@@ -121,14 +108,6 @@ export default function DashboardPage() {
 
     return Array.from(assigneesMap.values());
   };
-
-  // 담당자 정보 디버깅
-  useEffect(() => {
-    if (dashboardData) {
-      const assignees = getAllAssignees();
-      console.log('추출된 담당자 정보:', assignees);
-    }
-  }, [dashboardData]);
 
   // 웹소켓 이벤트 처리
   useEffect(() => {
@@ -259,7 +238,7 @@ export default function DashboardPage() {
   // 에러 상태 처리
   if (error) {
     return (
-      <div className="min-h-screen w-full bg-white bg-white flex items-center justify-center">
+      <div className="min-h-screen w-full bg-white flex items-center justify-center">
         <div className="text-lg text-red-500">데이터를 불러오는 중 오류가 발생했습니다.</div>
       </div>
     );
@@ -292,6 +271,9 @@ export default function DashboardPage() {
                 ? {
                     ...currentFilters,
                     statuses: currentFilters.statuses.map(getDisplayStatusValue), // API 상태값을 UI 상태값으로 변환
+                    // 날짜 순서 변환: dateAfter는 시작일, dateBefore는 종료일
+                    dateAfter: currentFilters.dateAfter,
+                    dateBefore: currentFilters.dateBefore,
                   }
                 : undefined
             }

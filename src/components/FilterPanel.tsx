@@ -30,23 +30,37 @@ export default function FilterPanel({
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     initialFilters?.dateBefore || initialFilters?.dateAfter
   );
-  const [dateFilterType, setDateFilterType] = useState<'before' | 'after' | null>(
-    initialFilters?.dateBefore ? 'before' : initialFilters?.dateAfter ? 'after' : null
-  );
+  const [selectedEndDate, setSelectedEndDate] = useState<Date | undefined>(undefined);
+  const [dateFilterType, setDateFilterType] = useState<'before' | 'after' | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
   // 초기 필터가 변경되면 내부 상태 업데이트
   useEffect(() => {
-    // 컴포넌트가 처음 마운트될 때만 초기값 설정
-    if (initialFilters && !selectedStatuses.length && !selectedAssignees.length && !selectedDate) {
+    if (initialFilters) {
       setSelectedStatuses(initialFilters.statuses || []);
       setSelectedAssignees(initialFilters.managerIds || []);
-      if (initialFilters.dateBefore) {
+
+      // 날짜 필터 초기화
+      if (initialFilters.dateBefore && initialFilters.dateAfter) {
+        // 범위 선택: 두 날짜가 모두 있는 경우
+        setSelectedDate(initialFilters.dateAfter); // dateAfter가 시작일
+        setSelectedEndDate(initialFilters.dateBefore); // dateBefore가 종료일
+        setDateFilterType(null); // 범위 선택은 자동 감지되므로 null
+      } else if (initialFilters.dateBefore) {
+        // 이전 날짜만 있는 경우
         setSelectedDate(initialFilters.dateBefore);
         setDateFilterType('before');
+        setSelectedEndDate(undefined);
       } else if (initialFilters.dateAfter) {
+        // 이후 날짜만 있는 경우
         setSelectedDate(initialFilters.dateAfter);
         setDateFilterType('after');
+        setSelectedEndDate(undefined);
+      } else {
+        // 날짜 필터가 없는 경우
+        setSelectedDate(undefined);
+        setSelectedEndDate(undefined);
+        setDateFilterType(null);
       }
     }
   }, [initialFilters]); // initialFilters가 변경될 때만 실행
@@ -76,12 +90,40 @@ export default function FilterPanel({
     const handleClickOutside = (event: MouseEvent) => {
       if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
         // 필터 패널을 닫을 때 현재 선택된 필터들을 부모에게 전달
+        let dateBefore: Date | undefined;
+        let dateAfter: Date | undefined;
+
+        if (selectedDate && selectedEndDate) {
+          // 두 개 날짜가 선택된 경우: 자동으로 범위 선택
+          const startDate = new Date(selectedDate);
+          const endDate = new Date(selectedEndDate);
+
+          if (startDate <= endDate) {
+            dateAfter = startDate; // 더 이른 날짜가 dateAfter (시작일)
+            dateBefore = endDate; // 더 늦은 날짜가 dateBefore (종료일)
+          } else {
+            // 날짜 순서가 잘못된 경우 자동으로 교정
+            dateAfter = endDate; // 더 이른 날짜가 dateAfter (시작일)
+            dateBefore = startDate; // 더 늦은 날짜가 dateBefore (종료일)
+          }
+        } else if (selectedDate && dateFilterType) {
+          // 하나 날짜만 선택된 경우: 이전/이후 옵션에 따라 설정
+          if (dateFilterType === 'before') {
+            dateBefore = selectedDate;
+          } else if (dateFilterType === 'after') {
+            dateAfter = selectedDate;
+          }
+        } else if (selectedDate) {
+          // 날짜만 선택되고 타입이 없는 경우 (범위 선택의 첫 번째 날짜)
+        }
+
         const currentFilters: TaskFilters = {
           statuses: selectedStatuses.map(getApiStatusValue), // API 상태값으로 변환
           managerIds: selectedAssignees,
-          dateBefore: dateFilterType === 'before' ? selectedDate : undefined,
-          dateAfter: dateFilterType === 'after' ? selectedDate : undefined,
+          dateBefore,
+          dateAfter,
         };
+
         onClose(currentFilters);
       }
     };
@@ -93,7 +135,15 @@ export default function FilterPanel({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isOpen, onClose, selectedStatuses, selectedAssignees, selectedDate, dateFilterType]);
+  }, [
+    isOpen,
+    onClose,
+    selectedStatuses,
+    selectedAssignees,
+    selectedDate,
+    selectedEndDate,
+    dateFilterType,
+  ]);
 
   if (!isOpen || !buttonRect) return null;
 
@@ -116,24 +166,36 @@ export default function FilterPanel({
       // 같은 타입을 다시 클릭하면 해제
       setDateFilterType(null);
       setSelectedDate(undefined);
+      setSelectedEndDate(undefined);
     } else {
       // 다른 타입을 클릭하면 해당 타입으로 변경
       setDateFilterType(type);
+
       // 기존에 선택된 날짜가 있으면 유지, 없으면 오늘 날짜 설정
       if (!selectedDate) {
         setSelectedDate(new Date());
       }
+      setSelectedEndDate(undefined);
     }
   };
 
   const handleDateChange = (date: Date) => {
+    // 단일 날짜 선택
     setSelectedDate(date);
+    setSelectedEndDate(undefined);
+  };
+
+  // 범위 선택 시 날짜 변경 처리
+  const handleRangeChange = (startDate: Date, endDate: Date) => {
+    setSelectedDate(startDate);
+    setSelectedEndDate(endDate);
   };
 
   const handleReset = () => {
     setSelectedStatuses([]);
     setSelectedAssignees([]);
     setSelectedDate(undefined);
+    setSelectedEndDate(undefined);
     setDateFilterType(null);
   };
 
@@ -252,7 +314,13 @@ export default function FilterPanel({
 
           {/* MiniDatePicker */}
           <div className="mb-[4rem] flex justify-center">
-            <MiniDatePicker selectedDate={selectedDate} onDateChange={handleDateChange} />
+            <MiniDatePicker
+              selectedDate={selectedDate}
+              onDateChange={handleDateChange}
+              onRangeChange={handleRangeChange}
+              initialRangeStart={selectedDate}
+              initialRangeEnd={selectedEndDate}
+            />
           </div>
 
           {/* 날짜 필터 옵션 */}

@@ -36,20 +36,9 @@ export const searchTasks = async (params: TaskSearchParams): Promise<TaskSearchR
   }
 
   try {
-    console.log('검색 요청 파라미터:', {
-      projectId,
-      view,
-      statuses,
-      managerIds,
-      dateBefore: dateBefore ? formatDateToYYYYMMDD(dateBefore) : undefined,
-      dateAfter: dateAfter ? formatDateToYYYYMMDD(dateAfter) : undefined,
-    });
-
     const response = await axiosInstance.get(
       `/api/v1/tasks/${projectId}/search?${queryParams.toString()}`
     );
-
-    console.log('검색 API 응답:', response.data);
 
     // API 응답이 { isSuccess, error, result } 형태로 감싸져 있는지 확인
     if (response.data && response.data.isSuccess && response.data.result) {
