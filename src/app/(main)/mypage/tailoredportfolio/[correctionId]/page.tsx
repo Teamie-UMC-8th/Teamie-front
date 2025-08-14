@@ -32,7 +32,7 @@ export default function TailoredPortfolio() {
     enabled: !!correctionId,
   });
 
-  useQuery({
+  const { data: generated } = useQuery({
     queryKey: ['generated-correction', correctionId],
     queryFn: () => fetchGeneratedCorrection(correctionId),
     enabled: !!correctionId,
@@ -102,7 +102,7 @@ export default function TailoredPortfolio() {
             className="text-[24px] font-semibold mt-[28px] ml-[20px]
           max-lg:ml-[8px]"
           >
-            AI 첨삭 상세
+            {data.title || '새로운 첨삭'}
           </h1>
         </div>
         <DeleteButton
@@ -169,6 +169,9 @@ export default function TailoredPortfolio() {
           <textarea
             className=" mt-[16px] border-[2px] border-[#BBBBBB] w-[1520px] h-[162px] rounded-[8px] px-[20px] py-[16px] text-[18px]
           max-lg:w-[928px] max-lg:h-[176px]"
+            defaultValue={
+              generated?.firstCorrection?.correctionResult?.insights?.field_summary || ''
+            }
           />
         </div>
 
@@ -180,6 +183,7 @@ export default function TailoredPortfolio() {
           <textarea
             className=" mt-[16px] border-[2px] border-[#BBBBBB] w-[1520px] h-[162px] rounded-[8px] px-[20px] py-[16px] text-[18px]
           max-lg:w-[928px] max-lg:h-[176px]"
+            defaultValue={data?.content || ''}
           />
         </div>
       </div>
@@ -211,7 +215,7 @@ export default function TailoredPortfolio() {
             진행 기간
           </div>
           <p className="text-black text-[20px] grid place-items-center ml-[28px]">
-            2025.04.02 ~ 2025.06.20
+            {generated?.firstCorrection?.projectName || ''}
           </p>
           <div
             className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[154px] mr-[8px] font-semibold text-[18px]
@@ -254,26 +258,12 @@ export default function TailoredPortfolio() {
               className="w-[620px] h-[476px] text-[18px] mt-[8px]
             max-lg:text-[16px] max-lg:w-[784px]"
             >
-              <p>[연간 활동 기획 및 운영 총괄]</p>
-              <p>- 동아리 연간 활동 계획 및 예산안 수립</p>
-              <p>- 월 1회 정기모임 및 분기 1회 특별 행사 기획∙운영</p>
-              <p>- 전산장부 시스템 도입 및 동아리 전체 예산 집행, 회계 처리 총괄</p>
-              <p>- 타 부서(홍보국, 대외협력국) 협업 및 연간/상반기 운영 현황 보고</p>
+              {(generated?.firstCorrection?.correctionResult?.detailInfo?.lines || []).map((ln) => (
+                <p key={ln.line_number}>- {ln.original_content}</p>
+              ))}
 
               <p className="mt-[48px]" />
-              <p>[참여 경험 고도화 및 문제 해결]</p>
-              <p>- 참여자 피드백 기반 프로그램 개선 (활동지 난이도 분리, 익명 피드백 도입 등)</p>
-              <p>- 사전 설문 기반 참여자 성향 분석 및 맞춤형 조 편성 시스템 설계</p>
-              <p className="mt-[48px]" />
-              <p>
-                어려움과 극복 과정: 회원 간 친분 형성 후 공식 활동 참여율이 저하되는 문제가
-                발생했습니다. 이를 해결하기 위해 대외협력국과 협력하여 기업 연계 프로그램을 유치,
-                동아리에서만 가능한 &apos;이력서 작성&apos; 프로그램을 기획했습니다. 실제 기업의
-                피드백 기회를 제공한 결과, 해당 모임 참여율이 이전 대비 170% 증가했고 72건의 긍정
-                피드백을 확보했습니다.
-                {/* TODO: 글 위에 마크 올리기 */}
-                {toggleROn && <ReductionMark />}
-              </p>
+              {toggleROn && <ReductionMark />}
             </div>
             {/* Divider line */}
             <div className="border-l-[2px] border-[#BBBBBB] h-[492px] ml-[40px] mr-[40px] block max-lg:hidden" />
