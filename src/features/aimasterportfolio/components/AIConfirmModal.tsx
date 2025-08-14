@@ -33,14 +33,14 @@ export default function AIConfirmModal({
           onClick={onCancel}
           disabled={disableCancel || isLoading}
         >
-          <img src="/icons/곱하기.svg" alt="닫기" className="w-[24px] h-[24px]" />
+          <img src="/icons/close.svg" alt="닫기" className="w-[24px] h-[24px]" />
         </button>
 
         <div className="flex flex-col items-center justify-center text-center mb-[4px]">
           <div className="flex items-center gap-[6px]">
             <Image src="/icons/coin.svg" alt="credit" width={24} height={24} />
             <span className="text-[20px] font-semibold leading-[28px] text-black">
-              6 Credit을 사용하여
+              {length * 10 + 100} Credit을 사용하여
             </span>
           </div>
           <span className="text-[20px] font-semibold leading-[28px] text-black mt-[4px]">
