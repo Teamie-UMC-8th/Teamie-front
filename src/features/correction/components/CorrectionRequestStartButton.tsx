@@ -12,7 +12,7 @@ type CorrectionRequestStartButtonProps = {
 
 export default function CorrectionStartButton({
   onStart,
-  modalTitle = '6 Credit을 사용하여',
+  modalTitle = '500 Credit을 사용하여',
   cancelText = '취소',
   confirmText = '의뢰',
   className = '',
