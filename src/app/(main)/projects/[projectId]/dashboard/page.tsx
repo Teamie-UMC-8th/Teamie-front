@@ -15,10 +15,36 @@ import {
   isStepResponse,
 } from '@/types/webSocket';
 import { useQueryClient } from '@tanstack/react-query';
+import FilterPanel from '@/components/FilterPanel';
+import { TaskFilters } from '@/types/api/tasks';
+import { searchTasks } from '@/services/tasks/searchTasks';
+import { DashboardResponse } from '@/types/api/dashboard';
 
 export default function DashboardPage() {
   // 상태 관리: STEP 별로 보기 / 진행 상태별로 보기
   const [isStepView, setIsStepView] = useState(true);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filterButtonRect, setFilterButtonRect] = useState<DOMRect | null>(null);
+  const [currentFilters, setCurrentFilters] = useState<TaskFilters>({
+    statuses: [],
+    managerIds: [],
+  });
+  const [filteredData, setFilteredData] = useState<DashboardResponse | null>(null);
+  const [isFiltered, setIsFiltered] = useState(false);
+
+  // API 상태값을 UI 상태값으로 변환하는 함수
+  const getDisplayStatusValue = (apiStatus: string): string => {
+    switch (apiStatus) {
+      case 'NOTSTART':
+        return '시작 전';
+      case 'ONGOING':
+        return '진행 중';
+      case 'COMPLETED':
+        return '완료';
+      default:
+        return apiStatus;
+    }
+  };
 
   // 프로젝트 ID 파라미터 가져오기
   const { projectId } = useParams() as { projectId: string };
@@ -39,6 +65,49 @@ export default function DashboardPage() {
     projectId: parseInt(projectId),
     view: isStepView ? 'step' : 'status',
   });
+
+  // 프로젝트의 모든 담당자 목록 추출 (필터 패널용)
+  const getAllAssignees = () => {
+    if (!dashboardData) return [];
+
+    const assigneesMap = new Map<number, { userId: number; name: string; imageUrl: string }>();
+
+    // steps에서 담당자 추출
+    if ('steps' in dashboardData) {
+      dashboardData.steps.forEach((step) => {
+        step.tasks.forEach((task) => {
+          task.managers.forEach((manager) => {
+            if (manager.userId && manager.name) {
+              assigneesMap.set(manager.userId, {
+                userId: manager.userId,
+                name: manager.name,
+                imageUrl: manager.imageUrl || '/icons/assignee.svg',
+              });
+            }
+          });
+        });
+      });
+    }
+
+    // statusGroups에서 담당자 추출
+    if ('statusGroups' in dashboardData) {
+      dashboardData.statusGroups.forEach((group) => {
+        group.tasks.forEach((task) => {
+          task.managers.forEach((manager) => {
+            if (manager.userId && manager.name) {
+              assigneesMap.set(manager.userId, {
+                userId: manager.userId,
+                name: manager.name,
+                imageUrl: manager.imageUrl || '/icons/assignee.svg',
+              });
+            }
+          });
+        });
+      });
+    }
+
+    return Array.from(assigneesMap.values());
+  };
 
   // 웹소켓 이벤트 처리
   useEffect(() => {
@@ -95,6 +164,68 @@ export default function DashboardPage() {
     }, 100);
   };
 
+  // 필터 패널 열기/닫기
+  const handleFilterClick = (buttonRect: DOMRect) => {
+    setFilterButtonRect(buttonRect);
+    setIsFilterOpen(true);
+  };
+
+  const handleFilterClose = async (filters: TaskFilters) => {
+    console.log('필터 패널에서 받은 필터:', filters);
+
+    // 필터가 실제로 변경되었는지 확인
+    const filtersChanged = JSON.stringify(filters) !== JSON.stringify(currentFilters);
+
+    if (filtersChanged) {
+      setCurrentFilters(filters);
+
+      // 필터가 적용되었는지 확인
+      const hasActiveFilters =
+        filters.statuses.length > 0 ||
+        filters.managerIds.length > 0 ||
+        filters.dateBefore ||
+        filters.dateAfter;
+
+      console.log('활성 필터 여부:', hasActiveFilters);
+
+      if (hasActiveFilters) {
+        // 필터가 적용된 경우 검색 API 호출
+        try {
+          setIsFiltered(true);
+          const searchParams = {
+            projectId: parseInt(projectId),
+            view: isStepView ? ('step' as const) : ('status' as const),
+            statuses: filters.statuses.length > 0 ? filters.statuses : undefined,
+            managerIds: filters.managerIds.length > 0 ? filters.managerIds : undefined,
+            dateBefore: filters.dateBefore,
+            dateAfter: filters.dateAfter,
+          };
+
+          console.log('검색 API 호출 파라미터:', searchParams);
+
+          const searchResult = await searchTasks(searchParams);
+          setFilteredData(searchResult);
+          console.log('필터 검색 결과:', searchResult);
+        } catch (error) {
+          console.error('필터 검색 중 오류 발생:', error);
+          // 검색 실패 시 원본 데이터 사용
+          setIsFiltered(false);
+          setFilteredData(null);
+        }
+      } else {
+        // 필터가 없는 경우 원본 데이터 사용
+        setIsFiltered(false);
+        setFilteredData(null);
+      }
+    }
+
+    setIsFilterOpen(false);
+    setFilterButtonRect(null);
+  };
+
+  // 현재 표시할 데이터 결정 (필터링된 데이터 또는 원본 데이터)
+  const displayData = isFiltered ? filteredData : dashboardData;
+
   // 로딩 상태 처리
   if (isLoading) {
     return (
@@ -122,11 +253,32 @@ export default function DashboardPage() {
           </h1>
         </div>
         <div className="flex-1 flex justify-end"></div>
-        <Searchbar
-          placeholder="검색어를 입력하세요."
-          onChange={() => {}}
-          onFilterClick={() => {}}
-        />
+        <div className="relative">
+          <Searchbar
+            placeholder="검색어를 입력하세요."
+            onChange={() => {}}
+            onFilterClick={handleFilterClick}
+          />
+
+          {/* 필터 패널 */}
+          <FilterPanel
+            isOpen={isFilterOpen}
+            onClose={handleFilterClose}
+            assignees={getAllAssignees()}
+            buttonRect={filterButtonRect}
+            initialFilters={
+              isFilterOpen
+                ? {
+                    ...currentFilters,
+                    statuses: currentFilters.statuses.map(getDisplayStatusValue), // API 상태값을 UI 상태값으로 변환
+                    // 날짜 순서 변환: dateAfter는 시작일, dateBefore는 종료일
+                    dateAfter: currentFilters.dateAfter,
+                    dateBefore: currentFilters.dateBefore,
+                  }
+                : undefined
+            }
+          />
+        </div>
       </header>
 
       <ToggleButton
@@ -145,13 +297,13 @@ export default function DashboardPage() {
         >
           {isStepView ? (
             <StepsBoard
-              steps={dashboardData && 'steps' in dashboardData ? dashboardData.steps : []}
+              steps={displayData && 'steps' in displayData ? displayData.steps : []}
               projectId={projectId}
             />
           ) : (
             <StatusBoard
               statusGroups={
-                dashboardData && 'statusGroups' in dashboardData ? dashboardData.statusGroups : []
+                displayData && 'statusGroups' in displayData ? displayData.statusGroups : []
               }
               projectId={projectId}
             />
