@@ -136,3 +136,52 @@ export interface UpdateTaskStatusResponse {
     status: 'NOTSTART' | 'ONGOING' | 'COMPLETED';
   } | null;
 }
+
+// 업무 검색 요청 파라미터
+export interface TaskSearchParams {
+  projectId: number;
+  view: 'step' | 'status';
+  statuses?: string[];
+  managerIds?: number[];
+  dateBefore?: Date; // Date 객체로 변경
+  dateAfter?: Date; // Date 객체로 변경
+}
+
+// 업무 검색 응답
+export interface TaskSearchResponse {
+  projectId: number;
+  projectName: string;
+  steps: StepWithTasks[];
+  totalCount: number;
+}
+
+// 단계별 업무 정보
+export interface StepWithTasks {
+  stepId: number;
+  stepName: string;
+  tasks: TaskWithManagers[];
+}
+
+// 담당자 정보가 포함된 업무
+export interface TaskWithManagers {
+  taskId: number;
+  taskName: string;
+  status: 'NOTSTART' | 'ONGOING' | 'COMPLETED';
+  managers: TaskManager[];
+  deadline: string; // ISO 8601 형식
+}
+
+// 업무 담당자 정보
+export interface TaskManager {
+  userId: number;
+  name: string;
+  imageUrl: string;
+}
+
+// 필터 상태 타입
+export interface TaskFilters {
+  statuses: string[];
+  managerIds: number[];
+  dateBefore?: Date;
+  dateAfter?: Date;
+}

@@ -60,10 +60,12 @@ export default function MiniDatePicker({ selectedDate, onDateChange }: MiniDateP
   };
 
   const handleDateSelect = (date: Date) => {
-    // 한국 시간 기준으로 23:59 설정
+    // 선택된 날짜의 시작 시간(00:00:00) 또는 끝 시간(23:59:59) 설정
     const selectedDate = new Date(date);
-    // 로컬 시간대 기준으로 23:59 설정
-    selectedDate.setHours(23, 59, 0, 0);
+
+    // 날짜만 사용하고 시간은 제거
+    selectedDate.setHours(0, 0, 0, 0);
+
     onDateChange(selectedDate);
   };
 
@@ -117,7 +119,7 @@ export default function MiniDatePicker({ selectedDate, onDateChange }: MiniDateP
       </div>
 
       {/* 요일 헤더 */}
-      <div className="grid grid-cols-7 px-2 gap-3 text-[10px]">
+      <div className="grid grid-cols-7 gap-3 text-[10px]">
         {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map((day) => (
           <div key={day} className="text-center text-[10px] text-black mb-1">
             {day}
@@ -126,7 +128,7 @@ export default function MiniDatePicker({ selectedDate, onDateChange }: MiniDateP
       </div>
 
       {/* 날짜 그리드 */}
-      <div className="grid grid-cols-7 px-1 gap-x-2 gap-y-1">
+      <div className="grid grid-cols-7 gap-x-4 gap-y-1">
         {days.map((day, index) => (
           <button
             key={index}

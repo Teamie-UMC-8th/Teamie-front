@@ -1,22 +1,99 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import MiniDatePicker from './MiniDatePicker';
 import AssigneeCard from './AssigneeCard';
 import Portal from './Portal';
+import { TaskFilters } from '@/types/api/tasks';
 
 interface FilterPanelProps {
   isOpen: boolean;
-  onClose: () => void;
+  onClose: (filters: TaskFilters) => void;
   assignees: Array<{ userId: number; name: string; imageUrl: string }>;
   buttonRect: DOMRect | null;
+  initialFilters?: TaskFilters;
 }
 
-export default function FilterPanel({ isOpen, onClose, assignees, buttonRect }: FilterPanelProps) {
-  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
-  const [selectedAssignees, setSelectedAssignees] = useState<number[]>([]);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [dateFilterType, setDateFilterType] = useState<'before' | 'after' | null>(null);
+export default function FilterPanel({
+  isOpen,
+  onClose,
+  assignees,
+  buttonRect,
+  initialFilters,
+}: FilterPanelProps) {
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>(
+    initialFilters?.statuses || []
+  );
+  const [selectedAssignees, setSelectedAssignees] = useState<number[]>(
+    initialFilters?.managerIds || []
+  );
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    initialFilters?.dateBefore || initialFilters?.dateAfter
+  );
+  const [dateFilterType, setDateFilterType] = useState<'before' | 'after' | null>(
+    initialFilters?.dateBefore ? 'before' : initialFilters?.dateAfter ? 'after' : null
+  );
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // 초기 필터가 변경되면 내부 상태 업데이트
+  useEffect(() => {
+    // 컴포넌트가 처음 마운트될 때만 초기값 설정
+    if (initialFilters && !selectedStatuses.length && !selectedAssignees.length && !selectedDate) {
+      setSelectedStatuses(initialFilters.statuses || []);
+      setSelectedAssignees(initialFilters.managerIds || []);
+      if (initialFilters.dateBefore) {
+        setSelectedDate(initialFilters.dateBefore);
+        setDateFilterType('before');
+      } else if (initialFilters.dateAfter) {
+        setSelectedDate(initialFilters.dateAfter);
+        setDateFilterType('after');
+      }
+    }
+  }, [initialFilters]); // initialFilters가 변경될 때만 실행
+
+  const handleStatusChange = (status: string) => {
+    setSelectedStatuses((prev) =>
+      prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status]
+    );
+  };
+
+  // API 상태값으로 변환하는 함수
+  const getApiStatusValue = (displayStatus: string): string => {
+    switch (displayStatus) {
+      case '시작 전':
+        return 'NOTSTART';
+      case '진행 중':
+        return 'ONGOING';
+      case '완료':
+        return 'COMPLETED';
+      default:
+        return displayStatus;
+    }
+  };
+
+  // 외부 클릭 감지
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
+        // 필터 패널을 닫을 때 현재 선택된 필터들을 부모에게 전달
+        const currentFilters: TaskFilters = {
+          statuses: selectedStatuses.map(getApiStatusValue), // API 상태값으로 변환
+          managerIds: selectedAssignees,
+          dateBefore: dateFilterType === 'before' ? selectedDate : undefined,
+          dateAfter: dateFilterType === 'after' ? selectedDate : undefined,
+        };
+        onClose(currentFilters);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen, onClose, selectedStatuses, selectedAssignees, selectedDate, dateFilterType]);
 
   if (!isOpen || !buttonRect) return null;
 
@@ -28,12 +105,6 @@ export default function FilterPanel({ isOpen, onClose, assignees, buttonRect }: 
     zIndex: 50,
   };
 
-  const handleStatusChange = (status: string) => {
-    setSelectedStatuses((prev) =>
-      prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status]
-    );
-  };
-
   const handleAssigneeChange = (userId: number) => {
     setSelectedAssignees((prev) =>
       prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
@@ -41,7 +112,18 @@ export default function FilterPanel({ isOpen, onClose, assignees, buttonRect }: 
   };
 
   const handleDateFilterChange = (type: 'before' | 'after') => {
-    setDateFilterType((prev) => (prev === type ? null : type));
+    if (dateFilterType === type) {
+      // 같은 타입을 다시 클릭하면 해제
+      setDateFilterType(null);
+      setSelectedDate(undefined);
+    } else {
+      // 다른 타입을 클릭하면 해당 타입으로 변경
+      setDateFilterType(type);
+      // 기존에 선택된 날짜가 있으면 유지, 없으면 오늘 날짜 설정
+      if (!selectedDate) {
+        setSelectedDate(new Date());
+      }
+    }
   };
 
   const handleDateChange = (date: Date) => {
@@ -58,6 +140,7 @@ export default function FilterPanel({ isOpen, onClose, assignees, buttonRect }: 
   return (
     <Portal>
       <div
+        ref={panelRef}
         className="bg-white rounded-[8px] p-[12px]"
         style={{
           ...panelStyle,
@@ -173,7 +256,7 @@ export default function FilterPanel({ isOpen, onClose, assignees, buttonRect }: 
           </div>
 
           {/* 날짜 필터 옵션 */}
-          <div className="flex justify-between px-2 mb-[28px]">
+          <div className="flex justify-between px-4 mb-[28px]">
             {['이전', '이후'].map((type) => (
               <label
                 key={type}

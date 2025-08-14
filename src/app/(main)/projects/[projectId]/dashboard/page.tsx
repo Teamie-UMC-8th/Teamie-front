@@ -16,12 +16,48 @@ import {
 } from '@/types/webSocket';
 import { useQueryClient } from '@tanstack/react-query';
 import FilterPanel from '@/components/FilterPanel';
+import { TaskFilters } from '@/types/api/tasks';
+import { searchTasks } from '@/services/tasks/searchTasks';
 
 export default function DashboardPage() {
   // 상태 관리: STEP 별로 보기 / 진행 상태별로 보기
   const [isStepView, setIsStepView] = useState(true);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterButtonRect, setFilterButtonRect] = useState<DOMRect | null>(null);
+  const [currentFilters, setCurrentFilters] = useState<TaskFilters>({
+    statuses: [],
+    managerIds: [],
+  });
+  const [filteredData, setFilteredData] = useState<any>(null);
+  const [isFiltered, setIsFiltered] = useState(false);
+
+  // API 상태값을 UI 상태값으로 변환하는 함수
+  const getDisplayStatusValue = (apiStatus: string): string => {
+    switch (apiStatus) {
+      case 'NOTSTART':
+        return '시작 전';
+      case 'ONGOING':
+        return '진행 중';
+      case 'COMPLETED':
+        return '완료';
+      default:
+        return apiStatus;
+    }
+  };
+
+  // UI 상태값을 API 상태값으로 변환하는 함수
+  const getApiStatusValue = (displayStatus: string): string => {
+    switch (displayStatus) {
+      case '시작 전':
+        return 'NOTSTART';
+      case '진행 중':
+        return 'ONGOING';
+      case '완료':
+        return 'COMPLETED';
+      default:
+        return displayStatus;
+    }
+  };
 
   // 프로젝트 ID 파라미터 가져오기
   const { projectId } = useParams() as { projectId: string };
@@ -155,10 +191,61 @@ export default function DashboardPage() {
     setIsFilterOpen(true);
   };
 
-  const handleFilterClose = () => {
+  const handleFilterClose = async (filters: TaskFilters) => {
+    console.log('필터 패널에서 받은 필터:', filters);
+
+    // 필터가 실제로 변경되었는지 확인
+    const filtersChanged = JSON.stringify(filters) !== JSON.stringify(currentFilters);
+
+    if (filtersChanged) {
+      setCurrentFilters(filters);
+
+      // 필터가 적용되었는지 확인
+      const hasActiveFilters =
+        filters.statuses.length > 0 ||
+        filters.managerIds.length > 0 ||
+        filters.dateBefore ||
+        filters.dateAfter;
+
+      console.log('활성 필터 여부:', hasActiveFilters);
+
+      if (hasActiveFilters) {
+        // 필터가 적용된 경우 검색 API 호출
+        try {
+          setIsFiltered(true);
+          const searchParams = {
+            projectId: parseInt(projectId),
+            view: isStepView ? ('step' as const) : ('status' as const),
+            statuses: filters.statuses.length > 0 ? filters.statuses : undefined,
+            managerIds: filters.managerIds.length > 0 ? filters.managerIds : undefined,
+            dateBefore: filters.dateBefore,
+            dateAfter: filters.dateAfter,
+          };
+
+          console.log('검색 API 호출 파라미터:', searchParams);
+
+          const searchResult = await searchTasks(searchParams);
+          setFilteredData(searchResult);
+          console.log('필터 검색 결과:', searchResult);
+        } catch (error) {
+          console.error('필터 검색 중 오류 발생:', error);
+          // 검색 실패 시 원본 데이터 사용
+          setIsFiltered(false);
+          setFilteredData(null);
+        }
+      } else {
+        // 필터가 없는 경우 원본 데이터 사용
+        setIsFiltered(false);
+        setFilteredData(null);
+      }
+    }
+
     setIsFilterOpen(false);
     setFilterButtonRect(null);
   };
+
+  // 현재 표시할 데이터 결정 (필터링된 데이터 또는 원본 데이터)
+  const displayData = isFiltered ? filteredData : dashboardData;
 
   // 로딩 상태 처리
   if (isLoading) {
@@ -172,7 +259,7 @@ export default function DashboardPage() {
   // 에러 상태 처리
   if (error) {
     return (
-      <div className="min-h-screen w-full bg-white flex items-center justify-center">
+      <div className="min-h-screen w-full bg-white bg-white flex items-center justify-center">
         <div className="text-lg text-red-500">데이터를 불러오는 중 오류가 발생했습니다.</div>
       </div>
     );
@@ -200,6 +287,14 @@ export default function DashboardPage() {
             onClose={handleFilterClose}
             assignees={getAllAssignees()}
             buttonRect={filterButtonRect}
+            initialFilters={
+              isFilterOpen
+                ? {
+                    ...currentFilters,
+                    statuses: currentFilters.statuses.map(getDisplayStatusValue), // API 상태값을 UI 상태값으로 변환
+                  }
+                : undefined
+            }
           />
         </div>
       </header>
@@ -220,13 +315,13 @@ export default function DashboardPage() {
         >
           {isStepView ? (
             <StepsBoard
-              steps={dashboardData && 'steps' in dashboardData ? dashboardData.steps : []}
+              steps={displayData && 'steps' in displayData ? displayData.steps : []}
               projectId={projectId}
             />
           ) : (
             <StatusBoard
               statusGroups={
-                dashboardData && 'statusGroups' in dashboardData ? dashboardData.statusGroups : []
+                displayData && 'statusGroups' in displayData ? displayData.statusGroups : []
               }
               projectId={projectId}
             />
