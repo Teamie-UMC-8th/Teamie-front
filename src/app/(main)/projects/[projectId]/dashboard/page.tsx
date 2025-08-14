@@ -1,12 +1,20 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Searchbar } from '@/components/Searchbar';
 import ToggleButton from '@/components/ToggleButton';
 import StepsBoard from '@/features/boards/StepsBoard';
 import StatusBoard from '@/features/boards/StatusBoard';
 import { useGetDashboard } from '@/hooks/queries/useGetDashboard';
+import { useWebSocket } from '@/contexts/WebSocketContext';
+import {
+  SubEventType,
+  WebSocketResponseUnion,
+  isTaskResponse,
+  isStepResponse,
+} from '@/types/webSocket';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function DashboardPage() {
   // 상태 관리: STEP 별로 보기 / 진행 상태별로 보기
@@ -14,6 +22,12 @@ export default function DashboardPage() {
 
   // 프로젝트 ID 파라미터 가져오기
   const { projectId } = useParams() as { projectId: string };
+
+  // 웹소켓 훅 사용
+  const { socket, subscribe, unsubscribe, isConnected } = useWebSocket();
+
+  // React Query 클라이언트 (쿼리 무효화용)
+  const queryClient = useQueryClient();
 
   // 대시보드 데이터 조회
   const {
@@ -25,6 +39,52 @@ export default function DashboardPage() {
     projectId: parseInt(projectId),
     view: isStepView ? 'step' : 'status',
   });
+
+  // 웹소켓 이벤트 처리
+  useEffect(() => {
+    if (isConnected && socket) {
+      const projectIdNum = parseInt(projectId);
+
+      // 1. project:dashboard 룸 구독
+      subscribe(SubEventType.PROJECT_DASHBOARD, projectIdNum);
+
+      // 2. publish 이벤트 수신 - 실시간 업데이트 처리
+      const handlePublish = (data: WebSocketResponseUnion) => {
+        console.log('웹소켓 이벤트 수신:', data);
+
+        // 타입 가드를 사용하여 entity가 'task' 또는 'step'인 경우에만 처리
+        if (isTaskResponse(data) || isStepResponse(data)) {
+          console.log(
+            `변경 사항 발생에 따라 대시보드 쿼리 무효화 (이벤트: ${data.entity}.${data.type})`
+          );
+
+          queryClient.invalidateQueries({
+            queryKey: ['dashboard', projectIdNum],
+          });
+        }
+      };
+
+      // 3. unsubscribe-forced 이벤트 수신 - 강제 구독 해제
+      const handleForceUnsubscribe = () => {
+        console.log('강제 구독 해제');
+        window.location.href = '/home/tasks';
+      };
+
+      // 이벤트 리스너 등록
+      socket.on('publish', handlePublish);
+      socket.on('unsubscribe-forced', handleForceUnsubscribe);
+
+      // 컴포넌트 언마운트 시 정리
+      return () => {
+        // 구독 해제
+        unsubscribe(SubEventType.PROJECT_DASHBOARD, projectIdNum);
+
+        // 이벤트 리스너 제거
+        socket.off('publish', handlePublish);
+        socket.off('unsubscribe-forced', handleForceUnsubscribe);
+      };
+    }
+  }, [isConnected, socket, projectId, subscribe, unsubscribe, queryClient]);
 
   // 뷰 변경 시 데이터 다시 불러오기
   const handleViewToggle = (isLeftSelected: boolean) => {

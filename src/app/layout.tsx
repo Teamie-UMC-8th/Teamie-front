@@ -7,6 +7,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/globals.css';
+import { WebSocketProvider } from '@/contexts/WebSocketContext';
 
 const pretendard = localFont({
   src: './fonts/PretendardVariable.woff2',
@@ -19,9 +20,6 @@ const queryClient = new QueryClient();
 
 // 인증이 필요한 페이지들
 const PROTECTED_ROUTES = ['/home', '/projects', '/mypage', '/new'];
-
-// 인증이 필요 없는 페이지들
-const PUBLIC_ROUTES = ['/login'];
 
 function AuthWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -63,7 +61,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            <AuthWrapper>{children}</AuthWrapper>
+            <WebSocketProvider>
+              <AuthWrapper>{children}</AuthWrapper>
+            </WebSocketProvider>
           </AuthProvider>
         </QueryClientProvider>
       </body>
