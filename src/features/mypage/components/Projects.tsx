@@ -1,6 +1,9 @@
 'use client';
 
-import { useMasterPortfolioList } from '@/hooks/queries/useGetMasterPortfolio';
+import {
+  useCorrectionProjects,
+  useMasterPortfolioList,
+} from '@/hooks/queries/useGetMasterPortfolio';
 import { useUpdateMainTask } from '@/hooks/mutations/useUser';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -8,13 +11,15 @@ import { formatDateRange } from '@/utils/formatDate';
 import { useState, useRef, useEffect } from 'react';
 import { MasterPortfolio } from '@/types/api/masterportfolio';
 import { CATEGORY_MAP } from '@/constants/category';
-import { getMasterPortfolioGeneratedResult } from '@/services/masterportfolio/masterportfolio';
+// import { getMasterPortfolioGeneratedResult } from '@/services/masterportfolio/masterportfolio';
+import type { CorrectionSelectableProject } from '@/types/api/correction';
 
 export default function Projects() {
   const pathname = usePathname();
   const isProjectSelectPage = pathname === '/mypage/addcorrection/projectSelect';
   const isMyPage = pathname === '/mypage';
   const { data } = useMasterPortfolioList();
+  const { data: selectable } = useCorrectionProjects();
   const updateMainTask = useUpdateMainTask();
 
   const [editingTask, setEditingTask] = useState<number | null>(null);
@@ -73,6 +78,32 @@ export default function Projects() {
         try {
           const arr = Array.from(newSet.values());
           sessionStorage.setItem('projectSelect:selected', JSON.stringify(arr));
+          // 선택된 portfolioId들에 대응하는 projectId 목록과 매핑도 함께 저장
+          const masterCards = ((data?.data || []) as MasterPortfolio[]) || [];
+          const selectableList: CorrectionSelectableProject[] = Array.isArray(selectable)
+            ? (selectable as CorrectionSelectableProject[])
+            : [];
+          const nameToId = new Map<string, number>();
+          selectableList.forEach((p) => {
+            if (p?.name && typeof p.id === 'number') nameToId.set(p.name.trim(), p.id);
+          });
+          const pairs = masterCards
+            .filter((m) => newSet.has(Number(m.portfolioId as unknown as number)))
+            .map((m) => {
+              const portfolioId = Number(m.portfolioId as unknown as number);
+              const rawProjectId = Number(m.projectId as unknown as number);
+              const byNameId = nameToId.get((m.projectName || '').trim());
+              const projectId = Number.isFinite(rawProjectId)
+                ? rawProjectId
+                : typeof byNameId === 'number'
+                  ? byNameId
+                  : NaN;
+              return { portfolioId, projectId };
+            })
+            .filter((p) => Number.isFinite(p.portfolioId) && Number.isFinite(p.projectId));
+          const projectIds = pairs.map((p) => p.projectId);
+          sessionStorage.setItem('projectSelect:selectedProjectIds', JSON.stringify(projectIds));
+          sessionStorage.setItem('projectSelect:selectedPairs', JSON.stringify(pairs));
         } catch {}
         return newSet;
       });
@@ -93,58 +124,40 @@ export default function Projects() {
 
   const isUpdating = updateMainTask.isPending;
 
-  // 선택 가능(마스터포트폴리오 DONE) 포트폴리오 식별 (portfolioId 기준)
-  const [readySelectableIds, setReadySelectableIds] = useState<Set<number>>(new Set());
+  // 선택 가능 여부: projects API의 hasMasterPortfolio 활용 (id 또는 name으로 매핑)
+  const { readyIdSet, readyNameSet } = (() => {
+    const list: CorrectionSelectableProject[] = Array.isArray(selectable)
+      ? (selectable as CorrectionSelectableProject[])
+      : [];
+    const idSet = new Set<number>();
+    const nameSet = new Set<string>();
+    list.forEach((p) => {
+      if (p?.hasMasterPortfolio) {
+        if (typeof p.id === 'number') idSet.add(p.id);
+        if (typeof p.name === 'string' && p.name.trim()) nameSet.add(p.name.trim());
+      }
+    });
+    return { readyIdSet: idSet, readyNameSet: nameSet } as const;
+  })();
 
-  // ProjectSelect: 마이페이지의 전체 마스터포트폴리오를 보여주되, DONE(선택 가능)을 상단에 정렬
+  const isSelectable = (item: MasterPortfolio): boolean => {
+    const pid = Number(item.projectId as unknown as number);
+    if (Number.isFinite(pid) && readyIdSet.has(pid)) return true;
+    const name = (item.projectName || '').trim();
+    if (name && readyNameSet.has(name)) return true;
+    return false;
+  };
+
+  // ProjectSelect: 전체 마스터포트폴리오를 보여주되, hasMasterPortfolio(true)를 상단에 정렬
   const cardsToRender: MasterPortfolio[] = (() => {
     const masterCards = ((data?.data || []) as MasterPortfolio[]) || [];
     if (!isProjectSelectPage) return masterCards;
-    const doneSet = readySelectableIds;
     return masterCards.slice().sort((a, b) => {
-      const da = doneSet.has(Number(a.portfolioId as unknown as number));
-      const db = doneSet.has(Number(b.portfolioId as unknown as number));
+      const da = isSelectable(a);
+      const db = isSelectable(b);
       return Number(db) - Number(da);
     });
   })();
-
-  useEffect(() => {
-    if (!isProjectSelectPage) return;
-    const masterList = ((data?.data || []) as MasterPortfolio[]) || [];
-    const run = async () => {
-      try {
-        const results = await Promise.all(
-          masterList.map(async (m) => {
-            const portfolioId = Number(m.portfolioId as unknown as number);
-            if (!Number.isFinite(portfolioId)) return { portfolioId, hasContent: false } as const;
-            try {
-              const res = await getMasterPortfolioGeneratedResult(portfolioId);
-              const content = res.result;
-              const hasContent = Boolean(
-                content &&
-                  ((content.detailInfo && content.detailInfo.trim().length > 0) ||
-                    (content.assignedTask && content.assignedTask.trim().length > 0) ||
-                    (content.keyAchievement && content.keyAchievement.trim().length > 0) ||
-                    (content.insight && content.insight.trim().length > 0))
-              );
-              return { portfolioId, hasContent } as const;
-            } catch {
-              return { portfolioId, hasContent: false } as const;
-            }
-          })
-        );
-        const ready = new Set<number>();
-        results.forEach((r) => {
-          if (r.hasContent) ready.add(r.portfolioId);
-        });
-        setReadySelectableIds(ready);
-      } catch {
-        setReadySelectableIds(new Set());
-      }
-    };
-    run();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isProjectSelectPage, JSON.stringify(data?.data)]);
 
   return (
     <div
@@ -160,8 +173,8 @@ export default function Projects() {
           href={isProjectSelectPage ? '#' : `/mypage/aimasterportfolio/${item.portfolioId}`}
         >
           {(() => {
-            // 마스터포트폴리오 DONE 여부로 선택 가능 제어 (portfolioId 기준)
-            const isReady = readySelectableIds.has(Number(item.portfolioId as unknown as number));
+            // 선택 가능 여부(hasMasterPortfolio)로 제어. id 또는 name으로 매핑
+            const isReady = isSelectable(item);
             const isDisabledOnSelectPage = isProjectSelectPage && !isReady;
 
             return (

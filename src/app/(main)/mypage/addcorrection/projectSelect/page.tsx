@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import MasterLoadingModal from '@/features/aimasterportfolio/components/MasterLoadingModal';
 import { fetchGeneratedCorrection, postGenerateCorrection } from '@/services/correction/correction';
-import { getMasterPortfolioStatus } from '@/services/masterportfolio/masterportfolio';
+// 상태 프리체크는 hasMasterPortfolio로 대체
 import { AxiosError, isAxiosError } from 'axios';
 import Image from 'next/image';
 
@@ -26,8 +26,8 @@ export default function ProjectSelect() {
   }, [correctionIdFromQuery]);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Projects 컴포넌트에서 선택된 포트폴리오 ID들을 sessionStorage에 저장하도록 하고, 여기서 읽어 사용
-  const getSelectedProjectIds = (): number[] => {
+  // 선택된 항목 읽기: portfolioId 배열, projectId 배열, 그리고 매핑 쌍
+  const getSelectedPortfolioIds = (): number[] => {
     try {
       const raw = sessionStorage.getItem('projectSelect:selected');
       const arr = raw ? (JSON.parse(raw) as unknown) : [];
@@ -37,6 +37,44 @@ export default function ProjectSelect() {
             .map((n) => Number(n))
             .filter(Number.isFinite)
         : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const getSelectedProjectIds = (): number[] => {
+    try {
+      const raw = sessionStorage.getItem('projectSelect:selectedProjectIds');
+      const arr = raw ? (JSON.parse(raw) as unknown) : [];
+      return Array.isArray(arr)
+        ? arr
+            .slice(0, 6)
+            .map((n) => Number(n))
+            .filter(Number.isFinite)
+        : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const getSelectedPairs = (): Array<{ portfolioId: number; projectId: number }> => {
+    try {
+      const raw = sessionStorage.getItem('projectSelect:selectedPairs');
+      const arr = raw ? (JSON.parse(raw) as unknown) : [];
+      if (!Array.isArray(arr)) return [];
+      const pairs = arr
+        .map((p: unknown) => {
+          if (typeof p === 'object' && p !== null) {
+            const obj = p as { portfolioId?: unknown; projectId?: unknown };
+            const portfolioId = Number(obj.portfolioId);
+            const projectId = Number(obj.projectId);
+            return { portfolioId, projectId };
+          }
+          return { portfolioId: NaN, projectId: NaN };
+        })
+        .filter((p) => Number.isFinite(p.portfolioId) && Number.isFinite(p.projectId))
+        .slice(0, 6);
+      return pairs;
     } catch {
       return [];
     }
@@ -65,34 +103,26 @@ export default function ProjectSelect() {
 
   const handleGenerate = async (e: React.MouseEvent) => {
     e.preventDefault();
-    const ids = getSelectedProjectIds();
-    if (!correctionId || ids.length === 0) return;
+    const pairs = getSelectedPairs();
+    const portfolioIds = pairs.map((p) => p.portfolioId);
+    // 하위 호환: 만약 pairs가 비어있다면, 기존 방식 사용
+    const fallbackPortfolioIds = portfolioIds.length > 0 ? portfolioIds : getSelectedPortfolioIds();
+    if (!correctionId || (pairs.length === 0 && fallbackPortfolioIds.length === 0)) return;
     try {
       setIsGenerating(true);
-      // 선택한 프로젝트 중 생성 완료(DONE)된 것만 선별하여 요청 (백엔드 에러 MASTERPORTFOLIO40402 대비)
-      const statuses = await Promise.all(
-        ids.map(async (pid) => {
-          try {
-            const res = await getMasterPortfolioStatus(pid);
-            return { pid, status: res.result?.status } as const;
-          } catch {
-            return { pid, status: undefined } as const;
-          }
-        })
-      );
-      const readyIds = statuses.filter((s) => s.status === 'DONE').map((s) => s.pid);
-      const notReady = statuses.filter((s) => s.status !== 'DONE').map((s) => s.pid);
-      if (readyIds.length === 0) {
-        alert(
-          '선택한 프로젝트의 마스터 포트폴리오 생성이 완료되지 않았습니다. 완료된 프로젝트만 선택해 주세요.'
-        );
+      // hasMasterPortfolio를 기반으로 Projects에서 이미 필터링했으므로 그대로 projectId 사용
+      const readyProjectIds = (
+        pairs.length > 0 ? pairs.map((p) => p.projectId) : getSelectedProjectIds()
+      )
+        .slice(0, 6)
+        .map((n) => Number(n))
+        .filter(Number.isFinite);
+      if (readyProjectIds.length === 0) {
+        alert('선택된 프로젝트가 없습니다. 프로젝트를 선택해 주세요.');
         setIsGenerating(false);
         return;
       }
-      if (notReady.length > 0) {
-        console.warn('[ProjectSelect] 제외된 프로젝트 IDs(미완료):', notReady);
-      }
-      await postGenerateCorrection(correctionId, { selectedProjects: readyIds });
+      await postGenerateCorrection(correctionId, { selectedProjects: readyProjectIds });
       await waitUntilGenerated(correctionId);
       router.push(`/mypage/tailoredportfolio/${correctionId}`);
     } catch (err: unknown) {

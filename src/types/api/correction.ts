@@ -101,6 +101,7 @@ export interface CorrectionSelectableProject {
   role: string;
   isCompleted: boolean;
   completedAt: string | null;
+  hasMasterPortfolio: boolean; // 신규 필드: 마스터포트폴리오 생성 결과 존재 여부
 }
 
 export interface CorrectionProjectsResponse {
