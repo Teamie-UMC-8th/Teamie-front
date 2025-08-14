@@ -43,7 +43,7 @@ const CopyModal = ({
           onClick={onClose}
           className="absolute cursor-pointer top-[0.75rem] right-[0.75rem] text-gray-400 hover:text-gray-600 text-2xl font-bold"
         >
-          <img src="/icons/곱하기.svg" alt="close" />
+          <img src="/icons/close.svg" alt="close" />
         </button>
 
         {/* 헤더 */}
