@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   fetchCorrectionDetail,
   fetchGeneratedCorrection,
   fetchRagData,
+  fetchCompanyInsight,
+  patchCorrectionTitle,
 } from '@/services/correction/correction';
 import DeleteButton from '@/components/DeleteButton';
 import ReductionToggle from '@/features/correction/components/ReductionToggle';
@@ -22,9 +24,12 @@ export default function TailoredPortfolio() {
   const params = useParams();
   const correctionId = Number(params.correctionId);
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const [toggleROn, setRToggleOn] = useState(false);
   const [toggleCOn, setCToggleOn] = useState(false);
   const [showInsightModal, setShowInsightModal] = useState(false);
+  const [titleInput, setTitleInput] = useState<string>('');
+  const titleRef = useRef<HTMLHeadingElement>(null);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['correction-detail', correctionId],
@@ -46,9 +51,43 @@ export default function TailoredPortfolio() {
     staleTime: 60_000,
   });
 
+  const { data: companyInsight } = useQuery({
+    queryKey: ['company-insight', correctionId],
+    queryFn: () => fetchCompanyInsight(correctionId),
+    enabled: !!correctionId,
+    staleTime: 60_000,
+  });
+
+  // 동기화: 서버에서 받은 제목을 에디터 값에 반영 (최초 로드 시 1회 설정)
+  useEffect(() => {
+    if (!data?.title) return;
+    if (titleInput === '') {
+      setTitleInput(data.title);
+    }
+  }, [data, titleInput]);
+
   if (isLoading) return <div>AI 첨삭 정보를 불러오는 중...</div>;
   if (error) return <div>AI 첨삭 정보를 불러오는데 실패했습니다.</div>;
   if (!data) return <div>AI 첨삭 정보를 찾을 수 없습니다.</div>;
+
+  const saveTitleIfChanged = async () => {
+    const newTitle = (titleRef.current?.textContent || titleInput || '').trim();
+    const currentTitle = (data?.title || '').trim();
+    if (!newTitle || newTitle === currentTitle) return;
+    try {
+      await patchCorrectionTitle(correctionId, { title: newTitle });
+      queryClient.setQueryData(['correction-detail', correctionId], (prev: unknown) => {
+        if (prev && typeof prev === 'object') {
+          return { ...(prev as Record<string, unknown>), title: newTitle };
+        }
+        return prev;
+      });
+    } catch {
+      // 실패 시에는 일단 롤백: 화면 텍스트를 기존 제목으로 복원
+      if (titleRef.current) titleRef.current.textContent = currentTitle;
+      setTitleInput(currentTitle);
+    }
+  };
 
   // 기업명 보강: 상세 데이터 → 제목 → 세션 프리패치 순으로 확보
   const companyNameForModal: string = (() => {
@@ -101,6 +140,17 @@ export default function TailoredPortfolio() {
           <h1
             className="text-[24px] font-semibold mt-[28px] ml-[20px]
           max-lg:ml-[8px]"
+            contentEditable
+            suppressContentEditableWarning
+            ref={titleRef}
+            onInput={(e) => setTitleInput(e.currentTarget.textContent || '')}
+            onBlur={saveTitleIfChanged}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                (e.currentTarget as HTMLElement).blur();
+              }
+            }}
           >
             {data.title || '새로운 첨삭'}
           </h1>
@@ -127,7 +177,7 @@ export default function TailoredPortfolio() {
         max-lg:ml-[24px] max-lg:flex-col max-lg:items-start"
         >
           <div className="flex items-center">
-            <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px]">
+            <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] font-semibold">
               생성 일자
             </div>
             <p className="text-black text-[20px] grid place-items-center ml-[28px]">
@@ -139,12 +189,12 @@ export default function TailoredPortfolio() {
             className="flex items-center ml-[312px]
           max-lg:ml-[0px] max-lg:mt-[40px]"
           >
-            <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px]">
+            <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] font-semibold">
               기업명
             </div>
             <p className="ml-[28px] text-[20px] mr-[342px]">{data.submissionTarget}</p>
 
-            <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ">
+            <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] font-semibold">
               직무명
             </div>
             <p className="text-[20px] ml-[28px]">{data.jobTitle}</p>
@@ -170,8 +220,11 @@ export default function TailoredPortfolio() {
             className=" mt-[16px] border-[2px] border-[#BBBBBB] w-[1520px] h-[162px] rounded-[8px] px-[20px] py-[16px] text-[18px]
           max-lg:w-[928px] max-lg:h-[176px]"
             defaultValue={
-              generated?.firstCorrection?.correctionResult?.insights?.field_summary || ''
+              (companyInsight?.companyInsight || '').trim() ||
+              generated?.firstCorrection?.correctionResult?.insights?.field_summary ||
+              ''
             }
+            readOnly
           />
         </div>
 
@@ -183,7 +236,8 @@ export default function TailoredPortfolio() {
           <textarea
             className=" mt-[16px] border-[2px] border-[#BBBBBB] w-[1520px] h-[162px] rounded-[8px] px-[20px] py-[16px] text-[18px]
           max-lg:w-[928px] max-lg:h-[176px]"
-            defaultValue={data?.content || ''}
+            defaultValue={data?.jd ?? data?.content ?? ''}
+            readOnly
           />
         </div>
       </div>

@@ -188,6 +188,7 @@ export interface CorrectionDetailResponse {
     submissionTarget: string;
     createdAt: string;
     jobTitle: string;
+    jd?: string;
     // API가 빈 껍데기이므로 기본적인 필드만 정의
     // 추후 실제 API 응답에 맞춰 확장 가능
     content?: string;

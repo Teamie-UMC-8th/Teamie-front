@@ -238,3 +238,15 @@ export async function patchCompanyInsight(
 
   return data.result;
 }
+
+// 포트폴리오 첨삭 제목 수정
+export async function patchCorrectionTitle(
+  correctionId: number,
+  payload: { title: string }
+): Promise<void> {
+  console.log('[API] PATCH /api/v1/portfolio-corrections/{id} request:', {
+    correctionId,
+    title: payload?.title,
+  });
+  await axiosInstance.patch(`/api/v1/portfolio-corrections/${correctionId}`, payload);
+}
