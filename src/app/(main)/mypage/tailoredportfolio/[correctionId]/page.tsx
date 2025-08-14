@@ -11,6 +11,7 @@ import Link from 'next/link';
 import ReductionMark from '@/features/correction/components/ReductionMark';
 import ConcretizationMark from '@/features/correction/components/ConcretizationMark';
 import ConcretizationToggle from '@/features/correction/components/ConcretizationToggle';
+import Image from 'next/image';
 
 export default function TailoredPortfolio() {
   const params = useParams();
@@ -33,7 +34,14 @@ export default function TailoredPortfolio() {
       <div className="flex justify-between">
         <div className="flex items-center">
           <Link href="/mypage">
-            <img src="/icons/arrow-left.svg" alt="뒤로가기" className="mt-[29px]" />
+            <Image
+              src="/icons/arrow-left.svg"
+              alt="뒤로가기"
+              className="mt-[29px]"
+              width={0}
+              height={0}
+              style={{ width: 'auto', height: 'auto' }}
+            />
           </Link>
           <h1
             className="text-[24px] font-semibold mt-[28px] ml-[20px]
@@ -114,17 +122,18 @@ export default function TailoredPortfolio() {
       max-lg:ml-[40px]"
       >
         <div className="bg-[#E9F8F8] w-[160px] h-[58px] rounded-tl-[8px] rounded-tr-[8px] grid place-items-end">
-          <p className="font-bold mr-[40px] text-[18px]">프로젝트 A</p>
+          <p className="font-bold mr-[40px] text-[18px]">프로젝트 1</p>
           <div className="w-[160px] h-[4px] bg-[#81D7D4] " />
         </div>
         <div className="bg-[#F8F8F8] w-[160px] h-[58px] rounded-tl-[8px] rounded-tr-[8px] py-[16px]">
-          <p className="font-bold mr-[40px] text-[18px] ml-[40px]">프로젝트 B</p>
+          <p className="font-bold mr-[40px] text-[18px] ml-[40px]">프로젝트 2</p>
         </div>
         <div className="bg-[#F8F8F8] w-[160px] h-[58px] rounded-tl-[8px] rounded-tr-[8px] py-[16px]">
-          <p className="font-bold mr-[40px] text-[18px] ml-[40px]">프로젝트 C</p>
+          <p className="font-bold mr-[40px] text-[18px] ml-[40px]">프로젝트 3</p>
         </div>
       </div>
 
+      {/* 프로젝트 별 첨삭 내용*/}
       <div
         className="w-[1520px] h-[2757px] bg-[#F8F8F8] ml-[80px] rounded-[16px] relative z-10 p-[60px]
         max-lg:w-[928px] max-lg:h-[4325px] max-lg:p-[36px] max-lg:ml-[24px]"
@@ -147,7 +156,15 @@ export default function TailoredPortfolio() {
           <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[154px] font-semibold text-[18px]">
             기여도
           </div>
-          <img src="/icons/CorrectionPercentbar.svg" alt="기여도 퍼센트바" className="ml-[28px]" />
+          <Image
+            src="/icons/CorrectionPercentbar.svg"
+            alt="기여도 퍼센트바"
+            className="ml-[28px]"
+            width={0}
+            height={0}
+            sizes="100vw"
+            style={{ width: 'auto', height: 'auto' }}
+          />
           <p className="text-[20px] ml-[20px]">80%</p>
         </div>
         <div

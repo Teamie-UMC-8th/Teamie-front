@@ -1,9 +1,6 @@
 'use client';
 
-import {
-  useMasterPortfolioList,
-  useCorrectionProjects,
-} from '@/hooks/queries/useGetMasterPortfolio';
+import { useMasterPortfolioList } from '@/hooks/queries/useGetMasterPortfolio';
 import { useUpdateMainTask } from '@/hooks/mutations/useUser';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -11,13 +8,13 @@ import { formatDateRange } from '@/utils/formatDate';
 import { useState, useRef, useEffect } from 'react';
 import { MasterPortfolio } from '@/types/api/masterportfolio';
 import { CATEGORY_MAP } from '@/constants/category';
+import { getMasterPortfolioGeneratedResult } from '@/services/masterportfolio/masterportfolio';
 
 export default function Projects() {
   const pathname = usePathname();
   const isProjectSelectPage = pathname === '/mypage/addcorrection/projectSelect';
   const isMyPage = pathname === '/mypage';
   const { data } = useMasterPortfolioList();
-  const { data: selectable } = useCorrectionProjects();
   const updateMainTask = useUpdateMainTask();
 
   const [editingTask, setEditingTask] = useState<number | null>(null);
@@ -96,52 +93,58 @@ export default function Projects() {
 
   const isUpdating = updateMainTask.isPending;
 
-  // 카테고리 정규화 유틸은 다른 곳에서 사용 중이므로 여기서는 제거 (미사용 경고 방지)
+  // 선택 가능(마스터포트폴리오 DONE) 포트폴리오 식별 (portfolioId 기준)
+  const [readySelectableIds, setReadySelectableIds] = useState<Set<number>>(new Set());
 
-  // ProjectSelect 페이지에서는 선택 가능한 카드가 항상 상단에 오도록 정렬/병합
+  // ProjectSelect: 마이페이지의 전체 마스터포트폴리오를 보여주되, DONE(선택 가능)을 상단에 정렬
   const cardsToRender: MasterPortfolio[] = (() => {
-    if (!isProjectSelectPage) {
-      return (data?.data || []) as MasterPortfolio[];
-    }
-    const selectableCards: MasterPortfolio[] = (selectable || []).map((p) => ({
-      projectId: p.id,
-      portfolioId: p.id,
-      projectName: p.name,
-      category: 'PROJECT',
-      contributionRate: 0,
-      startDate: p.createdAt,
-      endDate: p.updatedAt,
-      mainTask: '',
-    })) as unknown as MasterPortfolio[];
-    // 선택 가능/불가능 분리 정렬
-    const masterList = ((data?.data || []) as MasterPortfolio[]) || [];
-    const masterIdSet = new Set(
-      masterList
-        .map((mp: MasterPortfolio) => Number(mp.projectId as unknown as number))
-        .filter((n) => Number.isFinite(n)) as number[]
-    );
-    const masterNameSet = new Set(
-      masterList
-        .map((mp: MasterPortfolio) =>
-          String(mp.projectName || '')
-            .trim()
-            .toLowerCase()
-        )
-        .filter((s) => s.length > 0)
-    );
-    const withFlag = selectableCards.map((c) => {
-      const id = Number(c.projectId as unknown as number);
-      const name = String(c.projectName || '')
-        .trim()
-        .toLowerCase();
-      const selectableById = Number.isFinite(id) && masterIdSet.has(id);
-      const selectableByName = name.length > 0 && masterNameSet.has(name);
-      const isSelectable = selectableById || selectableByName;
-      return { card: c, isSelectable } as { card: MasterPortfolio; isSelectable: boolean };
+    const masterCards = ((data?.data || []) as MasterPortfolio[]) || [];
+    if (!isProjectSelectPage) return masterCards;
+    const doneSet = readySelectableIds;
+    return masterCards.slice().sort((a, b) => {
+      const da = doneSet.has(Number(a.portfolioId as unknown as number));
+      const db = doneSet.has(Number(b.portfolioId as unknown as number));
+      return Number(db) - Number(da);
     });
-    withFlag.sort((a, b) => (a.isSelectable === b.isSelectable ? 0 : a.isSelectable ? -1 : 1));
-    return withFlag.map((w) => w.card);
   })();
+
+  useEffect(() => {
+    if (!isProjectSelectPage) return;
+    const masterList = ((data?.data || []) as MasterPortfolio[]) || [];
+    const run = async () => {
+      try {
+        const results = await Promise.all(
+          masterList.map(async (m) => {
+            const portfolioId = Number(m.portfolioId as unknown as number);
+            if (!Number.isFinite(portfolioId)) return { portfolioId, hasContent: false } as const;
+            try {
+              const res = await getMasterPortfolioGeneratedResult(portfolioId);
+              const content = res.result;
+              const hasContent = Boolean(
+                content &&
+                  ((content.detailInfo && content.detailInfo.trim().length > 0) ||
+                    (content.assignedTask && content.assignedTask.trim().length > 0) ||
+                    (content.keyAchievement && content.keyAchievement.trim().length > 0) ||
+                    (content.insight && content.insight.trim().length > 0))
+              );
+              return { portfolioId, hasContent } as const;
+            } catch {
+              return { portfolioId, hasContent: false } as const;
+            }
+          })
+        );
+        const ready = new Set<number>();
+        results.forEach((r) => {
+          if (r.hasContent) ready.add(r.portfolioId);
+        });
+        setReadySelectableIds(ready);
+      } catch {
+        setReadySelectableIds(new Set());
+      }
+    };
+    run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isProjectSelectPage, JSON.stringify(data?.data)]);
 
   return (
     <div
@@ -157,31 +160,10 @@ export default function Projects() {
           href={isProjectSelectPage ? '#' : `/mypage/aimasterportfolio/${item.portfolioId}`}
         >
           {(() => {
-            const masterList = (data?.data || []) as MasterPortfolio[];
-            const masterProjectIdSet = new Set(
-              masterList
-                .map((mp: MasterPortfolio) => {
-                  const num = Number(mp.projectId as unknown as number);
-                  return Number.isFinite(num) ? num : NaN;
-                })
-                .filter((n) => Number.isFinite(n)) as number[]
-            );
-            const masterProjectNameSet = new Set(
-              masterList
-                .map((mp: MasterPortfolio) =>
-                  String(mp.projectName || '')
-                    .trim()
-                    .toLowerCase()
-                )
-                .filter((s) => s.length > 0)
-            );
-            const candidateId = Number(item.projectId as unknown as number);
-            const candidateName = String(item.projectName || '')
-              .trim()
-              .toLowerCase();
-            const idMatch = Number.isFinite(candidateId) && masterProjectIdSet.has(candidateId);
-            const nameMatch = candidateName.length > 0 && masterProjectNameSet.has(candidateName);
-            const isDisabledOnSelectPage = isProjectSelectPage && !(idMatch || nameMatch);
+            // 마스터포트폴리오 DONE 여부로 선택 가능 제어 (portfolioId 기준)
+            const isReady = readySelectableIds.has(Number(item.portfolioId as unknown as number));
+            const isDisabledOnSelectPage = isProjectSelectPage && !isReady;
+
             return (
               <button
                 className={`relative w-[465px] h-[192px] rounded-[8px] grid justify-center cursor-pointer transition-all duration-100 ${
@@ -238,11 +220,6 @@ export default function Projects() {
                 </div>
 
                 <div className="relative w-[439px] h-[96px] mx-[13px] pt-[16px] pb-[20px] mt-[-36px] max-lg:w-[397px] max-lg:h-[96px] max-lg:ml-[12px]">
-                  {isDisabledOnSelectPage && (
-                    <div className="absolute left-[60px] bg-[#F8F8F8] border border-[#BBBBBB] rounded-[6px] px-[20px] py-[6px] text-[#505050] text-[14px]">
-                      마스터 포트폴리오가 작성되지 않은 프로젝트입니다.
-                    </div>
-                  )}
                   {isProjectSelectPage && selectedProjects.has(item.portfolioId) && (
                     <div className="absolute -bottom-[24px] -right-[0px] w-[28px] h-[28px] bg-[#505050] rounded-[4px] flex items-center justify-center">
                       <span className="text-white text-[16px] font-bold">

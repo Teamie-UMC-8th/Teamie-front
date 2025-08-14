@@ -5,6 +5,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import MasterLoadingModal from '@/features/aimasterportfolio/components/MasterLoadingModal';
 import { fetchGeneratedCorrection, postGenerateCorrection } from '@/services/correction/correction';
+import { getMasterPortfolioStatus } from '@/services/masterportfolio/masterportfolio';
+import { AxiosError, isAxiosError } from 'axios';
+import Image from 'next/image';
 
 export default function ProjectSelect() {
   const router = useRouter();
@@ -27,7 +30,7 @@ export default function ProjectSelect() {
   const getSelectedProjectIds = (): number[] => {
     try {
       const raw = sessionStorage.getItem('projectSelect:selected');
-      const arr = raw ? (JSON.parse(raw) as number[]) : [];
+      const arr = raw ? (JSON.parse(raw) as unknown) : [];
       return Array.isArray(arr)
         ? arr
             .slice(0, 6)
@@ -66,12 +69,50 @@ export default function ProjectSelect() {
     if (!correctionId || ids.length === 0) return;
     try {
       setIsGenerating(true);
-      await postGenerateCorrection(correctionId, { selectedProjects: ids });
+      // 선택한 프로젝트 중 생성 완료(DONE)된 것만 선별하여 요청 (백엔드 에러 MASTERPORTFOLIO40402 대비)
+      const statuses = await Promise.all(
+        ids.map(async (pid) => {
+          try {
+            const res = await getMasterPortfolioStatus(pid);
+            return { pid, status: res.result?.status } as const;
+          } catch {
+            return { pid, status: undefined } as const;
+          }
+        })
+      );
+      const readyIds = statuses.filter((s) => s.status === 'DONE').map((s) => s.pid);
+      const notReady = statuses.filter((s) => s.status !== 'DONE').map((s) => s.pid);
+      if (readyIds.length === 0) {
+        alert(
+          '선택한 프로젝트의 마스터 포트폴리오 생성이 완료되지 않았습니다. 완료된 프로젝트만 선택해 주세요.'
+        );
+        setIsGenerating(false);
+        return;
+      }
+      if (notReady.length > 0) {
+        console.warn('[ProjectSelect] 제외된 프로젝트 IDs(미완료):', notReady);
+      }
+      await postGenerateCorrection(correctionId, { selectedProjects: readyIds });
       await waitUntilGenerated(correctionId);
       router.push(`/mypage/tailoredportfolio/${correctionId}`);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('[ProjectSelect] generate failed:', err);
-      alert('첨삭 생성에 실패했습니다. 다시 시도해주세요.');
+      let reason: string | undefined;
+      let dataMsg: string | undefined;
+      let message: string | undefined;
+      if (isAxiosError(err)) {
+        const axiosErr = err as AxiosError<{ error?: { reason?: string; data?: string } }>;
+        reason = axiosErr.response?.data?.error?.reason;
+        dataMsg = axiosErr.response?.data?.error?.data;
+        message = axiosErr.message;
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
+      alert(
+        `첨삭 생성에 실패했습니다.${reason ? `\n사유: ${reason}` : ''}${
+          dataMsg ? `\n${dataMsg}` : ''
+        }${message ? `\n메시지: ${message}` : ''}`
+      );
       setIsGenerating(false);
     }
   };
@@ -96,9 +137,11 @@ export default function ProjectSelect() {
             className="flex items-start ml-[60px] mt-[32px]
           max-lg:ml-[32px] max-lg:mt-[8px]"
           >
-            <img
+            <Image
               src="/icons/AiCharacter.svg"
               alt="AI 로고"
+              width={60}
+              height={60}
               className="translate-y-[34px]
             max-lg:w-[60px] max-lg:h-[60px] max-lg:translate-y-[32px]"
             />
@@ -107,15 +150,23 @@ export default function ProjectSelect() {
               className="relative ml-[28px]
             max-lg:ml-[8px]"
             >
-              <img
+              <Image
                 src="/icons/ProjectSelectBubble.svg"
                 alt="로딩중 말풍선"
+                width={0}
+                height={0}
+                sizes="100vw"
                 className="block max-lg:hidden"
+                style={{ width: 'auto', height: 'auto' }}
               />
-              <img
+              <Image
                 src="/icons/ResponsiveProjectSelectBubble.svg"
                 alt="반응형 프로젝트 선택 말풍선"
+                width={0}
+                height={0}
+                sizes="100vw"
                 className="hidden max-lg:block"
+                style={{ width: 'auto', height: 'auto' }}
               />
               <div
                 className="absolute top-[0px] left-[0px] py-[42px] px-[90px] text-[18px]
@@ -141,12 +192,26 @@ export default function ProjectSelect() {
             className="relative ml-[920px] mt-[20px]
           max-lg:ml-[496px]"
           >
-            <img src="/icons/CorrectionStartBubble.svg" alt="첨삭 시작 말풍선" />
+            <Image
+              src="/icons/CorrectionStartBubble.svg"
+              alt="첨삭 시작 말풍선"
+              width={0}
+              height={0}
+              sizes="100vw"
+              style={{ width: 'auto', height: 'auto' }}
+            />
             <button
               onClick={handleGenerate}
               className="absolute top-[36px] left-[52px] cursor-pointer"
             >
-              <img src="/icons/CorrectionStartButton.svg" alt="첨삭 시작 버튼" />
+              <Image
+                src="/icons/CorrectionStartButton.svg"
+                alt="첨삭 시작 버튼"
+                width={0}
+                height={0}
+                sizes="100vw"
+                style={{ width: 'auto', height: 'auto' }}
+              />
             </button>
           </div>
 

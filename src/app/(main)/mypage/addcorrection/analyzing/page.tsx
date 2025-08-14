@@ -228,7 +228,10 @@ export default function AiLoadingPage() {
         lastSavedRef.current = companyInsight;
       } catch {}
     }
-    router.push('/mypage/addcorrection/projectSelect');
+    const nextUrl =
+      `/mypage/addcorrection/projectSelect?correctionId=${correctionId}` +
+      (companyName ? `&submissionTarget=${encodeURIComponent(companyName)}` : '');
+    router.push(nextUrl);
   };
 
   // 임시저장 후 마이페이지로 이동

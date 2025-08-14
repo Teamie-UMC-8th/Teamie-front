@@ -12,6 +12,7 @@ import {
   PostGenerateCorrectionRequest,
   PostGenerateCorrectionResponse,
   GetGeneratedCorrectionResponse,
+  GetGeneratedCorrectionByProjectResponse,
 } from '@/types/api/correction';
 import axiosInstance from '@/lib/axiosInstance';
 
@@ -51,6 +52,25 @@ export async function fetchCorrectionList(
     }
   }
 
+  return data.result;
+}
+
+// 프로젝트별 생성 결과 상세 조회
+export async function fetchGeneratedCorrectionByProject(
+  correctionId: number,
+  projectId: number
+): Promise<GetGeneratedCorrectionByProjectResponse['result']> {
+  console.log('[API] GET /api/v1/portfolio-corrections/{id}/{projectId}', {
+    correctionId,
+    projectId,
+  });
+  const { data } = await axiosInstance.get<GetGeneratedCorrectionByProjectResponse>(
+    `/api/v1/portfolio-corrections/${correctionId}/${projectId}`
+  );
+  console.log('[API] GET /api/v1/portfolio-corrections/{id}/{projectId} response:', data);
+  if (!data.result) {
+    throw new Error('프로젝트별 생성 결과를 가져올 수 없습니다.');
+  }
   return data.result;
 }
 

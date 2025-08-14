@@ -171,6 +171,12 @@ export interface GetGeneratedCorrectionResponse {
   };
 }
 
+export interface GetGeneratedCorrectionByProjectResponse {
+  isSuccess: boolean;
+  error: null;
+  result: FirstCorrectionBlock;
+}
+
 // AI 첨삭 상세 정보 응답 타입
 export interface CorrectionDetailResponse {
   isSuccess: boolean;
