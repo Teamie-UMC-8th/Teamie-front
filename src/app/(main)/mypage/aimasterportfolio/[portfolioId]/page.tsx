@@ -17,6 +17,8 @@ import { useRouter } from 'next/navigation';
 import { useProjectHome } from '@/hooks/mutations/useProjectHome';
 import { formatDate } from '@/utils/formatDate';
 import Image from 'next/image';
+import LoadingModal from '@/features/aimasterportfolio/components/MasterLoadingModal';
+import { useQueryClient } from '@tanstack/react-query';
 
 const STYLES = {
   tag: 'w-[99px] h-[37px] bg-[#DAF3F3] rounded-[4px] px-[18px] py-[6px] flex items-center justify-center font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-[#000000] whitespace-nowrap',
@@ -122,12 +124,17 @@ export default function MasterPortfolioDetail() {
   const patchMasterPortfolio = usePatchMasterPortfolio();
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey>('COURSE');
   const [contribution, setContribution] = useState(0); // 초기값 0으로 변경
-  const { data: status, isLoading: statusLoading } = useMasterPortfolioStatus(portfolioId);
+  const {
+    data: status,
+    isLoading: statusLoading,
+    refetch: refetchStatus,
+  } = useMasterPortfolioStatus(portfolioId);
   const router = useRouter();
   const detailRef = useRef<HTMLDivElement>(null);
   const taskRef = useRef<HTMLDivElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const learnRef = useRef<HTMLDivElement>(null);
+  const queryClient = useQueryClient();
 
   // 프로젝트 정보 가져오기
   const { data: projectHomeData, isLoading: projectLoading } = useProjectHome(data?.projectId || 0);
@@ -160,6 +167,29 @@ export default function MasterPortfolioDetail() {
   //     if (learnRef.current) learnRef.current.innerText = data.insight || '';
   //   }
   // }, [data, status?.result.status]);
+
+  // GENERATING 상태에서 주기적으로 상태 폴링, DONE 전환 시 상세 데이터 갱신
+  useEffect(() => {
+    const currentStatus = status?.result.status;
+    if (currentStatus === 'GENERATING') {
+      const intervalId = window.setInterval(() => {
+        refetchStatus();
+      }, 1500);
+      return () => {
+        window.clearInterval(intervalId);
+      };
+    }
+
+    if (currentStatus === 'DONE') {
+      queryClient.invalidateQueries({ queryKey: ['master-portfolio', portfolioId] });
+      queryClient.invalidateQueries({ queryKey: ['masterPortfolioGeneratedResult', portfolioId] });
+    }
+  }, [status?.result.status, refetchStatus, queryClient, portfolioId]);
+
+  // 상세 페이지 진입 시 항상 최신 상태 확인
+  useEffect(() => {
+    refetchStatus();
+  }, [refetchStatus]);
 
   const handleContributionChange = (newContribution: number) => {
     setContribution(newContribution);
@@ -314,6 +344,9 @@ export default function MasterPortfolioDetail() {
           )}
         </section>
       </div>
+
+      {/* 생성 진행 중 재진입 시 마지막 단계부터 표시되는 로딩 모달 */}
+      {status?.result.status === 'GENERATING' && <LoadingModal isOpen startFromLast />}
     </main>
   );
 }

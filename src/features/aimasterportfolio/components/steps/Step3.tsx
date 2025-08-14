@@ -140,14 +140,14 @@ const Step3 = forwardRef<Step3Handle>(function Step3(_, ref) {
           return (
             <div key={q.questionId}>
               <div className="flex items-center justify-between mb-4">
-                <p className="text-black-400 font-medium flex-1">
+                <p className="text-black-400 font-medium flex-1 ">
                   {idx + 1}. {q.question}
                 </p>
                 {q.questionType === 'YES_NO' && (
-                  <div className="flex gap-3 ml-4">
+                  <div className="flex gap-3 ml-4 ">
                     <button
                       onClick={() => handleYesNo(q.questionId!, 'YES')}
-                      className={`px-6 py-2 rounded-md font-medium transition-colors ${
+                      className={`px-6 py-2 rounded-md font-medium transition-colors cursor-pointer ${
                         state.answer === 'YES'
                           ? 'border-[1px] border-[#81D7D4] bg-[#DAF3F3]'
                           : 'border-[0.6px] border-[#898989] bg-[#FFF]'
