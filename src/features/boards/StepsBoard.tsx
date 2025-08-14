@@ -1,7 +1,7 @@
-import { useState } from 'react';
 import { useCreateStep } from '@/hooks/mutations/useCreateStep';
 import { useDeleteStep } from '@/hooks/mutations/useDeleteStep';
 import { useUpdateStep } from '@/hooks/mutations/useUpdateStep';
+import { useUpdateTaskStep } from '@/hooks/mutations/useUpdateTaskStep';
 import { TASK_STATUS_DISPLAY } from '@/types/api/tasks';
 import { StepsBoardProps } from '@/types/board';
 import { useSteps } from './hooks/useSteps';
@@ -15,6 +15,7 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
   const createStepMutation = useCreateStep();
   const deleteStepMutation = useDeleteStep();
   const updateStepMutation = useUpdateStep();
+  const updateTaskStepMutation = useUpdateTaskStep();
   // STEP 추가 제한 (최대 8개)
   const canAddStep = steps.length < 8;
 
@@ -77,7 +78,7 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
   };
 
   // 드래그가 끝났을 때 호출되는 함수
-  const onDragEnd = (result: DropResult) => {
+  const onDragEnd = async (result: DropResult) => {
     const { source, destination } = result;
 
     // 드롭할 위치가 없으면 아무것도 안 함
@@ -87,23 +88,43 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
     const sourceStepId = Number(source.droppableId);
     const destStepId = Number(destination.droppableId);
 
-    // 같은 위치에 드롭했으면 아무것도 안 함
-    if (sourceStepId === destStepId && source.index === destination.index) {
+    // 같은 step으로 이동하는 경우는 무시
+    if (sourceStepId === destStepId) {
       return;
     }
 
-    // TODO: Task 이동 API 호출 구현
-    console.log('Task 이동:', {
-      sourceStepId,
-      destStepId,
-      sourceIndex: source.index,
-      destIndex: destination.index,
-    });
+    // 드래그된 task 찾기
+    const sourceStep = steps.find((step) => step.stepId === sourceStepId);
+    if (!sourceStep) return;
+
+    const draggedTask = sourceStep.tasks[source.index];
+    if (!draggedTask) return;
+
+    try {
+      // 다른 step으로 이동하는 경우만 처리
+      await updateTaskStepMutation.mutateAsync({
+        stepId: sourceStepId,
+        taskId: draggedTask.taskId,
+        data: { newStepId: destStepId },
+      });
+
+      console.log('Task step 이동 성공:', {
+        taskId: draggedTask.taskId,
+        fromStepId: sourceStepId,
+        toStepId: destStepId,
+      });
+    } catch (error) {
+      console.error('Task 이동 실패:', error);
+      alert('업무 이동에 실패했습니다.');
+    }
   };
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <div className="grid [grid-template-columns:repeat(2,20.313rem)] lg:[grid-template-columns:repeat(4,20.313rem)] gap-x-[2.25rem] gap-y-[5rem] mt-[3.75rem]">
+      <div
+        className="grid [grid-template-columns:repeat(2,20.313rem)] lg:[grid-template-columns:repeat(4,20.313rem)] gap-x-[2.25rem] gap-y-[5rem] mt-[3.75rem]"
+        style={{ overflow: 'visible' }}
+      >
         {steps.map((step) => (
           <div key={step.stepId} className="flex flex-col">
             <StepHeader
@@ -122,6 +143,7 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                     className="flex flex-col mt-6 min-h-[0.625rem]"
+                    style={{ overflow: 'visible' }}
                   >
                     {step.tasks.map((task, idx) => (
                       <Draggable
@@ -133,10 +155,10 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
-                            className={`mb-3 last:mb-0 ${snapshot.isDragging ? 'opacity-50' : ''}`}
+                            className={`mb-3 last:mb-0 transition-all duration-200 ${snapshot.isDragging ? 'opacity-50 z-50' : ''}`}
                             style={{
                               ...provided.draggableProps.style,
-                              width: '100%',
+                              width: '325px',
                               height: 'auto',
                             }}
                           >
