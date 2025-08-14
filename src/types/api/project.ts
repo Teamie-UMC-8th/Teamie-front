@@ -49,3 +49,14 @@ export interface UserProjectPermissionResponse {
     permission: 'LEAD' | 'MEMBER';
   };
 }
+
+// 프로젝트 완료 API 응답 타입
+export interface CompleteProjectResponse {
+  isSuccess: boolean;
+  error: ApiErrorResponse | null;
+  result: {
+    id: number;
+    isCompleted: boolean;
+    completedAt: string;
+  } | null;
+}

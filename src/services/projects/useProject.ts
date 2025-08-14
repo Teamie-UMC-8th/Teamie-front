@@ -7,6 +7,7 @@ import {
   PostJoinProjectRequest,
   PostJoinProjectResponse,
   UserProjectPermissionResponse,
+  CompleteProjectResponse,
 } from '@/types/api/project';
 
 // 프로젝트 생성
@@ -47,4 +48,12 @@ export const getUserProjectPermission = async (
 ): Promise<UserProjectPermissionResponse> => {
   const response = await axiosInstance.get(`/api/v1/projects/${projectId}/my-permission`);
   return response.data;
+};
+
+// 프로젝트 완료 (PATCH)
+export const patchCompleteProject = async (projectId: number): Promise<CompleteProjectResponse> => {
+  const { data } = await axiosInstance.patch<CompleteProjectResponse>(
+    `/api/v1/projects/${projectId}/complete`
+  );
+  return data;
 };

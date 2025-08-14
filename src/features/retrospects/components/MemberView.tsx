@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation'; // ✅ 추가
+import { usePostPersonalRetro } from '@/hooks/mutations/usePostPersonalRetro';
 import ConfirmLeaveModal from './ConfirmLeaveModal';
 import FinalLeaveModal from './FinalLeaveModal';
 
@@ -12,6 +13,7 @@ export function MemberView() {
   const router = useRouter(); // ✅ 추가
   const params = useParams(); // ✅ 추가
   const projectId = params.projectId; // ✅ 현재 URL의 projectId 사용
+  const { mutate: createRetro } = usePostPersonalRetro();
 
   const handleLeaveClick = () => {
     setShowConfirmModal(true);
@@ -24,8 +26,17 @@ export function MemberView() {
 
   const handleFinalLeave = () => {
     setShowFinalModal(false);
-    //alert('이탈 완료!');
-    router.push(`/projects/${projectId}/retrospect/create`);
+    // 개인회고가 없을 수도 있으므로 생성 후 이동
+    if (projectId) {
+      createRetro(
+        { projectId: Number(projectId) },
+        {
+          onSettled: () => router.push(`/projects/${projectId}/retrospect/create`),
+        }
+      );
+    } else {
+      router.push(`/projects/${projectId}/retrospect/create`);
+    }
   };
 
   return (
@@ -43,7 +54,7 @@ export function MemberView() {
       </h2>
 
       {/* 구분선 */}
-      <hr className="w-full border-t-[2px] border-[#E7E7E7] rotate-180 mb-[195px]" />
+      <hr className="flex w-full border-t-[2px] border-[#E7E7E7] rotate-180 mb-[195px]" />
 
       {/* 카드 영역 */}
       <div

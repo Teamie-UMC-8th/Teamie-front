@@ -2,12 +2,17 @@
 
 import { useState } from 'react';
 import ProjectEndModal from './ProjectEndModal';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import { usePostPersonalRetro } from '@/hooks/mutations/usePostPersonalRetro';
+import { useCompleteProject } from '@/hooks/mutations/useCompleteProject';
 
 export default function LeaderView() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
-  const projectId = 123;
+  const params = useParams();
+  const projectId = Number(params.projectId);
+  const { mutate: createRetro, isPending } = usePostPersonalRetro();
+  const { mutate: completeProject, isPending: isCompleting } = useCompleteProject(projectId);
 
   return (
     <div>
@@ -24,7 +29,7 @@ export default function LeaderView() {
       </h2>
 
       {/* 구분선 */}
-      <hr className="w-full border-t-[2px] border-[#E7E7E7] rotate-180 mb-[195px]" />
+      <hr className="flex w-full border-t-[2px] border-[#E7E7E7] rotate-180 mb-[195px]" />
 
       {/* 카드 영역 (MemberView와 동일하게 반응형 적용) */}
       <div
@@ -76,8 +81,20 @@ export default function LeaderView() {
         <ProjectEndModal
           onConfirm={() => {
             setIsModalOpen(false);
-            //router.push(`/projects/${projectId}/retrospect/create`);
-            alert('프로젝트 종료!');
+            if (!projectId) return;
+            // 종료 → 개인회고 생성 → 이동
+            completeProject(undefined, {
+              onSettled: () => {
+                createRetro(
+                  { projectId },
+                  {
+                    onSettled: () => {
+                      router.push(`/projects/${projectId}/retrospect/create`);
+                    },
+                  }
+                );
+              },
+            });
           }}
           onCancel={() => setIsModalOpen(false)}
         />
