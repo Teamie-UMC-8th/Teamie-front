@@ -14,6 +14,7 @@ import DeleteButton from '@/components/DeleteButton';
 import ReductionToggle from '@/features/correction/components/ReductionToggle';
 import TailoredDropdown from '@/features/correction/components/TailoredDropdown';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import ReductionMark from '@/features/correction/components/ReductionMark';
 import ConcretizationMark from '@/features/correction/components/ConcretizationMark';
 import ConcretizationToggle from '@/features/correction/components/ConcretizationToggle';
@@ -25,6 +26,7 @@ export default function TailoredPortfolio() {
   const correctionId = Number(params.correctionId);
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
+  const router = useRouter();
   const [toggleROn, setRToggleOn] = useState(false);
   const [toggleCOn, setCToggleOn] = useState(false);
   const [showInsightModal, setShowInsightModal] = useState(false);
@@ -156,8 +158,19 @@ export default function TailoredPortfolio() {
           </h1>
         </div>
         <DeleteButton
-          onDelete={() => {
-            // 삭제 로직 작성
+          onDelete={async () => {
+            try {
+              const { deleteCorrection } = await import('@/services/correction/correction');
+              await deleteCorrection(correctionId);
+            } finally {
+              // 목록/상세 관련 캐시 무효화 후 마이페이지로 이동
+              queryClient.invalidateQueries({ queryKey: ['correction-detail', correctionId] });
+              queryClient.invalidateQueries({ queryKey: ['generated-correction', correctionId] });
+              queryClient.invalidateQueries({ queryKey: ['generated-rag', correctionId] });
+              queryClient.invalidateQueries({ queryKey: ['company-insight', correctionId] });
+              queryClient.invalidateQueries({ queryKey: ['correction-list'] });
+              router.push('/mypage');
+            }
           }}
           modalTitle="이 AI 첨삭 내용을 정말 삭제하시겠습니까?"
           confirmText="삭제"

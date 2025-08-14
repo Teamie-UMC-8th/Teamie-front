@@ -250,3 +250,9 @@ export async function patchCorrectionTitle(
   });
   await axiosInstance.patch(`/api/v1/portfolio-corrections/${correctionId}`, payload);
 }
+
+// 포트폴리오 첨삭 삭제
+export async function deleteCorrection(correctionId: number): Promise<void> {
+  console.log('[API] DELETE /api/v1/portfolio-corrections/{id} request:', { correctionId });
+  await axiosInstance.delete(`/api/v1/portfolio-corrections/${correctionId}`);
+}
