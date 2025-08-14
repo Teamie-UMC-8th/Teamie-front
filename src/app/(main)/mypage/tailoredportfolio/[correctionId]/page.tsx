@@ -32,6 +32,7 @@ export default function TailoredPortfolio() {
   const [showInsightModal, setShowInsightModal] = useState(false);
   const [titleInput, setTitleInput] = useState<string>('');
   const titleRef = useRef<HTMLHeadingElement>(null);
+  const [selectedProjectIndex, setSelectedProjectIndex] = useState<number>(0);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['correction-detail', correctionId],
@@ -259,16 +260,23 @@ export default function TailoredPortfolio() {
         className="flex mt-[80px] ml-[96px]
       max-lg:ml-[40px]"
       >
-        <div className="bg-[#E9F8F8] w-[160px] h-[58px] rounded-tl-[8px] rounded-tr-[8px] grid place-items-end">
-          <p className="font-bold mr-[40px] text-[18px]">프로젝트 1</p>
-          <div className="w-[160px] h-[4px] bg-[#81D7D4] " />
-        </div>
-        <div className="bg-[#F8F8F8] w-[160px] h-[58px] rounded-tl-[8px] rounded-tr-[8px] py-[16px]">
-          <p className="font-bold mr-[40px] text-[18px] ml-[40px]">프로젝트 2</p>
-        </div>
-        <div className="bg-[#F8F8F8] w-[160px] h-[58px] rounded-tl-[8px] rounded-tr-[8px] py-[16px]">
-          <p className="font-bold mr-[40px] text-[18px] ml-[40px]">프로젝트 3</p>
-        </div>
+        {['프로젝트 1', '프로젝트 2', '프로젝트 3'].map((label, idx) => {
+          const isSelected = selectedProjectIndex === idx;
+          return (
+            <div
+              key={label}
+              onClick={() => setSelectedProjectIndex(idx)}
+              className={`${
+                isSelected ? 'bg-[#E9F8F8]' : 'bg-[#F8F8F8]'
+              } relative px-[40px] py-[16px] rounded-tl-[8px] rounded-tr-[8px] cursor-pointer select-none`}
+            >
+              <p className="font-bold text-[18px]">{label}</p>
+              {isSelected && (
+                <div className="absolute left-0 bottom-0 w-full h-[4px] bg-[#81D7D4]" />
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* 프로젝트 별 첨삭 내용*/}
