@@ -15,10 +15,13 @@ import {
   isStepResponse,
 } from '@/types/webSocket';
 import { useQueryClient } from '@tanstack/react-query';
+import FilterPanel from '@/components/FilterPanel';
 
 export default function DashboardPage() {
   // 상태 관리: STEP 별로 보기 / 진행 상태별로 보기
   const [isStepView, setIsStepView] = useState(true);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filterButtonRect, setFilterButtonRect] = useState<DOMRect | null>(null);
 
   // 프로젝트 ID 파라미터 가져오기
   const { projectId } = useParams() as { projectId: string };
@@ -39,6 +42,57 @@ export default function DashboardPage() {
     projectId: parseInt(projectId),
     view: isStepView ? 'step' : 'status',
   });
+
+  // 프로젝트의 모든 담당자 목록 추출 (필터 패널용)
+  const getAllAssignees = () => {
+    if (!dashboardData) return [];
+
+    const assigneesMap = new Map<number, { userId: number; name: string; imageUrl: string }>();
+
+    // steps에서 담당자 추출
+    if ('steps' in dashboardData) {
+      dashboardData.steps.forEach((step) => {
+        step.tasks.forEach((task) => {
+          task.managers.forEach((manager) => {
+            if (manager.userId && manager.name) {
+              assigneesMap.set(manager.userId, {
+                userId: manager.userId,
+                name: manager.name,
+                imageUrl: manager.imageUrl || '/icons/assignee.svg',
+              });
+            }
+          });
+        });
+      });
+    }
+
+    // statusGroups에서 담당자 추출
+    if ('statusGroups' in dashboardData) {
+      dashboardData.statusGroups.forEach((group) => {
+        group.tasks.forEach((task) => {
+          task.managers.forEach((manager) => {
+            if (manager.userId && manager.name) {
+              assigneesMap.set(manager.userId, {
+                userId: manager.userId,
+                name: manager.name,
+                imageUrl: manager.imageUrl || '/icons/assignee.svg',
+              });
+            }
+          });
+        });
+      });
+    }
+
+    return Array.from(assigneesMap.values());
+  };
+
+  // 담당자 정보 디버깅
+  useEffect(() => {
+    if (dashboardData) {
+      const assignees = getAllAssignees();
+      console.log('추출된 담당자 정보:', assignees);
+    }
+  }, [dashboardData]);
 
   // 웹소켓 이벤트 처리
   useEffect(() => {
@@ -95,6 +149,17 @@ export default function DashboardPage() {
     }, 100);
   };
 
+  // 필터 패널 열기/닫기
+  const handleFilterClick = (buttonRect: DOMRect) => {
+    setFilterButtonRect(buttonRect);
+    setIsFilterOpen(true);
+  };
+
+  const handleFilterClose = () => {
+    setIsFilterOpen(false);
+    setFilterButtonRect(null);
+  };
+
   // 로딩 상태 처리
   if (isLoading) {
     return (
@@ -122,11 +187,21 @@ export default function DashboardPage() {
           </h1>
         </div>
         <div className="flex-1 flex justify-end"></div>
-        <Searchbar
-          placeholder="검색어를 입력하세요."
-          onChange={() => {}}
-          onFilterClick={() => {}}
-        />
+        <div className="relative">
+          <Searchbar
+            placeholder="검색어를 입력하세요."
+            onChange={() => {}}
+            onFilterClick={handleFilterClick}
+          />
+
+          {/* 필터 패널 */}
+          <FilterPanel
+            isOpen={isFilterOpen}
+            onClose={handleFilterClose}
+            assignees={getAllAssignees()}
+            buttonRect={filterButtonRect}
+          />
+        </div>
       </header>
 
       <ToggleButton
