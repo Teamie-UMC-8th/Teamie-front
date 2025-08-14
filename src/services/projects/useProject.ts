@@ -6,6 +6,8 @@ import {
   GetJoinProjectResponse,
   PostJoinProjectRequest,
   PostJoinProjectResponse,
+  UserProjectPermissionResponse,
+  CompleteProjectResponse,
 } from '@/types/api/project';
 
 // 프로젝트 생성
@@ -37,5 +39,21 @@ export const postJoinProject = async (
   body: PostJoinProjectRequest
 ): Promise<PostJoinProjectResponse> => {
   const { data } = await axiosInstance.post<PostJoinProjectResponse>('/api/v1/projects/join', body);
+  return data;
+};
+
+// 사용자의 프로젝트 권한을 조회하는 함수
+export const getUserProjectPermission = async (
+  projectId: string
+): Promise<UserProjectPermissionResponse> => {
+  const response = await axiosInstance.get(`/api/v1/projects/${projectId}/my-permission`);
+  return response.data;
+};
+
+// 프로젝트 완료 (PATCH)
+export const patchCompleteProject = async (projectId: number): Promise<CompleteProjectResponse> => {
+  const { data } = await axiosInstance.patch<CompleteProjectResponse>(
+    `/api/v1/projects/${projectId}/complete`
+  );
   return data;
 };

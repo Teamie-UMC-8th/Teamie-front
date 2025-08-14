@@ -46,9 +46,7 @@ export default function PersonalSection() {
   if (axios.isAxiosError(error) && error.response?.status === 404) {
     return (
       <div className="text-center text-gray-500 text-[18px] font-medium">
-        개인 회고가 아직 생성되지 않았습니다.
-        <br />
-        프로젝트가 종료되면 자동으로 생성됩니다.
+        개인 회고가 생성되는 중입니다. 잠시 후 자동으로 표시됩니다...
       </div>
     );
   }

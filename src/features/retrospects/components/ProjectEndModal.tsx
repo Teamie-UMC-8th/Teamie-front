@@ -1,6 +1,6 @@
 'use client';
 
-import Image from "next/image";
+import Image from 'next/image';
 
 interface ProjectEndModalProps {
   onConfirm: () => void;
@@ -17,7 +17,7 @@ export default function ProjectEndModal({ onConfirm, onCancel }: ProjectEndModal
           onClick={onCancel}
         >
           <Image
-            src="/icons/곱하기.svg"
+            src="/icons/close.svg"
             alt="닫기"
             width={24}
             height={24}
@@ -33,18 +33,18 @@ export default function ProjectEndModal({ onConfirm, onCancel }: ProjectEndModal
         {/* 버튼 그룹 */}
         <div className="flex justify-center gap-[28px]">
           <button
-            onClick={onConfirm}
+            onClick={onCancel}
             className="w-[103px] h-[34px] bg-[#FFFFFF] border border-[#000000] rounded-[4px] 
                      text-[18px] leading-[26px] font-[Pretendard] font-normal text-[#000000] whitespace-nowrap cursor-pointer"
           >
-            예
+            취소
           </button>
           <button
-            onClick={onCancel}
+            onClick={onConfirm}
             className="w-[103px] h-[34px] bg-[#FFFFFF] border border-[#000000] rounded-[4px]
                      text-[18px] leading-[26px] font-[Pretendard] font-normal text-[#000000] whitespace-nowrap cursor-pointer"
           >
-            아니오
+            종료
           </button>
         </div>
       </div>

@@ -41,3 +41,22 @@ export interface PostJoinProjectResponse {
     message?: string;
   } | null;
 }
+
+export interface UserProjectPermissionResponse {
+  isSuccess: boolean;
+  error: null | string;
+  result: {
+    permission: 'LEAD' | 'MEMBER';
+  };
+}
+
+// 프로젝트 완료 API 응답 타입
+export interface CompleteProjectResponse {
+  isSuccess: boolean;
+  error: ApiErrorResponse | null;
+  result: {
+    id: number;
+    isCompleted: boolean;
+    completedAt: string;
+  } | null;
+}
