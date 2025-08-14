@@ -6,16 +6,28 @@ import { Calendar as BigCalendar, momentLocalizer, Views } from 'react-big-calen
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import CustomDateCellWrapper from '@/features/teamclendar/CustomDateCellWrapper';
+import axiosInstance from '@/lib/axiosInstance';
 import CalendarEventBox from '@/features/teamclendar/components/CalendarEventBox';
 import { useGetCalendarPlans } from '@/hooks/queries/useGetTeamCalendar';
+import { useGetDashboard } from '@/hooks/queries/useGetDashboard';
 
 const localizer = momentLocalizer(moment);
 
+type CalendarEventType = {
+  id: string;
+  title: string;
+  start: Date;
+  end: Date;
+  allDay?: boolean;
+};
+
 export default function TeamCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [projectCreatedAtISO, setProjectCreatedAtISO] = useState<string | undefined>(undefined);
   const router = useRouter();
   const params = useParams();
   const projectId = params.projectId?.toString();
+  const projectIdNum = projectId ? Number(projectId) : undefined;
 
   // 현재 보고 있는 달의 첫 날 ~ 마지막 날 계산
   const startDate = useMemo(
@@ -31,6 +43,12 @@ export default function TeamCalendar() {
     refetch, // ✅ refetch 포함
   } = useGetCalendarPlans(projectId ?? '', startDate, endDate);
 
+  // 대시보드(업무) 데이터도 함께 조회하여 캘린더에 표시
+  const { data: dashboardData } = useGetDashboard({
+    projectId: projectIdNum as number,
+    view: 'status',
+  } as any);
+
   // ✅ 창이 다시 focus될 때 refetch 실행
   useEffect(() => {
     const handleFocus = () => {
@@ -43,11 +61,33 @@ export default function TeamCalendar() {
     };
   }, [refetch]);
 
+  // 프로젝트 생성일을 조회해 해당 일 이전 날짜 차단
+  useEffect(() => {
+    const fetchProjectMeta = async () => {
+      try {
+        if (!projectId) return;
+        const { data } = await axiosInstance.get(`/api/v1/projects/${projectId}`);
+        const createdAt = data?.result?.project?.createdAt || data?.result?.createdAt;
+        if (createdAt) {
+          // 날짜 비교 오차 방지를 위해 'YYYY-MM-DD'로 전달 (타임존 영향 제거)
+          const creationDay = moment(createdAt).format('YYYY-MM-DD');
+          setProjectCreatedAtISO(creationDay);
+        }
+      } catch (e) {
+        // 생성일을 못 가져오면 제한 없이 동작
+        setProjectCreatedAtISO(undefined);
+      }
+    };
+    fetchProjectMeta();
+  }, [projectId]);
+
   // Calendar 표시용 events 가공 (timezone-safe)
-  const events =
+  const planEvents: CalendarEventType[] =
     calendarData?.result.flatMap((entry) =>
-      (entry.list ?? []).map((plan) => {
+      (entry.list ?? []).flatMap((plan) => {
         const anyPlan = plan as any;
+        const rawId = anyPlan?.planId ?? anyPlan?.id ?? anyPlan?.scheduleId;
+        if (!rawId) return [] as CalendarEventType[];
 
         // 1) startDate/endDate가 있으면 그대로 사용
         if (anyPlan.startDate || anyPlan.endDate) {
@@ -55,12 +95,14 @@ export default function TeamCalendar() {
           const end = anyPlan.endDate
             ? new Date(anyPlan.endDate)
             : new Date(new Date(start).getTime() + 60 * 1000);
-          return {
-            id: String(anyPlan.planId),
-            title: anyPlan.name || anyPlan.title || '빈 일정',
-            start,
-            end,
-          };
+          return [
+            {
+              id: String(rawId),
+              title: anyPlan.name || anyPlan.title || '빈 일정',
+              start,
+              end,
+            },
+          ];
         }
 
         // 2) date만 있는 경우: 'YYYY-MM-DD' 또는 'YYYY-MM-DDTHH:mm:ss'
@@ -69,7 +111,6 @@ export default function TeamCalendar() {
         let end: Date;
 
         if (dateStr) {
-          // 안전 파싱: 문자열에서 연-월-일 및 선택적 시:분 추출 후 local Date 생성
           const m = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}):(\d{2})(?::(\d{2}))?)?/);
           if (m) {
             const year = Number(m[1]);
@@ -88,7 +129,6 @@ export default function TeamCalendar() {
             const second = m[6] ? Number(m[6]) : 0;
             start = new Date(year, monthIdx, day, hour, minute, second);
 
-            // 종료 시간: endHour 우선, 없으면 시작 + 1분
             if (anyPlan.endHour) {
               const [eh, em] = String(anyPlan.endHour).split(':');
               end = new Date(year, monthIdx, day, Number(eh), Number(em) || 0, 0);
@@ -96,34 +136,76 @@ export default function TeamCalendar() {
               end = new Date(start.getTime() + 60 * 1000);
             }
           } else {
-            // 포맷 예측 실패 시 안전 fallback
             start = new Date();
             end = new Date(start.getTime() + 60 * 1000);
           }
         } else {
-          // date가 전혀 없는 경우
           start = new Date();
           end = new Date(start.getTime() + 60 * 1000);
         }
 
         const isAllDay = !anyPlan.startHour && !anyPlan.endHour;
-        return {
-          id: String(anyPlan.planId),
-          title: anyPlan.name || anyPlan.title || '빈 일정',
-          start,
-          end,
-          ...(isAllDay ? { allDay: true } : {}),
-        };
+        return [
+          {
+            id: String(rawId),
+            title: anyPlan.name || anyPlan.title || '빈 일정',
+            start,
+            end,
+            ...(isAllDay ? { allDay: true } : {}),
+          },
+        ];
       })
     ) || [];
+
+  // 업무 대시보드 -> 캘린더 이벤트 변환 (마감일 기준, 해당 월 범위만)
+  const dashboardEvents: CalendarEventType[] = useMemo(() => {
+    if (!dashboardData) return [];
+    const startM = moment(startDate);
+    const endM = moment(endDate);
+
+    // statusGroups 또는 steps 중 존재하는 구조에서 tasks를 추출
+    const tasks =
+      'statusGroups' in dashboardData
+        ? (dashboardData.statusGroups || []).flatMap((g: any) => g.tasks || [])
+        : 'steps' in dashboardData
+          ? (dashboardData.steps || []).flatMap((s: any) => s.tasks || [])
+          : [];
+
+    return tasks
+      .filter((t: any) => !!t?.deadline)
+      .map((t: any) => ({
+        id: `task:${String(t.taskId)}`,
+        title: `${t.taskName} 마감`,
+        start: new Date(t.deadline),
+        end: new Date(new Date(t.deadline).getTime() + 60 * 1000),
+        allDay: true,
+      }))
+      .filter((ev: CalendarEventType) => {
+        const m = moment(ev.start);
+        return m.isSameOrAfter(startM, 'day') && m.isSameOrBefore(endM, 'day');
+      });
+  }, [dashboardData, startDate, endDate]);
+
+  const events: CalendarEventType[] = [...planEvents, ...dashboardEvents];
 
   // events 변경 시 콘솔 출력 (일정 자동 반영 확인용)
   useEffect(() => {
     console.log('일정 반영 확인:', events);
   }, [events]);
 
-  const handleEventClick = (event: { id: string }) => {
-    router.push(`/projects/${projectId}/teamcalendar/${event.id}/teamtask`);
+  const handleEventClick = (event: { id?: string; title?: string }) => {
+    if (!event?.id || !projectId) {
+      console.warn('onSelectEvent: 유효하지 않은 이벤트 또는 projectId 누락', { projectId, event });
+      return;
+    }
+    const target = `/projects/${projectId}/teamcalendar/${event.id}/teamtask`;
+    console.log('onSelectEvent: 팀태스크로 이동', {
+      projectId,
+      planId: event.id,
+      title: event.title,
+      target,
+    });
+    router.push(target);
   };
 
   const handlePrevMonth = () => {
@@ -197,18 +279,29 @@ export default function TeamCalendar() {
               startDate={startDate}
               endDate={endDate}
               setCurrentDate={setCurrentDate}
+              projectCreatedAtISO={projectCreatedAtISO}
             />
           ),
-          event: CalendarEventBox, // ✅ 커스텀 일정 카드 디자인
+          event: (props) => (
+            <div className="relative z-[60] pointer-events-auto">
+              <CalendarEventBox {...props} />
+            </div>
+          ), // ✅ 커스텀 일정 카드 디자인 - 클릭 가능 보장
         }}
-        eventPropGetter={() => ({
-          style: {
-            backgroundColor: '#B6F5DF',
-            border: 'none',
-            color: '#000000',
-            borderRadius: '4px',
-          },
-        })}
+        eventPropGetter={(event: any) => {
+          const isTask = typeof event?.id === 'string' && String(event.id).startsWith('task:');
+          const bg = isTask ? '#DAF3F3' : '#B6F5DF';
+          return {
+            style: {
+              backgroundColor: bg,
+              border: 'none',
+              color: '#000000',
+              borderRadius: '4px',
+              position: 'relative',
+              zIndex: 60,
+            },
+          };
+        }}
         popup
         toolbar={false}
       />
