@@ -7,6 +7,7 @@ import { useUpdateTaskStatus } from '@/hooks/mutations/useUpdateTaskStatus';
 import Link from 'next/link';
 import { useState } from 'react';
 import CopyModal from './CopyModal';
+import Portal from './Portal';
 
 export default function TaskItem({
   projectId,
@@ -54,92 +55,119 @@ export default function TaskItem({
   // 체크박스 상태 결정 (완료 상태일 때만 체크됨)
   const isChecked = status === '완료';
 
+  // 복사될 링크 URL
+  const taskUrl = `http://localhost:3000/projects/${projectId}/tasks/${taskId}`;
+
+  // 클립보드에 복사될 순수 텍스트
+  const textToCopy = `💼 ${title} 업무가 완료되었어요!\n확인 후 간단한 피드백을 남겨주세요.\n👉 ${taskUrl}`;
+
   return (
-    <Link
-      href={`/projects/${projectId}/tasks/${taskId}`}
-      className={`block w-[325px] h-[${cardHeight}]`}
-    >
-      <div className="bg-white w-full h-full rounded-[8px] border border-[#BBBBBB] p-4 flex items-start gap-3">
-        <label
-          className="relative inline-flex items-center flex-shrink-0 mt-1"
-          onClick={stop}
-          onMouseDown={stop}
-          onTouchStart={stop}
-        >
-          <input
-            type="checkbox"
-            checked={isChecked}
-            onChange={handleCheckboxChange}
-            className="peer appearance-none w-[20px] h-[20px] border-2 border-[#898989] rounded bg-white cursor-pointer checked:bg-[#81D7D4]"
+    <>
+      <Link
+        href={`/projects/${projectId}/tasks/${taskId}`}
+        className={`block w-[325px] h-[${cardHeight}]`}
+      >
+        <div className="bg-white w-full h-full rounded-[8px] border border-[#BBBBBB] p-4 flex items-start gap-3">
+          <label
+            className="relative inline-flex items-center flex-shrink-0 mt-1"
             onClick={stop}
             onMouseDown={stop}
             onTouchStart={stop}
-          />
-          <svg
-            className="hidden peer-checked:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-            width="13"
-            height="12"
-            viewBox="0 0 13 12"
-            fill="white"
-            xmlns="http://www.w3.org/2000/svg"
           >
-            <path
-              d="M4.8383 12C4.41459 12 4.0133 11.826 3.75615 11.526L0.275947 7.47901C0.168101 7.35411 0.0893379 7.21171 0.0441773 7.05996C-0.00098324 6.90821 -0.0116524 6.7501 0.0127817 6.59472C0.0372158 6.43933 0.0962722 6.28972 0.186563 6.15447C0.276853 6.01922 0.396601 5.90099 0.538935 5.80656C0.680907 5.71139 0.842861 5.64185 1.01548 5.60195C1.1881 5.56206 1.36798 5.5526 1.54477 5.57411C1.72156 5.59562 1.89177 5.64768 2.04562 5.72729C2.19947 5.80691 2.33391 5.91251 2.44121 6.03802L4.73115 8.69884L10.4886 0.562076C10.6796 0.293422 10.9838 0.102387 11.3346 0.0308751C11.6853 -0.040637 12.054 0.0132126 12.3597 0.180612C12.9958 0.528644 13.1916 1.26586 12.7942 1.82648L5.99155 11.4359C5.87542 11.6007 5.71536 11.7381 5.52525 11.8361C5.33515 11.9341 5.12074 11.9897 4.90063 11.9983L4.8383 12Z"
-              fill="white"
+            <input
+              type="checkbox"
+              checked={isChecked}
+              onChange={handleCheckboxChange}
+              className="peer appearance-none w-[20px] h-[20px] border-2 border-[#898989] rounded bg-white cursor-pointer checked:bg-[#81D7D4]"
+              onClick={stop}
+              onMouseDown={stop}
+              onTouchStart={stop}
             />
-          </svg>
-        </label>
-
-        <div className="flex flex-col flex-1 gap-[10px]">
-          <div className="font-normal text-[16px] text-black mt-[1px]">{title}</div>
-
-          <div className="flex items-center justify-between gap-[2px] text-[14px]">
-            <span className="min-w-[7.5rem]">
-              {deadline && <span className={deadlineTextColor}>{formatDate(deadline)}까지</span>}
-            </span>
-
-            <div
-              className={`flex items-center justify-center px-2 py-0.5 w-[63px] h-[22px] rounded-full font-regular ${statusStyle.bg} ${statusStyle.text}`}
+            <svg
+              className="hidden peer-checked:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+              width="13"
+              height="12"
+              viewBox="0 0 13 12"
+              fill="white"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              {status}
-            </div>
-          </div>
+              <path
+                d="M4.8383 12C4.41459 12 4.0133 11.826 3.75615 11.526L0.275947 7.47901C0.168101 7.35411 0.0893379 7.21171 0.0441773 7.05996C-0.00098324 6.90821 -0.0116524 6.7501 0.0127817 6.59472C0.0372158 6.43933 0.0962722 6.28972 0.186563 6.15447C0.276853 6.01922 0.396601 5.90099 0.538935 5.80656C0.680907 5.71139 0.842861 5.64185 1.01548 5.60195C1.1881 5.56206 1.36798 5.5526 1.54477 5.57411C1.72156 5.59562 1.89177 5.64768 2.04562 5.72729C2.19947 5.80691 2.33391 5.91251 2.44121 6.03802L4.73115 8.69884L10.4886 0.562076C10.6796 0.293422 10.9838 0.102387 11.3346 0.0308751C11.6853 -0.040637 12.054 0.0132126 12.3597 0.180612C12.9958 0.528644 13.1916 1.26586 12.7942 1.82648L5.99155 11.4359C5.87542 11.6007 5.71536 11.7381 5.52525 11.8361C5.33515 11.9341 5.12074 11.9897 4.90063 11.9983L4.8383 12Z"
+                fill="white"
+              />
+            </svg>
+          </label>
 
-          {displayAssignees && (
-            <div className="mt-auto flex flex-wrap gap-2">
-              {displayAssignees.displayList.map((assignee, index) => (
-                <div
-                  key={index}
-                  className="inline-flex items-center gap-[4px] rounded-[30px] p-[3px] pr-[9px]"
-                  style={{ boxShadow: '1px 1px 4px 0 rgba(0,0,0,0.25)' }}
-                >
-                  <img
-                    src={assignee.imageUrl || '/icons/assignee.svg'}
-                    alt={`${assignee.name} 프로필`}
-                    className="w-[16px] h-[16px] rounded-full object-cover"
-                  />
-                  <span className="text-[12px]">{assignee.name}</span>
-                </div>
-              ))}
-              {displayAssignees.hasMore && (
-                <div className="inline-flex items-center rounded-[30px] p-[3px] pr-[9px] text-[12px] text-[#898989]">
-                  ...
-                </div>
-              )}
+          <div className="flex flex-col flex-1 gap-[10px]">
+            <div className="font-normal text-[16px] text-black mt-[1px]">{title}</div>
+
+            <div className="flex items-center justify-between gap-[2px] text-[14px]">
+              <span className="min-w-[7.5rem]">
+                {deadline && <span className={deadlineTextColor}>{formatDate(deadline)}까지</span>}
+              </span>
+
+              <div
+                className={`flex items-center justify-center px-2 py-0.5 w-[63px] h-[22px] rounded-full font-regular ${statusStyle.bg} ${statusStyle.text}`}
+              >
+                {status}
+              </div>
             </div>
-          )}
+
+            {displayAssignees && (
+              <div className="mt-auto flex flex-wrap gap-2">
+                {displayAssignees.displayList.map((assignee, index) => (
+                  <div
+                    key={index}
+                    className="inline-flex items-center gap-[4px] rounded-[30px] p-[3px] pr-[9px]"
+                    style={{ boxShadow: '1px 1px 4px 0 rgba(0,0,0,0.25)' }}
+                  >
+                    <img
+                      src={assignee.imageUrl || '/icons/assignee.svg'}
+                      alt={`${assignee.name} 프로필`}
+                      className="w-[16px] h-[16px] rounded-full object-cover"
+                    />
+                    <span className="text-[12px]">{assignee.name}</span>
+                  </div>
+                ))}
+                {displayAssignees.hasMore && (
+                  <div className="inline-flex items-center rounded-[30px] p-[3px] pr-[9px] text-[12px] text-[#898989]">
+                    ...
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      </Link>
       {showCopyModal && (
-        <CopyModal
-          isOpen={showCopyModal}
-          onClose={() => setShowCopyModal(false)}
-          headerText="헤더 내용을 입력해주세요."
-          messageText="본문 내용을 입력해주세요.<br>띄어쓰기가 있다면 <br> 태그를 사용하세요."
-          copySuccessText="복사 성공 메세지를 입력해주세요."
-          innerPaddingX="5rem"
-        />
+        <Portal>
+          <CopyModal
+            isOpen={showCopyModal}
+            onClose={() => setShowCopyModal(false)}
+            headerText="업무가 완료되었습니다.<br>피드백 요청을 위한 메세지를 복사하여<br>팀원들에게 전달하세요."
+            messageContent={
+              <>
+                💼 {title} 업무가 완료되었어요!
+                <br />
+                확인 후 간단한 피드백을 남겨주세요.
+                <br />
+                👉{' '}
+                <Link
+                  href={taskUrl}
+                  className="underline font-bold text-[#81D7D4]"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {title}
+                </Link>
+              </>
+            }
+            textToCopy={textToCopy}
+            copySuccessText="업무 완료 메세지가 복사되었습니다."
+            innerPaddingX="5rem"
+          />
+        </Portal>
       )}
-    </Link>
+    </>
   );
 }
