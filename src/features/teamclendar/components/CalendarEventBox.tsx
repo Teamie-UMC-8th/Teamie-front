@@ -15,11 +15,17 @@ export default function CalendarEventBox({ event }: { event: CalendarEvent }) {
   const taskId = isTask ? String(event.id).replace('task:', '') : undefined;
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
-    if (event?.id == null || isTask) return; // 업무 카드는 드래그 금지
+    if (event?.id == null) return;
     // 커스텀 MIME 타입과 텍스트 둘 다 넣어 브라우저/플랫폼 호환성 확보
-    const payload = JSON.stringify({ planId: String(event.id) });
-    e.dataTransfer.setData('application/x-teamie-plan', payload);
-    e.dataTransfer.setData('text/plain', payload);
+    if (isTask) {
+      const payload = JSON.stringify({ taskId: String(taskId) });
+      e.dataTransfer.setData('application/x-teamie-task', payload);
+      e.dataTransfer.setData('text/plain', payload);
+    } else {
+      const payload = JSON.stringify({ planId: String(event.id) });
+      e.dataTransfer.setData('application/x-teamie-plan', payload);
+      e.dataTransfer.setData('text/plain', payload);
+    }
     e.dataTransfer.effectAllowed = 'move';
   };
 
@@ -40,7 +46,7 @@ export default function CalendarEventBox({ event }: { event: CalendarEvent }) {
 
   return (
     <div
-      draggable={!isTask}
+      draggable
       onDragStart={handleDragStart}
       onClick={handleClick}
       className="relative z-[60] w-full h-full rounded-[4px] px-[22px] py-[4px] text-[16px] leading-[24px] text-black overflow-hidden whitespace-nowrap text-ellipsis flex items-center justify-center cursor-pointer pointer-events-auto"
