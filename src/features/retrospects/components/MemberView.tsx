@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation'; // ✅ 추가
-import { usePostPersonalRetro } from '@/hooks/mutations/usePostPersonalRetro';
 import ConfirmLeaveModal from './ConfirmLeaveModal';
 import FinalLeaveModal from './FinalLeaveModal';
 
@@ -13,7 +12,6 @@ export function MemberView() {
   const router = useRouter(); // ✅ 추가
   const params = useParams(); // ✅ 추가
   const projectId = params.projectId; // ✅ 현재 URL의 projectId 사용
-  const { mutate: createRetro } = usePostPersonalRetro();
 
   const handleLeaveClick = () => {
     setShowConfirmModal(true);
@@ -26,17 +24,8 @@ export function MemberView() {
 
   const handleFinalLeave = () => {
     setShowFinalModal(false);
-    // 개인회고가 없을 수도 있으므로 생성 후 이동
-    if (projectId) {
-      createRetro(
-        { projectId: Number(projectId) },
-        {
-          onSettled: () => router.push(`/projects/${projectId}/retrospect/create`),
-        }
-      );
-    } else {
-      router.push(`/projects/${projectId}/retrospect/create`);
-    }
+    // 백엔드에서 자동 생성되므로 바로 이동
+    router.push(`/projects/${projectId}/retrospect/create`);
   };
 
   return (

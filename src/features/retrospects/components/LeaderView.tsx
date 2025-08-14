@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import ProjectEndModal from './ProjectEndModal';
 import { useParams, useRouter } from 'next/navigation';
-import { usePostPersonalRetro } from '@/hooks/mutations/usePostPersonalRetro';
 import { useCompleteProject } from '@/hooks/mutations/useCompleteProject';
 
 export default function LeaderView() {
@@ -11,7 +10,6 @@ export default function LeaderView() {
   const router = useRouter();
   const params = useParams();
   const projectId = Number(params.projectId);
-  const { mutate: createRetro, isPending } = usePostPersonalRetro();
   const { mutate: completeProject, isPending: isCompleting } = useCompleteProject(projectId);
 
   return (
@@ -82,17 +80,10 @@ export default function LeaderView() {
           onConfirm={() => {
             setIsModalOpen(false);
             if (!projectId) return;
-            // 종료 → 개인회고 생성 → 이동
+            // 종료 완료 후 자동 생성된 회고로 이동
             completeProject(undefined, {
               onSettled: () => {
-                createRetro(
-                  { projectId },
-                  {
-                    onSettled: () => {
-                      router.push(`/projects/${projectId}/retrospect/create`);
-                    },
-                  }
-                );
+                router.push(`/projects/${projectId}/retrospect/create`);
               },
             });
           }}

@@ -35,9 +35,22 @@ export default function PersonalRetroPage() {
     );
   }
 
-  // 개인 회고가 존재하면 바로 개인 회고 화면 노출
+  // 개인 회고가 존재하면 바로 개인 회고 화면 노출 (헤더/구분선 포함)
   if (isPersonalSuccess && personalData) {
-    return <PersonalSection />;
+    return (
+      <div className="w-full px-[128px] pt-[60px] max-lg:px-[32px]">
+        <div className="w-full lg:max-w-[1415px] flex flex-col">
+          <h2
+            className="mb-[16px] font-[Pretendard] font-bold text-[24px] leading-[29px] tracking-[0.04em] whitespace-nowrap text-[#000000]
+          max-lg:text-[22px] max-lg:leading-[28px] max-lg:font-[600] max-lg:tracking-[0] mb-[16px] whitespace-nowrap"
+          >
+            개인 회고
+          </h2>
+          <hr className="w-full border-t-[2px] border-[#E7E7E7] rotate-180 mb-[102px]" />
+          <PersonalSection />
+        </div>
+      </div>
+    );
   }
 
   if (isLoading) {
@@ -74,6 +87,19 @@ export default function PersonalRetroPage() {
     );
   }
 
-  // 기본적으로 개인 회고 화면 표시
-  return <PersonalSection />;
+  // 기본적으로 개인 회고 화면 표시 (헤더/구분선 포함)
+  return (
+    <div className="w-full px-[128px] pt-[60px] max-lg:px-[32px]">
+      <div className="w-full lg:max-w-[1415px] flex flex-col">
+        <h2
+          className="mb-[16px] font-[Pretendard] font-bold text-[24px] leading-[29px] tracking-[0.04em] whitespace-nowrap text-[#000000]
+        max-lg:text-[22px] max-lg:leading-[28px] max-lg:font-[600] max-lg:tracking-[0] mb-[16px] whitespace-nowrap"
+        >
+          개인 회고
+        </h2>
+        <hr className="w-full border-t-[2px] border-[#E7E7E7] rotate-180 mb-[120px]" />
+        <PersonalSection />
+      </div>
+    </div>
+  );
 }
