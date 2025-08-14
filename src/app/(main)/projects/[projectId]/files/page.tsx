@@ -1,8 +1,10 @@
 export default function FilesPage() {
   return (
-    <div className="flex flex-col items-center h-screen py-20">
-      <h1 className="text-[24px] font-semibold">준비중이에요</h1>
-      <img src="/icons/AiCharacter.svg" alt="자료실" className="w-[150px] h-[150px]" />
+    <div className="flex flex-col items-center h-screen">
+      <div className="mt-[25vh] flex flex-col items-center">
+        <img src="/icons/constructionTeamie.svg" alt="공사중" className="w-[303px] h-[167px]" />
+        <h1 className="ml-[40px] mt-[50px] text-[22px] font-semibold">준비 중인 페이지입니다.</h1>
+      </div>
     </div>
   );
 }
