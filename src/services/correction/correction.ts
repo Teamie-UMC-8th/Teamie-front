@@ -21,7 +21,7 @@ export async function fetchCorrectionList(
 ): Promise<CorrectionListResponse['result']> {
   const params = cursor ? { cursor } : {};
   const { data } = await axiosInstance.get<CorrectionListResponse>(
-    '/api/v1/portfolio-corrections/me',
+    '/api/v1/users/me/portfolio-corrections',
     { params }
   );
 
