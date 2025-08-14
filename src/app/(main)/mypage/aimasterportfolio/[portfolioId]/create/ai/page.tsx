@@ -314,18 +314,41 @@ export default function AIMasterPortfolioCreatePage() {
                   queryClient.invalidateQueries({
                     queryKey: ['master-portfolio-questions', portfolioId],
                   });
-                  generate(
-                    { portfolioId },
-                    {
-                      onSuccess: () => setShowConfirmModal(false),
-                      onError: (error) => {
-                        console.error('포트폴리오 생성 실패:', error);
-                        alert('포트폴리오 생성 중 오류가 발생했습니다.');
-                        setIsGenerating(false);
-                      },
-                      onSettled: () => setIsGenerating(false),
-                    }
-                  );
+                  const maxRetries = 2;
+                  const attemptGenerate = (remaining: number) => {
+                    generate(
+                      { portfolioId },
+                      {
+                        onSuccess: () => {
+                          setIsGenerating(false);
+                          setShowConfirmModal(false);
+                          // 상태/상세 쿼리 무효화 후 상세 화면으로 이동
+                          queryClient.invalidateQueries({
+                            queryKey: ['master-portfolio-status', portfolioId],
+                          });
+                          queryClient.invalidateQueries({
+                            queryKey: ['master-portfolio', portfolioId],
+                          });
+                          queryClient.invalidateQueries({
+                            queryKey: ['masterPortfolioGeneratedResult', portfolioId],
+                          });
+                          router.replace(`/mypage/aimasterportfolio/${portfolioId}`);
+                        },
+                        onError: (error) => {
+                          console.error('포트폴리오 생성 실패:', error);
+                          if (remaining > 0) {
+                            setTimeout(() => attemptGenerate(remaining - 1), 1500);
+                          } else {
+                            alert(
+                              '포트폴리오 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'
+                            );
+                            setIsGenerating(false);
+                          }
+                        },
+                      }
+                    );
+                  };
+                  attemptGenerate(maxRetries);
                 },
                 onError: (error) => {
                   console.error('임시저장 실패:', error);

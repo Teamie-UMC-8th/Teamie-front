@@ -100,7 +100,7 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
 
       <div className="w-fit self-center flex flex-col justify-center items-center border-[2px] border-[#81D7D4] bg-[#DAF3F3] rounded-[100px] py-[16px] px-[36px]">
         <h3 className="text-[#000000] text-[20px] max-lg:text-[18px] leading-[28px] max-lg:leading-[26px] font-normal tracking-[0.8px]">
-          생성 시 최대 <strong>N Credit</strong>이 사용됩니다
+          생성 시 최대 <strong>{length * 10 + 100} Credit</strong>이 사용됩니다
         </h3>
         <p className="text-[#898989] text-[14px] leading-[22px]">
           {length}개의 회의록이 선택되었습니다.
