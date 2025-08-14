@@ -40,7 +40,7 @@ export default function AIConfirmModal({
           <div className="flex items-center gap-[6px]">
             <Image src="/icons/coin.svg" alt="credit" width={24} height={24} />
             <span className="text-[20px] font-semibold leading-[28px] text-black">
-              6 Credit을 사용하여
+              {length * 10 + 100} Credit을 사용하여
             </span>
           </div>
           <span className="text-[20px] font-semibold leading-[28px] text-black mt-[4px]">
