@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useMemo, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Calendar as BigCalendar, momentLocalizer, Views } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -10,6 +11,13 @@ import axiosInstance from '@/lib/axiosInstance';
 import CalendarEventBox from '@/features/teamclendar/components/CalendarEventBox';
 import { useGetCalendarPlans } from '@/hooks/queries/useGetTeamCalendar';
 import { useGetDashboard } from '@/hooks/queries/useGetDashboard';
+import { useWebSocket } from '@/contexts/WebSocketContext';
+import {
+  SubEventType,
+  type WebSocketResponseUnion,
+  isTaskResponse,
+  isPlanResponse,
+} from '@/types/webSocket';
 
 const localizer = momentLocalizer(moment);
 
@@ -28,6 +36,8 @@ export default function TeamCalendar() {
   const params = useParams();
   const projectId = params.projectId?.toString();
   const projectIdNum = projectId ? Number(projectId) : undefined;
+  const queryClient = useQueryClient();
+  const { socket, subscribe, unsubscribe, isConnected } = useWebSocket();
 
   // 현재 보고 있는 달의 첫 날 ~ 마지막 날 계산
   const startDate = useMemo(
@@ -48,6 +58,58 @@ export default function TeamCalendar() {
     projectId: projectIdNum as number,
     view: 'status',
   } as any);
+
+  // 웹소켓 이벤트 처리 (팀 캘린더)
+  useEffect(() => {
+    if (isConnected && socket && projectId && projectIdNum) {
+      // 1) project:calender 룸 구독
+      subscribe(SubEventType.PROJECT_CALENDER, projectIdNum);
+
+      // 2) publish 이벤트 수신 - 실시간 업데이트 처리
+      const handlePublish = (data: WebSocketResponseUnion) => {
+        console.log('팀캘린더 웹소켓 이벤트 수신:', data);
+
+        // 일정(Plan) 생성/삭제/수정 -> 현재 월 범위의 캘린더 쿼리 무효화
+        if (isPlanResponse(data)) {
+          queryClient.invalidateQueries({
+            queryKey: ['calendarPlans', projectId, startDate, endDate],
+          });
+        }
+
+        // 업무(Task) 삭제 및 이름/마감일 수정 -> 대시보드(상태 뷰) 쿼리 무효화
+        if (isTaskResponse(data)) {
+          queryClient.invalidateQueries({
+            queryKey: ['dashboard', projectIdNum, 'status'],
+          });
+        }
+      };
+
+      // 3) 강제 구독 해제 시 이동
+      const handleForceUnsubscribe = () => {
+        console.log('팀캘린더 강제 구독 해제');
+        window.location.href = '/home/tasks';
+      };
+
+      socket.on('publish', handlePublish);
+      socket.on('unsubscribe-forced', handleForceUnsubscribe);
+
+      return () => {
+        unsubscribe(SubEventType.PROJECT_CALENDER, projectIdNum);
+        socket.off('publish', handlePublish);
+        socket.off('unsubscribe-forced', handleForceUnsubscribe);
+      };
+    }
+  }, [
+    isConnected,
+    socket,
+    projectId,
+    projectIdNum,
+    subscribe,
+    unsubscribe,
+    queryClient,
+    startDate,
+    endDate,
+  ]);
 
   // ✅ 창이 다시 focus될 때 refetch 실행
   useEffect(() => {

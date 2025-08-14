@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { usePostPlan } from '@/hooks/mutations/usePostTeamCalendar';
 import { usePatchPlan } from '@/hooks/mutations/usePlan';
 import moment from 'moment';
+import { checkTaskDetail, updateTaskDetail } from '@/services/taskDetail/checkTaskDetail';
 
 interface CustomDateCellWrapperProps {
   children: ReactNode;
@@ -101,13 +102,14 @@ export default function CustomDateCellWrapper({
       }}
       onMouseLeave={() => setHovered(false)}
       onDragEnter={(e) => {
-        // 외부에서 넘어온 일정만 허용
+        // 외부에서 넘어온 일정/업무 허용
         const hasData =
           e.dataTransfer.types.includes('application/x-teamie-plan') ||
+          e.dataTransfer.types.includes('application/x-teamie-task') ||
           e.dataTransfer.types.includes('text/plain');
         if (hasData && canShowPlusButton) {
           const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
-          const y = Math.max(8, Math.min(e.clientY - rect.top, rect.height - 8));
+          const y = Math.max(12, Math.min(e.clientY - rect.top, rect.height - 12));
           setIndicatorY(y);
           setIsDragOver(true);
         }
@@ -115,12 +117,13 @@ export default function CustomDateCellWrapper({
       onDragOver={(e) => {
         const hasData =
           e.dataTransfer.types.includes('application/x-teamie-plan') ||
+          e.dataTransfer.types.includes('application/x-teamie-task') ||
           e.dataTransfer.types.includes('text/plain');
         if (hasData && canShowPlusButton) {
           e.preventDefault();
           e.dataTransfer.dropEffect = 'move';
           const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
-          const y = Math.max(8, Math.min(e.clientY - rect.top, rect.height - 8));
+          const y = Math.max(12, Math.min(e.clientY - rect.top, rect.height - 12));
           setIndicatorY(y);
           setIsDragOver(true);
         }
@@ -131,27 +134,72 @@ export default function CustomDateCellWrapper({
         setIsDragOver(false);
         if (!canShowPlusButton) return;
         try {
-          const raw =
-            e.dataTransfer.getData('application/x-teamie-plan') ||
-            e.dataTransfer.getData('text/plain');
-          const parsed = raw ? JSON.parse(raw) : null;
-          const planId: string | undefined = parsed?.planId;
-          if (!planId) return;
+          const planRaw = e.dataTransfer.getData('application/x-teamie-plan');
+          const taskRaw = e.dataTransfer.getData('application/x-teamie-task');
+          const textRaw = e.dataTransfer.getData('text/plain');
 
-          // 일정 날짜만 변경
-          patchPlan(
-            { planId, planData: { date: dropTargetDate } },
-            {
-              onSuccess: () => {
-                // 현재 월 범위 일정 목록 새로고침
+          if (planRaw) {
+            const parsed = JSON.parse(planRaw);
+            const planId: string | undefined = parsed?.planId;
+            if (!planId) return;
+            // 일정 날짜만 변경
+            patchPlan(
+              { planId, planData: { date: dropTargetDate } },
+              {
+                onSuccess: () => {
+                  if (projectId) {
+                    queryClient.invalidateQueries({
+                      queryKey: ['calendarPlans', projectId, startDate, endDate],
+                    });
+                  }
+                },
+              }
+            );
+            return;
+          }
+
+          if (taskRaw || textRaw) {
+            const raw = taskRaw || textRaw;
+            const parsed = raw ? JSON.parse(raw) : null;
+            const taskIdStr: string | undefined = parsed?.taskId;
+            const taskId = taskIdStr ? Number(taskIdStr) : undefined;
+            if (!taskId) return;
+
+            // 업무 마감일을 YYYY-MM-DD 23:59:59로 설정
+            const m = moment(dropTargetDate);
+            const formattedDeadline = `${m.format('YYYY-MM-DD')} 23:59:59`;
+
+            (async () => {
+              try {
+                const detail = await checkTaskDetail(taskId);
+                if (!detail?.result) return;
+
+                // 기존 값 유지 + 마감일만 변경
+                await updateTaskDetail(taskId, {
+                  name: detail.result.name,
+                  deadline: formattedDeadline,
+                  status: detail.result.status,
+                  memo: detail.result.memo,
+                  managerIds: detail.result.managers.map((m) => m.userId),
+                  existingFileUrls: detail.result.files?.map((f) => f.fileUrl) ?? [],
+                  stepId: detail.result.stepId,
+                });
+
                 if (projectId) {
                   queryClient.invalidateQueries({
-                    queryKey: ['calendarPlans', projectId, startDate, endDate],
+                    queryKey: ['dashboard', Number(projectId), 'status'],
                   });
                 }
-              },
-            }
-          );
+              } catch (err: unknown) {
+                console.error('업무 마감일 업데이트 실패:', err);
+                if (projectId) {
+                  queryClient.invalidateQueries({
+                    queryKey: ['dashboard', Number(projectId), 'status'],
+                  });
+                }
+              }
+            })();
+          }
         } catch {
           // 파싱 실패 시 무시
         }
@@ -161,7 +209,7 @@ export default function CustomDateCellWrapper({
       {/* 드래그 오버 라인 인디케이터 */}
       {indicatorVisible && (
         <div
-          className="pointer-events-none absolute left-1/2 -translate-x-1/2"
+          className="pointer-events-none absolute left-1/2 -translate-x-1/2 "
           style={{
             top: indicatorY,
             width: '100%',
