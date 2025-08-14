@@ -1,9 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { fetchCorrectionDetail } from '@/services/correction/correction';
+import {
+  fetchCorrectionDetail,
+  fetchGeneratedCorrection,
+  fetchRagData,
+} from '@/services/correction/correction';
 import DeleteButton from '@/components/DeleteButton';
 import ReductionToggle from '@/features/correction/components/ReductionToggle';
 import TailoredDropdown from '@/features/correction/components/TailoredDropdown';
@@ -12,12 +16,15 @@ import ReductionMark from '@/features/correction/components/ReductionMark';
 import ConcretizationMark from '@/features/correction/components/ConcretizationMark';
 import ConcretizationToggle from '@/features/correction/components/ConcretizationToggle';
 import Image from 'next/image';
+import CompanyInsightProcessModal from '@/features/correction/components/CompanyInsightProcessModal';
 
 export default function TailoredPortfolio() {
   const params = useParams();
   const correctionId = Number(params.correctionId);
+  const searchParams = useSearchParams();
   const [toggleROn, setRToggleOn] = useState(false);
   const [toggleCOn, setCToggleOn] = useState(false);
+  const [showInsightModal, setShowInsightModal] = useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['correction-detail', correctionId],
@@ -25,9 +32,57 @@ export default function TailoredPortfolio() {
     enabled: !!correctionId,
   });
 
+  useQuery({
+    queryKey: ['generated-correction', correctionId],
+    queryFn: () => fetchGeneratedCorrection(correctionId),
+    enabled: !!correctionId,
+    staleTime: 60_000,
+  });
+
+  const { data: rag } = useQuery({
+    queryKey: ['generated-rag', correctionId],
+    queryFn: () => fetchRagData(correctionId),
+    enabled: !!correctionId,
+    staleTime: 60_000,
+  });
+
   if (isLoading) return <div>AI 첨삭 정보를 불러오는 중...</div>;
   if (error) return <div>AI 첨삭 정보를 불러오는데 실패했습니다.</div>;
   if (!data) return <div>AI 첨삭 정보를 찾을 수 없습니다.</div>;
+
+  // 기업명 보강: 상세 데이터 → 제목 → 세션 프리패치 순으로 확보
+  const companyNameForModal: string = (() => {
+    // analyzing과 동일한 우선순위: URL 쿼리 → 세션 캐시 → 상세 응답 → 프리패치 → 백업 캐시
+    const fromQuery = (
+      searchParams.get('submissionTarget') ||
+      searchParams.get('companyName') ||
+      ''
+    ).trim();
+    let name = fromQuery;
+    if (!name) {
+      try {
+        const cachedNameById = sessionStorage.getItem(`companyName:${correctionId}`);
+        if (cachedNameById && cachedNameById.trim()) name = cachedNameById;
+      } catch {}
+    }
+    if (!name) {
+      name = (data?.submissionTarget || data?.title || '') as string;
+    }
+    try {
+      const backup = sessionStorage.getItem('lastCorrectionCompanyName');
+      if (!name && backup) name = backup;
+    } catch {}
+    if (!name) {
+      try {
+        const cached = sessionStorage.getItem(`analyzingPrefetch:${correctionId}`);
+        if (cached) {
+          const parsed = JSON.parse(cached) as { detail?: { title?: string } } | undefined;
+          name = (parsed?.detail?.title || '') as string;
+        }
+      } catch {}
+    }
+    return name;
+  })();
 
   return (
     <div>
@@ -75,7 +130,9 @@ export default function TailoredPortfolio() {
             <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px]">
               생성 일자
             </div>
-            <p className="text-black text-[20px] grid place-items-center ml-[28px]">2000.04.21</p>
+            <p className="text-black text-[20px] grid place-items-center ml-[28px]">
+              {new Date(data.createdAt).toLocaleDateString('ko-KR')}
+            </p>
           </div>
 
           <div
@@ -85,12 +142,12 @@ export default function TailoredPortfolio() {
             <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px]">
               기업명
             </div>
-            <p className="ml-[28px] text-[20px] mr-[342px]">제출처명</p>
+            <p className="ml-[28px] text-[20px] mr-[342px]">{data.submissionTarget}</p>
 
             <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ">
               직무명
             </div>
-            <p className="text-[20px] ml-[28px]">직무</p>
+            <p className="text-[20px] ml-[28px]">{data.jobTitle}</p>
           </div>
         </div>
 
@@ -98,7 +155,17 @@ export default function TailoredPortfolio() {
           className="ml-[80px] mt-[60px]
         max-lg:ml-[24px]"
         >
-          <div className="text-[22px] font-semibold">기업 분석 정보</div>
+          <div className="flex items-center gap-[12px]">
+            <div className="text-[22px] font-semibold">기업 분석 정보</div>
+            <Image
+              src="/icons/InformationIcon.svg"
+              alt="기업 분석 정보"
+              width={20}
+              height={20}
+              className="cursor-pointer"
+              onClick={() => setShowInsightModal(true)}
+            />
+          </div>
           <textarea
             className=" mt-[16px] border-[2px] border-[#BBBBBB] w-[1520px] h-[162px] rounded-[8px] px-[20px] py-[16px] text-[18px]
           max-lg:w-[928px] max-lg:h-[176px]"
@@ -489,6 +556,47 @@ export default function TailoredPortfolio() {
           </div>
         </div>{' '}
       </div>
+      <CompanyInsightProcessModal
+        isOpen={showInsightModal}
+        onClose={() => setShowInsightModal(false)}
+        companyName={companyNameForModal}
+        keywords={(rag?.keywords || []).map((k: unknown) => String(k))}
+        links={
+          Array.isArray(rag?.links)
+            ? rag!.links
+                .map((raw: unknown) => {
+                  try {
+                    if (typeof raw === 'string') {
+                      const url = new URL(raw);
+                      const hostname = url.hostname.replace(/^www\./, '');
+                      return { name: hostname, url: raw };
+                    }
+                    if (
+                      raw &&
+                      typeof raw === 'object' &&
+                      'name' in (raw as { name?: unknown }) &&
+                      'url' in (raw as { url?: unknown })
+                    ) {
+                      const obj = raw as { name?: unknown; url?: unknown };
+                      return { name: String(obj.name), url: String(obj.url) };
+                    }
+                  } catch {
+                    return typeof raw === 'string'
+                      ? { name: '', url: raw }
+                      : {
+                          name: String((raw as Record<string, unknown>)?.name || ''),
+                          url: String((raw as Record<string, unknown>)?.url || ''),
+                        };
+                  }
+                  return null as unknown as { name: string; url: string };
+                })
+                .filter(
+                  (v: { name: string; url: string } | null): v is { name: string; url: string } =>
+                    !!v && !!v.url
+                )
+            : []
+        }
+      />
     </div>
   );
 }

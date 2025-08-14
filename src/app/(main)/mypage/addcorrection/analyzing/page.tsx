@@ -66,7 +66,9 @@ export default function AiLoadingPage() {
   useEffect(() => {
     console.log('[Analyzing] effect start');
     const companyNameFromQuery = companyNameQuery;
-    if (companyNameFromQuery) setCompanyName(companyNameFromQuery);
+    if (companyNameFromQuery) {
+      setCompanyName(companyNameFromQuery);
+    }
     const correctionId = idParamStr ? Number(idParamStr) : NaN;
     if (!correctionId) return;
 
@@ -82,6 +84,17 @@ export default function AiLoadingPage() {
       setCompanyInsight('');
       lastIdRef.current = correctionId;
     }
+
+    // 0) 기업명 캐시: analyzing에서 본 기업명을 세션에 저장해 두어 다른 페이지에서 사용할 수 있게 함
+    try {
+      const correctionId = idParamStr ? Number(idParamStr) : NaN;
+      if (companyNameFromQuery && Number.isFinite(correctionId)) {
+        sessionStorage.setItem(`companyName:${correctionId}`, companyNameFromQuery);
+      }
+      // 보조 키: 생성 직전 저장했던 값이 있으면 최신값 유지
+      const backup = sessionStorage.getItem('lastCorrectionCompanyName');
+      if (!companyNameFromQuery && backup) setCompanyName(backup);
+    } catch {}
 
     // 1) 세션스토리지 prefetch가 있으면 즉시 반영
     try {
@@ -412,6 +425,7 @@ export default function AiLoadingPage() {
               </div>
             </div>
           </div>
+
           <div
             className="relative ml-[930px] mt-[20px]
           max-lg:ml-[500px]"

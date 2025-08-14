@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCorrectionList } from '@/hooks/mutations/useGetCorrection';
 import { formatDate } from '@/utils/formatDate';
 import { Correction } from '@/types/api/correction';
-import { fetchCorrectionDetail } from '@/services/correction/correction';
+import { fetchCorrectionDetail, fetchGeneratedCorrection } from '@/services/correction/correction';
 
 export default function Tailored() {
   const { data, isLoading, error } = useCorrectionList();
@@ -50,24 +50,36 @@ export default function Tailored() {
           key={correction.correctionId}
           onClick={async (e) => {
             e.preventDefault();
-            // 1) 세션 캐시에 analyzing 프리패치가 남아있으면 이어서 진행
-            let hasAnalyzingCache = false;
+            // 1) 생성 결과가 이미 존재하면 상세 페이지로 이동 (우선순위 높음)
             try {
-              hasAnalyzingCache = !!sessionStorage.getItem(
-                `analyzingPrefetch:${correction.correctionId}`
-              );
+              const gen = await fetchGeneratedCorrection(correction.correctionId);
+              if (
+                gen &&
+                Array.isArray(gen.projects) &&
+                gen.projects.length > 0 &&
+                gen.firstCorrection
+              ) {
+                try {
+                  sessionStorage.removeItem(`analyzingPrefetch:${correction.correctionId}`);
+                } catch {}
+                router.push(`/mypage/tailoredportfolio/${correction.correctionId}`);
+                return;
+              }
             } catch {}
 
-            if (hasAnalyzingCache) {
-              router.push(
-                `/mypage/addcorrection/analyzing?correctionId=${correction.correctionId}&submissionTarget=${encodeURIComponent(
-                  correction.submissionTarget || ''
-                )}`
-              );
-              return;
-            }
+            // 2) 세션 캐시에 analyzing 프리패치가 남아있으면 이어서 진행
+            try {
+              if (sessionStorage.getItem(`analyzingPrefetch:${correction.correctionId}`)) {
+                router.push(
+                  `/mypage/addcorrection/analyzing?correctionId=${correction.correctionId}&submissionTarget=${encodeURIComponent(
+                    correction.submissionTarget || ''
+                  )}`
+                );
+                return;
+              }
+            } catch {}
 
-            // 2) 서버 상태로 분기. 상세 조회에 status가 있다면 NOT_STARTED 등 진행 중으로 간주
+            // 3) 서버 상태로 분기. 상세 조회에 status가 있다면 NOT_STARTED 등 진행 중으로 간주
             try {
               const detail = await fetchCorrectionDetail(correction.correctionId);
               const status = (detail as unknown as { status?: string })?.status;
@@ -81,7 +93,7 @@ export default function Tailored() {
               }
             } catch {}
 
-            // 3) 기본: 완료 상태이거나 판단 불가 → 기존 상세 페이지로 이동
+            // 4) 기본: 완료 상태이거나 판단 불가 → 기존 상세 페이지로 이동
             router.push(`/mypage/tailoredportfolio/${correction.correctionId}`);
           }}
           className="bg-[#F8F8F8] w-[465px] h-[190px] rounded-[8px] px-[13px] cursor-pointer

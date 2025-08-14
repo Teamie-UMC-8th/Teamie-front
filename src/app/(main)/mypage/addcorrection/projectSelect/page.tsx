@@ -14,6 +14,7 @@ export default function ProjectSelect() {
   const searchParams = useSearchParams();
   const correctionIdFromQuery =
     Number(searchParams.get('correctionId')) || Number(searchParams.get('id'));
+  const submissionTarget = searchParams.get('submissionTarget') || '';
   const correctionId = useMemo(() => {
     if (Number.isFinite(correctionIdFromQuery) && correctionIdFromQuery > 0)
       return correctionIdFromQuery;
@@ -124,7 +125,10 @@ export default function ProjectSelect() {
       }
       await postGenerateCorrection(correctionId, { selectedProjects: readyProjectIds });
       await waitUntilGenerated(correctionId);
-      router.push(`/mypage/tailoredportfolio/${correctionId}`);
+      const query = submissionTarget
+        ? `?submissionTarget=${encodeURIComponent(submissionTarget)}`
+        : '';
+      router.push(`/mypage/tailoredportfolio/${correctionId}${query}`);
     } catch (err: unknown) {
       console.error('[ProjectSelect] generate failed:', err);
       let reason: string | undefined;

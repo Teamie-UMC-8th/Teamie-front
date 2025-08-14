@@ -36,6 +36,11 @@ export default function CorrectionIntro() {
       submissionTarget: companyName,
     } as const;
     console.log('[AI 첨삭 생성] 요청 페이로드:', payload);
+    try {
+      // analyzing, tailored에서 공통으로 사용할 기업명 캐시 저장
+      // 생성 직전에 저장하여 이후 전 페이지에서 동일 기업명이 노출되도록 함
+      sessionStorage.setItem('lastCorrectionCompanyName', companyName);
+    } catch {}
     setPayload(payload);
     setIsLoadingOpen(true);
   };
