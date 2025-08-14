@@ -4,7 +4,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
 function LoginContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const nextParam = searchParams.get('next');
 

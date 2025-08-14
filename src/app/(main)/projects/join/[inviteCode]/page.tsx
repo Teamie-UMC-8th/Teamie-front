@@ -164,12 +164,12 @@ export default function JoinProject() {
           <div className="fixed inset-0 flex items-center justify-center z-50">
             <div className="bg-white rounded-2xl shadow-[0_0_15px_0_rgba(0,0,0,0.2)] px-[7.5rem] py-[3.75rem] text-center">
               {/* 아바타 자리 */}
-              <div className="mx-auto w-[7.5rem] h-[7.5rem]">
+              <div className="flex items-center justify-center mx-auto w-[7.5rem] h-[7.5rem]">
                 <Image src="/icons/welcomeTeamie.svg" alt="welcome" width={111} height={68} />
               </div>
 
               {/* 텍스트 */}
-              <p className="text-[1.25rem] font-semibold">
+              <p className="text-[1.25rem] font-semibold mb-[1.75rem]">
                 환영합니다! <br />
                 {projectInfo.name}의 팀원이 되셨습니다.
               </p>

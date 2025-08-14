@@ -85,7 +85,7 @@ export const TASK_STATUS_DISPLAY: Record<TaskStatus, string> = {
 // TASK 상태별 스타일 매핑
 export const TASK_STATUS_STYLES: Record<string, { bg: string; text: string }> = {
   '진행 중': { bg: 'bg-[#B6F5DF]', text: 'text-[#505050]' },
-  완료: { bg: 'bg-[#D1D5DB]', text: 'text-[#505050]' },
+  완료: { bg: 'bg-[#A1C2ED]', text: 'text-[#505050]' },
   '시작 전': { bg: 'bg-[#E7E7E7]', text: 'text-[#505050]' },
 } as const;
 
@@ -121,4 +121,18 @@ export interface MyTaskResponse {
     data: MyTaskProject[];
     pageInfo: MyTaskPageInfo;
   };
+}
+
+// 업무 상태 변경 API 관련 타입
+export interface UpdateTaskStatusRequest {
+  status: 'NOTSTART' | 'ONGOING' | 'COMPLETED';
+}
+
+export interface UpdateTaskStatusResponse {
+  isSuccess: boolean;
+  error: ApiErrorResponse | null;
+  result: {
+    taskId: number;
+    status: 'NOTSTART' | 'ONGOING' | 'COMPLETED';
+  } | null;
 }
