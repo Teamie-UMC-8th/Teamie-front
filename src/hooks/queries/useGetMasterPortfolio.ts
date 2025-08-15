@@ -5,7 +5,7 @@ import {
   getMasterPortfolioGeneratedResult,
   getMasterPortfolioStatus,
   fetchMasterPortfolioQuestions,
-} from '@/services/masterportfolio/masterportfolio';
+} from '@/services/masterPortfolio/masterPortfolio';
 import { fetchCorrectionProjects } from '@/services/correction/correction';
 import { useQuery } from '@tanstack/react-query';
 import type { MasterPortfolioDetailResponse } from '@/types/api/masterportfolio';
