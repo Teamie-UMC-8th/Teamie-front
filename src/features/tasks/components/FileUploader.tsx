@@ -48,29 +48,31 @@ export default function FileUploader() {
 
     console.log('📥 서버 파일 목록 동기화:', taskData.result.files);
 
-    const serverFiles: UploadedFile[] = taskData.result.files.map((file, index) => {
-      // API가 파일 이름을 제공한다면 우선 사용, 없으면 URL로 fallback
-      let fileName = (file as any).name as string | undefined;
-      if (!fileName && file.fileUrl) {
-        try {
-          const urlParts = file.fileUrl.split('/');
-          const lastPart = urlParts[urlParts.length - 1];
-          if (lastPart) fileName = decodeURIComponent(lastPart);
-        } catch {
-          fileName = `파일 ${index + 1}`;
+    const serverFiles: UploadedFile[] = taskData.result.files.map(
+      (file: { id: number; fileUrl: string; name?: string }, index: number) => {
+        // API가 파일 이름을 제공한다면 우선 사용, 없으면 URL로 fallback
+        let fileName: string | undefined = file.name;
+        if (!fileName && file.fileUrl) {
+          try {
+            const urlParts = file.fileUrl.split('/');
+            const lastPart = urlParts[urlParts.length - 1];
+            if (lastPart) fileName = decodeURIComponent(lastPart);
+          } catch {
+            fileName = `파일 ${index + 1}`;
+          }
         }
-      }
-      if (!fileName) fileName = `파일 ${index + 1}`;
+        if (!fileName) fileName = `파일 ${index + 1}`;
 
-      return {
-        name: fileName,
-        size: 0,
-        type: '',
-        lastModified: Date.now(),
-        fileUrl: file.fileUrl,
-        serverId: file.id,
-      } as UploadedFile;
-    });
+        return {
+          name: fileName,
+          size: 0,
+          type: '',
+          lastModified: Date.now(),
+          fileUrl: file.fileUrl,
+          serverId: file.id,
+        } as UploadedFile;
+      }
+    );
 
     console.log('🔄 파일 목록 동기화 (서버 기준):', {
       count: serverFiles.length,
