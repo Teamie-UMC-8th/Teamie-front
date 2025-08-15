@@ -73,7 +73,7 @@ export default function MyTaskBoard() {
   return (
     <>
       <div
-        className="grid [grid-template-columns:repeat(2,20.313rem)] lg:[grid-template-columns:repeat(4,20.313rem)] gap-x-[2.25rem] gap-y-[5rem] mt-[3.75rem] min-w-[64rem] overflow-x-auto"
+        className="grid [grid-template-columns:repeat(2,20.313rem)] lg:[grid-template-columns:repeat(4,20.313rem)] gap-x-[2.25rem] gap-y-[5rem] mt-[3.75rem] min-w-[64rem]"
         style={{ paddingLeft: 'clamp(43px, calc(112px - ((100vw - 1024px) * 0.077)), 112px)' }}
       >
         {projects.map((project) => (
