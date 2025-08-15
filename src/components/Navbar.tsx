@@ -90,6 +90,8 @@ export default function Navbar() {
     setIsUpgraded((prev) => !prev);
   };
 
+  console.log('user', user);
+
   return (
     <nav
       className="w-full border-b-[0.125rem] border-[#E7E7E7] bg-white h-[3.625rem] z-10 relative"
@@ -194,9 +196,9 @@ export default function Navbar() {
             trigger={
               <button data-dropdown-trigger className="flex items-center">
                 <Image
-                  src="/icons/profile.svg"
+                  src={user?.imageUrl || '/icons/profile.svg'}
                   alt="프로필"
-                  className="cursor-pointer"
+                  className="cursor-pointer rounded-full"
                   width={32}
                   height={32}
                 />
@@ -206,7 +208,7 @@ export default function Navbar() {
               {
                 label: '마이페이지',
                 href: '/mypage',
-                icon: '/icons/myPage-dropdown.svg',
+                icon: user?.imageUrl ? user.imageUrl : '/icons/myPage-dropdown.svg',
               },
               {
                 label: '로그아웃',
