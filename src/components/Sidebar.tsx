@@ -5,6 +5,7 @@ import { usePathname, useParams } from 'next/navigation';
 import { menus } from '@/constants/menus';
 import { getHomeUrl, getProjectUrl } from '../utils/url';
 import { useActiveMenu } from '@/hooks/useActiveMenu';
+import Image from 'next/image';
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -46,10 +47,12 @@ export default function Sidebar() {
                 transition
               `}
             >
-              <img
+              <Image
                 src={item.icon}
                 alt=""
-                className={`w-[1.75rem] h-[1.75rem] ${isActive ? 'brightness-0 invert' : ''}`}
+                className={`${isActive ? 'brightness-0 invert' : ''}`}
+                width={28}
+                height={28}
               />
               <span className="hidden lg:inline">{item.name}</span>
             </Link>

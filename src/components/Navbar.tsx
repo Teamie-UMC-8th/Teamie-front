@@ -8,6 +8,7 @@ import { getHomeUrl } from '@/utils/url';
 import { useAuth } from '@/contexts/AuthContext';
 import { SidebarMenus } from '@/types/sidebar';
 import Dropdown from './Dropdown';
+import Image from 'next/image';
 
 export default function Navbar() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -96,10 +97,12 @@ export default function Navbar() {
     >
       <div className="flex items-center h-full pl-[1.313rem] min-w-[1024px]">
         {/* 로고 */}
-        <img
+        <Image
           src="/logo.svg"
           alt="Teamie 로고"
           className="h-[1.438rem] mt-[0.063rem] mr-[3.75rem] shrink-0"
+          width={149}
+          height={23}
         />
 
         {/* 왼쪽 고정 영역 */}
@@ -190,7 +193,13 @@ export default function Navbar() {
             onToggle={toggleProfileDropdown}
             trigger={
               <button data-dropdown-trigger className="flex items-center">
-                <img src="/icons/profile.svg" alt="프로필" className="cursor-pointer" />
+                <Image
+                  src="/icons/profile.svg"
+                  alt="프로필"
+                  className="cursor-pointer"
+                  width={32}
+                  height={32}
+                />
               </button>
             }
             items={[

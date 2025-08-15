@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 interface AssigneeCardProps {
   name: string;
   imageUrl?: string;
@@ -50,10 +52,13 @@ export default function AssigneeCard({
         />
       )}
 
-      <img
+      <Image
         src={imageUrl || '/icons/assignee.svg'}
         alt={`${name} 프로필`}
         className={`${sizeClasses[size]} rounded-full object-cover`}
+        // width와 height를 숫자로 명확히 지정
+        width={size === 'sm' ? 16 : 24}
+        height={size === 'sm' ? 16 : 24}
       />
       <span className={`${textSizeClasses[size]}`}>{name}</span>
     </div>

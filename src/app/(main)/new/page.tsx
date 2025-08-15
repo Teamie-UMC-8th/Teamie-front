@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useThrottle } from '@/hooks/useThrottle';
 import { useQueryClient } from '@tanstack/react-query';
+import Image from 'next/image';
 
 export default function New() {
   const router = useRouter();
@@ -189,7 +190,7 @@ export default function New() {
                   className="absolute top-[0.75rem] right-[0.75rem] cursor-pointer"
                   onClick={handleCopyText}
                 >
-                  <img src="/icons/copy_url.svg" alt="copy_url" />
+                  <Image src="/icons/copy_url.svg" alt="copy_url" width={24} height={24} />
                 </button>
 
                 {/* 복사 완료 모달 */}

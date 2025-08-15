@@ -1,11 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import TaskItem from '@/components/TaskItem';
 import ProjectHeader from './components/ProjectHeader';
 import { useGetMyTasks } from '@/hooks/queries/useGetMyTasks';
 
 export default function MyTaskBoard() {
   const { data, isLoading } = useGetMyTasks();
-  const projects = data?.result?.data ?? [];
+
+  // projects 배열을 useMemo로 메모이제이션
+  const projects = useMemo(() => {
+    return data?.result?.data ?? [];
+  }, [data?.result?.data]);
 
   const [openProjectIds, setOpenProjectIds] = useState<string[]>([]);
 

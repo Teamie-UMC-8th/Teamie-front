@@ -112,6 +112,7 @@ export default function JoinProject() {
     getProjectQuery.isLoading,
     getProjectQuery.isFetching,
     router,
+    projectInfo,
   ]);
 
   const handleAccept = () => {

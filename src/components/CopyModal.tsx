@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { CopyModalProps } from '@/types/copyModal';
+import Image from 'next/image';
 
 const CopyModal = ({
   isOpen,
@@ -39,7 +40,7 @@ const CopyModal = ({
           onClick={onClose}
           className="absolute cursor-pointer top-[0.75rem] right-[0.75rem] text-gray-400 hover:text-gray-600 text-2xl font-bold"
         >
-          <img src="/icons/close.svg" alt="close" />
+          <Image src="/icons/close.svg" alt="close" width={24} height={24} />
         </button>
         <div className="mb-[1.5rem]">
           <h1 className="text-[1.25rem] font-semibold text-black leading-relaxed">
@@ -59,7 +60,7 @@ const CopyModal = ({
             onClick={handleCopy}
             className="absolute top-[0.75rem] right-[0.75rem] cursor-pointer"
           >
-            <img src="/icons/copy_url.svg" alt="copy_url" />
+            <Image src="/icons/copy_url.svg" alt="copy_url" width={24} height={24} />
           </button>
           <div className="text-center text-[1rem] text-black">{messageContent}</div>
         </div>

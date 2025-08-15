@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { ReactNode } from 'react';
 
@@ -51,7 +52,9 @@ export default function Dropdown({
                 }}
                 className={`block hover:bg-[#E7E7E7] px-[1rem] py-[0.5rem] ${width} text-[#505050] text-[1.125rem] whitespace-nowrap flex items-center h-[2.625rem]`}
               >
-                {item.icon && <img src={item.icon} alt="" className="mr-[0.75rem]" />}
+                {item.icon && (
+                  <Image src={item.icon} alt="" className="mr-[0.75rem]" width={24} height={24} />
+                )}
                 {item.label}
               </Link>
               {index < items.length - 1 && (

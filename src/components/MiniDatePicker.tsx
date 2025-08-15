@@ -159,16 +159,6 @@ export default function MiniDatePicker({
   // 범위가 설정되었는지 확인
   const hasRange = rangeStart && rangeEnd;
 
-  // 범위의 시작일과 종료일을 정렬하여 반환
-  const getSortedRange = () => {
-    if (!rangeStart || !rangeEnd) return { start: null, end: null };
-    if (rangeStart <= rangeEnd) {
-      return { start: rangeStart, end: rangeEnd };
-    } else {
-      return { start: rangeEnd, end: rangeStart };
-    }
-  };
-
   return (
     <div className="w-[175px] h-[170px]">
       {/* 헤더 */}
