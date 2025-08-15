@@ -19,6 +19,9 @@ import {
 } from '@/hooks/mutations/useTaskDetail';
 import axiosInstance from '@/lib/axiosInstance';
 import { useRouter } from 'next/navigation';
+import CopyModal from '@/components/CopyModal';
+import Portal from '@/components/Portal';
+import Link from 'next/link';
 import { useWebSocket } from '@/contexts/WebSocketContext';
 import { SubEventType } from '@/types/webSocket';
 
@@ -33,6 +36,10 @@ export default function TaskDetailPage() {
   const [isTaskDeleted, setIsTaskDeleted] = useState(false); // 삭제 완료 상태 추적
   const [isEditingName, setIsEditingName] = useState(false); // 업무 이름 수정 모드
   const [editingName, setEditingName] = useState(''); // 수정 중인 업무 이름
+  const [showCopyModal, setShowCopyModal] = useState(false);
+  const [completedTask, setCompletedTask] = useState<{ title: string; taskId: number } | null>(
+    null
+  );
 
   const { handleMemoBlur } = useTaskMemoHandler();
   const updateTaskMutation = useUpdateTaskDetail();
@@ -353,6 +360,11 @@ export default function TaskDetailPage() {
     }
   };
 
+  // 대시보드와 동일한 메시지 구성
+  const getTaskUrl = (tid: number) => `http://localhost:3000/projects/${projectId}/tasks/${tid}`;
+  const getTextToCopy = (title: string, tid: number) =>
+    `💼 ${title} 업무가 완료되었어요!\n확인 후 간단한 피드백을 남겨주세요.\n👉 ${getTaskUrl(tid)}`;
+
   // 업무 이름 수정 시작
   const handleNameEdit = () => {
     if (data?.result) {
@@ -593,6 +605,10 @@ export default function TaskDetailPage() {
                       data: updateData,
                     });
                     console.log('TaskDetailPage - 상태 변경 성공');
+                    if (newStatus === 'COMPLETED') {
+                      setCompletedTask({ title: task.name || '업무', taskId });
+                      setShowCopyModal(true);
+                    }
                   } catch (error) {
                     console.error('TaskDetailPage - 상태 변경 실패:', error);
                     const errorMessage =
@@ -646,6 +662,35 @@ export default function TaskDetailPage() {
 
         <AddComment />
       </div>
+      {showCopyModal && completedTask && (
+        <Portal>
+          <CopyModal
+            isOpen={showCopyModal}
+            onClose={() => setShowCopyModal(false)}
+            headerText="업무가 완료되었습니다.<br>피드백 요청을 위한 메세지를 복사하여<br>팀원들에게 전달하세요."
+            messageContent={
+              <>
+                💼 {completedTask.title} 업무가 완료되었어요!
+                <br />
+                확인 후 간단한 피드백을 남겨주세요.
+                <br />
+                👉{' '}
+                <Link
+                  href={getTaskUrl(completedTask.taskId)}
+                  className="underline font-bold text-[#81D7D4]"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {completedTask.title}
+                </Link>
+              </>
+            }
+            textToCopy={getTextToCopy(completedTask.title, completedTask.taskId)}
+            copySuccessText="업무 완료 메세지가 복사되었습니다."
+            innerPaddingX="5rem"
+          />
+        </Portal>
+      )}
     </div>
   );
 }
