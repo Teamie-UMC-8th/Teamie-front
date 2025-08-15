@@ -279,8 +279,8 @@ export default function TailoredPortfolio() {
             />
           </div>
           <textarea
-            className=" mt-[16px] border-[2px] border-[#BBBBBB] w-[1520px] h-[162px] rounded-[8px] px-[20px] py-[16px] text-[18px]
-          max-lg:w-[928px] max-lg:h-[176px]"
+            className=" mt-[16px] border-[2px] border-[#BBBBBB] w-[1520px] h-[338px] rounded-[8px] px-[20px] py-[16px] text-[18px] resize-none overflow-auto
+          max-lg:w-[928px] max-lg:h-[338px]"
             value={
               (companyInsight?.companyInsight || '').trim() ||
               currentCorrection?.correctionResult?.insights?.field_summary ||
@@ -296,8 +296,8 @@ export default function TailoredPortfolio() {
         >
           <div className="text-[22px] font-semibold">JD (Job Description)</div>
           <textarea
-            className=" mt-[16px] border-[2px] border-[#BBBBBB] w-[1520px] h-[162px] rounded-[8px] px-[20px] py-[16px] text-[18px]
-          max-lg:w-[928px] max-lg:h-[176px]"
+            className=" mt-[16px] border-[2px] border-[#BBBBBB] w-[1520px] h-[338px] rounded-[8px] px-[20px] py-[16px] text-[18px] resize-none overflow-auto
+          max-lg:w-[928px] max-lg:h-[338px]"
             defaultValue={data?.jd ?? data?.content ?? ''}
             readOnly
           />

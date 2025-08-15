@@ -30,30 +30,37 @@ export default function CompanyInsightProcessModal({
     <Portal>
       <div className="fixed inset-0 z-[1000] bg-black/30 flex items-center justify-center">
         <div
-          className="w-[920px] bg-white rounded-[12px] overflow-hidden"
-          style={{ boxShadow: '0px 0px 10px 0px #00000033' }}
+          className="w-[960px] h-[589px] bg-white rounded-[16px] overflow-hidden"
+          style={{ boxShadow: '0px 0px 15px 0px #00000033' }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-[24px] py-[16px] border-b border-[#E7E7E7]">
-            <div className="text-[20px] font-semibold">기업 분석 정보 생성 단계</div>
-            <button onClick={onClose} className="cursor-pointer">
-              <Image src="/icons/CloseModal.svg" alt="닫기" width={24} height={24} />
+          <div className="flex justify-end px-[12px] py-[12px]">
+            <button onClick={onClose} className="cursor-pointer ">
+              <Image
+                src="/icons/CloseModal.svg"
+                alt="닫기"
+                width={24}
+                height={24}
+                className="mt-0"
+              />
             </button>
           </div>
+          <div className="text-[20px] font-semibold ml-[40px]">기업 분석 정보 생성 단계</div>
+          <p className="border-t-[1px] border-[#BBBBBB] w-[878px] ml-[40px] mt-[8px]"></p>
 
           {/* Body */}
-          <div className="px-[24px] py-[20px]">
+          <div className="px-[52px] py-[20px] pb-[40px]">
             {/* 안내 문장 (analyzing과 동일 포맷) */}
-            <div className="flex text-[16px] mb-[20px]">
-              <div className="flex-col mr-[12px]">
+            <div className="text-[16px] items-center">
+              <div className="flex gap-[16px]">
                 <Image src="/icons/Cdot.svg" alt="포인터" width={10} height={10} />
-                <div className="border-l-[2px] border-[#E7E7E7] h-[32px] ml-[4px] mt-[8px]" />
+                <div>
+                  {companyName
+                    ? `${companyName}의 인재상과 사업 방향성, 강점과 약점을 분석할게요.`
+                    : '기업명의 인재상과 사업 방향성, 강점과 약점을 분석할게요.'}
+                </div>
               </div>
-              <div>
-                {companyName
-                  ? `${companyName}의 인재상과 사업 방향성, 강점과 약점을 분석할게요.`
-                  : '기업명의 인재상과 사업 방향성, 강점과 약점을 분석할게요.'}
-              </div>
+              <div className="border-l-[2px] border-[#E7E7E7] h-[32px] ml-[4px]" />
             </div>
 
             {/* 검색을 진행할게요. */}
@@ -63,12 +70,12 @@ export default function CompanyInsightProcessModal({
                 alt="포인터"
                 width={10}
                 height={10}
-                className="mr-[8px]"
+                className="mr-[16px]"
               />
-              <p className="mr-[4px]">검색을 진행할게요.</p>
+              <p>검색을 진행할게요.</p>
             </div>
             <div className="flex">
-              <div className="border-l-[2px] border-[#E7E7E7] ml-[4px] mr-[16px]" />
+              <div className="border-l-[2px] border-[#E7E7E7] ml-[4px] mr-[20px]" />
               <div className="mt-[6px] flex flex-wrap gap-[8px]">
                 {displayKeywords.map((kw, idx, arr) => (
                   <div
@@ -91,18 +98,18 @@ export default function CompanyInsightProcessModal({
             </div>
 
             {/* 검색 결과를 수집할게요. */}
-            <div className="flex items-center text-[16px] mt-[8px]">
+            <div className="flex items-center text-[16px]">
               <Image
                 src="/icons/Cdot.svg"
                 alt="포인터"
                 width={10}
                 height={10}
-                className="mr-[8px]"
+                className="mr-[16px]"
               />
-              <p className="mr-[4px]">검색 결과를 수집할게요.</p>
+              <p>검색 결과를 수집할게요.</p>
             </div>
             <div className="flex">
-              <div className="border-l-[2px] border-[#E7E7E7] h-[220px] ml-[4px] mr-[16px]" />
+              <div className="h-[206px] ml-[4px] mr-[22px]" />
               <div className="border border-[#BBBBBB] rounded-[8px] bg-[#F8F8F8] w-full h-[206px] mt-[6px] p-[12px] overflow-y-auto">
                 <div className="flex flex-col gap-[12px]">
                   {displayLinks.map((item, idx) => (
