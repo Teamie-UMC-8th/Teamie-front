@@ -49,11 +49,13 @@ export default function CalendarEventBox({ event }: { event: CalendarEvent }) {
       draggable
       onDragStart={handleDragStart}
       onClick={handleClick}
-      className="relative z-[60] w-full h-full rounded-[4px] px-[22px] py-[4px] text-[16px] leading-[24px] text-black overflow-hidden whitespace-nowrap text-ellipsis flex items-center justify-center cursor-pointer pointer-events-auto"
+      className="relative z-[60] w-full h-full rounded-[4px] px-[22px] py-[4px] text-[16px] leading-[20px] text-black cursor-pointer pointer-events-auto"
       title={event.title ?? ''}
       role="button"
     >
-      {event.title || '빈 일정'}
+      <div className="w-full h-full flex items-center justify-center text-center break-words whitespace-normal overflow-wrap-anywhere">
+        {event.title || '빈 일정'}
+      </div>
     </div>
   );
 }

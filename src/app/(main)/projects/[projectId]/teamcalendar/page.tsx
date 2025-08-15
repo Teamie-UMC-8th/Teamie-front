@@ -31,7 +31,10 @@ type CalendarEventType = {
 };
 
 export default function TeamCalendar() {
-  const [currentDate, setCurrentDate] = useState(new Date());
+  // 현재 날짜를 split으로 생성 (YYYY-MM-DD 형식)
+  const now = new Date();
+  const [year, month, day] = [now.getFullYear(), now.getMonth(), now.getDate()];
+  const [currentDate, setCurrentDate] = useState(new Date(year, month, day));
   const [projectCreatedAtISO, setProjectCreatedAtISO] = useState<string | undefined>(undefined);
   const router = useRouter();
   const params = useParams();
@@ -53,6 +56,8 @@ export default function TeamCalendar() {
     isLoading,
     refetch, // ✅ refetch 포함
   } = useGetCalendarPlans(projectId ?? '', startDate, endDate);
+
+  console.log('calendarData', calendarData);
 
   // 대시보드(업무) 데이터도 함께 조회하여 캘린더에 표시
   const projectIdForDashboard = projectIdNum ?? 0;
@@ -145,96 +150,46 @@ export default function TeamCalendar() {
     fetchProjectMeta();
   }, [projectId]);
 
-  // Calendar 표시용 events 가공 (timezone-safe)
+  // Calendar 표시용 events 가공 (간단하게)
   type RawPlan = {
     planId?: number | string;
     id?: number | string;
     scheduleId?: number | string;
-    startDate?: string;
-    endDate?: string;
     name?: string;
     title?: string;
     date?: string;
-    startHour?: string;
-    endHour?: string;
   };
 
   const planEvents: CalendarEventType[] = useMemo(() => {
     return (
       calendarData?.result.flatMap((entry) =>
-        (entry.list ?? []).flatMap((plan) => {
-          const rawPlan = plan as RawPlan;
-          const rawId = rawPlan?.planId ?? rawPlan?.id ?? rawPlan?.scheduleId;
-          if (!rawId) return [] as CalendarEventType[];
+        // 먼저 PLAN 타입만 남기기
+        (entry.list ?? [])
+          .filter((plan) => (plan as { type?: string }).type === 'PLAN')
+          .flatMap((plan) => {
+            const rawPlan = plan as RawPlan;
+            const rawId = rawPlan?.planId ?? rawPlan?.id ?? rawPlan?.scheduleId;
+            if (!rawId) return [] as CalendarEventType[];
 
-          // 1) startDate/endDate가 있으면 그대로 사용
-          if (rawPlan.startDate || rawPlan.endDate) {
-            const start = rawPlan.startDate ? new Date(rawPlan.startDate) : new Date();
-            const end = rawPlan.endDate
-              ? new Date(rawPlan.endDate)
-              : new Date(new Date(start).getTime() + 60 * 1000);
-            return [
-              {
-                id: String(rawId),
-                title: rawPlan.name || rawPlan.title || '빈 일정',
-                start,
-                end,
-              },
-            ];
-          }
+            // 백엔드에서 받은 date를 그대로 사용 (변환하지 않음)
+            const dateStr: string | undefined = rawPlan.date || entry.date;
+            if (dateStr) {
+              // ✅ moment.js를 사용해 날짜 문자열을 로컬 시간대 자정으로 정확히 변환
+              const eventDate = moment(dateStr, 'YYYY-MM-DD');
 
-          // 2) date만 있는 경우: 'YYYY-MM-DD' 또는 'YYYY-MM-DDTHH:mm:ss'
-          const dateStr: string | undefined = rawPlan.date || entry.date;
-          let start: Date;
-          let end: Date;
-
-          if (dateStr) {
-            const m = dateStr.match(
-              /^(\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}):(\d{2})(?::(\d{2}))?)?/
-            );
-            if (m) {
-              const year = Number(m[1]);
-              const monthIdx = Number(m[2]) - 1; // 0-based
-              const day = Number(m[3]);
-              const hour = rawPlan.startHour
-                ? Number(rawPlan.startHour.split(':')[0])
-                : m[4]
-                  ? Number(m[4])
-                  : 0;
-              const minute = rawPlan.startHour
-                ? Number(rawPlan.startHour.split(':')[1])
-                : m[5]
-                  ? Number(m[5])
-                  : 0;
-              const second = m[6] ? Number(m[6]) : 0;
-              start = new Date(year, monthIdx, day, hour, minute, second);
-
-              if (rawPlan.endHour) {
-                const [eh, em] = String(rawPlan.endHour).split(':');
-                end = new Date(year, monthIdx, day, Number(eh), Number(em) || 0, 0);
-              } else {
-                end = new Date(start.getTime() + 60 * 1000);
-              }
-            } else {
-              start = new Date();
-              end = new Date(start.getTime() + 60 * 1000);
+              return [
+                {
+                  id: String(rawId),
+                  title: rawPlan.name || rawPlan.title || '빈 일정',
+                  start: eventDate.toDate(), // Date 객체로 변환하여 전달
+                  end: eventDate.toDate(), // allDay 이벤트는 start와 end가 같아도 됨
+                  allDay: true, // 하루 종일 이벤트로 설정
+                },
+              ];
             }
-          } else {
-            start = new Date();
-            end = new Date(start.getTime() + 60 * 1000);
-          }
 
-          const isAllDay = !rawPlan.startHour && !rawPlan.endHour;
-          return [
-            {
-              id: String(rawId),
-              title: rawPlan.name || rawPlan.title || '빈 일정',
-              start,
-              end,
-              ...(isAllDay ? { allDay: true } : {}),
-            },
-          ];
-        })
+            return [];
+          })
       ) || []
     );
   }, [calendarData]);
@@ -247,6 +202,7 @@ export default function TeamCalendar() {
 
   const dashboardEvents: CalendarEventType[] = useMemo(() => {
     if (!dashboardData) return [];
+
     const startM = moment(startDate);
     const endM = moment(endDate);
 
@@ -262,16 +218,24 @@ export default function TeamCalendar() {
 
     return tasks
       .filter((t) => !!t?.deadline)
-      .map((t) => ({
-        id: `task:${String(t.taskId)}`,
-        title: `${t.taskName} 마감`,
-        start: new Date(t.deadline as string),
-        end: new Date(new Date(t.deadline as string).getTime() + 60 * 1000),
-        allDay: true,
-      }))
+      .map((t) => {
+        const deadlineStr = t.deadline as string;
+
+        // ✅ moment.js를 사용해 날짜 문자열을 로컬 시간대 자정으로 정확히 변환
+        const eventDate = moment(deadlineStr, 'YYYY-MM-DD');
+
+        return {
+          id: `task:${String(t.taskId)}`,
+          title: `${t.taskName} 마감`,
+          start: eventDate.toDate(), // Date 객체로 변환하여 전달
+          end: eventDate.toDate(), // allDay 이벤트는 start와 end가 같아도 됨
+          allDay: true, // 하루 종일 이벤트로 설정
+        };
+      })
       .filter((ev: CalendarEventType) => {
-        const m = moment(ev.start);
-        return m.isSameOrAfter(startM, 'day') && m.isSameOrBefore(endM, 'day');
+        // ✅ moment.js를 사용한 안정적이고 간결한 날짜 비교
+        const eventMoment = moment(ev.start);
+        return eventMoment.isSameOrAfter(startM, 'day') && eventMoment.isSameOrBefore(endM, 'day');
       });
   }, [dashboardData, startDate, endDate]);
 
@@ -301,11 +265,25 @@ export default function TeamCalendar() {
   };
 
   const handlePrevMonth = () => {
-    setCurrentDate(moment(currentDate).subtract(1, 'month').toDate());
+    const [year, month, day] = [
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      currentDate.getDate(),
+    ];
+    const prevMonth = month === 0 ? 11 : month - 1;
+    const prevYear = month === 0 ? year - 1 : year;
+    setCurrentDate(new Date(prevYear, prevMonth, day));
   };
 
   const handleNextMonth = () => {
-    setCurrentDate(moment(currentDate).add(1, 'month').toDate());
+    const [year, month, day] = [
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      currentDate.getDate(),
+    ];
+    const nextMonth = month === 11 ? 0 : month + 1;
+    const nextYear = month === 11 ? year + 1 : year;
+    setCurrentDate(new Date(nextYear, nextMonth, day));
   };
 
   const formattedTitle = moment(currentDate).format('YYYY년 M월');
