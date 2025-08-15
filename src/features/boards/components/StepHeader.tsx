@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Image from 'next/image';
 
 interface StepHeaderProps {
   stepName: string;
@@ -99,12 +100,21 @@ export default function StepHeader({
                 if (e.key === 'Enter' || e.key === ' ') handleIconClick(e);
               }}
             >
-              <img src="/icons/delete_steps.svg" alt="delete step" className="w-6 h-6" />
+              <Image
+                src="/icons/delete_steps.svg"
+                alt="delete step"
+                className="w-6 h-6"
+                width={24}
+                height={24}
+              />
             </span>
           ) : (
-            <img
+            <Image
               src="/icons/arrow-down.svg"
+              alt="arrow-down"
               className={`absolute right-2 w-[2rem] h-[2rem] ${isOpen ? 'rotate-180' : ''}`}
+              width={32}
+              height={32}
             />
           )}
         </div>

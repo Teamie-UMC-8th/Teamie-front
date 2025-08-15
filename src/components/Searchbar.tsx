@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 interface SearchbarProps {
   placeholder?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -29,7 +31,13 @@ export function Searchbar({
       {/*   /> */}
       {/* </div> */}
       <button onClick={handleFilterClick}>
-        <img src="/icons/filter.svg" className="w-[2rem] h-[2rem] cursor-pointer" />
+        <Image
+          src="/icons/filter.svg"
+          alt="filter"
+          className="w-[2rem] h-[2rem] cursor-pointer"
+          width={32}
+          height={32}
+        />
       </button>
     </div>
   );

@@ -5,6 +5,7 @@ import MiniDatePicker from './MiniDatePicker';
 import AssigneeCard from './AssigneeCard';
 import Portal from './Portal';
 import { TaskFilters } from '@/types/api/tasks';
+import Image from 'next/image';
 
 interface FilterPanelProps {
   isOpen: boolean;
@@ -216,7 +217,7 @@ export default function FilterPanel({
             onClick={handleReset}
             className="flex items-center gap-[4px] text-[14px] rounded-[24px] border px-3 py-1 border-black cursor-pointer"
           >
-            <img src="/icons/refresh.svg" alt="초기화" className="w-4 h-4" />
+            <Image src="/icons/refresh.svg" alt="초기화" width={16} height={16} />
             초기화
           </button>
         </div>
