@@ -35,6 +35,9 @@ export interface ProjectHomeResponse {
   result: {
     project: Project;
     users: ProjectUser[];
+    // 백엔드가 프로젝트 홈 응답에 게시판 포스트 목록을 포함해 내려줄 수 있습니다.
+    // 문서 스펙에 맞게 선택 필드로 정의합니다.
+    posts?: PostItInfo[];
   } | null;
 }
 
@@ -55,7 +58,15 @@ export interface UpdateProjectResponse {
   error: ApiErrorResponse | null;
   result: {
     project: Project;
+    // 프로젝트 홈 수정 응답에 포함되는 포스트잇 요약 목록
+    posts?: PostItSummary[];
   } | null;
+}
+
+// 프로젝트 수정 응답에서 사용하는 포스트잇 요약 타입 (id/createdAt 미포함)
+export interface PostItSummary {
+  author: number;
+  content: string;
 }
 
 /**
@@ -70,7 +81,7 @@ export interface CreatePostItRequest {
  */
 export interface PostItInfo {
   id: number;
-  userId: number;
+  author: number; // 백엔드 응답 스펙과 맞춤
   content: string;
   projectId: number;
   createdAt: string;
@@ -84,6 +95,11 @@ export interface CreatePostItResponse {
   error: ApiErrorResponse | null;
   result: PostItInfo | null;
 }
+
+/**
+ * 포스트잇 목록 조회 API 응답 타입
+ */
+// 포스트잇 목록 조회 응답 타입은 서버에서 제공될 때 추가하세요.
 
 /**
  * 포스트잇 삭제 API 응답 타입

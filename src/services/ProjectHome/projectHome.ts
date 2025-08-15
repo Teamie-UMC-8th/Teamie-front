@@ -6,6 +6,7 @@ import {
   CreatePostItRequest,
   CreatePostItResponse,
   DeletePostItResponse,
+  // GetPostItsResponse,
   ChangeLeaderRequest,
   ChangeLeaderResponse,
   UpdateProfileRequest,
@@ -121,6 +122,14 @@ export const getProjectHome = async (projectId: number): Promise<ProjectHomeResp
   }
 };
 
+// 포스트잇 목록 조회 API는 서버 스펙이 확정되면 아래 함수를 활성화하세요.
+// export const getPostIts = async (projectId: number): Promise<GetPostItsResponse> => {
+//   const response = await axiosInstance.get<GetPostItsResponse>(
+//     `/api/v1/projects/${projectId}/posts`
+//   );
+//   return response.data;
+// };
+
 /**
  * 프로젝트 정보를 수정하는 API
  */
@@ -178,22 +187,6 @@ export const createPostIt = async (
   projectId: number,
   postItData: CreatePostItRequest
 ): Promise<CreatePostItResponse> => {
-  // 실제 API 테스트를 위해 주석 처리
-  // if (process.env.NODE_ENV === 'development') {
-  //   await new Promise((resolve) => setTimeout(resolve, 500));
-  //   return {
-  //     isSuccess: true,
-  //     error: null,
-  //     result: {
-  //       id: Date.now(),
-  //       userId: 1,
-  //       content: postItData.content,
-  //       projectId: projectId,
-  //       createdAt: new Date().toISOString(),
-  //     },
-  //   };
-  // }
-
   try {
     const response = await axiosInstance.post<CreatePostItResponse>(
       `/api/v1/projects/${projectId}/posts`,
@@ -202,7 +195,7 @@ export const createPostIt = async (
     return response.data;
   } catch (error) {
     console.error('포스트잇 생성 API 호출 실패:', error);
-    // API 호출 실패 시 mock 응답 반환
+    // API 실패 시에도 UX를 위해 결과를 생성해주는 로컬 폴백 (필요 시 제거)
     return {
       isSuccess: true,
       error: null,
@@ -213,7 +206,7 @@ export const createPostIt = async (
         projectId: projectId,
         createdAt: new Date().toISOString(),
       },
-    };
+    } as unknown as CreatePostItResponse;
   }
 };
 
@@ -231,14 +224,11 @@ export const deletePostIt = async (
     return response.data;
   } catch (error) {
     console.error('포스트잇 삭제 API 호출 실패:', error);
-    // API 호출 실패 시 mock 응답 반환
     return {
       isSuccess: true,
       error: null,
-      result: {
-        message: '포스트잇이 성공적으로 삭제되었습니다.',
-      },
-    };
+      result: { message: '포스트잇이 성공적으로 삭제되었습니다.' },
+    } as DeletePostItResponse;
   }
 };
 
@@ -250,12 +240,8 @@ export const changeLeader = async (
   leaderData: ChangeLeaderRequest
 ): Promise<ChangeLeaderResponse> => {
   try {
-    console.log('팀장 변경 요청:', {
-      projectId,
-      newLeaderId: leaderData.newLeaderId,
-    });
+    console.log('팀장 변경 요청:', { projectId, newLeaderId: leaderData.newLeaderId });
 
-    // 권한 확인 없이 바로 팀장 변경 API 호출
     const response = await axiosInstance.patch<ChangeLeaderResponse>(
       `/api/v1/projects/${projectId}/leader`,
       leaderData
@@ -265,17 +251,9 @@ export const changeLeader = async (
   } catch (error) {
     const axiosError = error as AxiosError<ApiErrorResponse>;
     console.error('팀장 변경 API 호출 실패:', error);
-
-    // 403 오류인 경우 권한 문제로 처리
     if (axiosError.response?.status === 403) {
       console.error('403 Forbidden: 팀장 변경 권한이 없습니다.');
-      console.error('가능한 원인:');
-      console.error('1. 현재 사용자가 팀장이 아닙니다.');
-      console.error('2. newLeaderId가 유효하지 않습니다.');
-      console.error('3. 프로젝트에 대한 권한이 부족합니다.');
     }
-
-    // 실제 오류를 확인하기 위해 mock 응답 제거
     throw error;
   }
 };
@@ -289,31 +267,18 @@ export const updateProfile = async (
 ): Promise<UpdateProfileResponse> => {
   try {
     console.log('프로필 수정 API 호출 시도:', `/api/v1/projects/${projectId}/profile`, profileData);
-
-    // 프로젝트 내 프로필 카드 수정 API 사용
     const response = await axiosInstance.patch<UpdateProfileResponse>(
       `/api/v1/projects/${projectId}/profile`,
-      {
-        id: profileData.id,
-        role: profileData.role,
-      }
+      { id: profileData.id, role: profileData.role }
     );
-
     console.log('프로필 수정 성공:', response.data);
     return response.data;
   } catch (error) {
     const axiosError = error as AxiosError<ApiErrorResponse>;
     console.error('프로필 수정 API 호출 실패:', error);
-
-    // 403 오류인 경우 권한 문제로 처리
     if (axiosError.response?.status === 403) {
       console.error('403 Forbidden: 프로필 수정 권한이 없습니다.');
-      console.error('가능한 원인:');
-      console.error('1. 현재 사용자가 인증되지 않았습니다.');
-      console.error('2. 사용자 프로필 수정 권한이 없습니다.');
     }
-
-    // 실제 오류를 throw하여 상위에서 처리하도록 함
     throw error;
   }
 };
@@ -324,24 +289,20 @@ export const updateProfile = async (
 export const joinProject = async (joinData: JoinProjectRequest): Promise<JoinProjectResponse> => {
   try {
     console.log('프로젝트 참여 요청:', joinData);
-
     const response = await axiosInstance.post<JoinProjectResponse>(
       '/api/v1/projects/join',
       joinData
     );
-
     console.log('프로젝트 참여 성공:', response.data);
     return response.data;
   } catch (error) {
     const axiosError = error as AxiosError<ApiErrorResponse>;
     console.error('프로젝트 참여 API 호출 실패:', error);
-
     if (axiosError.response?.status === 403) {
       console.error('403 Forbidden: 프로젝트 참여 권한이 없습니다.');
     } else if (axiosError.response?.status === 404) {
       console.error('404 Not Found: 프로젝트를 찾을 수 없습니다.');
     }
-
     throw error;
   }
 };
@@ -365,10 +326,6 @@ export const transformUsersToTeamMembers = (users: ProjectUser[]): TeamMember[] 
  */
 export const filterExpiredPostIts = (postIts: PostItData[]): PostItData[] => {
   const now = Date.now();
-  const fortyEightHours = 48 * 60 * 60 * 1000; // 48시간을 밀리초로
-
-  return postIts.filter((postIt) => {
-    const timeElapsed = now - postIt.createdAt;
-    return timeElapsed < fortyEightHours;
-  });
+  const fortyEightHours = 48 * 60 * 60 * 1000;
+  return postIts.filter((postIt) => now - postIt.createdAt < fortyEightHours);
 };

@@ -97,9 +97,6 @@ export default function TaskDetailPage() {
 
       const handleForceUnsubscribe = () => {
         console.log('강제 구독 해제');
-        alert(
-          '다른 기기에서 접속이 감지되어 현재 페이지에서 연결이 해제됩니다. 프로젝트 홈으로 이동합니다.'
-        );
         router.push(`/projects/${projectId}/dashboard`);
       };
 

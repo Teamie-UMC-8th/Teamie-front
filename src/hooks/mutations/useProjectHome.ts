@@ -41,6 +41,11 @@ export const useProjectHome = (projectId: number) => {
 };
 
 /**
+ * 포스트잇 목록을 조회하는 쿼리 훅
+ */
+// 포스트잇 목록 조회 API가 확정되면 목록 쿼리 훅을 추가하세요.
+
+/**
  * 프로젝트 정보를 수정하는 mutation 훅
  * @param projectId - 프로젝트 ID
  * @returns 프로젝트 수정 mutation 함수와 상태
@@ -163,6 +168,21 @@ export const useProjectHomeState = (projectId: number) => {
   const [teamGoal, setTeamGoal] = useState('');
   const [teamRules, setTeamRules] = useState('');
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+
+  // map posts from API into local state so UI persists across refresh
+  useEffect(() => {
+    const posts = (projectHomeData?.result as any)?.posts as
+      | { content?: string; createdAt?: string; author?: number }[]
+      | undefined;
+    if (Array.isArray(posts)) {
+      const mapped: PostItData[] = posts.map((p, index) => ({
+        id: `${index}-${p.author ?? 'na'}`,
+        content: p.content || '',
+        createdAt: p.createdAt ? new Date(p.createdAt).getTime() : Date.now(),
+      }));
+      setPostIts(mapped);
+    }
+  }, [projectHomeData?.result?.posts]);
 
   // API 데이터가 로드되면 상태 업데이트
   useEffect(() => {
