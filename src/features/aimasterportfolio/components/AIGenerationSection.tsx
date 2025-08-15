@@ -3,6 +3,7 @@
 import { useMasterPortfolioStatus } from '@/hooks/queries/useGetMasterPortfolio';
 import { useRouter, useParams } from 'next/navigation';
 import { useState } from 'react';
+import Image from 'next/image';
 
 interface AIGenerationSectionProps {
   contribution: number;
@@ -32,7 +33,7 @@ export default function AIGenerationSection({ contribution }: AIGenerationSectio
   return (
     <div className="flex flex-col items-center justify-center w-[1492px] max-lg:w-[928px] h-[804px] max-lg:h-[720px] rounded-[16px] bg-[#F8F8F8] shadow-[0_0_4px_rgba(0,0,0,0.20)] p-[40px]">
       <div className="mb-[32px]">
-        <img src="/icons/AITeamieIcon.svg" alt="티미 아이콘" />
+        <Image src="/icons/AITeamieIcon.svg" alt="티미 아이콘" width={80} height={80} />
       </div>
       <p className="w-[275px] h-[56px] font-[Pretendard] text-[20px] leading-[28px] font-semibold text-[#000000] text-center mb-[32px]">
         Teamie의 AI, 티미와 함께 마스터 포트폴리오를 생성해보세요!

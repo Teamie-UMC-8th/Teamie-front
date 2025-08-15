@@ -10,7 +10,7 @@ export default function LeaderView() {
   const router = useRouter();
   const params = useParams();
   const projectId = Number(params.projectId);
-  const { mutate: completeProject, isPending: isCompleting } = useCompleteProject(projectId);
+  const { mutate: completeProject } = useCompleteProject(projectId);
 
   return (
     <div>

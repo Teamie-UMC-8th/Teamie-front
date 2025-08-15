@@ -57,7 +57,6 @@ export interface PostMasterPortfolioQuestionResponse {
 
 // 마스터 포트폴리오 상세 정보 타입 정의(마스터포트폴리오)
 export interface MasterPortfolioDetail {
-  result: any;
   id: number;
   detailInfo: string;
   assignedTask: string;

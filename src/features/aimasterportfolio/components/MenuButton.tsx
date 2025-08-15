@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useMasterPortfolioDetail } from '@/hooks/queries/useGetMasterPortfolio';
+import Image from 'next/image';
 
 export default function MenuButton() {
   const [open, setOpen] = useState(false);
@@ -18,7 +19,13 @@ export default function MenuButton() {
     <div className="absolute top-0 right-[20px] relative ml-auto max-lg:w-[32px] max-lg:h-[32px]">
       {/* 메뉴 아이콘 버튼 */}
       <button onClick={() => setOpen(!open)} aria-label="메뉴 열기">
-        <img src="/icons/menu-icon.svg" alt="메뉴" className="w-[36px] h-[36px] cursor-pointer" />
+        <Image
+          src="/icons/menu-icon.svg"
+          alt="메뉴"
+          width={36}
+          height={36}
+          className="w-[36px] h-[36px] cursor-pointer"
+        />
       </button>
 
       {/* 드롭다운 메뉴 */}

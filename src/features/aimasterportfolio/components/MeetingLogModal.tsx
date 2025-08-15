@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 interface MeetingLogModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -27,7 +28,7 @@ export default function MeetingLogModal({
           className="absolute top-[24px] max-lg:top-[16px] right-[24px] max-lg:right-[16px] cursor-pointer"
           onClick={onClose}
         >
-          <img src="/icons/곱하기.svg" alt="닫기" />
+          <Image src="/icons/곱하기.svg" alt="닫기" width={24} height={24} />
         </button>
 
         {/* 내부 내용 */}

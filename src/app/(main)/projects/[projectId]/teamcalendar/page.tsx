@@ -12,6 +12,7 @@ import CalendarEventBox from '@/features/teamclendar/components/CalendarEventBox
 import { useGetCalendarPlans } from '@/hooks/queries/useGetTeamCalendar';
 import { useGetDashboard } from '@/hooks/queries/useGetDashboard';
 import { useWebSocket } from '@/contexts/WebSocketContext';
+import Image from 'next/image';
 import {
   SubEventType,
   type WebSocketResponseUnion,
@@ -54,10 +55,11 @@ export default function TeamCalendar() {
   } = useGetCalendarPlans(projectId ?? '', startDate, endDate);
 
   // 대시보드(업무) 데이터도 함께 조회하여 캘린더에 표시
+  const projectIdForDashboard = projectIdNum ?? 0;
   const { data: dashboardData } = useGetDashboard({
-    projectId: projectIdNum as number,
+    projectId: projectIdForDashboard,
     view: 'status',
-  } as any);
+  });
 
   // 웹소켓 이벤트 처리 (팀 캘린더)
   useEffect(() => {
@@ -135,7 +137,7 @@ export default function TeamCalendar() {
           const creationDay = moment(createdAt).format('YYYY-MM-DD');
           setProjectCreatedAtISO(creationDay);
         }
-      } catch (e) {
+      } catch {
         // 생성일을 못 가져오면 제한 없이 동작
         setProjectCreatedAtISO(undefined);
       }
@@ -144,102 +146,127 @@ export default function TeamCalendar() {
   }, [projectId]);
 
   // Calendar 표시용 events 가공 (timezone-safe)
-  const planEvents: CalendarEventType[] =
-    calendarData?.result.flatMap((entry) =>
-      (entry.list ?? []).flatMap((plan) => {
-        const anyPlan = plan as any;
-        const rawId = anyPlan?.planId ?? anyPlan?.id ?? anyPlan?.scheduleId;
-        if (!rawId) return [] as CalendarEventType[];
+  type RawPlan = {
+    planId?: number | string;
+    id?: number | string;
+    scheduleId?: number | string;
+    startDate?: string;
+    endDate?: string;
+    name?: string;
+    title?: string;
+    date?: string;
+    startHour?: string;
+    endHour?: string;
+  };
 
-        // 1) startDate/endDate가 있으면 그대로 사용
-        if (anyPlan.startDate || anyPlan.endDate) {
-          const start = anyPlan.startDate ? new Date(anyPlan.startDate) : new Date();
-          const end = anyPlan.endDate
-            ? new Date(anyPlan.endDate)
-            : new Date(new Date(start).getTime() + 60 * 1000);
-          return [
-            {
-              id: String(rawId),
-              title: anyPlan.name || anyPlan.title || '빈 일정',
-              start,
-              end,
-            },
-          ];
-        }
+  const planEvents: CalendarEventType[] = useMemo(() => {
+    return (
+      calendarData?.result.flatMap((entry) =>
+        (entry.list ?? []).flatMap((plan) => {
+          const rawPlan = plan as RawPlan;
+          const rawId = rawPlan?.planId ?? rawPlan?.id ?? rawPlan?.scheduleId;
+          if (!rawId) return [] as CalendarEventType[];
 
-        // 2) date만 있는 경우: 'YYYY-MM-DD' 또는 'YYYY-MM-DDTHH:mm:ss'
-        const dateStr: string | undefined = anyPlan.date || entry.date;
-        let start: Date;
-        let end: Date;
+          // 1) startDate/endDate가 있으면 그대로 사용
+          if (rawPlan.startDate || rawPlan.endDate) {
+            const start = rawPlan.startDate ? new Date(rawPlan.startDate) : new Date();
+            const end = rawPlan.endDate
+              ? new Date(rawPlan.endDate)
+              : new Date(new Date(start).getTime() + 60 * 1000);
+            return [
+              {
+                id: String(rawId),
+                title: rawPlan.name || rawPlan.title || '빈 일정',
+                start,
+                end,
+              },
+            ];
+          }
 
-        if (dateStr) {
-          const m = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}):(\d{2})(?::(\d{2}))?)?/);
-          if (m) {
-            const year = Number(m[1]);
-            const monthIdx = Number(m[2]) - 1; // 0-based
-            const day = Number(m[3]);
-            const hour = anyPlan.startHour
-              ? Number(anyPlan.startHour.split(':')[0])
-              : m[4]
-                ? Number(m[4])
-                : 0;
-            const minute = anyPlan.startHour
-              ? Number(anyPlan.startHour.split(':')[1])
-              : m[5]
-                ? Number(m[5])
-                : 0;
-            const second = m[6] ? Number(m[6]) : 0;
-            start = new Date(year, monthIdx, day, hour, minute, second);
+          // 2) date만 있는 경우: 'YYYY-MM-DD' 또는 'YYYY-MM-DDTHH:mm:ss'
+          const dateStr: string | undefined = rawPlan.date || entry.date;
+          let start: Date;
+          let end: Date;
 
-            if (anyPlan.endHour) {
-              const [eh, em] = String(anyPlan.endHour).split(':');
-              end = new Date(year, monthIdx, day, Number(eh), Number(em) || 0, 0);
+          if (dateStr) {
+            const m = dateStr.match(
+              /^(\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}):(\d{2})(?::(\d{2}))?)?/
+            );
+            if (m) {
+              const year = Number(m[1]);
+              const monthIdx = Number(m[2]) - 1; // 0-based
+              const day = Number(m[3]);
+              const hour = rawPlan.startHour
+                ? Number(rawPlan.startHour.split(':')[0])
+                : m[4]
+                  ? Number(m[4])
+                  : 0;
+              const minute = rawPlan.startHour
+                ? Number(rawPlan.startHour.split(':')[1])
+                : m[5]
+                  ? Number(m[5])
+                  : 0;
+              const second = m[6] ? Number(m[6]) : 0;
+              start = new Date(year, monthIdx, day, hour, minute, second);
+
+              if (rawPlan.endHour) {
+                const [eh, em] = String(rawPlan.endHour).split(':');
+                end = new Date(year, monthIdx, day, Number(eh), Number(em) || 0, 0);
+              } else {
+                end = new Date(start.getTime() + 60 * 1000);
+              }
             } else {
+              start = new Date();
               end = new Date(start.getTime() + 60 * 1000);
             }
           } else {
             start = new Date();
             end = new Date(start.getTime() + 60 * 1000);
           }
-        } else {
-          start = new Date();
-          end = new Date(start.getTime() + 60 * 1000);
-        }
 
-        const isAllDay = !anyPlan.startHour && !anyPlan.endHour;
-        return [
-          {
-            id: String(rawId),
-            title: anyPlan.name || anyPlan.title || '빈 일정',
-            start,
-            end,
-            ...(isAllDay ? { allDay: true } : {}),
-          },
-        ];
-      })
-    ) || [];
+          const isAllDay = !rawPlan.startHour && !rawPlan.endHour;
+          return [
+            {
+              id: String(rawId),
+              title: rawPlan.name || rawPlan.title || '빈 일정',
+              start,
+              end,
+              ...(isAllDay ? { allDay: true } : {}),
+            },
+          ];
+        })
+      ) || []
+    );
+  }, [calendarData]);
 
   // 업무 대시보드 -> 캘린더 이벤트 변환 (마감일 기준, 해당 월 범위만)
+  type DashboardTask = { taskId: number; taskName: string; deadline?: string | null };
+  type DashboardGroup = { tasks?: DashboardTask[] };
+  type DashboardDataWithStatusGroups = { statusGroups?: DashboardGroup[] };
+  type DashboardDataWithSteps = { steps?: DashboardGroup[] };
+
   const dashboardEvents: CalendarEventType[] = useMemo(() => {
     if (!dashboardData) return [];
     const startM = moment(startDate);
     const endM = moment(endDate);
 
     // statusGroups 또는 steps 중 존재하는 구조에서 tasks를 추출
-    const tasks =
-      'statusGroups' in dashboardData
-        ? (dashboardData.statusGroups || []).flatMap((g: any) => g.tasks || [])
-        : 'steps' in dashboardData
-          ? (dashboardData.steps || []).flatMap((s: any) => s.tasks || [])
-          : [];
+    const ds = dashboardData as unknown;
+    const withStatus = (ds as DashboardDataWithStatusGroups).statusGroups;
+    const withSteps = (ds as DashboardDataWithSteps).steps;
+    const tasks: DashboardTask[] = withStatus
+      ? (withStatus ?? []).flatMap((g) => g.tasks ?? [])
+      : withSteps
+        ? (withSteps ?? []).flatMap((s) => s.tasks ?? [])
+        : [];
 
     return tasks
-      .filter((t: any) => !!t?.deadline)
-      .map((t: any) => ({
+      .filter((t) => !!t?.deadline)
+      .map((t) => ({
         id: `task:${String(t.taskId)}`,
         title: `${t.taskName} 마감`,
-        start: new Date(t.deadline),
-        end: new Date(new Date(t.deadline).getTime() + 60 * 1000),
+        start: new Date(t.deadline as string),
+        end: new Date(new Date(t.deadline as string).getTime() + 60 * 1000),
         allDay: true,
       }))
       .filter((ev: CalendarEventType) => {
@@ -248,7 +275,10 @@ export default function TeamCalendar() {
       });
   }, [dashboardData, startDate, endDate]);
 
-  const events: CalendarEventType[] = [...planEvents, ...dashboardEvents];
+  const events: CalendarEventType[] = useMemo(
+    () => [...planEvents, ...dashboardEvents],
+    [planEvents, dashboardEvents]
+  );
 
   // events 변경 시 콘솔 출력 (일정 자동 반영 확인용)
   useEffect(() => {
@@ -304,17 +334,21 @@ export default function TeamCalendar() {
       {/* 월 네비게이션 */}
       <div className="flex justify-start items-center font-semibold text-[20px] leading-[29px] text-black mb-[47px]">
         <button onClick={handlePrevMonth}>
-          <img
+          <Image
             src="/icons/Vector-left.svg"
             alt="왼쪽"
+            width={24}
+            height={24}
             className="w-[24px] h-[24px] cursor-pointer"
           />
         </button>
         <span className="mx-4">{formattedTitle}</span>
         <button onClick={handleNextMonth}>
-          <img
+          <Image
             src="/icons/Vector-right.svg"
             alt="오른쪽"
+            width={24}
+            height={24}
             className="w-[24px] h-[24px] cursor-pointer"
           />
         </button>
@@ -350,8 +384,11 @@ export default function TeamCalendar() {
             </div>
           ), // ✅ 커스텀 일정 카드 디자인 - 클릭 가능 보장
         }}
-        eventPropGetter={(event: any) => {
-          const isTask = typeof event?.id === 'string' && String(event.id).startsWith('task:');
+        eventPropGetter={(event) => {
+          const idValue = (event as { id?: unknown }).id;
+          const idStr =
+            typeof idValue === 'string' ? idValue : idValue != null ? String(idValue) : '';
+          const isTask = idStr.startsWith('task:');
           const bg = isTask ? '#DAF3F3' : '#B6F5DF';
           return {
             style: {

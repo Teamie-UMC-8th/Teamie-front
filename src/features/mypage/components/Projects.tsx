@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 import { formatDateRange } from '@/utils/formatDate';
 import { useState, useRef, useEffect } from 'react';
 import { MasterPortfolio } from '@/types/api/masterportfolio';
-import { CATEGORY_MAP, CategoryKey } from '@/constants/category';
+import { CATEGORY_MAP } from '@/constants/category';
 
 export default function Projects() {
   const pathname = usePathname();
@@ -86,21 +86,6 @@ export default function Projects() {
   }, [editingTask]);
 
   const isUpdating = updateMainTask.isPending;
-
-  const normalizeCategory = (raw?: string): CategoryKey => {
-    if (!raw) return 'COURSE';
-    const trimmed = String(raw).trim();
-    const upper = trimmed.toUpperCase();
-    if ((CATEGORY_MAP as Record<string, unknown>)[upper]) return upper as CategoryKey;
-    const alias: Record<string, CategoryKey> = {
-      수업: 'COURSE',
-      동아리: 'CLUB',
-      대외활동: 'ACTIVITY',
-      프로젝트: 'PROJECT',
-      기타: 'OTHER',
-    };
-    return alias[trimmed] ?? 'COURSE';
-  };
 
   return (
     <div

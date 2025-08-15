@@ -33,7 +33,13 @@ export default function AIConfirmModal({
           onClick={onCancel}
           disabled={disableCancel || isLoading}
         >
-          <img src="/icons/close.svg" alt="닫기" className="w-[24px] h-[24px]" />
+          <Image
+            src="/icons/close.svg"
+            alt="닫기"
+            width={24}
+            height={24}
+            className="cursor-pointer"
+          />
         </button>
 
         <div className="flex flex-col items-center justify-center text-center mb-[4px]">
