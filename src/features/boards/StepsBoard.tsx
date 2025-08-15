@@ -9,6 +9,10 @@ import AddTaskButton from './components/AddTaskButton';
 import StepHeader from './components/StepHeader';
 import TaskItem from '@/components/TaskItem';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import { useState } from 'react';
+import CopyModal from '@/components/CopyModal';
+import Portal from '@/components/Portal';
+import Link from 'next/link';
 
 export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
   const { openStepIds, toggleStep, openStep } = useSteps();
@@ -16,6 +20,13 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
   const deleteStepMutation = useDeleteStep();
   const updateStepMutation = useUpdateStep();
   const updateTaskStepMutation = useUpdateTaskStep();
+
+  // 모달 상태 관리
+  const [showCopyModal, setShowCopyModal] = useState(false);
+  const [completedTask, setCompletedTask] = useState<{ title: string; taskId: number } | null>(
+    null
+  );
+
   // STEP 추가 제한 (최대 8개)
   const canAddStep = steps.length < 8;
 
@@ -30,6 +41,26 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
         return TASK_STATUS_DISPLAY.NOTSTART;
     }
   };
+
+  // 업무 완료 시 호출되는 콜백 함수
+  const handleTaskComplete = (taskId: number, title: string) => {
+    setCompletedTask({ taskId, title });
+    setShowCopyModal(true);
+  };
+
+  // 모달 닫기 핸들러
+  const handleCloseModal = () => {
+    setShowCopyModal(false);
+    setCompletedTask(null);
+  };
+
+  // 복사될 링크 URL
+  const getTaskUrl = (taskId: number) =>
+    `http://localhost:3000/projects/${projectId}/tasks/${taskId}`;
+
+  // 클립보드에 복사될 순수 텍스트
+  const getTextToCopy = (title: string, taskId: number) =>
+    `💼 ${title} 업무가 완료되었어요!\n확인 후 간단한 피드백을 남겨주세요.\n👉 ${getTaskUrl(taskId)}`;
 
   // STEP 추가 처리
   const handleAddStep = async () => {
@@ -120,92 +151,126 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
   };
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <div
-        className="grid [grid-template-columns:repeat(2,20.313rem)] lg:[grid-template-columns:repeat(4,20.313rem)] gap-x-[2.25rem] gap-y-[5rem] mt-[3.75rem]"
-        style={{ overflow: 'visible' }}
-      >
-        {steps.map((step) => (
-          <div key={step.stepId} className="flex flex-col">
-            <StepHeader
-              stepName={step.stepName}
-              stepId={step.stepId}
-              isOpen={openStepIds.includes(step.stepId)}
-              onToggle={() => toggleStep(step.stepId)}
-              showDelete={step.tasks.length === 0}
-              onDelete={() => handleDeleteStep(step.stepId)}
-              onUpdateName={handleUpdateStepName}
-            />
-            {openStepIds.includes(step.stepId) && (
-              <Droppable droppableId={step.stepId.toString()}>
-                {(provided) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className="flex flex-col mt-6 min-h-[0.625rem]"
-                    style={{ overflow: 'visible' }}
-                  >
-                    {step.tasks.map((task, idx) => (
-                      <Draggable
-                        key={`${step.stepId}-${task.taskId}`}
-                        draggableId={task.taskId.toString()}
-                        index={idx}
-                      >
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            className={`mb-3 last:mb-0 transition-all duration-200 ${snapshot.isDragging ? 'opacity-50 z-50' : ''}`}
-                            style={{
-                              ...provided.draggableProps.style,
-                              width: '325px',
-                              height: 'auto',
-                            }}
-                          >
-                            <div {...provided.dragHandleProps}>
-                              <TaskItem
-                                projectId={projectId}
-                                id={task.taskId}
-                                title={task.taskName}
-                                status={mapTaskStatus(task.status)}
-                                deadline={task.deadline}
-                                assignee={task.managers.map((manager) => ({
-                                  name: manager.name,
-                                  imageUrl: manager.imageUrl,
-                                }))}
-                              />
+    <>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <div
+          className="grid [grid-template-columns:repeat(2,20.313rem)] lg:[grid-template-columns:repeat(4,20.313rem)] gap-x-[2.25rem] gap-y-[5rem] mt-[3.75rem]"
+          style={{ overflow: 'visible' }}
+        >
+          {steps.map((step) => (
+            <div key={step.stepId} className="flex flex-col">
+              <StepHeader
+                stepName={step.stepName}
+                stepId={step.stepId}
+                isOpen={openStepIds.includes(step.stepId)}
+                onToggle={() => toggleStep(step.stepId)}
+                showDelete={step.tasks.length === 0}
+                onDelete={() => handleDeleteStep(step.stepId)}
+                onUpdateName={handleUpdateStepName}
+              />
+              {openStepIds.includes(step.stepId) && (
+                <Droppable droppableId={step.stepId.toString()}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className="flex flex-col mt-6 min-h-[0.625rem]"
+                      style={{ overflow: 'visible' }}
+                    >
+                      {step.tasks.map((task, idx) => (
+                        <Draggable
+                          key={`${step.stepId}-${task.taskId}`}
+                          draggableId={task.taskId.toString()}
+                          index={idx}
+                        >
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              className={`mb-3 last:mb-0 transition-all duration-200 ${snapshot.isDragging ? 'opacity-50 z-50' : ''}`}
+                              style={{
+                                ...provided.draggableProps.style,
+                                width: '325px',
+                                height: 'auto',
+                              }}
+                            >
+                              <div {...provided.dragHandleProps}>
+                                <TaskItem
+                                  projectId={String(projectId)}
+                                  id={task.taskId}
+                                  title={task.taskName}
+                                  status={mapTaskStatus(task.status)}
+                                  deadline={task.deadline}
+                                  assignee={task.managers.map((manager) => ({
+                                    name: manager.name,
+                                    imageUrl: manager.imageUrl,
+                                  }))}
+                                  onTaskComplete={handleTaskComplete}
+                                />
+                              </div>
                             </div>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
+                          )}
+                        </Draggable>
+                      ))}
 
-                    {provided.placeholder}
+                      {provided.placeholder}
 
-                    <div className="mt-2">
-                      <AddTaskButton stepId={step.stepId} stepName={step.stepName} />
+                      <div className="mt-2">
+                        <AddTaskButton stepId={step.stepId} stepName={step.stepName} />
+                      </div>
                     </div>
-                  </div>
-                )}
-              </Droppable>
-            )}
-          </div>
-        ))}
-
-        {/* STEP 추가 버튼 */}
-        {canAddStep && (
-          <div className="flex flex-col">
-            <div className="flex bg-[#F8F8F8] w-full h-[4.25rem] items-center justify-center rounded-[0.5rem]">
-              <button
-                onClick={handleAddStep}
-                className="w-full h-full font-medium text-[1.125rem] transition-colors duration-200 text-[#898989] cursor-pointer hover:text-[#666666]"
-              >
-                + STEP 추가
-              </button>
+                  )}
+                </Droppable>
+              )}
             </div>
-          </div>
-        )}
-      </div>
-    </DragDropContext>
+          ))}
+
+          {/* STEP 추가 버튼 */}
+          {canAddStep && (
+            <div className="flex flex-col">
+              <div className="flex bg-[#F8F8F8] w-full h-[4.25rem] items-center justify-center rounded-[0.5rem]">
+                <button
+                  onClick={handleAddStep}
+                  className="w-full h-full font-medium text-[1.125rem] transition-colors duration-200 text-[#898989] cursor-pointer hover:text-[#666666]"
+                >
+                  + STEP 추가
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </DragDropContext>
+
+      {/* CopyModal */}
+      {showCopyModal && completedTask && (
+        <Portal>
+          <CopyModal
+            isOpen={showCopyModal}
+            onClose={handleCloseModal}
+            headerText="업무가 완료되었습니다.<br>피드백 요청을 위한 메세지를 복사하여<br>팀원들에게 전달하세요."
+            messageContent={
+              <>
+                💼 {completedTask.title} 업무가 완료되었어요!
+                <br />
+                확인 후 간단한 피드백을 남겨주세요.
+                <br />
+                👉{' '}
+                <Link
+                  href={getTaskUrl(completedTask.taskId)}
+                  className="underline font-bold text-[#81D7D4]"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {completedTask.title}
+                </Link>
+              </>
+            }
+            textToCopy={getTextToCopy(completedTask.title, completedTask.taskId)}
+            copySuccessText="업무 완료 메세지가 복사되었습니다."
+            innerPaddingX="5rem"
+          />
+        </Portal>
+      )}
+    </>
   );
 }
