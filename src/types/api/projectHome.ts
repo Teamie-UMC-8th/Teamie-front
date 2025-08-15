@@ -168,6 +168,7 @@ export interface PostItData {
   id: string;
   content: string;
   createdAt: number;
+  serverId?: number;
 }
 
 /**

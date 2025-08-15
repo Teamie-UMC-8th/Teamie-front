@@ -178,6 +178,7 @@ export const useProjectHomeState = (projectId: number) => {
         id: `${index}-${p.author ?? 'na'}`,
         content: p.content || '',
         createdAt: p.createdAt ? new Date(p.createdAt).getTime() : Date.now(),
+        serverId: (p as unknown as { id?: number }).id, // 서버에서 id를 주는 경우 연동
       }));
       setPostIts(mapped);
     }
@@ -320,6 +321,7 @@ export const useProjectHomeState = (projectId: number) => {
               id: data.result.id.toString(),
               content: data.result.content,
               createdAt: new Date(data.result.createdAt).getTime(),
+              serverId: data.result.id,
             };
             setPostIts([...postIts, newPostIt]);
           }
@@ -344,20 +346,37 @@ export const useProjectHomeState = (projectId: number) => {
   /**
    * PostIt 삭제 핸들러
    */
-  const handleDeletePostIt = (id: string) => {
-    // API를 통해 포스트잇 삭제
-    deletePostItMutation.mutate(parseInt(id), {
+  const handleDeletePostIt = (postId: number | string | undefined) => {
+    if (postId === undefined || postId === null) {
+      alert('삭제할 메모의 ID를 확인할 수 없습니다. 새로고침 후 다시 시도해주세요.');
+      return;
+    }
+    const numericId = typeof postId === 'number' ? postId : parseInt(postId);
+    if (Number.isNaN(numericId)) {
+      alert('삭제할 메모의 ID가 유효하지 않습니다.');
+      return;
+    }
+    // API를 통해 포스트잇 삭제 (서버 ID 우선)
+    deletePostItMutation.mutate(numericId, {
       onSuccess: (data) => {
         if (data.isSuccess) {
           // 성공 시 로컬 상태에서도 제거
-          setPostIts(postIts.filter((postIt) => postIt.id !== id));
+          setPostIts(
+            postIts.filter((postIt) =>
+              postIt.serverId ? postIt.serverId !== numericId : postIt.id !== String(postId)
+            )
+          );
         }
       },
       onError: (error) => {
         console.error('포스트잇 삭제 실패:', error);
         // 에러 시에도 로컬에서 제거 (개발 환경)
         if (process.env.NODE_ENV === 'development') {
-          setPostIts(postIts.filter((postIt) => postIt.id !== id));
+          setPostIts(
+            postIts.filter((postIt) =>
+              postIt.serverId ? postIt.serverId !== numericId : postIt.id !== String(postId)
+            )
+          );
         }
       },
     });
