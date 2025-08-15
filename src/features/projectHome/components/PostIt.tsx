@@ -55,6 +55,7 @@ export default function PostIt({ content = '', onDelete, createdAt }: PostItProp
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!onDelete) return; // 삭제 권한/식별자가 없으면 무시
     setIsDeleteModalOpen(true);
   };
 
@@ -79,12 +80,14 @@ export default function PostIt({ content = '', onDelete, createdAt }: PostItProp
         />
         <div className="flex items-center translate-y-[4px]">
           <p className="w-[8px] h-[8px] rounded-full bg-[#898989] relative ml-[56px]" />
-          <img
-            src="/icons/delete_steps.svg"
-            alt="삭제 아이콘"
-            className="relative w-[16px] h-[16px] ml-[36px] right-[4px] opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
-            onClick={handleDeleteClick}
-          />
+          {onDelete && (
+            <img
+              src="/icons/delete_steps.svg"
+              alt="삭제 아이콘"
+              className="relative w-[16px] h-[16px] ml-[36px] right-[4px] opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
+              onClick={handleDeleteClick}
+            />
+          )}
         </div>
         <div className="relative w-[100px] h-[88px] ml-[11px] mt-[8px] text-[14px] whitespace-pre-wrap overflow-hidden">
           {postItContent || content}
@@ -97,7 +100,7 @@ export default function PostIt({ content = '', onDelete, createdAt }: PostItProp
         </Portal>
       )}
 
-      {isDeleteModalOpen && (
+      {onDelete && isDeleteModalOpen && (
         <Portal>
           <DeleteButtonModal
             title="포스트잇을 삭제하시겠습니까?"

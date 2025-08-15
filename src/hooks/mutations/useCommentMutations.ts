@@ -6,6 +6,7 @@ import {
   updateCocomment,
   deleteCocomment,
   deleteComment,
+  updateComment,
 } from '@/services/taskDetail/addComment';
 import {
   AddCommentResponse,
@@ -86,11 +87,11 @@ export const useUpdateComment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ commentId, content }: { commentId: number; content: string }) => {
-      // 실제 API가 준비되면 여기에 구현
-      return Promise.resolve({ commentId, content });
-    },
-    onSuccess: () => {
+    mutationFn: ({ commentId, content }: { commentId: number; content: string }) =>
+      updateComment(commentId, { content }),
+    onSuccess: (_data, variables) => {
+      // 수정 성공 시 현재 task의 댓글 목록을 다시 가져와 동기화
+      queryClient.invalidateQueries({ queryKey: ['taskComments', variables.commentId] });
       queryClient.invalidateQueries({ queryKey: ['taskComments'] });
     },
     onError: (error: Error) => {

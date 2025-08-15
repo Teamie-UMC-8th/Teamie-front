@@ -1,9 +1,198 @@
 'use client';
 
 import Projects from '@/features/mypage/components/Projects';
-import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useCallback, useMemo, useState } from 'react';
+import AddLoadingModal from '@/features/correction/components/AddLoadingModal';
+import {
+  fetchGeneratedCorrection,
+  postGenerateCorrection,
+  fetchCorrectionDetail,
+} from '@/services/correction/correction';
+// 상태 프리체크는 hasMasterPortfolio로 대체
+import { AxiosError, isAxiosError } from 'axios';
+import Image from 'next/image';
 
-export default function ProjectSelect() {
+function ProjectSelectContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const correctionIdFromQuery =
+    Number(searchParams.get('correctionId')) || Number(searchParams.get('id'));
+  const submissionTarget = searchParams.get('submissionTarget') || '';
+  const correctionId = useMemo(() => {
+    if (Number.isFinite(correctionIdFromQuery) && correctionIdFromQuery > 0)
+      return correctionIdFromQuery;
+    try {
+      const last = Number(sessionStorage.getItem('lastCorrectionId'));
+      return Number.isFinite(last) ? last : NaN;
+    } catch {
+      return correctionIdFromQuery;
+    }
+  }, [correctionIdFromQuery]);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  // 선택된 항목 읽기: portfolioId 배열, projectId 배열, 그리고 매핑 쌍
+  const getSelectedPortfolioIds = (): number[] => {
+    try {
+      const raw = sessionStorage.getItem('projectSelect:selected');
+      const arr = raw ? (JSON.parse(raw) as unknown) : [];
+      return Array.isArray(arr)
+        ? arr
+            .slice(0, 6)
+            .map((n) => Number(n))
+            .filter(Number.isFinite)
+        : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const getSelectedProjectIds = (): number[] => {
+    try {
+      const raw = sessionStorage.getItem('projectSelect:selectedProjectIds');
+      const arr = raw ? (JSON.parse(raw) as unknown) : [];
+      return Array.isArray(arr)
+        ? arr
+            .slice(0, 6)
+            .map((n) => Number(n))
+            .filter(Number.isFinite)
+        : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const getSelectedPairs = (): Array<{ portfolioId: number; projectId: number }> => {
+    try {
+      const raw = sessionStorage.getItem('projectSelect:selectedPairs');
+      const arr = raw ? (JSON.parse(raw) as unknown) : [];
+      if (!Array.isArray(arr)) return [];
+      const pairs = arr
+        .map((p: unknown) => {
+          if (typeof p === 'object' && p !== null) {
+            const obj = p as { portfolioId?: unknown; projectId?: unknown };
+            const portfolioId = Number(obj.portfolioId);
+            const projectId = Number(obj.projectId);
+            return { portfolioId, projectId };
+          }
+          return { portfolioId: NaN, projectId: NaN };
+        })
+        .filter((p) => Number.isFinite(p.portfolioId) && Number.isFinite(p.projectId))
+        .slice(0, 6);
+      return pairs;
+    } catch {
+      return [];
+    }
+  };
+
+  const waitUntilGenerated = useCallback(async (id: number) => {
+    const maxWaitMs = 120000; // 2분
+    const start = Date.now();
+    while (true) {
+      const result = await fetchGeneratedCorrection(id).catch((e) => {
+        console.warn('[UI][GENERATE] polling generated failed (will retry)', e);
+        return null;
+      });
+      if (
+        result &&
+        Array.isArray(result.projects) &&
+        result.projects.length > 0 &&
+        result.firstCorrection
+      ) {
+        try {
+          sessionStorage.setItem(`generatedCorrection:${id}`, JSON.stringify(result));
+        } catch {}
+        return result;
+      }
+      if (Date.now() - start > maxWaitMs) throw new Error('Timeout waiting for generated data.');
+      await new Promise((res) => setTimeout(res, 2000));
+    }
+  }, []);
+
+  // 생성 직후 상세 조회 가능해질 때까지 대기 (tailoredportfolio에서 사용되는 API)
+  const waitUntilDetailReadable = useCallback(async (id: number) => {
+    const maxWaitMs = 120000; // 2분
+    const start = Date.now();
+    let lastError: unknown = null;
+    while (true) {
+      try {
+        const detail = await fetchCorrectionDetail(id);
+        const ok = !!(
+          detail &&
+          typeof detail.createdAt === 'string' &&
+          (detail.submissionTarget || '').toString() !== '' &&
+          (detail.jobTitle || '').toString() !== ''
+        );
+        console.log('[UI][GENERATE] detail check', { ok, createdAt: detail?.createdAt });
+        if (ok) return detail;
+      } catch (e) {
+        lastError = e;
+      }
+      if (Date.now() - start > maxWaitMs) {
+        console.error('[UI][GENERATE] detail wait timeout', lastError);
+        throw new Error('Timeout waiting for correction detail.');
+      }
+      await new Promise((res) => setTimeout(res, 1500));
+    }
+  }, []);
+
+  const handleGenerate = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const pairs = getSelectedPairs();
+    const portfolioIds = pairs.map((p) => p.portfolioId);
+    // 하위 호환: 만약 pairs가 비어있다면, 기존 방식 사용
+    const fallbackPortfolioIds = portfolioIds.length > 0 ? portfolioIds : getSelectedPortfolioIds();
+    if (!correctionId || (pairs.length === 0 && fallbackPortfolioIds.length === 0)) return;
+    try {
+      setIsGenerating(true);
+      // hasMasterPortfolio를 기반으로 Projects에서 이미 필터링했으므로 그대로 projectId 사용
+      const readyProjectIds = (
+        pairs.length > 0 ? pairs.map((p) => p.projectId) : getSelectedProjectIds()
+      )
+        .slice(0, 6)
+        .map((n) => Number(n))
+        .filter(Number.isFinite);
+      if (readyProjectIds.length === 0) {
+        alert('선택된 프로젝트가 없습니다. 프로젝트를 선택해 주세요.');
+        setIsGenerating(false);
+        return;
+      }
+      console.log('[UI][GENERATE] start', {
+        correctionId,
+        selectedProjects: readyProjectIds,
+        selectedPairs: pairs,
+      });
+      await postGenerateCorrection(correctionId, { selectedProjects: readyProjectIds });
+      console.log('[UI][GENERATE] posted, start polling for generated result');
+      await waitUntilGenerated(correctionId);
+      console.log('[UI][GENERATE] generated result ready, now wait for detail API to be readable');
+      await waitUntilDetailReadable(correctionId);
+      console.log('[UI][GENERATE] detail ready, navigate to tailored page');
+      const query = submissionTarget
+        ? `?submissionTarget=${encodeURIComponent(submissionTarget)}`
+        : '';
+      router.push(`/mypage/tailoredportfolio/${correctionId}${query}`);
+    } catch (err: unknown) {
+      console.error('[UI][GENERATE] failed', err);
+      let reason: string | undefined;
+      let dataMsg: string | undefined;
+      let message: string | undefined;
+      if (isAxiosError(err)) {
+        const axiosErr = err as AxiosError<{ error?: { reason?: string; data?: string } }>;
+        reason = axiosErr.response?.data?.error?.reason;
+        dataMsg = axiosErr.response?.data?.error?.data;
+        message = axiosErr.message;
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
+      alert(
+        `첨삭 생성에 실패했습니다.${reason ? `\n사유: ${reason}` : ''}${
+          dataMsg ? `\n${dataMsg}` : ''
+        }${message ? `\n메시지: ${message}` : ''}`
+      );
+      setIsGenerating(false);
+    }
+  };
   return (
     <div
       className="ml-[300px]
@@ -25,9 +214,11 @@ export default function ProjectSelect() {
             className="flex items-start ml-[60px] mt-[32px]
           max-lg:ml-[32px] max-lg:mt-[8px]"
           >
-            <img
+            <Image
               src="/icons/AiCharacter.svg"
               alt="AI 로고"
+              width={60}
+              height={60}
               className="translate-y-[34px]
             max-lg:w-[60px] max-lg:h-[60px] max-lg:translate-y-[32px]"
             />
@@ -36,15 +227,23 @@ export default function ProjectSelect() {
               className="relative ml-[28px]
             max-lg:ml-[8px]"
             >
-              <img
+              <Image
                 src="/icons/ProjectSelectBubble.svg"
                 alt="로딩중 말풍선"
+                width={0}
+                height={0}
+                sizes="100vw"
                 className="block max-lg:hidden"
+                style={{ width: 'auto', height: 'auto' }}
               />
-              <img
+              <Image
                 src="/icons/ResponsiveProjectSelectBubble.svg"
                 alt="반응형 프로젝트 선택 말풍선"
+                width={0}
+                height={0}
+                sizes="100vw"
                 className="hidden max-lg:block"
+                style={{ width: 'auto', height: 'auto' }}
               />
               <div
                 className="absolute top-[0px] left-[0px] py-[42px] px-[90px] text-[18px]
@@ -70,17 +269,40 @@ export default function ProjectSelect() {
             className="relative ml-[920px] mt-[20px]
           max-lg:ml-[496px]"
           >
-            <img src="/icons/CorrectionStartBubble.svg" alt="첨삭 시작 말풍선" />
-            <Link href="/mypage/tailoredportfolio/1">
-              <img
+            <Image
+              src="/icons/CorrectionStartBubble.svg"
+              alt="첨삭 시작 말풍선"
+              width={0}
+              height={0}
+              sizes="100vw"
+              style={{ width: 'auto', height: 'auto' }}
+            />
+            <button
+              onClick={handleGenerate}
+              className="absolute top-[36px] left-[52px] cursor-pointer"
+            >
+              <Image
                 src="/icons/CorrectionStartButton.svg"
                 alt="첨삭 시작 버튼"
-                className="absolute top-[36px] left-[52px] cursor-pointer"
+                width={0}
+                height={0}
+                sizes="100vw"
+                style={{ width: 'auto', height: 'auto' }}
               />
-            </Link>
+            </button>
           </div>
+
+          {isGenerating && <AddLoadingModal isOpen startFromLast payload={null} />}
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProjectSelect() {
+  return (
+    <Suspense fallback={null}>
+      <ProjectSelectContent />
+    </Suspense>
   );
 }

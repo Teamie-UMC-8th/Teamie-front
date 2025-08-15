@@ -48,29 +48,31 @@ export default function FileUploader() {
 
     console.log('📥 서버 파일 목록 동기화:', taskData.result.files);
 
-    const serverFiles: UploadedFile[] = taskData.result.files.map((file, index) => {
-      // API가 파일 이름을 제공한다면 우선 사용, 없으면 URL로 fallback
-      let fileName = (file as any).name as string | undefined;
-      if (!fileName && file.fileUrl) {
-        try {
-          const urlParts = file.fileUrl.split('/');
-          const lastPart = urlParts[urlParts.length - 1];
-          if (lastPart) fileName = decodeURIComponent(lastPart);
-        } catch {
-          fileName = `파일 ${index + 1}`;
+    const serverFiles: UploadedFile[] = taskData.result.files.map(
+      (file: { id: number; fileUrl: string; name?: string }, index: number) => {
+        // API가 파일 이름을 제공한다면 우선 사용, 없으면 URL로 fallback
+        let fileName: string | undefined = file.name;
+        if (!fileName && file.fileUrl) {
+          try {
+            const urlParts = file.fileUrl.split('/');
+            const lastPart = urlParts[urlParts.length - 1];
+            if (lastPart) fileName = decodeURIComponent(lastPart);
+          } catch {
+            fileName = `파일 ${index + 1}`;
+          }
         }
-      }
-      if (!fileName) fileName = `파일 ${index + 1}`;
+        if (!fileName) fileName = `파일 ${index + 1}`;
 
-      return {
-        name: fileName,
-        size: 0,
-        type: '',
-        lastModified: Date.now(),
-        fileUrl: file.fileUrl,
-        serverId: file.id,
-      } as UploadedFile;
-    });
+        return {
+          name: fileName,
+          size: 0,
+          type: '',
+          lastModified: Date.now(),
+          fileUrl: file.fileUrl,
+          serverId: file.id,
+        } as UploadedFile;
+      }
+    );
 
     console.log('🔄 파일 목록 동기화 (서버 기준):', {
       count: serverFiles.length,
@@ -118,7 +120,8 @@ export default function FileUploader() {
       });
 
       // 지원되지 않는 형식 토스트 메시지
-      if (invalidFiles.length > 0) {
+      const hasInvalid = invalidFiles.length > 0;
+      if (hasInvalid) {
         setShowFormatToast(true);
         setIsFormatToastVisible(true);
         setTimeout(() => {
@@ -138,13 +141,15 @@ export default function FileUploader() {
 
       if (maxAllowedFiles === 0) {
         // 이미 3개 파일이 있는 경우
-        setToastMessage('파일은 최대 3개까지 업로드할 수 있습니다.');
-        setShowToast(true);
-        setIsToastVisible(true);
-        setTimeout(() => {
-          setIsToastVisible(false);
-          setTimeout(() => setShowToast(false), 300);
-        }, 1700);
+        if (!hasInvalid) {
+          setToastMessage('파일은 최대 3개까지 업로드할 수 있습니다.');
+          setShowToast(true);
+          setIsToastVisible(true);
+          setTimeout(() => {
+            setIsToastVisible(false);
+            setTimeout(() => setShowToast(false), 300);
+          }, 1700);
+        }
 
         if (inputRef.current) {
           inputRef.current.value = '';
@@ -174,7 +179,7 @@ export default function FileUploader() {
       const rejectedFiles = nonDuplicateFiles.slice(maxAllowedFiles);
 
       // 개수 제한 토스트 메시지
-      if (rejectedFiles.length > 0 || invalidFiles.length > 0) {
+      if (rejectedFiles.length > 0 && invalidFiles.length === 0) {
         setToastMessage(`파일은 최대 3개까지 업로드할 수 있습니다.`);
         setShowToast(true);
         setIsToastVisible(true);
@@ -275,8 +280,9 @@ export default function FileUploader() {
         return !ext || !allowedExtensions.includes(ext);
       });
 
-      // 지원되지 않는 형식 토스트 메시지
-      if (invalidFiles.length > 0) {
+      // 지원되지 않는 형식 토스트 메시지 (드롭 케이스에서도 동일 로직 사용을 위해 hasInvalid 플래그 유지)
+      const hasInvalid = invalidFiles.length > 0;
+      if (hasInvalid) {
         setShowFormatToast(true);
         setIsFormatToastVisible(true);
         setTimeout(() => {
@@ -296,13 +302,15 @@ export default function FileUploader() {
 
       if (maxAllowedFiles === 0) {
         // 이미 3개 파일이 있는 경우
-        setToastMessage('파일은 최대 3개까지 업로드할 수 있습니다.');
-        setShowToast(true);
-        setIsToastVisible(true);
-        setTimeout(() => {
-          setIsToastVisible(false);
-          setTimeout(() => setShowToast(false), 300);
-        }, 1700);
+        if (!hasInvalid) {
+          setToastMessage('파일은 최대 3개까지 업로드할 수 있습니다.');
+          setShowToast(true);
+          setIsToastVisible(true);
+          setTimeout(() => {
+            setIsToastVisible(false);
+            setTimeout(() => setShowToast(false), 300);
+          }, 1700);
+        }
         return;
       }
 
@@ -328,7 +336,7 @@ export default function FileUploader() {
       const rejectedFiles = nonDuplicateFiles.slice(maxAllowedFiles);
 
       // 개수 제한 토스트 메시지
-      if (rejectedFiles.length > 0 || invalidFiles.length > 0) {
+      if (rejectedFiles.length > 0 && invalidFiles.length === 0) {
         setToastMessage(`파일은 최대 3개까지 업로드할 수 있습니다.`);
         setShowToast(true);
         setIsToastVisible(true);
@@ -550,35 +558,39 @@ export default function FileUploader() {
         );
       })}
 
-      {/* 파일 업로드 버튼 (클릭 & 드래그 대응) */}
-      <label
-        htmlFor="file-upload"
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        className={`relative w-[207px] h-[160px] border-[2px] rounded-[6px] ${
-          isDragging ? 'border-[#81D7D4] bg-[#F0FBFB]' : 'border-[#BBBBBB]'
-        } grid place-items-center cursor-pointer`}
-      >
-        <div className="flex flex-col items-center">
-          <Image
-            src="/icons/file-upload.svg"
-            alt="파일 업로드"
-            width={88}
-            height={88}
-            className="w-[88px] h-[88px]"
+      {/* 파일 업로드 버튼 (클릭 & 드래그 대응) - 최대 3개까지, 3개 이상이면 버튼 숨김 */}
+      {files.length < 3 && (
+        <>
+          <label
+            htmlFor="file-upload"
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            className={`relative w-[207px] h-[160px] border-[2px] rounded-[6px] ${
+              isDragging ? 'border-[#81D7D4] bg-[#F0FBFB]' : 'border-[#BBBBBB]'
+            } grid place-items-center cursor-pointer`}
+          >
+            <div className="flex flex-col items-center">
+              <Image
+                src="/icons/file-upload.svg"
+                alt="파일 업로드"
+                width={88}
+                height={88}
+                className="w-[88px] h-[88px]"
+              />
+              <div className="text-[#898989] text-[16px]">파일 업로드</div>
+            </div>
+          </label>
+          <input
+            id="file-upload"
+            ref={inputRef}
+            type="file"
+            multiple
+            onChange={handleFileChange}
+            className="hidden"
           />
-          <div className="text-[#898989] text-[16px]">파일 업로드</div>
-        </div>
-      </label>
-      <input
-        id="file-upload"
-        ref={inputRef}
-        type="file"
-        multiple
-        onChange={handleFileChange}
-        className="hidden"
-      />
+        </>
+      )}
 
       {/* 토스트 메시지들 */}
       <div className="absolute bottom-0 left-[calc(100%+20px)] flex flex-col gap-4 z-10">

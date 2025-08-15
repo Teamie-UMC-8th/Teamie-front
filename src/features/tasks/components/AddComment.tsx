@@ -6,6 +6,7 @@ import {
   useUpdateCocomment,
   useDeleteCocomment,
   useDeleteComment,
+  useUpdateComment,
 } from '@/hooks/mutations/useCommentMutations';
 import { useParams } from 'next/navigation';
 import { useUser } from '@/hooks/mutations/useUser';
@@ -50,6 +51,7 @@ export default function AddComment() {
   const { mutate: updateCocommentMutation } = useUpdateCocomment();
   const { mutate: deleteCocommentMutation, isPending: isDeletingCocomment } = useDeleteCocomment();
   const { mutate: deleteCommentMutation } = useDeleteComment();
+  const { mutate: updateCommentMutation } = useUpdateComment();
 
   // 댓글 데이터가 로드되면 상태 업데이트
   useEffect(() => {
@@ -398,11 +400,21 @@ export default function AddComment() {
                     onChange={setEditComment}
                     onSubmit={() => {
                       if (editComment.trim() === '') return;
-                      const updated = [...comments];
-                      updated[idx] = { ...updated[idx], content: editComment.trim() };
-                      setComments(updated);
-                      setEditComment('');
-                      setEditIndex(null);
+                      const commentId = comments[idx].commentId;
+                      updateCommentMutation(
+                        { commentId, content: editComment.trim() },
+                        {
+                          onSuccess: () => {
+                            // 서버 성공 후 바로 리패치로 동기화
+                            refetchComments();
+                            setEditComment('');
+                            setEditIndex(null);
+                          },
+                          onError: (error: Error) => {
+                            alert(error.message || '댓글 수정에 실패했습니다.');
+                          },
+                        }
+                      );
                     }}
                   />
                 ) : (

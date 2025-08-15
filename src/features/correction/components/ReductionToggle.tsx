@@ -1,16 +1,13 @@
-import { useState } from 'react';
+import React from 'react';
 
 interface ReductionToggleProps {
+  isOn: boolean;
   onRToggle: (value: boolean) => void;
 }
 
-const ReductionToggle = ({ onRToggle }: ReductionToggleProps) => {
-  const [isOn, setIsOn] = useState(false);
-
+const ReductionToggle = ({ isOn, onRToggle }: ReductionToggleProps) => {
   const handleClick = () => {
-    const next = !isOn;
-    setIsOn(next);
-    onRToggle(next);
+    onRToggle(!isOn);
   };
 
   return (

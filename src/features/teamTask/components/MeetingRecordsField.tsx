@@ -43,7 +43,7 @@ export default function MeetingRecordsField({
         onChange={(e) => onChange(e.target.value)}
         onBlur={(e) => onBlur?.(e.target.value)}
         className="w-[1415px] h-[428px] px-[20px] py-[16px] border-[2px] rounded-[6px] border-[#BBBBBB] mt-[15px]
-      max-lg:w-[865px] max-lg:min-w-[369px]"
+      max-lg:w-[865px] max-lg:min-w-[369px] resize-noneㅣㄴ"
       />
     </div>
   );

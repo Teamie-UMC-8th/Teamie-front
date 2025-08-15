@@ -43,6 +43,19 @@ export interface UpdateCocommentResponse {
   };
 }
 
+// 댓글 수정 API 요청/응답 타입 정의
+export interface UpdateCommentRequest {
+  content: string;
+}
+
+export interface UpdateCommentResponse {
+  isSuccess: boolean;
+  error: null;
+  result: {
+    content: string;
+  };
+}
+
 // 댓글 조회 API 요청 타입 정의
 export interface GetCommentsRequest {
   taskId: number;

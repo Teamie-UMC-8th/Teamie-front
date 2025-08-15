@@ -31,7 +31,7 @@ export default function DeleteButtonModal({
           className="absolute top-[8px] right-[8px] w-[24px] h-[24px] cursor-pointer"
           onClick={onCancel}
         >
-          <Image src="/icons/곱하기.svg" alt="닫기" width={24} height={24} />
+          <Image src="/icons/close.svg" alt="닫기" width={24} height={24} />
         </button>
 
         <h3 className="text-[20px] leading-[28px] font-semibold text-center text-black mb-[32px]">

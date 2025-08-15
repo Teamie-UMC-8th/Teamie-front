@@ -5,6 +5,8 @@ export const useCorrectionList = (cursor?: string) => {
   return useQuery({
     queryKey: ['corrections', cursor],
     queryFn: () => fetchCorrectionList(cursor),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
 };

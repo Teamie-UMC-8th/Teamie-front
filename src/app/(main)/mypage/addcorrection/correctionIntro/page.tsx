@@ -1,8 +1,51 @@
 'use client';
+/* eslint-disable @next/next/no-img-element */
 
 import CorrectionRequestStartButton from '@/features/correction/components/CorrectionRequestStartButton';
+import LoadingModal from '@/features/correction/components/AddLoadingModal';
+import { useRef, useState } from 'react';
+import { useUser } from '@/hooks/mutations/useUser';
+// import { useRouter } from 'next/navigation';
+import { CreateCorrectionRequest } from '@/types/api/correction';
 
 export default function CorrectionIntro() {
+  // const router = useRouter();
+  const formRef = useRef<HTMLDivElement>(null);
+  const [isLoadingOpen, setIsLoadingOpen] = useState(false);
+  const [payload, setPayload] = useState<CreateCorrectionRequest | null>(null);
+  const { data: currentUser } = useUser();
+  const [companyName, setCompanyName] = useState('');
+  const [jobTitle, setJobTitle] = useState('');
+  const [jd, setJd] = useState('');
+
+  const handleStart = () => {
+    const company = companyName.trim();
+    const job = jobTitle.trim();
+    const jdText = jd.trim();
+
+    if (!company || !job || !jdText) {
+      alert('기업명, 직무명, JD를 모두 입력해주세요.');
+      return;
+    }
+
+    const payload = {
+      // title은 백엔드에서 이후 자동 생성/수정될 예정이므로 임시로 동일 값 전달
+      title: company,
+      jobTitle: job,
+      jd: jdText,
+      // 기업명은 submissionTarget에 전달
+      submissionTarget: company,
+    } as const;
+    console.log('[AI 첨삭 생성] 요청 페이로드:', payload);
+    try {
+      // analyzing, tailored에서 공통으로 사용할 기업명 캐시 저장
+      // 생성 직전에 저장하여 이후 전 페이지에서 동일 기업명이 노출되도록 함
+      sessionStorage.setItem('lastCorrectionCompanyName', company);
+    } catch {}
+    setPayload(payload);
+    setIsLoadingOpen(true);
+  };
+
   /* TODO: Sidebar 제거 후 간격 재조정 */
   return (
     <div
@@ -10,6 +53,7 @@ export default function CorrectionIntro() {
     max-lg:ml-[24px]"
     >
       <div className="flex flex-col items-center">
+        <LoadingModal isOpen={isLoadingOpen} payload={payload} />
         <div
           className="w-[1323px] h-[52px] bg-[#E9F8F8] rounded-tl-[8px] rounded-tr-[8px] px-[24px] py-[12px] font-semibold text-[20px]
         max-lg:w-[908px]"
@@ -46,7 +90,7 @@ export default function CorrectionIntro() {
               max-lg:px-[90px] max-lg:py-[40px]"
               >
                 <p className="font-semibold">
-                  안녕하세요! 두현우님의 포트폴리오를 첨삭할 AI, 티미입니다.
+                  안녕하세요! {currentUser?.name ?? '팀원'}님의 포트폴리오를 첨삭할 AI, 티미입니다.
                 </p>
                 <p className="mt-[36px]">
                   지원하고자 하는 기업명, 직무명, 그리고 해당 포지션의 Job Description을
@@ -66,18 +110,29 @@ export default function CorrectionIntro() {
             max-lg:right-0"
             >
               <img src="/icons/SubBubble.svg" alt="말풍선" />
-              <div className="absolute top-[40px] left-[50px] flex-col">
+              <div className="absolute top-[40px] left-[50px] flex-col" ref={formRef}>
                 <p className="font-semibold text-[18px] ">기업명</p>
-                <input className="border border-[#BBBBBB] w-[645px] h-[42px] rounded-[4px] mt-[2px] px-[12px]" />
+                <input
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  className="border border-[#BBBBBB] w-[645px] h-[42px] rounded-[4px] mt-[2px] px-[12px]"
+                />
                 <p className="font-semibold text-[18px] mt-[16px]">직무명</p>
-                <input className="border border-[#BBBBBB] w-[645px] h-[42px] rounded-[4px] mt-[2px] px-[12px]" />
+                <input
+                  value={jobTitle}
+                  onChange={(e) => setJobTitle(e.target.value)}
+                  className="border border-[#BBBBBB] w-[645px] h-[42px] rounded-[4px] mt-[2px] px-[12px]"
+                />
                 <p className="font-semibold text-[18px] mt-[16px]">Job Description</p>
-                <textarea className="border border-[#BBBBBB] w-[645px] h-[64px] rounded-[4px] mt-[2px] px-[12px] py-[10px] " />
+                <textarea
+                  value={jd}
+                  onChange={(e) => setJd(e.target.value)}
+                  className="border border-[#BBBBBB] w-[645px] h-[64px] resize-none rounded-[4px] mt-[2px] px-[12px] py-[10px] "
+                />
 
                 <CorrectionRequestStartButton
-                  onStart={() => {
-                    // 시작 로직 작성
-                  }}
+                  onStart={handleStart}
+                  disabled={!(companyName.trim() && jobTitle.trim() && jd.trim())}
                 />
               </div>
             </div>

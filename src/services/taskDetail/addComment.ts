@@ -9,6 +9,8 @@ import {
   UpdateCocommentResponse,
   DeleteCocommentResponse,
   DeleteCommentResponse,
+  UpdateCommentRequest,
+  UpdateCommentResponse,
 } from '@/types/api/comment';
 
 // 댓글 추가 함수
@@ -197,6 +199,34 @@ export const deleteComment = async (commentId: number): Promise<DeleteCommentRes
 
     console.error('💥 댓글 삭제 중 예상치 못한 오류 발생');
     throw new Error('댓글 삭제 중 오류가 발생했습니다.');
+  }
+};
+
+// 댓글 수정 함수
+export const updateComment = async (
+  commentId: number,
+  data: UpdateCommentRequest
+): Promise<UpdateCommentResponse> => {
+  try {
+    const response = await axiosInstance.patch(`/api/v1/comments/${commentId}`, data);
+    return response.data;
+  } catch (error: unknown) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'response' in error &&
+      error.response &&
+      typeof error.response === 'object' &&
+      'status' in error.response
+    ) {
+      if (error.response.status === 403) {
+        throw new Error('해당 항목을 수정할 권한이 없습니다.');
+      }
+      if (error.response.status === 404) {
+        throw new Error('댓글을 찾을 수 없습니다.');
+      }
+    }
+    throw new Error('댓글 수정 중 오류가 발생했습니다.');
   }
 };
 

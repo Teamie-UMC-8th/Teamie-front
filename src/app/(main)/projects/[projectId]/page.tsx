@@ -151,7 +151,11 @@ export default function ProjectHomePage() {
                   >
                     <PostIt
                       content={postIt.content}
-                      onDelete={() => handleDeletePostIt(postIt.id)}
+                      onDelete={() =>
+                        handleDeletePostIt(
+                          (postIt as { serverId?: number; id: string }).serverId ?? postIt.id
+                        )
+                      }
                       createdAt={postIt.createdAt}
                     />
                   </div>

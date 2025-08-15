@@ -196,7 +196,7 @@ export default function Navbar() {
                 <Image
                   src={user?.imageUrl || '/icons/profile.svg'}
                   alt="프로필"
-                  className="cursor-pointer rounded-full"
+                  className="cursor-pointer rounded-full object-cover w-[32px] h-[32px]"
                   width={32}
                   height={32}
                 />
