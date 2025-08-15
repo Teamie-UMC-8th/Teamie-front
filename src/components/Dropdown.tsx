@@ -43,7 +43,7 @@ export default function Dropdown({
           className={`absolute mt-[0.75rem] bg-white rounded-[0.5rem] shadow-[0_0_15px_rgba(0,0,0,0.2)] z-20 ${dropdownClassName}`}
         >
           {items.map((item, index) => (
-            <li key={index} className="cursor-pointer mx-[0.25rem] my-[0.25rem]">
+            <li key={index} className="mx-[0.25rem] my-[0.25rem]">
               {item.onClick ? (
                 // onClick이 있는 경우 (로그아웃 등) - button으로 렌더링
                 <button
@@ -51,7 +51,7 @@ export default function Dropdown({
                     onToggle();
                     item.onClick?.();
                   }}
-                  className={`block hover:bg-[#E7E7E7] px-[1rem] py-[0.5rem] ${width} text-[#505050] text-[1.125rem] whitespace-nowrap flex items-center h-[2.625rem] text-left`}
+                  className={`block cursor-pointer hover:bg-[#E7E7E7] px-[1rem] py-[0.5rem] ${width} text-[#505050] text-[1.125rem] whitespace-nowrap flex items-center h-[2.625rem] text-left`}
                 >
                   {item.icon && (
                     <Image
