@@ -53,7 +53,13 @@ export default function Dropdown({
                 className={`block hover:bg-[#E7E7E7] px-[1rem] py-[0.5rem] ${width} text-[#505050] text-[1.125rem] whitespace-nowrap flex items-center h-[2.625rem]`}
               >
                 {item.icon && (
-                  <Image src={item.icon} alt="" className="mr-[0.75rem]" width={24} height={24} />
+                  <Image
+                    src={item.icon}
+                    alt={item.label}
+                    className="mr-[0.75rem] rounded-full"
+                    width={24}
+                    height={24}
+                  />
                 )}
                 {item.label}
               </Link>
