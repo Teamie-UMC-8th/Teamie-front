@@ -27,7 +27,6 @@ export default function JoinProject() {
   });
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false); // 성공 상태 추가
-  const [redirectProjectId, setRedirectProjectId] = useState<string | null>(null); // 리다이렉트할 프로젝트 ID
 
   const inviteCode = params.inviteCode as string;
 
@@ -58,18 +57,6 @@ export default function JoinProject() {
     }
   );
 
-  // 리다이렉트 처리
-  useEffect(() => {
-    if (redirectProjectId) {
-      const timer = setTimeout(() => {
-        router.push(`/projects/${redirectProjectId}`);
-      }, 2000);
-
-      // 컴포넌트 언마운트 시 타이머 정리
-      return () => clearTimeout(timer);
-    }
-  }, [redirectProjectId, router]);
-
   // GET 요청 결과 처리
   useEffect(() => {
     // 로딩 중이거나 이미 처리된 경우 중복 처리 방지
@@ -98,22 +85,19 @@ export default function JoinProject() {
       const errorCode = errorResponse.response?.data?.error?.errorCode;
       const projectId = errorResponse.response?.data?.error?.data?.projectId;
 
-      if (errorCode === 'PROJECT4011') {
-        // 잘못된 초대코드
-        setError('초대 링크가 유효하지 않습니다.');
-      } else if (errorCode === 'PROJECT4094') {
-        // 이미 참여한 프로젝트 - 에러 메시지만 표시하고 자동 리다이렉트 제거
-        setError('이미 참여한 프로젝트입니다.');
+      // 이미 참여한 경우, 에러가 아닌 성공 경로로 취급하여 즉시 리다이렉트
+      if (errorCode === 'PROJECT4094' && projectId) {
+        // setError를 호출하지 않으므로 에러 메시지가 렌더링되지 않음
+        router.push(`/projects/${projectId}`);
+        return; // 다른 에러 처리 로직을 실행하지 않도록 여기서 종료
+      }
 
-        // 리다이렉트할 프로젝트 ID 설정
-        if (projectId) {
-          setRedirectProjectId(projectId);
-        }
+      // 그 외의 다른 에러들만 에러 상태로 설정
+      if (errorCode === 'PROJECT4011') {
+        setError('초대 링크가 유효하지 않습니다.');
       } else if (errorCode === 'PROJECT4043') {
-        // NOT_EXISTS 또는 CODE_EXPIRED - 에러 상태로 설정하여 에러 화면 표시
         setError('초대 링크가 만료되었습니다.');
       } else {
-        // 기타 오류
         setError('초대 링크가 유효하지 않습니다.');
       }
     }
@@ -125,7 +109,6 @@ export default function JoinProject() {
     getProjectQuery.isLoading,
     getProjectQuery.isFetching,
     router,
-    projectInfo,
   ]);
 
   const handleAccept = () => {
