@@ -4,6 +4,7 @@
 import CorrectionRequestStartButton from '@/features/correction/components/CorrectionRequestStartButton';
 import LoadingModal from '@/features/correction/components/AddLoadingModal';
 import { useRef, useState } from 'react';
+import { useUser } from '@/hooks/mutations/useUser';
 // import { useRouter } from 'next/navigation';
 import { CreateCorrectionRequest } from '@/types/api/correction';
 
@@ -12,6 +13,7 @@ export default function CorrectionIntro() {
   const formRef = useRef<HTMLDivElement>(null);
   const [isLoadingOpen, setIsLoadingOpen] = useState(false);
   const [payload, setPayload] = useState<CreateCorrectionRequest | null>(null);
+  const { data: currentUser } = useUser();
 
   const handleStart = () => {
     const container = formRef.current;
@@ -89,7 +91,7 @@ export default function CorrectionIntro() {
               max-lg:px-[90px] max-lg:py-[40px]"
               >
                 <p className="font-semibold">
-                  안녕하세요! 두현우님의 포트폴리오를 첨삭할 AI, 티미입니다.
+                  안녕하세요! {currentUser?.name ?? '팀원'}님의 포트폴리오를 첨삭할 AI, 티미입니다.
                 </p>
                 <p className="mt-[36px]">
                   지원하고자 하는 기업명, 직무명, 그리고 해당 포지션의 Job Description을
