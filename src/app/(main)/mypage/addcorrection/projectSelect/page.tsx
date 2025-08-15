@@ -3,8 +3,12 @@
 import Projects from '@/features/mypage/components/Projects';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
-import MasterLoadingModal from '@/features/aimasterportfolio/components/MasterLoadingModal';
-import { fetchGeneratedCorrection, postGenerateCorrection } from '@/services/correction/correction';
+import AddLoadingModal from '@/features/correction/components/AddLoadingModal';
+import {
+  fetchGeneratedCorrection,
+  postGenerateCorrection,
+  fetchCorrectionDetail,
+} from '@/services/correction/correction';
 // 상태 프리체크는 hasMasterPortfolio로 대체
 import { AxiosError, isAxiosError } from 'axios';
 import Image from 'next/image';
@@ -85,7 +89,10 @@ export default function ProjectSelect() {
     const maxWaitMs = 120000; // 2분
     const start = Date.now();
     while (true) {
-      const result = await fetchGeneratedCorrection(id).catch(() => null);
+      const result = await fetchGeneratedCorrection(id).catch((e) => {
+        console.warn('[UI][GENERATE] polling generated failed (will retry)', e);
+        return null;
+      });
       if (
         result &&
         Array.isArray(result.projects) &&
@@ -99,6 +106,33 @@ export default function ProjectSelect() {
       }
       if (Date.now() - start > maxWaitMs) throw new Error('Timeout waiting for generated data.');
       await new Promise((res) => setTimeout(res, 2000));
+    }
+  }, []);
+
+  // 생성 직후 상세 조회 가능해질 때까지 대기 (tailoredportfolio에서 사용되는 API)
+  const waitUntilDetailReadable = useCallback(async (id: number) => {
+    const maxWaitMs = 120000; // 2분
+    const start = Date.now();
+    let lastError: unknown = null;
+    while (true) {
+      try {
+        const detail = await fetchCorrectionDetail(id);
+        const ok = !!(
+          detail &&
+          typeof detail.createdAt === 'string' &&
+          (detail.submissionTarget || '').toString() !== '' &&
+          (detail.jobTitle || '').toString() !== ''
+        );
+        console.log('[UI][GENERATE] detail check', { ok, createdAt: detail?.createdAt });
+        if (ok) return detail;
+      } catch (e) {
+        lastError = e;
+      }
+      if (Date.now() - start > maxWaitMs) {
+        console.error('[UI][GENERATE] detail wait timeout', lastError);
+        throw new Error('Timeout waiting for correction detail.');
+      }
+      await new Promise((res) => setTimeout(res, 1500));
     }
   }, []);
 
@@ -123,14 +157,23 @@ export default function ProjectSelect() {
         setIsGenerating(false);
         return;
       }
+      console.log('[UI][GENERATE] start', {
+        correctionId,
+        selectedProjects: readyProjectIds,
+        selectedPairs: pairs,
+      });
       await postGenerateCorrection(correctionId, { selectedProjects: readyProjectIds });
+      console.log('[UI][GENERATE] posted, start polling for generated result');
       await waitUntilGenerated(correctionId);
+      console.log('[UI][GENERATE] generated result ready, now wait for detail API to be readable');
+      await waitUntilDetailReadable(correctionId);
+      console.log('[UI][GENERATE] detail ready, navigate to tailored page');
       const query = submissionTarget
         ? `?submissionTarget=${encodeURIComponent(submissionTarget)}`
         : '';
       router.push(`/mypage/tailoredportfolio/${correctionId}${query}`);
     } catch (err: unknown) {
-      console.error('[ProjectSelect] generate failed:', err);
+      console.error('[UI][GENERATE] failed', err);
       let reason: string | undefined;
       let dataMsg: string | undefined;
       let message: string | undefined;
@@ -249,7 +292,7 @@ export default function ProjectSelect() {
             </button>
           </div>
 
-          {isGenerating && <MasterLoadingModal isOpen startFromLast />}
+          {isGenerating && <AddLoadingModal isOpen startFromLast payload={null} />}
         </div>
       </div>
     </div>

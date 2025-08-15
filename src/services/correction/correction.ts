@@ -78,11 +78,17 @@ export async function fetchGeneratedCorrectionByProject(
 export async function fetchGeneratedCorrection(
   correctionId: number
 ): Promise<GetGeneratedCorrectionResponse['result']> {
-  console.log('[API] GET /api/v1/portfolio-corrections/{id} (generated)', { correctionId });
+  console.log('[API][GET][RESULTS] request -> /api/v1/portfolio-corrections/{id}/results', {
+    correctionId,
+  });
   const { data } = await axiosInstance.get<GetGeneratedCorrectionResponse>(
-    `/api/v1/portfolio-corrections/${correctionId}`
+    `/api/v1/portfolio-corrections/${correctionId}/results`
   );
-  console.log('[API] GET /api/v1/portfolio-corrections/{id} response:', data);
+  console.log('[API][GET][RESULTS] response <- /api/v1/portfolio-corrections/{id}/results', {
+    hasProjects: Array.isArray(data?.result?.projects),
+    projectCount: Array.isArray(data?.result?.projects) ? data.result.projects.length : 0,
+    hasFirst: !!data?.result?.firstCorrection,
+  });
   if (!data.result) {
     throw new Error('생성된 첨삭 결과를 가져올 수 없습니다.');
   }
@@ -94,15 +100,18 @@ export async function postGenerateCorrection(
   correctionId: number,
   payload: PostGenerateCorrectionRequest
 ): Promise<PostGenerateCorrectionResponse['result']> {
-  console.log('[API] POST /api/v1/portfolio-corrections/{id}/generate', {
+  console.log('[API][POST][GENERATE] request -> /api/v1/portfolio-corrections/{id}/generate', {
     correctionId,
-    count: payload?.selectedProjects?.length,
+    selectedProjects: payload?.selectedProjects,
   });
   const { data } = await axiosInstance.post<PostGenerateCorrectionResponse>(
     `/api/v1/portfolio-corrections/${correctionId}/generate`,
     payload
   );
-  console.log('[API] POST /api/v1/portfolio-corrections/{id}/generate response:', data);
+  console.log('[API][POST][GENERATE] response <- /api/v1/portfolio-corrections/{id}/generate', {
+    isSuccess: data?.isSuccess,
+    items: Array.isArray(data?.result) ? data.result.length : 0,
+  });
   if (!data.result) {
     throw new Error('첨삭 생성에 실패했습니다.');
   }

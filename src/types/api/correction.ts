@@ -98,7 +98,7 @@ export interface CorrectionSelectableProject {
   createdAt: string;
   updatedAt: string;
   goal: string;
-  role: string;
+  rule: string;
   isCompleted: boolean;
   completedAt: string | null;
   hasMasterPortfolio: boolean; // 신규 필드: 마스터포트폴리오 생성 결과 존재 여부
@@ -118,12 +118,7 @@ export interface PostGenerateCorrectionRequest {
 export interface CorrectionGenerateItem {
   projectId: number;
   projectName: string;
-  correctionResult: {
-    detailInfo: unknown;
-    assignedTasks: unknown;
-    keyAchievements: unknown;
-    insights: unknown;
-  };
+  correctionResult: GeneratedCorrectionResult;
 }
 
 export interface PostGenerateCorrectionResponse {

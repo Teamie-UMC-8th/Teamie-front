@@ -14,7 +14,6 @@ import {
 import type { FirstCorrectionBlock, GeneratedLineItem } from '@/types/api/correction';
 import DeleteButton from '@/components/DeleteButton';
 import ReductionToggle from '@/features/correction/components/ReductionToggle';
-import TailoredDropdown from '@/features/correction/components/TailoredDropdown';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ReductionMark from '@/features/correction/components/ReductionMark';
@@ -22,6 +21,10 @@ import ConcretizationMark from '@/features/correction/components/ConcretizationM
 import ConcretizationToggle from '@/features/correction/components/ConcretizationToggle';
 import Image from 'next/image';
 import CompanyInsightProcessModal from '@/features/correction/components/CompanyInsightProcessModal';
+import { useMasterPortfolioList } from '@/hooks/queries/useGetMasterPortfolio';
+import type { MasterPortfolio } from '@/types/api/masterportfolio';
+import { CATEGORY_MAP } from '@/constants/category';
+import { formatDateRange } from '@/utils/formatDate';
 
 export default function TailoredPortfolio() {
   const params = useParams();
@@ -29,13 +32,23 @@ export default function TailoredPortfolio() {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const router = useRouter();
-  const [toggleROn, setRToggleOn] = useState(false);
-  const [toggleCOn, setCToggleOn] = useState(false);
+  // 섹션별 토글 상태 (상세, 담당, 성과, 배움)
+  const [detailReduceOn, setDetailReduceOn] = useState(false);
+  const [detailConcreteOn, setDetailConcreteOn] = useState(false);
+  const [tasksReduceOn, setTasksReduceOn] = useState(false);
+  const [tasksConcreteOn, setTasksConcreteOn] = useState(false);
+  const [achReduceOn, setAchReduceOn] = useState(false);
+  const [achConcreteOn, setAchConcreteOn] = useState(false);
+  const [insReduceOn, setInsReduceOn] = useState(false);
+  const [insConcreteOn, setInsConcreteOn] = useState(false);
   const [showInsightModal, setShowInsightModal] = useState(false);
   const [titleInput, setTitleInput] = useState<string>('');
   const titleRef = useRef<HTMLHeadingElement>(null);
   const [selectedProjectIndex, setSelectedProjectIndex] = useState<number>(0);
   const [cachedProjects, setCachedProjects] = useState<Array<{ id: number; name: string }>>([]);
+
+  // 마스터포트폴리오 목록(진행기간/분류/기여도 반영용)
+  const { data: masterListData } = useMasterPortfolioList();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['correction-detail', correctionId],
@@ -84,6 +97,32 @@ export default function TailoredPortfolio() {
     const id = Number(proj?.id);
     return Number.isFinite(id) ? id : undefined;
   })();
+
+  // 선택된 프로젝트의 마스터포트폴리오 메타데이터
+  const selectedMaster: MasterPortfolio | undefined = (() => {
+    const list: MasterPortfolio[] = ((masterListData?.data || []) as MasterPortfolio[]) || [];
+    // 우선 projectId로 매칭, 없으면 이름으로 매칭
+    const byId = list.find((m) => Number(m.projectId as unknown as number) === selectedProjectId);
+    if (byId) return byId;
+    const selectedName = (
+      (generated?.projects && generated.projects[selectedProjectIndex]?.name) ||
+      cachedProjects[selectedProjectIndex]?.name ||
+      ''
+    ).trim();
+    if (!selectedName) return undefined;
+    return list.find((m) => (m.projectName || '').trim() === selectedName);
+  })();
+
+  const durationLabel = selectedMaster
+    ? formatDateRange(String(selectedMaster.startDate || ''), String(selectedMaster.endDate || ''))
+    : '';
+  const categoryLabel = selectedMaster
+    ? CATEGORY_MAP[(selectedMaster.category as keyof typeof CATEGORY_MAP) || 'OTHER']?.label ||
+      selectedMaster.category
+    : '';
+  const contributionRateLabel = selectedMaster
+    ? `${Number(selectedMaster.contributionRate || 0)}%`
+    : '';
 
   // 선택된 프로젝트의 생성 결과 조회
   const { data: selectedCorrection } = useQuery({
@@ -346,7 +385,7 @@ export default function TailoredPortfolio() {
             진행 기간
           </div>
           <p className="text-black text-[20px] grid place-items-center ml-[28px]">
-            {currentCorrection?.projectName || ''}
+            {durationLabel}
           </p>
           <div
             className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[154px] mr-[8px] font-semibold text-[18px]
@@ -354,27 +393,35 @@ export default function TailoredPortfolio() {
           >
             분류
           </div>
-          <TailoredDropdown />
+          <span
+            className="ml-[28px] text-[18px] px-[10px] py-[4px] rounded-[4px]"
+            style={{
+              backgroundColor:
+                CATEGORY_MAP[(selectedMaster?.category as keyof typeof CATEGORY_MAP) || 'OTHER']
+                  ?.color || '#C8C8C8',
+            }}
+          >
+            {categoryLabel}
+          </span>
           <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[154px] font-semibold text-[18px]">
             기여도
           </div>
-          <Image
-            src="/icons/CorrectionPercentbar.svg"
-            alt="기여도 퍼센트바"
-            className="ml-[28px]"
-            width={0}
-            height={0}
-            sizes="100vw"
-            style={{ width: 'auto', height: 'auto' }}
-          />
-          <p className="text-[20px] ml-[20px]">80%</p>
+          <div className="ml-[28px] flex items-center">
+            <div className="bg-white border border-[#E7E7E7] rounded-[2px] w-[286px] h-[10px] max-lg:w-[248px]">
+              <div
+                className="bg-[#81D7D4] rounded-[2px] h-[8px]"
+                style={{ width: String(selectedMaster?.contributionRate || 0) + '%' }}
+              />
+            </div>
+            <span className="text-[20px] ml-[12px]">{contributionRateLabel}</span>
+          </div>
         </div>
         <div
           className="mt-[80px]
         max-lg:mt-[48px]"
         >
           <div className="text-[22px] font-semibold">AI 첨삭 내용</div>
-          <div className="mt-[10px] border-[#E7E7E7] border-[1px] " />
+          <div className="mt-[10px] border-[#E7E7E7] border-[1px]" />
         </div>
         <div
           className="mt-[40px]
@@ -382,38 +429,63 @@ export default function TailoredPortfolio() {
         >
           <div className="text-[18px] font-semibold">상세정보</div>
           <div
-            className="w-[1400px] h-[548px] rounded-[8px] border border-[#E7E7E7] bg-white mt-[12px] px-[40px] py-[28px] flex
-          max-lg:w-[856px] max-lg:h-[937px] max-lg:flex-col"
+            className="w-[1400px] rounded-[8px] border border-[#E7E7E7] bg-white mt-[12px] px-[40px] py-[28px] flex
+          max-lg:w-[856px] max-lg:flex-col"
           >
-            <div
-              className="w-[620px] h-[476px] text-[18px] mt-[8px]
-            max-lg:text-[16px] max-lg:w-[784px]"
-            >
+            <div className="w-[620px] text-[18px] mt-[8px] max-lg:text-[16px] max-lg:w-[784px]">
               {(
                 currentCorrection?.correctionResult?.detailInfo?.lines ||
                 ([] as GeneratedLineItem[])
-              ).map((ln: GeneratedLineItem) => (
-                <p key={ln.line_number}>- {ln.original_content}</p>
-              ))}
+              ).map((ln: GeneratedLineItem, idx) => {
+                const text = String(ln?.original_content || '').trim();
+                if (!text) return null;
+                const isReduction = detailReduceOn && Number(ln?.type) === 1;
+                const isConcretize = detailConcreteOn && Number(ln?.type) === 2;
+                const style = isReduction
+                  ? {
+                      backgroundColor: '#FDF5F5',
+                      borderLeft: '4px solid #EF7C7C',
+                      borderRadius: '4px',
+                    }
+                  : isConcretize
+                    ? {
+                        backgroundColor: '#F5FBF5',
+                        borderLeft: '4px solid #97D099',
+                        borderRadius: '4px',
+                      }
+                    : undefined;
+                return (
+                  <p key={`detail-${idx}`} style={style}>
+                    {text}
+                  </p>
+                );
+              })}
 
               <p className="mt-[48px]" />
-              {toggleROn && <ReductionMark />}
+              {detailReduceOn && (
+                <div className="relative" style={{ height: 0 }}>
+                  <ReductionMark />
+                </div>
+              )}
             </div>
             {/* Divider line */}
-            <div className="border-l-[2px] border-[#BBBBBB] h-[492px] ml-[40px] mr-[40px] block max-lg:hidden" />
+            <div className="border-l-[2px] border-[#BBBBBB] ml-[40px] mr-[40px] block max-lg:hidden" />
             <div className="w-[808px] border border-[#BBBBBB] hidden max-lg:block max-lg:mt-[32px] max-lg:mb-[36px]" />
 
-            <div className="w-[620px] h-[476px] mt-[8px]">
+            <div className="w-[620px] mt-[8px]">
               <div
-                className="w-[620px] h-[84px] bg-[#F8F8F8] border border-[#898989] rounded-[6px] px-[20px] py-[16px]
-              max-lg:w-[784px] max-lg:h-[80px]"
+                className="w-[620px] bg-[#F8F8F8] border border-[#898989] rounded-[6px] px-[20px] py-[12px]
+              max-lg:w-[784px]"
               >
-                총평
+                <div className="text-[16px] font-semibold mb-[6px]">항목 총평</div>
+                <div className="text-[18px] leading-[26px] whitespace-pre-line">
+                  {currentCorrection?.correctionResult?.detailInfo?.field_summary || ''}
+                </div>
               </div>
 
               {/* TODO: 토글 둘 중 한개만 켤 수 있도록 */}
               <div className="flex mt-[48px] items-center w-[620px]">
-                <ReductionToggle onRToggle={setRToggleOn} />
+                <ReductionToggle onRToggle={setDetailReduceOn} />
                 <div className="flex ml-[16px]">
                   <div className="bg-[#EF7C7C] w-[4px] h-[34px] rounded-l-[4px]"></div>
                   <div className="w-[189px] h-[34px] bg-[#D846460D] px-[12px] py-[4px] rounded-r-[4px]">
@@ -422,13 +494,33 @@ export default function TailoredPortfolio() {
                 </div>
               </div>
 
-              <div className="mt-[16px] text-[18px]">
-                <p>1. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
-                <p>2. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
-              </div>
+              {/* 축소 대상 라인 목록 (type === 1) */}
+              {detailReduceOn && (
+                <div className="mt-[20px]">
+                  {(
+                    currentCorrection?.correctionResult?.detailInfo?.lines ||
+                    ([] as GeneratedLineItem[])
+                  )
+                    .filter((ln: GeneratedLineItem) => Number(ln?.type) === 1)
+                    .map((ln: GeneratedLineItem, idx: number) => {
+                      const text = String(ln?.review_comment || '').trim();
+                      if (!text) return null;
+                      return (
+                        <div key={`detail-reduce-${idx}`} className="flex items-start mb-[8px]">
+                          <span className="w-[24px] text-[#EF7C7C] font-semibold mr-[12px]">
+                            {idx + 1}.
+                          </span>
+                          <p className="text-[18px] leading-[28px]">{text}</p>
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
+
+              {/* 총평 내용은 상단 박스 안에 표시됨 */}
 
               <div className="flex mt-[48px] items-center w-[620px]">
-                <ConcretizationToggle onCToggle={setCToggleOn} />
+                <ConcretizationToggle onCToggle={setDetailConcreteOn} />
                 <div className="flex ml-[16px]">
                   <div className="bg-[#97D099] w-[4px] h-[34px] rounded-l-[4px]"></div>
                   <div className="w-[260px] h-[34px] bg-[#97D0991A] px-[12px] py-[4px] rounded-r-[4px]">
@@ -437,10 +529,30 @@ export default function TailoredPortfolio() {
                 </div>
               </div>
 
-              <div className="mt-[16px] text-[18px] w-[620px]">
-                <p>1. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
-                <p>2. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
-              </div>
+              {/* 구체화 대상 라인 목록 (type === 2) */}
+              {detailConcreteOn && (
+                <div className="mt-[20px]">
+                  {(
+                    currentCorrection?.correctionResult?.detailInfo?.lines ||
+                    ([] as GeneratedLineItem[])
+                  )
+                    .filter((ln: GeneratedLineItem) => Number(ln?.type) === 2)
+                    .map((ln: GeneratedLineItem, idx: number) => {
+                      const text = String(ln?.review_comment || '').trim();
+                      if (!text) return null;
+                      return (
+                        <div key={`detail-concrete-${idx}`} className="flex items-start mb-[8px]">
+                          <span className="w-[24px] text-[#97D099] font-semibold mr-[12px]">
+                            {idx + 1}.
+                          </span>
+                          <p className="text-[18px] leading-[28px]">{text}</p>
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
+
+              {/* 가이드 문구 제거 */}
             </div>
           </div>
         </div>
@@ -450,49 +562,62 @@ export default function TailoredPortfolio() {
         >
           <div className="text-[18px] font-semibold">담당 업무</div>
           <div
-            className="w-[1400px] h-[548px] rounded-[8px] border border-[#E7E7E7] bg-white mt-[12px] px-[40px] py-[28px] flex
-          max-lg:w-[856px] max-lg:h-[937px] max-lg:flex-col"
+            className="w-[1400px] rounded-[8px] border border-[#E7E7E7] bg-white mt-[12px] px-[40px] py-[28px] flex
+          max-lg:w-[856px] max-lg:flex-col"
           >
-            <div
-              className="w-[620px] h-[476px] text-[18px] mt-[8px]
-            max-lg:text-[16px] max-lg:w-[784px]"
-            >
-              <p>[연간 활동 기획 및 운영 총괄]</p>
-              <p>- 동아리 연간 활동 계획 및 예산안 수립</p>
-              <p>- 월 1회 정기모임 및 분기 1회 특별 행사 기획∙운영</p>
-              <p>- 전산장부 시스템 도입 및 동아리 전체 예산 집행, 회계 처리 총괄</p>
-              <p>- 타 부서(홍보국, 대외협력국) 협업 및 연간/상반기 운영 현황 보고</p>
+            <div className="w-[620px] text-[18px] mt-[8px] max-lg:text-[16px] max-lg:w-[784px]">
+              {(
+                currentCorrection?.correctionResult?.assignedTasks?.lines ||
+                ([] as GeneratedLineItem[])
+              ).map((ln: GeneratedLineItem, idx) => {
+                const text = String(ln?.original_content || '').trim();
+                if (!text) return null;
+                const isReduction = tasksReduceOn && Number(ln?.type) === 1;
+                const isConcretize = tasksConcreteOn && Number(ln?.type) === 2;
+                const style = isReduction
+                  ? {
+                      backgroundColor: '#FDF5F5',
+                      borderLeft: '4px solid #EF7C7C',
+                      borderRadius: '4px',
+                    }
+                  : isConcretize
+                    ? {
+                        backgroundColor: '#F5FBF5',
+                        borderLeft: '4px solid #97D099',
+                        borderRadius: '4px',
+                      }
+                    : undefined;
+                return (
+                  <p key={`tasks-${idx}`} style={style}>
+                    {text}
+                  </p>
+                );
+              })}
 
               <p className="mt-[48px]" />
-              <p>[참여 경험 고도화 및 문제 해결]</p>
-              <p>- 참여자 피드백 기반 프로그램 개선 (활동지 난이도 분리, 익명 피드백 도입 등)</p>
-              <p>- 사전 설문 기반 참여자 성향 분석 및 맞춤형 조 편성 시스템 설계</p>
-              <p className="mt-[48px]" />
-              <p>
-                어려움과 극복 과정: 회원 간 친분 형성 후 공식 활동 참여율이 저하되는 문제가
-                발생했습니다. 이를 해결하기 위해 대외협력국과 협력하여 기업 연계 프로그램을 유치,
-                동아리에서만 가능한 &apos;이력서 작성&apos; 프로그램을 기획했습니다. 실제 기업의
-                피드백 기회를 제공한 결과, 해당 모임 참여율이 이전 대비 170% 증가했고 72건의 긍정
-                피드백을 확보했습니다.
-                {/* TODO: 글 위에 마크 올리기 */}
-                {toggleCOn && <ConcretizationMark />}
-              </p>
+              {tasksConcreteOn && (
+                <div className="relative" style={{ height: 0 }}>
+                  <ConcretizationMark />
+                </div>
+              )}
             </div>
             {/* Divider line */}
-            <div className="border-l-[2px] border-[#BBBBBB] h-[492px] ml-[40px] mr-[40px] block max-lg:hidden" />
-            <div className="w-[808px] border border-[#BBBBBB] hidden max-lg:block max-lg:mt-[32px] max-lg:mb-[36px]" />
+            <div className="border-l-[2px] border-[#BBBBBB] ml-[40px] mr-[40px] block max-lg:hidden" />
 
-            <div className="w-[620px] h-[476px] mt-[8px]">
+            <div className="w-[620px] mt-[8px]">
               <div
-                className="w-[620px] h-[84px] bg-[#F8F8F8] border border-[#898989] rounded-[6px] px-[20px] py-[16px]
-              max-lg:w-[784px] max-lg:h-[80px]"
+                className="w-[620px] bg-[#F8F8F8] border border-[#898989] rounded-[6px] px-[20px] py-[12px]
+              max-lg:w-[784px]"
               >
-                총평
+                <div className="text-[16px] font-semibold mb-[6px]">항목 총평</div>
+                <div className="text-[18px] leading-[22px] whitespace-pre-line">
+                  {currentCorrection?.correctionResult?.assignedTasks?.field_summary || ''}
+                </div>
               </div>
 
               {/* TODO: 토글 둘 중 한개만 켤 수 있도록 */}
               <div className="flex mt-[48px] items-center w-[620px]">
-                <ReductionToggle onRToggle={setRToggleOn} />
+                <ReductionToggle onRToggle={setTasksReduceOn} />
                 <div className="flex ml-[16px]">
                   <div className="bg-[#EF7C7C] w-[4px] h-[34px] rounded-l-[4px]"></div>
                   <div className="w-[189px] h-[34px] bg-[#D846460D] px-[12px] py-[4px] rounded-r-[4px]">
@@ -501,13 +626,31 @@ export default function TailoredPortfolio() {
                 </div>
               </div>
 
-              <div className="mt-[16px] text-[18px]">
-                <p>1. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
-                <p>2. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
+              {/* 축소 대상 라인 목록 (type === 1) */}
+              <div className="mt-[20px]">
+                {(
+                  currentCorrection?.correctionResult?.assignedTasks?.lines ||
+                  ([] as GeneratedLineItem[])
+                )
+                  .filter((ln: GeneratedLineItem) => Number(ln?.type) === 1)
+                  .map((ln: GeneratedLineItem, idx: number) => {
+                    const text = String(ln?.original_content || '').trim();
+                    if (!text) return null;
+                    return (
+                      <div key={`tasks-reduce-${idx}`} className="flex items-start mb-[8px]">
+                        <span className="w-[24px] text-[#EF7C7C] font-semibold mr-[12px]">
+                          {idx + 1}.
+                        </span>
+                        <p className="text-[18px] leading-[28px]">{text}</p>
+                      </div>
+                    );
+                  })}
               </div>
 
+              {/* 총평 내용은 상단 박스 안에 표시됨 */}
+
               <div className="flex mt-[48px] items-center w-[620px]">
-                <ConcretizationToggle onCToggle={setCToggleOn} />
+                <ConcretizationToggle onCToggle={setTasksConcreteOn} />
                 <div className="flex ml-[16px]">
                   <div className="bg-[#97D099] w-[4px] h-[34px] rounded-l-[4px]"></div>
                   <div className="w-[260px] h-[34px] bg-[#97D0991A] px-[12px] py-[4px] rounded-r-[4px]">
@@ -516,10 +659,28 @@ export default function TailoredPortfolio() {
                 </div>
               </div>
 
-              <div className="mt-[16px] text-[18px] w-[620px]">
-                <p>1. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
-                <p>2. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
+              {/* 구체화 대상 라인 목록 (type === 2) */}
+              <div className="mt-[20px]">
+                {(
+                  currentCorrection?.correctionResult?.assignedTasks?.lines ||
+                  ([] as GeneratedLineItem[])
+                )
+                  .filter((ln: GeneratedLineItem) => Number(ln?.type) === 2)
+                  .map((ln: GeneratedLineItem, idx: number) => {
+                    const text = String(ln?.original_content || '').trim();
+                    if (!text) return null;
+                    return (
+                      <div key={`tasks-concrete-${idx}`} className="flex items-start mb-[8px]">
+                        <span className="w-[24px] text-[#97D099] font-semibold mr-[12px]">
+                          {idx + 1}.
+                        </span>
+                        <p className="text-[18px] leading-[28px]">{text}</p>
+                      </div>
+                    );
+                  })}
               </div>
+
+              {/* 가이드 문구 제거 */}
             </div>
           </div>
         </div>
@@ -529,48 +690,55 @@ export default function TailoredPortfolio() {
         >
           <div className="text-[18px] font-semibold">주요 성과</div>
           <div
-            className="w-[1400px] h-[548px] rounded-[8px] border border-[#E7E7E7] bg-white mt-[12px] px-[40px] py-[28px] flex
-          max-lg:w-[856px] max-lg:h-[937px] max-lg:flex-col"
+            className="w-[1400px] rounded-[8px] border border-[#E7E7E7] bg-white mt-[12px] px-[40px] py-[28px] flex
+          max-lg:w-[856px] max-lg:flex-col"
           >
-            <div
-              className="w-[620px] h-[476px] text-[18px] mt-[8px]
-            max-lg:text-[16px] max-lg:w-[784px]"
-            >
-              <p>[연간 활동 기획 및 운영 총괄]</p>
-              <p>- 동아리 연간 활동 계획 및 예산안 수립</p>
-              <p>- 월 1회 정기모임 및 분기 1회 특별 행사 기획∙운영</p>
-              <p>- 전산장부 시스템 도입 및 동아리 전체 예산 집행, 회계 처리 총괄</p>
-              <p>- 타 부서(홍보국, 대외협력국) 협업 및 연간/상반기 운영 현황 보고</p>
-
-              <p className="mt-[48px]" />
-              <p>[참여 경험 고도화 및 문제 해결]</p>
-              <p>- 참여자 피드백 기반 프로그램 개선 (활동지 난이도 분리, 익명 피드백 도입 등)</p>
-              <p>- 사전 설문 기반 참여자 성향 분석 및 맞춤형 조 편성 시스템 설계</p>
-              <p className="mt-[48px]" />
-              <p>
-                어려움과 극복 과정: 회원 간 친분 형성 후 공식 활동 참여율이 저하되는 문제가
-                발생했습니다. 이를 해결하기 위해 대외협력국과 협력하여 기업 연계 프로그램을 유치,
-                동아리에서만 가능한 &apos;이력서 작성&apos; 프로그램을 기획했습니다. 실제 기업의
-                피드백 기회를 제공한 결과, 해당 모임 참여율이 이전 대비 170% 증가했고 72건의 긍정
-                피드백을 확보했습니다.
-                {/* TODO: 글 위에 마크 올리기 */}
-              </p>
+            <div className="w-[620px] text-[18px] mt-[8px] max-lg:text-[16px] max-lg:w-[784px]">
+              {(
+                currentCorrection?.correctionResult?.keyAchievements?.lines ||
+                ([] as GeneratedLineItem[])
+              ).map((ln: GeneratedLineItem, idx) => {
+                const text = String(ln?.original_content || '').trim();
+                if (!text) return null;
+                const isReduction = achReduceOn && Number(ln?.type) === 1;
+                const isConcretize = achConcreteOn && Number(ln?.type) === 2;
+                const style = isReduction
+                  ? {
+                      backgroundColor: '#FDF5F5',
+                      borderLeft: '4px solid #EF7C7C',
+                      borderRadius: '4px',
+                    }
+                  : isConcretize
+                    ? {
+                        backgroundColor: '#F5FBF5',
+                        borderLeft: '4px solid #97D099',
+                        borderRadius: '4px',
+                      }
+                    : undefined;
+                return (
+                  <p key={`ach-${idx}`} style={style}>
+                    - {text}
+                  </p>
+                );
+              })}
             </div>
             {/* Divider line */}
-            <div className="border-l-[2px] border-[#BBBBBB] h-[492px] ml-[40px] mr-[40px] block max-lg:hidden" />
-            <div className="w-[808px] border border-[#BBBBBB] hidden max-lg:block max-lg:mt-[32px] max-lg:mb-[36px]" />
+            <div className="border-l-[2px] border-[#BBBBBB] ml-[40px] mr-[40px] block max-lg:hidden" />
 
-            <div className="w-[620px] h-[476px] mt-[8px]">
+            <div className="w-[620px] mt-[8px]">
               <div
-                className="w-[620px] h-[84px] bg-[#F8F8F8] border border-[#898989] rounded-[6px] px-[20px] py-[16px]
-              max-lg:w-[784px] max-lg:h-[80px]"
+                className="w-[620px] bg-[#F8F8F8] border border-[#898989] rounded-[6px] px-[20px] py-[12px]
+              max-lg:w-[784px]"
               >
-                총평
+                <div className="text-[16px] font-semibold mb-[6px]">항목 총평</div>
+                <div className="text-[18px] leading-[26px] whitespace-pre-line">
+                  {currentCorrection?.correctionResult?.keyAchievements?.field_summary || ''}
+                </div>
               </div>
 
               {/* TODO: 토글 둘 중 한개만 켤 수 있도록 */}
               <div className="flex mt-[48px] items-center w-[620px]">
-                <ReductionToggle onRToggle={setRToggleOn} />
+                <ReductionToggle onRToggle={setAchReduceOn} />
                 <div className="flex ml-[16px]">
                   <div className="bg-[#EF7C7C] w-[4px] h-[34px] rounded-l-[4px]"></div>
                   <div className="w-[189px] h-[34px] bg-[#D846460D] px-[12px] py-[4px] rounded-r-[4px]">
@@ -579,13 +747,33 @@ export default function TailoredPortfolio() {
                 </div>
               </div>
 
-              <div className="mt-[16px] text-[18px]">
-                <p>1. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
-                <p>2. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
-              </div>
+              {/* 축소 대상 라인 목록 (type === 1) */}
+              {achReduceOn && (
+                <div className="mt-[20px]">
+                  {(
+                    currentCorrection?.correctionResult?.keyAchievements?.lines ||
+                    ([] as GeneratedLineItem[])
+                  )
+                    .filter((ln: GeneratedLineItem) => Number(ln?.type) === 1)
+                    .map((ln: GeneratedLineItem, idx: number) => {
+                      const text = String(ln?.review_comment || '').trim();
+                      if (!text) return null;
+                      return (
+                        <div key={`ach-reduce-${idx}`} className="flex items-start mb-[8px]">
+                          <span className="w-[24px] text-[#EF7C7C] font-semibold mr-[12px]">
+                            {idx + 1}.
+                          </span>
+                          <p className="text-[18px] leading-[28px]">{text}</p>
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
+
+              {/* 총평 내용은 상단 박스 안에 표시됨 */}
 
               <div className="flex mt-[48px] items-center w-[620px]">
-                <ConcretizationToggle onCToggle={setCToggleOn} />
+                <ConcretizationToggle onCToggle={setAchConcreteOn} />
                 <div className="flex ml-[16px]">
                   <div className="bg-[#97D099] w-[4px] h-[34px] rounded-l-[4px]"></div>
                   <div className="w-[260px] h-[34px] bg-[#97D0991A] px-[12px] py-[4px] rounded-r-[4px]">
@@ -594,10 +782,30 @@ export default function TailoredPortfolio() {
                 </div>
               </div>
 
-              <div className="mt-[16px] text-[18px] w-[620px]">
-                <p>1. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
-                <p>2. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
-              </div>
+              {/* 구체화 대상 라인 목록 (type === 2) */}
+              {achConcreteOn && (
+                <div className="mt-[20px]">
+                  {(
+                    currentCorrection?.correctionResult?.keyAchievements?.lines ||
+                    ([] as GeneratedLineItem[])
+                  )
+                    .filter((ln: GeneratedLineItem) => Number(ln?.type) === 2)
+                    .map((ln: GeneratedLineItem, idx: number) => {
+                      const text = String(ln?.review_comment || '').trim();
+                      if (!text) return null;
+                      return (
+                        <div key={`ach-concrete-${idx}`} className="flex items-start mb-[8px]">
+                          <span className="w-[24px] text-[#97D099] font-semibold mr-[12px]">
+                            {idx + 1}.
+                          </span>
+                          <p className="text-[18px] leading-[28px]">{text}</p>
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
+
+              {/* 가이드 문구 제거 */}
             </div>
           </div>
         </div>
@@ -607,48 +815,54 @@ export default function TailoredPortfolio() {
         >
           <div className="text-[18px] font-semibold">배운 점</div>
           <div
-            className="w-[1400px] h-[548px] rounded-[8px] border border-[#E7E7E7] bg-white mt-[12px] px-[40px] py-[28px] flex
-          max-lg:w-[856px] max-lg:h-[937px] max-lg:flex-col"
+            className="w-[1400px] rounded-[8px] border border-[#E7E7E7] bg-white mt-[12px] px-[40px] py-[28px] flex
+          max-lg:w-[856px] max-lg:flex-col"
           >
-            <div
-              className="w-[620px] h-[476px] text-[18px] mt-[8px]
-            max-lg:text-[16px] max-lg:w-[784px]"
-            >
-              <p>[연간 활동 기획 및 운영 총괄]</p>
-              <p>- 동아리 연간 활동 계획 및 예산안 수립</p>
-              <p>- 월 1회 정기모임 및 분기 1회 특별 행사 기획∙운영</p>
-              <p>- 전산장부 시스템 도입 및 동아리 전체 예산 집행, 회계 처리 총괄</p>
-              <p>- 타 부서(홍보국, 대외협력국) 협업 및 연간/상반기 운영 현황 보고</p>
-
-              <p className="mt-[48px]" />
-              <p>[참여 경험 고도화 및 문제 해결]</p>
-              <p>- 참여자 피드백 기반 프로그램 개선 (활동지 난이도 분리, 익명 피드백 도입 등)</p>
-              <p>- 사전 설문 기반 참여자 성향 분석 및 맞춤형 조 편성 시스템 설계</p>
-              <p className="mt-[48px]" />
-              <p>
-                어려움과 극복 과정: 회원 간 친분 형성 후 공식 활동 참여율이 저하되는 문제가
-                발생했습니다. 이를 해결하기 위해 대외협력국과 협력하여 기업 연계 프로그램을 유치,
-                동아리에서만 가능한 &apos;이력서 작성&apos; 프로그램을 기획했습니다. 실제 기업의
-                피드백 기회를 제공한 결과, 해당 모임 참여율이 이전 대비 170% 증가했고 72건의 긍정
-                피드백을 확보했습니다.
-                {/* TODO: 글 위에 마크 올리기 */}
-              </p>
+            <div className="w-[620px] text-[18px] mt-[8px] max-lg:text-[16px] max-lg:w-[784px]">
+              {(
+                currentCorrection?.correctionResult?.insights?.lines || ([] as GeneratedLineItem[])
+              ).map((ln: GeneratedLineItem, idx) => {
+                const text = String(ln?.original_content || '').trim();
+                if (!text) return null;
+                const isReduction = insReduceOn && Number(ln?.type) === 1;
+                const isConcretize = insConcreteOn && Number(ln?.type) === 2;
+                const style = isReduction
+                  ? {
+                      backgroundColor: '#FDF5F5',
+                      borderLeft: '4px solid #EF7C7C',
+                      borderRadius: '4px',
+                    }
+                  : isConcretize
+                    ? {
+                        backgroundColor: '#F5FBF5',
+                        borderLeft: '4px solid #97D099',
+                        borderRadius: '4px',
+                      }
+                    : undefined;
+                return (
+                  <p key={`ins-${idx}`} style={style}>
+                    {text}
+                  </p>
+                );
+              })}
             </div>
             {/* Divider line */}
-            <div className="border-l-[2px] border-[#BBBBBB] h-[492px] ml-[40px] mr-[40px] block max-lg:hidden" />
-            <div className="w-[808px] border border-[#BBBBBB] hidden max-lg:block max-lg:mt-[32px] max-lg:mb-[36px]" />
+            <div className="border-l-[2px] border-[#BBBBBB] ml-[40px] mr-[40px] block max-lg:hidden" />
 
-            <div className="w-[620px] h-[476px] mt-[8px]">
+            <div className="w-[620px] mt-[8px]">
               <div
-                className="w-[620px] h-[84px] bg-[#F8F8F8] border border-[#898989] rounded-[6px] px-[20px] py-[16px]
-              max-lg:w-[784px] max-lg:h-[80px]"
+                className="w-[620px] bg-[#F8F8F8] border border-[#898989] rounded-[6px] px-[20px] py-[12px]
+              max-lg:w-[784px]"
               >
-                총평
+                <div className="text-[16px] font-semibold mb-[6px]">항목 총평</div>
+                <div className="text-[18px] leading-[26px] whitespace-pre-line">
+                  {currentCorrection?.correctionResult?.insights?.field_summary || ''}
+                </div>
               </div>
 
               {/* TODO: 토글 둘 중 한개만 켤 수 있도록 */}
               <div className="flex mt-[48px] items-center w-[620px]">
-                <ReductionToggle onRToggle={setRToggleOn} />
+                <ReductionToggle onRToggle={setInsReduceOn} />
                 <div className="flex ml-[16px]">
                   <div className="bg-[#EF7C7C] w-[4px] h-[34px] rounded-l-[4px]"></div>
                   <div className="w-[189px] h-[34px] bg-[#D846460D] px-[12px] py-[4px] rounded-r-[4px]">
@@ -657,13 +871,31 @@ export default function TailoredPortfolio() {
                 </div>
               </div>
 
-              <div className="mt-[16px] text-[18px]">
-                <p>1. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
-                <p>2. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
+              {/* 축소 대상 라인 목록 (type === 1) */}
+              <div className="mt-[20px]">
+                {(
+                  currentCorrection?.correctionResult?.insights?.lines ||
+                  ([] as GeneratedLineItem[])
+                )
+                  .filter((ln: GeneratedLineItem) => Number(ln?.type) === 1)
+                  .map((ln: GeneratedLineItem, idx: number) => {
+                    const text = String(ln?.original_content || '').trim();
+                    if (!text) return null;
+                    return (
+                      <div key={`ins-reduce-${idx}`} className="flex items-start mb-[8px]">
+                        <span className="w-[24px] text-[#EF7C7C] font-semibold mr-[12px]">
+                          {idx + 1}.
+                        </span>
+                        <p className="text-[18px] leading-[28px]">{text}</p>
+                      </div>
+                    );
+                  })}
               </div>
 
+              {/* 총평 내용은 상단 박스 안에 표시됨 */}
+
               <div className="flex mt-[48px] items-center w-[620px]">
-                <ConcretizationToggle onCToggle={setCToggleOn} />
+                <ConcretizationToggle onCToggle={setInsConcreteOn} />
                 <div className="flex ml-[16px]">
                   <div className="bg-[#97D099] w-[4px] h-[34px] rounded-l-[4px]"></div>
                   <div className="w-[260px] h-[34px] bg-[#97D0991A] px-[12px] py-[4px] rounded-r-[4px]">
@@ -672,10 +904,28 @@ export default function TailoredPortfolio() {
                 </div>
               </div>
 
-              <div className="mt-[16px] text-[18px] w-[620px]">
-                <p>1. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
-                <p>2. 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용 첨삭내용</p>
+              {/* 구체화 대상 라인 목록 (type === 2) */}
+              <div className="mt-[20px]">
+                {(
+                  currentCorrection?.correctionResult?.insights?.lines ||
+                  ([] as GeneratedLineItem[])
+                )
+                  .filter((ln: GeneratedLineItem) => Number(ln?.type) === 2)
+                  .map((ln: GeneratedLineItem, idx: number) => {
+                    const text = String(ln?.original_content || '').trim();
+                    if (!text) return null;
+                    return (
+                      <div key={`ins-concrete-${idx}`} className="flex items-start mb-[8px]">
+                        <span className="w-[24px] text-[#97D099] font-semibold mr-[12px]">
+                          {idx + 1}.
+                        </span>
+                        <p className="text-[18px] leading-[28px]">{text}</p>
+                      </div>
+                    );
+                  })}
               </div>
+
+              {/* 가이드 문구 제거 */}
             </div>
           </div>
         </div>{' '}
