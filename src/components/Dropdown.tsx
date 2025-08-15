@@ -44,25 +44,47 @@ export default function Dropdown({
         >
           {items.map((item, index) => (
             <li key={index} className="cursor-pointer mx-[0.25rem] my-[0.25rem]">
-              <Link
-                href={item.href}
-                onClick={() => {
-                  onToggle();
-                  item.onClick?.();
-                }}
-                className={`block hover:bg-[#E7E7E7] px-[1rem] py-[0.5rem] ${width} text-[#505050] text-[1.125rem] whitespace-nowrap flex items-center h-[2.625rem]`}
-              >
-                {item.icon && (
-                  <Image
-                    src={item.icon}
-                    alt={item.label}
-                    className="mr-[0.75rem] rounded-full"
-                    width={24}
-                    height={24}
-                  />
-                )}
-                {item.label}
-              </Link>
+              {item.onClick ? (
+                // onClick이 있는 경우 (로그아웃 등) - button으로 렌더링
+                <button
+                  onClick={() => {
+                    onToggle();
+                    item.onClick?.();
+                  }}
+                  className={`block hover:bg-[#E7E7E7] px-[1rem] py-[0.5rem] ${width} text-[#505050] text-[1.125rem] whitespace-nowrap flex items-center h-[2.625rem] text-left`}
+                >
+                  {item.icon && (
+                    <Image
+                      src={item.icon}
+                      alt={item.label}
+                      className="mr-[0.75rem] rounded-full"
+                      width={24}
+                      height={24}
+                    />
+                  )}
+                  {item.label}
+                </button>
+              ) : (
+                // onClick이 없는 경우 - Link로 렌더링
+                <Link
+                  href={item.href}
+                  onClick={() => {
+                    onToggle();
+                  }}
+                  className={`block hover:bg-[#E7E7E7] px-[1rem] py-[0.5rem] ${width} text-[#505050] text-[1.125rem] whitespace-nowrap flex items-center h-[2.625rem]`}
+                >
+                  {item.icon && (
+                    <Image
+                      src={item.icon}
+                      alt={item.label}
+                      className="mr-[0.75rem] rounded-full"
+                      width={24}
+                      height={24}
+                    />
+                  )}
+                  {item.label}
+                </Link>
+              )}
               {index < items.length - 1 && (
                 <div className="mx-[0.25rem] my-[0.25rem] h-[0.125rem] bg-[#BBBBBB]"></div>
               )}
