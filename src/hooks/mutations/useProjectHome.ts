@@ -17,6 +17,7 @@ import {
   ChangeLeaderRequest,
   UpdateProfileRequest,
   PostItData,
+  PostItInfo,
   TeamMember,
   ProjectUser,
 } from '@/types/api/projectHome';
@@ -171,9 +172,7 @@ export const useProjectHomeState = (projectId: number) => {
 
   // map posts from API into local state so UI persists across refresh
   useEffect(() => {
-    const posts = (projectHomeData?.result as any)?.posts as
-      | { content?: string; createdAt?: string; author?: number }[]
-      | undefined;
+    const posts = projectHomeData?.result?.posts as PostItInfo[] | undefined;
     if (Array.isArray(posts)) {
       const mapped: PostItData[] = posts.map((p, index) => ({
         id: `${index}-${p.author ?? 'na'}`,
@@ -182,7 +181,7 @@ export const useProjectHomeState = (projectId: number) => {
       }));
       setPostIts(mapped);
     }
-  }, [projectHomeData?.result?.posts]);
+  }, [projectHomeData?.result]);
 
   // API 데이터가 로드되면 상태 업데이트
   useEffect(() => {
