@@ -44,8 +44,8 @@ export default function Dropdown({
         >
           {items.map((item, index) => (
             <li key={index} className="mx-[0.25rem] my-[0.25rem]">
-              {item.onClick ? (
-                // onClick이 있는 경우 (로그아웃 등) - button으로 렌더링
+              {item.onClick && !item.href ? (
+                // onClick만 있는 경우 (로그아웃 등) - button으로 렌더링
                 <button
                   onClick={() => {
                     onToggle();
@@ -65,11 +65,12 @@ export default function Dropdown({
                   {item.label}
                 </button>
               ) : (
-                // onClick이 없는 경우 - Link로 렌더링
+                // href가 있는 경우 (프로젝트 이동 등) - Link로 렌더링하고 onClick도 실행
                 <Link
                   href={item.href}
                   onClick={() => {
                     onToggle();
+                    item.onClick?.(); // onClick이 있으면 실행
                   }}
                   className={`block hover:bg-[#E7E7E7] px-[1rem] py-[0.5rem] ${width} text-[#505050] text-[1.125rem] whitespace-nowrap flex items-center h-[2.625rem]`}
                 >
