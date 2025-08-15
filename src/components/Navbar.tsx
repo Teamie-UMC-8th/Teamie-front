@@ -17,7 +17,7 @@ export default function Navbar() {
   const [selectedProject, setSelectedProject] = useState<string>('나의 프로젝트');
   const navbarRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
-  const { user } = useAuth(); // AuthContext에서 사용자 정보 가져오기
+  const { user, logout } = useAuth(); // AuthContext에서 사용자 정보와 로그아웃 함수 가져오기
 
   const toggleMenu = (menuKey: string) => {
     setOpenMenu((prev) => (prev === menuKey ? null : menuKey));
@@ -34,6 +34,17 @@ export default function Navbar() {
   const handleProjectSelect = (projectName: string) => {
     setSelectedProject(projectName);
     setOpenMenu(null);
+  };
+
+  // 로그아웃 처리
+  const handleLogout = async () => {
+    try {
+      await logout();
+      // 로그아웃 성공 시 드롭다운 닫기
+      setIsProfileDropdownOpen(false);
+    } catch (error) {
+      console.error('로그아웃 처리 중 오류 발생:', error);
+    }
   };
 
   // 경로 변경 시 프로젝트 페이지가 아니면 selectedProject 리셋
@@ -212,6 +223,7 @@ export default function Navbar() {
                 label: '로그아웃',
                 href: '/login',
                 icon: '/icons/logout.svg',
+                onClick: handleLogout,
               },
             ]}
             className="mr-[1rem]"
