@@ -1,6 +1,5 @@
 'use client';
 
-import { formatDate } from '@/utils/formatDate';
 import { useTaskItems } from '@/features/boards/hooks/useTaskItems';
 import { TaskItemComponentProps, TASK_STATUS_STYLES } from '@/types/api/tasks';
 import { useUpdateTaskStatus } from '@/hooks/mutations/useUpdateTaskStatus';
@@ -9,6 +8,7 @@ import { useState } from 'react';
 import CopyModal from './CopyModal';
 import Portal from './Portal';
 import AssigneeCard from './AssigneeCard';
+import { formatToKoreanDate } from '@/utils/formatDate';
 
 export default function TaskItem({
   projectId,
@@ -101,7 +101,9 @@ export default function TaskItem({
 
             <div className="flex items-center justify-between gap-[2px] text-[14px]">
               <span className="min-w-[7.5rem]">
-                {deadline && <span className={deadlineTextColor}>{formatDate(deadline)}까지</span>}
+                {deadline && (
+                  <span className={deadlineTextColor}>{formatToKoreanDate(deadline)}</span>
+                )}
               </span>
 
               <div

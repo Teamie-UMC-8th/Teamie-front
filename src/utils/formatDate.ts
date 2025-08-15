@@ -34,12 +34,14 @@ export const formatToKoreanDate = (dateString: string): string => {
   if (!dateString) return '';
 
   try {
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1; // getMonth()는 0부터 시작합니다.
-    const day = date.getDate();
+    const datePart = dateString.split('T')[0];
+    const [year, month, day] = datePart.split('-').map(Number);
 
-    return `${year}년 ${month}월 ${day}일까지`;
+    if (!year || !month || !day) {
+      return '날짜 정보 없음';
+    }
+
+    return `${month}월 ${day}일까지`;
   } catch (error) {
     console.error('Invalid date string:', dateString, error);
     return '날짜 정보 없음';
