@@ -90,8 +90,6 @@ export default function Navbar() {
     setIsUpgraded((prev) => !prev);
   };
 
-  console.log('user', user);
-
   return (
     <nav
       className="w-full border-b-[0.125rem] border-[#E7E7E7] bg-white h-[3.625rem] z-10 relative"
