@@ -10,6 +10,7 @@ export interface UploadFileResponse {
   result: {
     id: number;
     fileUrl: string;
+    name?: string;
   };
 }
 

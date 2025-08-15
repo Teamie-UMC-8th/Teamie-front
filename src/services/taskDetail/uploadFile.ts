@@ -21,6 +21,7 @@ export const uploadTaskFile = async (taskId: number, file: File): Promise<Upload
     console.log('📁 업로드된 파일 정보:', {
       id: response.data.result?.id,
       fileUrl: response.data.result?.fileUrl,
+      name: response.data.result?.name,
       hasId: response.data.result && 'id' in response.data.result,
       resultKeys: response.data.result ? Object.keys(response.data.result) : null,
     });

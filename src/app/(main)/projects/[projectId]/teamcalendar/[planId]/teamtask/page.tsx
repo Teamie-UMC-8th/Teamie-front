@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
+import { useParams, useRouter } from 'next/navigation';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
 import axiosInstance from '@/lib/axiosInstance';
 import AddProfileButton from '@/components/AddProfileButton';
@@ -20,9 +20,14 @@ import {
   usePatchPlan,
   usePatchPlanUsers,
 } from '@/hooks/mutations/usePlan';
+import { useWebSocket } from '@/contexts/WebSocketContext';
+import { SubEventType, WebSocketResponseUnion, isPlanResponse } from '@/types/webSocket';
 
 export default function TeamTaskDetailPage() {
   const params = useParams();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const { socket, isConnected, subscribe, unsubscribe } = useWebSocket();
   const projectId = params.projectId as string;
   const planId = params.planId as string;
 
@@ -107,6 +112,58 @@ export default function TeamTaskDetailPage() {
     }
   }, [planData]);
 
+  // 웹소켓 연결 및 이벤트 핸들링
+  useEffect(() => {
+    if (isConnected && socket) {
+      const planIdNum = parseInt(planId);
+      if (isNaN(planIdNum)) return;
+
+      // 1. plan:notification 룸 구독
+      subscribe(SubEventType.PLAN_DETAIL, planIdNum);
+      console.log(`구독: ${SubEventType.PLAN_DETAIL}:${planIdNum}`);
+
+      // 2. publish 이벤트 수신 - 실시간 업데이트 처리
+      const handlePublish = (data: WebSocketResponseUnion) => {
+        console.log('웹소켓 이벤트 수신:', data);
+
+        // 타입 가드를 사용하여 entity가 'plan'이고 현재 페이지의 planId와 일치하는 경우에만 처리
+        if (isPlanResponse(data) && data.payload.id === planIdNum) {
+          console.log(
+            `변경 사항 발생에 따라 planDetail 쿼리 무효화 (이벤트: ${data.entity}.${data.type})`
+          );
+
+          queryClient.invalidateQueries({
+            queryKey: ['planDetail', planId],
+          });
+        }
+      };
+
+      // 3. unsubscribe-forced 이벤트 수신 - 강제 구독 해제
+      const handleForceUnsubscribe = () => {
+        console.log('강제 구독 해제');
+        alert(
+          '다른 기기에서 접속이 감지되어 현재 페이지에서 연결이 해제됩니다. 프로젝트 홈으로 이동합니다.'
+        );
+        router.push(`/projects/${projectId}/dashboard`);
+      };
+
+      // 이벤트 리스너 등록
+      socket.on('publish', handlePublish);
+      socket.on('unsubscribe-forced', handleForceUnsubscribe);
+
+      // 컴포넌트 언마운트 시 정리
+      return () => {
+        // 구독 해제
+        unsubscribe(SubEventType.PLAN_DETAIL, planIdNum);
+        console.log(`구독 해제: ${SubEventType.PLAN_DETAIL}:${planIdNum}`);
+
+        // 이벤트 리스너 제거
+        socket.off('publish', handlePublish);
+        socket.off('unsubscribe-forced', handleForceUnsubscribe);
+      };
+    }
+  }, [isConnected, socket, planId, projectId, subscribe, unsubscribe, queryClient, router]);
+
   // 참석자 정보 (프로젝트 홈의 사용자 목록 사용)
   const availableProfiles =
     projectHomeData?.result?.project?.users?.map((user: { id: number; name: string }) => ({
@@ -132,12 +189,14 @@ export default function TeamTaskDetailPage() {
       });
 
       setSelectedAttendees(selectedUserIds);
-      // 참석자 변경 시 자동 저장
+      // 참석자 변경 시 자동 저장 (API 데이터 기반으로 업데이트)
+      const currentWriters =
+        planData?.result?.writers?.map((w: { userId: number }) => w.userId) || [];
       patchPlanUsersMutation.mutate({
         planId: planId.toString(),
         userData: {
           attendees: selectedUserIds,
-          writers: selectedWriters,
+          writers: currentWriters,
         },
       });
     }, 0);
@@ -199,11 +258,13 @@ export default function TeamTaskDetailPage() {
     // 상태 업데이트를 다음 렌더링 사이클로 지연
     setTimeout(() => {
       setSelectedWriters(selectedUserIds);
-      // 기록자 변경 시 자동 저장
+      // 기록자 변경 시 자동 저장 (API 데이터 기반으로 업데이트)
+      const currentAttendees =
+        planData?.result?.attendees?.map((a: { userId: number }) => a.userId) || [];
       patchPlanUsersMutation.mutate({
         planId: planId.toString(),
         userData: {
-          attendees: selectedAttendees,
+          attendees: currentAttendees,
           writers: selectedUserIds,
         },
       });
@@ -515,6 +576,7 @@ export default function TeamTaskDetailPage() {
           </div>
           <AddProfileButton
             profiles={availableProfiles}
+            initialSelectedIds={selectedAttendees}
             onChange={handleAttendeesChange}
             onPermissionCheck={isCurrentUserProjectMember}
             alertMessage="프로젝트 멤버만 참석자를 수정할 수 있습니다."

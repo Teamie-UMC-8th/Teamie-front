@@ -7,7 +7,7 @@ import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { checkTaskDetail } from '@/services/taskDetail/checkTaskDetail';
 
-type UploadedFile = File & { serverId?: number | string; fileUrl?: string };
+type UploadedFile = File & { serverId?: number | string; fileUrl?: string; name?: string };
 
 export default function FileUploader() {
   // 업로드된 파일 목록을 상태로 관리
@@ -49,19 +49,18 @@ export default function FileUploader() {
     console.log('📥 서버 파일 목록 동기화:', taskData.result.files);
 
     const serverFiles: UploadedFile[] = taskData.result.files.map((file, index) => {
-      // fileUrl에서 파일명 추출
-      let fileName = `파일 ${index + 1}`;
-      if (file.fileUrl) {
+      // API가 파일 이름을 제공한다면 우선 사용, 없으면 URL로 fallback
+      let fileName = (file as any).name as string | undefined;
+      if (!fileName && file.fileUrl) {
         try {
           const urlParts = file.fileUrl.split('/');
           const lastPart = urlParts[urlParts.length - 1];
-          if (lastPart && lastPart.includes('.')) {
-            fileName = decodeURIComponent(lastPart);
-          }
+          if (lastPart) fileName = decodeURIComponent(lastPart);
         } catch {
-          console.log('파일명 추출 실패, 기본값 사용:', fileName);
+          fileName = `파일 ${index + 1}`;
         }
       }
+      if (!fileName) fileName = `파일 ${index + 1}`;
 
       return {
         name: fileName,
@@ -69,7 +68,7 @@ export default function FileUploader() {
         type: '',
         lastModified: Date.now(),
         fileUrl: file.fileUrl,
-        serverId: file.id, // 실제 서버 파일 ID 사용
+        serverId: file.id,
       } as UploadedFile;
     });
 
@@ -78,18 +77,19 @@ export default function FileUploader() {
       serverFileIds: serverFiles.map((f) => f.serverId),
     });
 
-    // 서버 파일과 로컬 파일을 병합 (중복 제거)
+    // 서버 파일과 로컬(업로드 중) 파일을 병합
     setFiles((prevFiles) => {
-      const serverFileIds = new Set(serverFiles.map((f) => f.serverId));
-      const localFiles = prevFiles.filter((f) => !serverFileIds.has(f.serverId));
+      const localOnlyFiles = prevFiles.filter(
+        (f) => typeof f.serverId === 'string' || f.serverId === undefined
+      );
 
       console.log('🔄 파일 병합:', {
         serverFilesCount: serverFiles.length,
-        localFilesCount: localFiles.length,
-        mergedCount: serverFiles.length + localFiles.length,
+        localOnlyFilesCount: localOnlyFiles.length,
+        mergedCount: serverFiles.length + localOnlyFiles.length,
       });
 
-      return [...serverFiles, ...localFiles];
+      return [...serverFiles, ...localOnlyFiles];
     });
   }, [taskData?.result?.files]);
 
@@ -220,7 +220,7 @@ export default function FileUploader() {
                   const newFileList = [
                     ...prev,
                     {
-                      name: file.name,
+                      name: data.result.name || file.name,
                       size: file.size,
                       type: file.type,
                       lastModified: file.lastModified,
@@ -364,7 +364,7 @@ export default function FileUploader() {
                   const newFileList = [
                     ...prev,
                     {
-                      name: file.name,
+                      name: data.result.name || file.name,
                       size: file.size,
                       type: file.type,
                       lastModified: file.lastModified,

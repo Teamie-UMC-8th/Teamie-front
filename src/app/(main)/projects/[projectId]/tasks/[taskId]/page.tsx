@@ -1,5 +1,5 @@
 'use client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -19,11 +19,15 @@ import {
 } from '@/hooks/mutations/useTaskDetail';
 import axiosInstance from '@/lib/axiosInstance';
 import { useRouter } from 'next/navigation';
+import { useWebSocket } from '@/contexts/WebSocketContext';
+import { SubEventType } from '@/types/webSocket';
 
 export default function TaskDetailPage() {
   const params = useParams();
   const taskId = Number(params.taskId);
   const projectId = Number(params.projectId);
+  const queryClient = useQueryClient();
+  const { socket, isConnected, subscribe, unsubscribe } = useWebSocket();
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [isTaskDeleted, setIsTaskDeleted] = useState(false); // 삭제 완료 상태 추적
@@ -44,6 +48,74 @@ export default function TaskDetailPage() {
     enabled: !!taskId && !deleteTaskMutation.isPending && !isTaskDeleted, // 삭제 중이거나 삭제 완료된 경우 쿼리 비활성화
     retry: 1, // 재시도 횟수 제한
   });
+
+  // 웹소켓 구독 및 이벤트 처리 (실시간 동기화)
+  useEffect(() => {
+    if (isConnected && socket && taskId) {
+      // task 전용 룸과 프로젝트 대시보드 룸 모두 구독 (서버가 어느 쪽으로 publish하든 대응)
+      subscribe(SubEventType.TASK_DETAIL, taskId);
+      subscribe(SubEventType.PROJECT_DASHBOARD, projectId);
+      console.log(`구독: ${SubEventType.TASK_DETAIL}:${taskId}`);
+      console.log(`구독: ${SubEventType.PROJECT_DASHBOARD}:${projectId}`);
+
+      const handlePublish = (data: {
+        entity?: string;
+        payload?: { id?: number; taskId?: number };
+      }) => {
+        console.log('웹소켓 이벤트 수신:', data);
+        // 1) task 자체 변경 (상태, 담당자, 비고, 마감 등)
+        if (
+          data?.entity === 'task' &&
+          (data.payload?.id === taskId || data.payload?.taskId === taskId)
+        ) {
+          console.log('변경 사항 발생에 따라 taskDetail 및 taskComments 쿼리 무효화', data);
+          // 넓은 키로 무효화하여 문자열/숫자 taskId 혼용 및 하위 쿼리까지 포괄
+          queryClient.invalidateQueries({ queryKey: ['taskDetail'], exact: false });
+          queryClient.invalidateQueries({ queryKey: ['taskComments'], exact: false });
+          return;
+        }
+
+        // 2) task_file 생성/삭제도 동일하게 task 상세/댓글을 리패치 (파일 섹션이 상세 응답에 포함)
+        if (data && data.entity === 'task_file') {
+          console.log('파일 변경 이벤트 감지로 taskDetail 무효화');
+          // 상세/대시보드 모두 갱신
+          queryClient.invalidateQueries({ queryKey: ['taskDetail'], exact: false });
+          queryClient.invalidateQueries({ queryKey: ['dashboard'], exact: false });
+          return;
+        }
+
+        // 3) 댓글/대댓글 이벤트: 서버가 comment/cocomment 엔티티를 사용한다면 대응
+        if (data && typeof data.entity === 'string' && data.entity.includes('comment')) {
+          // payload에 taskId가 오면 일치 여부 확인, 없으면 보수적으로 갱신
+          if (!data.payload?.taskId || data.payload?.taskId === taskId) {
+            console.log('댓글 관련 이벤트 감지로 taskComments 무효화');
+            queryClient.invalidateQueries({ queryKey: ['taskComments'], exact: false });
+            return;
+          }
+        }
+      };
+
+      const handleForceUnsubscribe = () => {
+        console.log('강제 구독 해제');
+        alert(
+          '다른 기기에서 접속이 감지되어 현재 페이지에서 연결이 해제됩니다. 프로젝트 홈으로 이동합니다.'
+        );
+        router.push(`/projects/${projectId}/dashboard`);
+      };
+
+      socket.on('publish', handlePublish);
+      socket.on('unsubscribe-forced', handleForceUnsubscribe);
+
+      return () => {
+        unsubscribe(SubEventType.TASK_DETAIL, taskId);
+        unsubscribe(SubEventType.PROJECT_DASHBOARD, projectId);
+        console.log(`구독 해제: ${SubEventType.TASK_DETAIL}:${taskId}`);
+        console.log(`구독 해제: ${SubEventType.PROJECT_DASHBOARD}:${projectId}`);
+        socket.off('publish', handlePublish);
+        socket.off('unsubscribe-forced', handleForceUnsubscribe);
+      };
+    }
+  }, [isConnected, socket, taskId, projectId, subscribe, unsubscribe, queryClient, router]);
 
   // 삭제 성공 시 페이지 이동
   useEffect(() => {
@@ -82,6 +154,7 @@ export default function TaskDetailPage() {
         console.log('📋 TaskDetailPage - 업무 정보:', {
           name: data.result.name,
           deadline: data.result.deadline,
+          memo: data.result.memo,
           status: data.result.status,
           stepId: data.result.stepId,
           managersCount: data.result.managers?.length || 0,

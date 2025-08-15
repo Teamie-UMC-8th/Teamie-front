@@ -66,7 +66,18 @@ export const checkTaskDetail = async (taskId: number): Promise<TaskDetailRespons
       }
     }
 
-    return response.data;
+    // memo 필드가 응답에 없을 수 있으므로 빈 문자열로 보정
+    const normalized = {
+      ...response.data,
+      result: response.data.result
+        ? {
+            ...response.data.result,
+            memo: response.data.result.memo ?? '',
+          }
+        : response.data.result,
+    };
+
+    return normalized;
   } catch (error: unknown) {
     console.error('❌ 업무 상세 조회 실패:', error);
 
