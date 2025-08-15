@@ -9,12 +9,15 @@ import React, {
   useMemo,
 } from 'react';
 import { useUser, useUserProjects } from '@/hooks/mutations/useUser';
+import { useLogout } from '@/hooks/mutations/useLogout';
 import { UserProfile } from '@/types/api/user';
+import { useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
   isAuthenticated: boolean;
   user: UserProfile | null;
-  logout: () => void;
+  logout: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -32,6 +35,9 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { data: userData, error: userError, isLoading } = useUser();
   const { data: projects = [] } = useUserProjects(!!userData);
+  const logoutMutation = useLogout();
+  const queryClient = useQueryClient();
+  const router = useRouter();
 
   // 사용자 정보와 프로젝트 정보를 합친 완전한 user 객체 (UI용)
   const user = useMemo(() => {
@@ -56,13 +62,24 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
   const logout = async () => {
     try {
-      // 로그아웃 API 호출 (필요한 경우)
-      // await axiosInstance.post('/auth/logout');
+      // 1. 백엔드에 로그아웃 요청 보내기 (필수)
+      await logoutMutation.mutateAsync();
+
+      // 2. 전역 상태(Global State) 초기화 (매우 중요)
+      setIsAuthenticated(false);
+
+      // 3. API 클라이언트 캐시 초기화
+      queryClient.clear();
+
+      // 4. 로그인 페이지로 리다이렉트
+      router.push('/login');
     } catch (error) {
       console.error('Logout request failed:', error);
-    } finally {
+
+      // 에러가 발생해도 로컬 상태는 초기화하고 로그인 페이지로 이동
       setIsAuthenticated(false);
-      window.location.href = '/login';
+      queryClient.clear();
+      router.push('/login');
     }
   };
 
