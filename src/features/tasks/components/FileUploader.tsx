@@ -77,18 +77,19 @@ export default function FileUploader() {
       serverFileIds: serverFiles.map((f) => f.serverId),
     });
 
-    // 서버 파일과 로컬 파일을 병합 (중복 제거)
+    // 서버 파일과 로컬(업로드 중) 파일을 병합
     setFiles((prevFiles) => {
-      const serverFileIds = new Set(serverFiles.map((f) => f.serverId));
-      const localFiles = prevFiles.filter((f) => !serverFileIds.has(f.serverId));
+      const localOnlyFiles = prevFiles.filter(
+        (f) => typeof f.serverId === 'string' || f.serverId === undefined
+      );
 
       console.log('🔄 파일 병합:', {
         serverFilesCount: serverFiles.length,
-        localFilesCount: localFiles.length,
-        mergedCount: serverFiles.length + localFiles.length,
+        localOnlyFilesCount: localOnlyFiles.length,
+        mergedCount: serverFiles.length + localOnlyFiles.length,
       });
 
-      return [...serverFiles, ...localFiles];
+      return [...serverFiles, ...localOnlyFiles];
     });
   }, [taskData?.result?.files]);
 

@@ -78,7 +78,9 @@ export default function TaskDetailPage() {
         // 2) task_file 생성/삭제도 동일하게 task 상세/댓글을 리패치 (파일 섹션이 상세 응답에 포함)
         if (data && data.entity === 'task_file') {
           console.log('파일 변경 이벤트 감지로 taskDetail 무효화');
+          // 상세/대시보드 모두 갱신
           queryClient.invalidateQueries({ queryKey: ['taskDetail'], exact: false });
+          queryClient.invalidateQueries({ queryKey: ['dashboard'], exact: false });
           return;
         }
 
