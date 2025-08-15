@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -24,7 +24,7 @@ import type { MasterPortfolio } from '@/types/api/masterportfolio';
 import { CATEGORY_MAP } from '@/constants/category';
 import { formatDateRange } from '@/utils/formatDate';
 
-export default function TailoredPortfolio() {
+function TailoredPortfolioContent() {
   const params = useParams();
   const correctionId = Number(params.correctionId);
   const searchParams = useSearchParams();
@@ -998,5 +998,13 @@ export default function TailoredPortfolio() {
         }
       />
     </div>
+  );
+}
+
+export default function TailoredPortfolio() {
+  return (
+    <Suspense fallback={null}>
+      <TailoredPortfolioContent />
+    </Suspense>
   );
 }

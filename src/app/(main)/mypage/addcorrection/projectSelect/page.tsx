@@ -2,7 +2,7 @@
 
 import Projects from '@/features/mypage/components/Projects';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useMemo, useState } from 'react';
+import { Suspense, useCallback, useMemo, useState } from 'react';
 import AddLoadingModal from '@/features/correction/components/AddLoadingModal';
 import {
   fetchGeneratedCorrection,
@@ -13,7 +13,7 @@ import {
 import { AxiosError, isAxiosError } from 'axios';
 import Image from 'next/image';
 
-export default function ProjectSelect() {
+function ProjectSelectContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const correctionIdFromQuery =
@@ -296,5 +296,13 @@ export default function ProjectSelect() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProjectSelect() {
+  return (
+    <Suspense fallback={null}>
+      <ProjectSelectContent />
+    </Suspense>
   );
 }

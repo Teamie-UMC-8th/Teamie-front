@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { Suspense, useState, useEffect, useRef } from 'react';
 import StepsSidebar from '@/features/aimasterportfolio/components/StepSidebar';
 import Portal from '@/components/Portal';
 import { useFunnel } from '@/features/aimasterportfolio/hooks/useFunnel';
@@ -24,7 +24,7 @@ import { usePostMasterPortfolioQuestions } from '@/hooks/mutations/usePostMaster
 const STEP_TITLES = ['개인 회고 작성', '회의록 선택', '추가 질문'] as const;
 const STEPS_FOR_SIDEBAR = STEP_TITLES.map((title, idx) => ({ id: idx + 1, title }));
 
-export default function AIMasterPortfolioCreatePage() {
+function AIMasterPortfolioCreatePageContent() {
   const router = useRouter();
   const params = useParams();
   const pathname = usePathname();
@@ -369,5 +369,13 @@ export default function AIMasterPortfolioCreatePage() {
 
       {isGenerating && <LoadingModal isOpen />}
     </>
+  );
+}
+
+export default function AIMasterPortfolioCreatePage() {
+  return (
+    <Suspense fallback={null}>
+      <AIMasterPortfolioCreatePageContent />
+    </Suspense>
   );
 }

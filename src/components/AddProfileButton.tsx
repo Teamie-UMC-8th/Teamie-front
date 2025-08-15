@@ -24,7 +24,7 @@ export default function AddProfileButton({
   alertMessage = '프로젝트 멤버만 수정할 수 있습니다.', // 기본값 설정
 }: AddProfileButtonProps) {
   const [selectedProfiles, setSelectedProfiles] = useState<Manager[]>([]);
-  const isInitialized = useRef(false);
+  // const isInitialized = useRef(false);
 
   // initialSelectedIds prop이 변경될 때마다 내부 상태를 업데이트합니다.
   useEffect(() => {

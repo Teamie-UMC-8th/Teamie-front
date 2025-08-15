@@ -2,7 +2,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   fetchRagData,
@@ -11,7 +11,7 @@ import {
   patchCompanyInsight,
 } from '@/services/correction/correction';
 
-export default function AiLoadingPage() {
+function AiLoadingPageContent() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const idParamStr = searchParams.get('correctionId') ?? '';
@@ -446,5 +446,13 @@ export default function AiLoadingPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AiLoadingPage() {
+  return (
+    <Suspense fallback={null}>
+      <AiLoadingPageContent />
+    </Suspense>
   );
 }
