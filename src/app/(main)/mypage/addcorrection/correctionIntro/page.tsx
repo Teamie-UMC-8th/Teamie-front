@@ -14,34 +14,33 @@ export default function CorrectionIntro() {
   const [isLoadingOpen, setIsLoadingOpen] = useState(false);
   const [payload, setPayload] = useState<CreateCorrectionRequest | null>(null);
   const { data: currentUser } = useUser();
+  const [companyName, setCompanyName] = useState('');
+  const [jobTitle, setJobTitle] = useState('');
+  const [jd, setJd] = useState('');
 
   const handleStart = () => {
-    const container = formRef.current;
-    const inputs = container?.querySelectorAll('input') ?? [];
-    const textarea = container?.querySelector('textarea');
+    const company = companyName.trim();
+    const job = jobTitle.trim();
+    const jdText = jd.trim();
 
-    const companyName = (inputs[0] as HTMLInputElement | undefined)?.value?.trim() ?? '';
-    const jobTitle = (inputs[1] as HTMLInputElement | undefined)?.value?.trim() ?? '';
-    const jd = (textarea as HTMLTextAreaElement | null)?.value?.trim() ?? '';
-
-    if (!companyName || !jobTitle || !jd) {
+    if (!company || !job || !jdText) {
       alert('기업명, 직무명, JD를 모두 입력해주세요.');
       return;
     }
 
     const payload = {
       // title은 백엔드에서 이후 자동 생성/수정될 예정이므로 임시로 동일 값 전달
-      title: companyName,
-      jobTitle,
-      jd,
+      title: company,
+      jobTitle: job,
+      jd: jdText,
       // 기업명은 submissionTarget에 전달
-      submissionTarget: companyName,
+      submissionTarget: company,
     } as const;
     console.log('[AI 첨삭 생성] 요청 페이로드:', payload);
     try {
       // analyzing, tailored에서 공통으로 사용할 기업명 캐시 저장
       // 생성 직전에 저장하여 이후 전 페이지에서 동일 기업명이 노출되도록 함
-      sessionStorage.setItem('lastCorrectionCompanyName', companyName);
+      sessionStorage.setItem('lastCorrectionCompanyName', company);
     } catch {}
     setPayload(payload);
     setIsLoadingOpen(true);
@@ -113,13 +112,28 @@ export default function CorrectionIntro() {
               <img src="/icons/SubBubble.svg" alt="말풍선" />
               <div className="absolute top-[40px] left-[50px] flex-col" ref={formRef}>
                 <p className="font-semibold text-[18px] ">기업명</p>
-                <input className="border border-[#BBBBBB] w-[645px] h-[42px] rounded-[4px] mt-[2px] px-[12px]" />
+                <input
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  className="border border-[#BBBBBB] w-[645px] h-[42px] rounded-[4px] mt-[2px] px-[12px]"
+                />
                 <p className="font-semibold text-[18px] mt-[16px]">직무명</p>
-                <input className="border border-[#BBBBBB] w-[645px] h-[42px] rounded-[4px] mt-[2px] px-[12px]" />
+                <input
+                  value={jobTitle}
+                  onChange={(e) => setJobTitle(e.target.value)}
+                  className="border border-[#BBBBBB] w-[645px] h-[42px] rounded-[4px] mt-[2px] px-[12px]"
+                />
                 <p className="font-semibold text-[18px] mt-[16px]">Job Description</p>
-                <textarea className="border border-[#BBBBBB] w-[645px] h-[64px] rounded-[4px] mt-[2px] px-[12px] py-[10px] " />
+                <textarea
+                  value={jd}
+                  onChange={(e) => setJd(e.target.value)}
+                  className="border border-[#BBBBBB] w-[645px] h-[64px] resize-none rounded-[4px] mt-[2px] px-[12px] py-[10px] "
+                />
 
-                <CorrectionRequestStartButton onStart={handleStart} />
+                <CorrectionRequestStartButton
+                  onStart={handleStart}
+                  disabled={!(companyName.trim() && jobTitle.trim() && jd.trim())}
+                />
               </div>
             </div>
           </div>

@@ -8,6 +8,7 @@ type CorrectionRequestStartButtonProps = {
   confirmText?: string;
   cancelText?: string;
   className?: string;
+  disabled?: boolean;
 };
 
 export default function CorrectionStartButton({
@@ -16,6 +17,7 @@ export default function CorrectionStartButton({
   cancelText = '취소',
   confirmText = '의뢰',
   className = '',
+  disabled = false,
 }: CorrectionRequestStartButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -26,13 +28,20 @@ export default function CorrectionStartButton({
 
   return (
     <>
-      <button onClick={() => setIsModalOpen(true)} className={`${className} cursor-pointer `}>
+      <button
+        type="button"
+        onClick={() => !disabled && setIsModalOpen(true)}
+        disabled={disabled}
+        className={`${className} inline-block mt-[14px] ml-[338px] p-0 border-0 bg-transparent ${
+          disabled ? 'opacity-50' : 'cursor-pointer'
+        }`}
+      >
         <Image
           src="/icons/CorrectionRequestStartButton.svg"
           alt="첨삭 의뢰 시작 버튼"
           width={308}
           height={48}
-          className="mt-[14px] ml-[308px]"
+          className="block"
         />
       </button>
 
