@@ -16,8 +16,6 @@ import DeleteButton from '@/components/DeleteButton';
 import ReductionToggle from '@/features/correction/components/ReductionToggle';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import ReductionMark from '@/features/correction/components/ReductionMark';
-import ConcretizationMark from '@/features/correction/components/ConcretizationMark';
 import ConcretizationToggle from '@/features/correction/components/ConcretizationToggle';
 import Image from 'next/image';
 import CompanyInsightProcessModal from '@/features/correction/components/CompanyInsightProcessModal';
@@ -393,16 +391,18 @@ export default function TailoredPortfolio() {
           >
             분류
           </div>
-          <span
-            className="ml-[28px] text-[18px] px-[10px] py-[4px] rounded-[4px]"
-            style={{
-              backgroundColor:
-                CATEGORY_MAP[(selectedMaster?.category as keyof typeof CATEGORY_MAP) || 'OTHER']
-                  ?.color || '#C8C8C8',
-            }}
-          >
-            {categoryLabel}
-          </span>
+          <div className="ml-[28px] w-[160px]">
+            <span
+              className="inline-block text-[18px] px-[10px] py-[4px] rounded-[4px]"
+              style={{
+                backgroundColor:
+                  CATEGORY_MAP[(selectedMaster?.category as keyof typeof CATEGORY_MAP) || 'OTHER']
+                    ?.color || '#C8C8C8',
+              }}
+            >
+              {categoryLabel}
+            </span>
+          </div>
           <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[154px] font-semibold text-[18px]">
             기여도
           </div>
@@ -427,7 +427,7 @@ export default function TailoredPortfolio() {
           className="mt-[40px]
         max-lg:mt-[32px]"
         >
-          <div className="text-[18px] font-semibold">상세정보</div>
+          <div className="text-[18px] font-semibold">상세 정보</div>
           <div
             className="w-[1400px] rounded-[8px] border border-[#E7E7E7] bg-white mt-[12px] px-[40px] py-[28px] flex
           max-lg:w-[856px] max-lg:flex-col"
@@ -453,20 +453,13 @@ export default function TailoredPortfolio() {
                         borderLeft: '4px solid #97D099',
                         borderRadius: '4px',
                       }
-                    : undefined;
+                    : { borderLeft: '4px solid transparent', borderRadius: '4px' };
                 return (
                   <p key={`detail-${idx}`} style={style}>
                     {text}
                   </p>
                 );
               })}
-
-              <p className="mt-[48px]" />
-              {detailReduceOn && (
-                <div className="relative" style={{ height: 0 }}>
-                  <ReductionMark />
-                </div>
-              )}
             </div>
             {/* Divider line */}
             <div className="border-l-[2px] border-[#BBBBBB] ml-[40px] mr-[40px] block max-lg:hidden" />
@@ -485,7 +478,13 @@ export default function TailoredPortfolio() {
 
               {/* TODO: 토글 둘 중 한개만 켤 수 있도록 */}
               <div className="flex mt-[48px] items-center w-[620px]">
-                <ReductionToggle onRToggle={setDetailReduceOn} />
+                <ReductionToggle
+                  isOn={detailReduceOn}
+                  onRToggle={(v) => {
+                    setDetailReduceOn(v);
+                    if (v) setDetailConcreteOn(false);
+                  }}
+                />
                 <div className="flex ml-[16px]">
                   <div className="bg-[#EF7C7C] w-[4px] h-[34px] rounded-l-[4px]"></div>
                   <div className="w-[189px] h-[34px] bg-[#D846460D] px-[12px] py-[4px] rounded-r-[4px]">
@@ -518,7 +517,13 @@ export default function TailoredPortfolio() {
               {/* 총평 내용은 상단 박스 안에 표시됨 */}
 
               <div className="flex mt-[48px] items-center w-[620px]">
-                <ConcretizationToggle onCToggle={setDetailConcreteOn} />
+                <ConcretizationToggle
+                  isOn={detailConcreteOn}
+                  onCToggle={(v) => {
+                    setDetailConcreteOn(v);
+                    if (v) setDetailReduceOn(false);
+                  }}
+                />
                 <div className="flex ml-[16px]">
                   <div className="bg-[#97D099] w-[4px] h-[34px] rounded-l-[4px]"></div>
                   <div className="w-[260px] h-[34px] bg-[#97D0991A] px-[12px] py-[4px] rounded-r-[4px]">
@@ -582,20 +587,13 @@ export default function TailoredPortfolio() {
                         borderLeft: '4px solid #97D099',
                         borderRadius: '4px',
                       }
-                    : undefined;
+                    : { borderLeft: '4px solid transparent', borderRadius: '4px' };
                 return (
                   <p key={`tasks-${idx}`} style={style}>
                     {text}
                   </p>
                 );
               })}
-
-              <p className="mt-[48px]" />
-              {tasksConcreteOn && (
-                <div className="relative" style={{ height: 0 }}>
-                  <ConcretizationMark />
-                </div>
-              )}
             </div>
             {/* Divider line */}
             <div className="border-l-[2px] border-[#BBBBBB] ml-[40px] mr-[40px] block max-lg:hidden" />
@@ -613,7 +611,13 @@ export default function TailoredPortfolio() {
 
               {/* TODO: 토글 둘 중 한개만 켤 수 있도록 */}
               <div className="flex mt-[48px] items-center w-[620px]">
-                <ReductionToggle onRToggle={setTasksReduceOn} />
+                <ReductionToggle
+                  isOn={tasksReduceOn}
+                  onRToggle={(v) => {
+                    setTasksReduceOn(v);
+                    if (v) setTasksConcreteOn(false);
+                  }}
+                />
                 <div className="flex ml-[16px]">
                   <div className="bg-[#EF7C7C] w-[4px] h-[34px] rounded-l-[4px]"></div>
                   <div className="w-[189px] h-[34px] bg-[#D846460D] px-[12px] py-[4px] rounded-r-[4px]">
@@ -646,7 +650,13 @@ export default function TailoredPortfolio() {
               {/* 총평 내용은 상단 박스 안에 표시됨 */}
 
               <div className="flex mt-[48px] items-center w-[620px]">
-                <ConcretizationToggle onCToggle={setTasksConcreteOn} />
+                <ConcretizationToggle
+                  isOn={tasksConcreteOn}
+                  onCToggle={(v) => {
+                    setTasksConcreteOn(v);
+                    if (v) setTasksReduceOn(false);
+                  }}
+                />
                 <div className="flex ml-[16px]">
                   <div className="bg-[#97D099] w-[4px] h-[34px] rounded-l-[4px]"></div>
                   <div className="w-[260px] h-[34px] bg-[#97D0991A] px-[12px] py-[4px] rounded-r-[4px]">
@@ -710,7 +720,7 @@ export default function TailoredPortfolio() {
                         borderLeft: '4px solid #97D099',
                         borderRadius: '4px',
                       }
-                    : undefined;
+                    : { borderLeft: '4px solid transparent', borderRadius: '4px' };
                 return (
                   <p key={`ach-${idx}`} style={style}>
                     - {text}
@@ -734,7 +744,13 @@ export default function TailoredPortfolio() {
 
               {/* TODO: 토글 둘 중 한개만 켤 수 있도록 */}
               <div className="flex mt-[48px] items-center w-[620px]">
-                <ReductionToggle onRToggle={setAchReduceOn} />
+                <ReductionToggle
+                  isOn={achReduceOn}
+                  onRToggle={(v) => {
+                    setAchReduceOn(v);
+                    if (v) setAchConcreteOn(false);
+                  }}
+                />
                 <div className="flex ml-[16px]">
                   <div className="bg-[#EF7C7C] w-[4px] h-[34px] rounded-l-[4px]"></div>
                   <div className="w-[189px] h-[34px] bg-[#D846460D] px-[12px] py-[4px] rounded-r-[4px]">
@@ -767,7 +783,13 @@ export default function TailoredPortfolio() {
               {/* 총평 내용은 상단 박스 안에 표시됨 */}
 
               <div className="flex mt-[48px] items-center w-[620px]">
-                <ConcretizationToggle onCToggle={setAchConcreteOn} />
+                <ConcretizationToggle
+                  isOn={achConcreteOn}
+                  onCToggle={(v) => {
+                    setAchConcreteOn(v);
+                    if (v) setAchReduceOn(false);
+                  }}
+                />
                 <div className="flex ml-[16px]">
                   <div className="bg-[#97D099] w-[4px] h-[34px] rounded-l-[4px]"></div>
                   <div className="w-[260px] h-[34px] bg-[#97D0991A] px-[12px] py-[4px] rounded-r-[4px]">
@@ -830,7 +852,7 @@ export default function TailoredPortfolio() {
                         borderLeft: '4px solid #97D099',
                         borderRadius: '4px',
                       }
-                    : undefined;
+                    : { borderLeft: '4px solid transparent', borderRadius: '4px' };
                 return (
                   <p key={`ins-${idx}`} style={style}>
                     {text}
@@ -854,7 +876,13 @@ export default function TailoredPortfolio() {
 
               {/* TODO: 토글 둘 중 한개만 켤 수 있도록 */}
               <div className="flex mt-[48px] items-center w-[620px]">
-                <ReductionToggle onRToggle={setInsReduceOn} />
+                <ReductionToggle
+                  isOn={insReduceOn}
+                  onRToggle={(v) => {
+                    setInsReduceOn(v);
+                    if (v) setInsConcreteOn(false);
+                  }}
+                />
                 <div className="flex ml-[16px]">
                   <div className="bg-[#EF7C7C] w-[4px] h-[34px] rounded-l-[4px]"></div>
                   <div className="w-[189px] h-[34px] bg-[#D846460D] px-[12px] py-[4px] rounded-r-[4px]">
@@ -887,7 +915,13 @@ export default function TailoredPortfolio() {
               {/* 총평 내용은 상단 박스 안에 표시됨 */}
 
               <div className="flex mt-[48px] items-center w-[620px]">
-                <ConcretizationToggle onCToggle={setInsConcreteOn} />
+                <ConcretizationToggle
+                  isOn={insConcreteOn}
+                  onCToggle={(v) => {
+                    setInsConcreteOn(v);
+                    if (v) setInsReduceOn(false);
+                  }}
+                />
                 <div className="flex ml-[16px]">
                   <div className="bg-[#97D099] w-[4px] h-[34px] rounded-l-[4px]"></div>
                   <div className="w-[260px] h-[34px] bg-[#97D0991A] px-[12px] py-[4px] rounded-r-[4px]">

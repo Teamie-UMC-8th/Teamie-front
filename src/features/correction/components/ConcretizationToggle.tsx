@@ -1,16 +1,13 @@
-import { useState } from 'react';
+import React from 'react';
 
 interface ConcretizationToggleProps {
+  isOn: boolean;
   onCToggle: (value: boolean) => void;
 }
 
-const ConcretizationToggle = ({ onCToggle }: ConcretizationToggleProps) => {
-  const [isOn, setIsOn] = useState(false);
-
+const ConcretizationToggle = ({ isOn, onCToggle }: ConcretizationToggleProps) => {
   const handleClick = () => {
-    const next = !isOn;
-    setIsOn(next);
-    onCToggle(next);
+    onCToggle(!isOn);
   };
 
   return (
