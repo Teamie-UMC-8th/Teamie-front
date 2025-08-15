@@ -15,6 +15,7 @@ export default function MeetingRecordsField({
   onChange,
   onBlur,
   availableProfiles,
+  selectedWriters,
   onWritersChange,
   onPermissionCheck,
 }: MeetingRecordsFieldProps) {
@@ -32,6 +33,7 @@ export default function MeetingRecordsField({
         <div className="border-l-[2px] border-[#898989] h-[22px] mr-[12px]" />
         <AddProfileButton
           profiles={availableProfiles}
+          initialSelectedIds={selectedWriters}
           onChange={onWritersChange}
           onPermissionCheck={onPermissionCheck}
         />
