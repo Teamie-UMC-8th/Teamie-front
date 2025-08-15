@@ -158,7 +158,7 @@ export default function StatusBoard({ statusGroups, projectId }: StatusBoardProp
                           >
                             <div {...provided.dragHandleProps}>
                               <TaskItem
-                                projectId={projectId}
+                                projectId={String(projectId)}
                                 id={task.taskId}
                                 title={task.taskName}
                                 status={task.displayStatus}
@@ -167,6 +167,11 @@ export default function StatusBoard({ statusGroups, projectId }: StatusBoardProp
                                   name: manager.name,
                                   imageUrl: manager.imageUrl,
                                 }))}
+                                onTaskComplete={(taskId, title) => {
+                                  // 완료 상태로 변경된 경우 모달 표시
+                                  setCompletedTask({ title, taskId });
+                                  setShowCopyModal(true);
+                                }}
                               />
                             </div>
                           </div>

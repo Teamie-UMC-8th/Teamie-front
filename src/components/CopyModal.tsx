@@ -43,7 +43,7 @@ const CopyModal = ({
           <Image src="/icons/close.svg" alt="close" width={24} height={24} />
         </button>
         <div className="mb-[1.5rem]">
-          <h1 className="text-[1.25rem] font-semibold text-black leading-relaxed">
+          <h1 className="text-[1.25rem] font-semibold text-black leading-[28px]">
             {headerText.split('<br>').map((line, index) => (
               <span key={index}>
                 {line}
@@ -60,13 +60,13 @@ const CopyModal = ({
             onClick={handleCopy}
             className="absolute top-[0.75rem] right-[0.75rem] cursor-pointer"
           >
-            <Image src="/icons/copy_url.svg" alt="copy_url" width={24} height={24} />
+            <Image src="/icons/copy_url.svg" alt="copy_url" width={15} height={18} />
           </button>
           <div className="text-center text-[1rem] text-black">{messageContent}</div>
         </div>
         {isCopied && (
           <div className="absolute bottom-[1.25rem] left-1/2 transform -translate-x-1/2 z-50">
-            <div className="bg-[#F8F8F8] text-[#505050] px-[1.25rem] py-[0.5rem] border-[0.09375rem] border-[#BBBBBB] rounded-[0.375rem] text-[0.875rem] whitespace-nowrap">
+            <div className="bg-[#F8F8F8] text-[#505050] leading-[22px] px-[1.25rem] py-[6px] border-[0.09375rem] border-[#BBBBBB] rounded-[0.375rem] text-[0.875rem] whitespace-nowrap">
               {copySuccessText}
             </div>
           </div>
