@@ -271,9 +271,11 @@ export default function AIMasterPortfolioCreatePage() {
                         </div>
                       )
                     ) : isPostingQuestions ? (
-                      <img
+                      <Image
                         src="/icons/nextLoading.svg"
                         alt="로딩"
+                        width={20}
+                        height={20}
                         className="w-[20px] h-[20px] animate-spin"
                       />
                     ) : (

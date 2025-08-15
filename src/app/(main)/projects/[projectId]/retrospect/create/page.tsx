@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import PersonalSection from '@/features/retrospects/components/PersonalSection';
 
 export default function PersonalRetroPage() {

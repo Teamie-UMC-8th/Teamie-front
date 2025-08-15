@@ -129,7 +129,6 @@ export default function MasterPortfolioDetail() {
     isLoading: statusLoading,
     refetch: refetchStatus,
   } = useMasterPortfolioStatus(portfolioId);
-  const router = useRouter();
   const detailRef = useRef<HTMLDivElement>(null);
   const taskRef = useRef<HTMLDivElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);

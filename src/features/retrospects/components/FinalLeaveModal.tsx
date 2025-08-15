@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 
 interface FinalLeaveModalProps {
   onConfirm: () => void;
@@ -16,7 +17,13 @@ export default function FinalLeaveModal({ onConfirm, onCancel }: FinalLeaveModal
           className="absolute top-[8px] right-[8px] w-[24px] h-[24px] cursor-pointer"
           onClick={onCancel}
         >
-          <img src="/icons/close.svg" alt="닫기" className="w-[24px] h-[24px]" />
+          <Image
+            src="/icons/close.svg"
+            alt="닫기"
+            width={24}
+            height={24}
+            className="w-[24px] h-[24px]"
+          />
         </button>
 
         {/* 질문 문구 */}

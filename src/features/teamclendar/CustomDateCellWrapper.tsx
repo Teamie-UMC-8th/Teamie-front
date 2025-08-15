@@ -1,6 +1,7 @@
 'use client';
 
 import { ReactNode, useMemo, useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePostPlan } from '@/hooks/mutations/usePostTeamCalendar';
@@ -27,8 +28,6 @@ export default function CustomDateCellWrapper({
   startDate,
   endDate,
   setCurrentDate,
-  currentDate = new Date(),
-  latestPlanDate,
   projectCreatedAtISO,
 }: CustomDateCellWrapperProps) {
   const [hovered, setHovered] = useState(false);
@@ -233,7 +232,13 @@ export default function CustomDateCellWrapper({
                 className="flex items-center justify-center rounded-[4px] cursor-pointer"
                 onClick={handleClick}
               >
-                <img src="/icons/AddProject.svg" alt="일정 추가" className="w-[24px] h-[24px]" />
+                <Image
+                  src="/icons/AddProject.svg"
+                  alt="일정 추가"
+                  width={24}
+                  height={24}
+                  className="w-[24px] h-[24px]"
+                />
               </button>
             )}
           </div>
