@@ -226,7 +226,7 @@ export default function TailoredPortfolio() {
             />
           </Link>
           <h1
-            className="text-[24px] font-semibold mt-[28px] ml-[20px]
+            className="text-[24px] font-semibold mt-[28px] ml-[20px] focus:outline-none outline-none focus:ring-0 focus:shadow-none
           max-lg:ml-[8px]"
             contentEditable
             suppressContentEditableWarning
