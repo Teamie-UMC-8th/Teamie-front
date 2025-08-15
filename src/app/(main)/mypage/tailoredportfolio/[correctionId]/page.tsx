@@ -376,7 +376,7 @@ export default function TailoredPortfolio() {
 
       {/* 프로젝트 별 첨삭 내용*/}
       <div
-        className="w-[1520px] h-[2757px] bg-[#F8F8F8] ml-[80px] rounded-[16px] relative z-10 p-[60px]
+        className="w-[1520px] h-auto bg-[#F8F8F8] ml-[80px] rounded-[16px] relative z-10 p-[60px]
         max-lg:w-[928px] max-lg:h-[4325px] max-lg:p-[36px] max-lg:ml-[24px]"
         style={{ boxShadow: '0px 0px 4px 0px #00000033' }}
       >
@@ -495,27 +495,25 @@ export default function TailoredPortfolio() {
               </div>
 
               {/* 축소 대상 라인 목록 (type === 1) */}
-              {detailReduceOn && (
-                <div className="mt-[20px]">
-                  {(
-                    currentCorrection?.correctionResult?.detailInfo?.lines ||
-                    ([] as GeneratedLineItem[])
-                  )
-                    .filter((ln: GeneratedLineItem) => Number(ln?.type) === 1)
-                    .map((ln: GeneratedLineItem, idx: number) => {
-                      const text = String(ln?.review_comment || '').trim();
-                      if (!text) return null;
-                      return (
-                        <div key={`detail-reduce-${idx}`} className="flex items-start mb-[8px]">
-                          <span className="w-[24px] text-[#EF7C7C] font-semibold mr-[12px]">
-                            {idx + 1}.
-                          </span>
-                          <p className="text-[18px] leading-[28px]">{text}</p>
-                        </div>
-                      );
-                    })}
-                </div>
-              )}
+              <div className="mt-[20px]">
+                {(
+                  currentCorrection?.correctionResult?.detailInfo?.lines ||
+                  ([] as GeneratedLineItem[])
+                )
+                  .filter((ln: GeneratedLineItem) => Number(ln?.type) === 1)
+                  .map((ln: GeneratedLineItem, idx: number) => {
+                    const text = String(ln?.review_comment || '').trim();
+                    if (!text) return null;
+                    return (
+                      <div key={`detail-reduce-${idx}`} className="flex items-start mb-[8px]">
+                        <span className="w-[24px] text-[#EF7C7C] font-semibold mr-[12px]">
+                          {idx + 1}.
+                        </span>
+                        <p className="text-[18px] leading-[28px]">{text}</p>
+                      </div>
+                    );
+                  })}
+              </div>
 
               {/* 총평 내용은 상단 박스 안에 표시됨 */}
 
@@ -530,27 +528,25 @@ export default function TailoredPortfolio() {
               </div>
 
               {/* 구체화 대상 라인 목록 (type === 2) */}
-              {detailConcreteOn && (
-                <div className="mt-[20px]">
-                  {(
-                    currentCorrection?.correctionResult?.detailInfo?.lines ||
-                    ([] as GeneratedLineItem[])
-                  )
-                    .filter((ln: GeneratedLineItem) => Number(ln?.type) === 2)
-                    .map((ln: GeneratedLineItem, idx: number) => {
-                      const text = String(ln?.review_comment || '').trim();
-                      if (!text) return null;
-                      return (
-                        <div key={`detail-concrete-${idx}`} className="flex items-start mb-[8px]">
-                          <span className="w-[24px] text-[#97D099] font-semibold mr-[12px]">
-                            {idx + 1}.
-                          </span>
-                          <p className="text-[18px] leading-[28px]">{text}</p>
-                        </div>
-                      );
-                    })}
-                </div>
-              )}
+              <div className="mt-[20px]">
+                {(
+                  currentCorrection?.correctionResult?.detailInfo?.lines ||
+                  ([] as GeneratedLineItem[])
+                )
+                  .filter((ln: GeneratedLineItem) => Number(ln?.type) === 2)
+                  .map((ln: GeneratedLineItem, idx: number) => {
+                    const text = String(ln?.review_comment || '').trim();
+                    if (!text) return null;
+                    return (
+                      <div key={`detail-concrete-${idx}`} className="flex items-start mb-[8px]">
+                        <span className="w-[24px] text-[#97D099] font-semibold mr-[12px]">
+                          {idx + 1}.
+                        </span>
+                        <p className="text-[18px] leading-[28px]">{text}</p>
+                      </div>
+                    );
+                  })}
+              </div>
 
               {/* 가이드 문구 제거 */}
             </div>
@@ -634,7 +630,7 @@ export default function TailoredPortfolio() {
                 )
                   .filter((ln: GeneratedLineItem) => Number(ln?.type) === 1)
                   .map((ln: GeneratedLineItem, idx: number) => {
-                    const text = String(ln?.original_content || '').trim();
+                    const text = String(ln?.review_comment || '').trim();
                     if (!text) return null;
                     return (
                       <div key={`tasks-reduce-${idx}`} className="flex items-start mb-[8px]">
@@ -667,7 +663,7 @@ export default function TailoredPortfolio() {
                 )
                   .filter((ln: GeneratedLineItem) => Number(ln?.type) === 2)
                   .map((ln: GeneratedLineItem, idx: number) => {
-                    const text = String(ln?.original_content || '').trim();
+                    const text = String(ln?.review_comment || '').trim();
                     if (!text) return null;
                     return (
                       <div key={`tasks-concrete-${idx}`} className="flex items-start mb-[8px]">
@@ -748,27 +744,25 @@ export default function TailoredPortfolio() {
               </div>
 
               {/* 축소 대상 라인 목록 (type === 1) */}
-              {achReduceOn && (
-                <div className="mt-[20px]">
-                  {(
-                    currentCorrection?.correctionResult?.keyAchievements?.lines ||
-                    ([] as GeneratedLineItem[])
-                  )
-                    .filter((ln: GeneratedLineItem) => Number(ln?.type) === 1)
-                    .map((ln: GeneratedLineItem, idx: number) => {
-                      const text = String(ln?.review_comment || '').trim();
-                      if (!text) return null;
-                      return (
-                        <div key={`ach-reduce-${idx}`} className="flex items-start mb-[8px]">
-                          <span className="w-[24px] text-[#EF7C7C] font-semibold mr-[12px]">
-                            {idx + 1}.
-                          </span>
-                          <p className="text-[18px] leading-[28px]">{text}</p>
-                        </div>
-                      );
-                    })}
-                </div>
-              )}
+              <div className="mt-[20px]">
+                {(
+                  currentCorrection?.correctionResult?.keyAchievements?.lines ||
+                  ([] as GeneratedLineItem[])
+                )
+                  .filter((ln: GeneratedLineItem) => Number(ln?.type) === 1)
+                  .map((ln: GeneratedLineItem, idx: number) => {
+                    const text = String(ln?.review_comment || '').trim();
+                    if (!text) return null;
+                    return (
+                      <div key={`ach-reduce-${idx}`} className="flex items-start mb-[8px]">
+                        <span className="w-[24px] text-[#EF7C7C] font-semibold mr-[12px]">
+                          {idx + 1}.
+                        </span>
+                        <p className="text-[18px] leading-[28px]">{text}</p>
+                      </div>
+                    );
+                  })}
+              </div>
 
               {/* 총평 내용은 상단 박스 안에 표시됨 */}
 
@@ -783,27 +777,25 @@ export default function TailoredPortfolio() {
               </div>
 
               {/* 구체화 대상 라인 목록 (type === 2) */}
-              {achConcreteOn && (
-                <div className="mt-[20px]">
-                  {(
-                    currentCorrection?.correctionResult?.keyAchievements?.lines ||
-                    ([] as GeneratedLineItem[])
-                  )
-                    .filter((ln: GeneratedLineItem) => Number(ln?.type) === 2)
-                    .map((ln: GeneratedLineItem, idx: number) => {
-                      const text = String(ln?.review_comment || '').trim();
-                      if (!text) return null;
-                      return (
-                        <div key={`ach-concrete-${idx}`} className="flex items-start mb-[8px]">
-                          <span className="w-[24px] text-[#97D099] font-semibold mr-[12px]">
-                            {idx + 1}.
-                          </span>
-                          <p className="text-[18px] leading-[28px]">{text}</p>
-                        </div>
-                      );
-                    })}
-                </div>
-              )}
+              <div className="mt-[20px]">
+                {(
+                  currentCorrection?.correctionResult?.keyAchievements?.lines ||
+                  ([] as GeneratedLineItem[])
+                )
+                  .filter((ln: GeneratedLineItem) => Number(ln?.type) === 2)
+                  .map((ln: GeneratedLineItem, idx: number) => {
+                    const text = String(ln?.review_comment || '').trim();
+                    if (!text) return null;
+                    return (
+                      <div key={`ach-concrete-${idx}`} className="flex items-start mb-[8px]">
+                        <span className="w-[24px] text-[#97D099] font-semibold mr-[12px]">
+                          {idx + 1}.
+                        </span>
+                        <p className="text-[18px] leading-[28px]">{text}</p>
+                      </div>
+                    );
+                  })}
+              </div>
 
               {/* 가이드 문구 제거 */}
             </div>
@@ -879,7 +871,7 @@ export default function TailoredPortfolio() {
                 )
                   .filter((ln: GeneratedLineItem) => Number(ln?.type) === 1)
                   .map((ln: GeneratedLineItem, idx: number) => {
-                    const text = String(ln?.original_content || '').trim();
+                    const text = String(ln?.review_comment || '').trim();
                     if (!text) return null;
                     return (
                       <div key={`ins-reduce-${idx}`} className="flex items-start mb-[8px]">
@@ -912,7 +904,7 @@ export default function TailoredPortfolio() {
                 )
                   .filter((ln: GeneratedLineItem) => Number(ln?.type) === 2)
                   .map((ln: GeneratedLineItem, idx: number) => {
-                    const text = String(ln?.original_content || '').trim();
+                    const text = String(ln?.review_comment || '').trim();
                     if (!text) return null;
                     return (
                       <div key={`ins-concrete-${idx}`} className="flex items-start mb-[8px]">
