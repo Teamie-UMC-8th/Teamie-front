@@ -48,7 +48,7 @@ export function MemberView() {
       {/* 카드 영역 */}
       <div
         className="
-          flex gap-[100px] pl-[200px] pr-[361px]
+          flex gap-[100px] justify-center
           max-lg:flex-col max-lg:gap-[80px] max-lg:px-[198px]
         "
       >

@@ -32,7 +32,7 @@ export default function LeaderView() {
       {/* 카드 영역 (MemberView와 동일하게 반응형 적용) */}
       <div
         className="
-          flex gap-[100px] pl-[200px] pr-[361px]
+          flex gap-[100px] justify-center
           max-lg:flex-col max-lg:gap-[80px] max-lg:px-[198px]
         "
       >
