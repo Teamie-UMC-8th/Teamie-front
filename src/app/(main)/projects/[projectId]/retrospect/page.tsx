@@ -6,6 +6,7 @@ import { MemberView } from '@/features/retrospects/components/MemberView';
 import { useGetUserProjectPermission } from '@/hooks/queries/projects/useGetUserProjectPermission';
 import { useGetProjectIsCompleted } from '@/hooks/queries/projects/useGetProject';
 import PersonalSection from '@/features/retrospects/components/PersonalSection';
+import { useProjectHome } from '@/hooks/mutations/useProjectHome';
 
 export default function PersonalRetroPage() {
   const params = useParams();
@@ -14,6 +15,12 @@ export default function PersonalRetroPage() {
   const { data: permissionData, isLoading, error } = useGetUserProjectPermission(projectId ?? '');
 
   const numericProjectId = Number(projectId);
+  // 프로젝트 상세 먼저 조회 (데이터 연결 목적)
+  const {
+    data: projectDetail,
+    isLoading: projectLoading,
+    error: projectError,
+  } = useProjectHome(numericProjectId);
   const {
     data: isCompletedData,
     isLoading: isCompletedLoading,
@@ -22,12 +29,22 @@ export default function PersonalRetroPage() {
 
   // 콘솔에 권한 정보 출력
   console.log('프로젝트 권한 정보:', permissionData);
+  // 콘솔에 프로젝트 상세 정보 출력
+  console.log('프로젝트 상세 정보:', projectDetail);
 
   // 종료 여부/권한 로딩 우선 처리
-  if (isCompletedLoading || isLoading) {
+  if (projectLoading || isCompletedLoading || isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[500px] text-lg">
         정보를 불러오는 중...
+      </div>
+    );
+  }
+
+  if (projectError) {
+    return (
+      <div className="flex justify-center items-center min-h-[500px] text-lg text-red-500">
+        프로젝트 정보를 불러오는데 실패했습니다.
       </div>
     );
   }
@@ -53,7 +70,7 @@ export default function PersonalRetroPage() {
   if (isCompleted) {
     return (
       <div className="w-full pt-[60px]">
-        <div className="w-full lg:max-w-[1415px] flex flex-col">
+        <div className="w-full flex flex-col">
           <h2
             className="mb-[16px] font-[Pretendard] font-bold text-[24px] leading-[29px] tracking-[0.04em] whitespace-nowrap text-[#000000] ml-[128px]
           max-lg:text-[22px] max-lg:leading-[28px] max-lg:font-[600] max-lg:tracking-[0] max-lg:ml-[32px] mb-[16px] whitespace-nowrap"
