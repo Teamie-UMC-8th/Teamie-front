@@ -52,7 +52,7 @@ export default function PersonalSection() {
   }
 
   return (
-    <div className="w-full flex flex-col gap-[28px]">
+    <div className="flex w-full flex flex-col gap-[28px] mb-[52px]">
       <SectionBox
         title="1. 나의 역할과 일하는 방식"
         bullets={[
@@ -101,16 +101,18 @@ interface SectionBoxProps {
 
 function SectionBox({ title, bullets, initialValue, onSave }: SectionBoxProps) {
   return (
-    <div className="w-[1415px] max-lg:w-[862px] bg-[#F8F8F8] shadow-[0_0_4px_rgba(0,0,0,0.2)] rounded-[16px] px-[40px] pt-[32px] pb-[52px] mb-[40px] max-lg:px-[20px] max-lg:pt-[24px] max-lg:pb-[28px]">
+    <div className="w-[1415px] max-lg:w-[862px] h-[588px] max-lg:h-[542px] bg-[#F8F8F8] shadow-[0_0_4px_rgba(0,0,0,0.2)] rounded-[16px] pr-[32px] pl-[32px] pt-[32px] pb-[52px] max-lg:pr-[20px] max-lg:pl-[20px] max-lg:pt-[24px] max-lg:pb-[28px]">
       <h2 className="font-[Pretendard] text-[#000000] font-bold text-[20px] leading-[28px] mb-[8px] max-lg:text-[18px] max-lg:leading-[26px]">
         {title}
       </h2>
-      <ul className="list-disc list-outside pl-[30px] space-y-[8px] text-[16px] leading-[24px] font-[Pretendard] font-normal text-[#000000] marker:text-[11px] mb-[28px] max-lg:pl-[20px] max-lg:text-[15px] max-lg:marker:text-[10px]">
+      <ul className="list-disc list-inside pl-0 ml-[20px] text-[16px] leading-[24px] font-[Pretendard] font-normal text-[#000000] marker:text-[11px] mb-[28px] max-lg:ml-[8px] max-lg:mb-[16px] max-lg:text-[16px] max-lg:marker:text-[10px]">
         {bullets.map((item, idx) => (
           <li key={idx}>{item}</li>
         ))}
       </ul>
-      <EditableMarkdown initialValue={initialValue} onSave={onSave} />
+      <div className="ml-[20px] max-lg:ml-[8px] ">
+        <EditableMarkdown initialValue={initialValue} onSave={onSave} />
+      </div>
     </div>
   );
 }
