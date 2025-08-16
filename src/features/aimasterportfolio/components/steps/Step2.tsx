@@ -98,7 +98,7 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
         제가 참고할 회의록을 모두 선택하셨다면, 생성을 시작할게요!
       </div>
 
-      <div className="w-fit self-center flex flex-col justify-center items-center border-[2px] border-[#81D7D4] bg-[#DAF3F3] rounded-[100px] py-[16px] px-[36px]">
+      <div className="w-fit self-center flex flex-col justify-center items-center border-[2px] border-[#81D7D4] bg-[#DAF3F3]/25 rounded-[100px] py-[16px] px-[36px]">
         <h3 className="text-[#000000] text-[20px] max-lg:text-[18px] leading-[28px] max-lg:leading-[26px] font-normal tracking-[0.8px]">
           생성 시 최대 <strong>{length * 10 + 100} Credit</strong>이 사용됩니다
         </h3>
@@ -123,7 +123,7 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
                     onClick={() => toggleCardSelection(index)}
                     className={`flex flex-col w-[427px] h-[205px] max-lg:w-[419px] rounded-[8px] p-[16px] cursor-pointer shadow-[0_0_4px_rgba(0,0,0,0.25)] ${
                       isSelected
-                        ? 'bg-[#DAF3F3] border-[2px] border-[#81D7D4]'
+                        ? "border-[3px] border-[#81D7D4] relative after:content-[''] after:absolute after:inset-0 after:bg-[#81D7D4]/10 after:rounded-[8px] after:pointer-events-none"
                         : 'bg-[#F8F8F8] border border-transparent'
                     }`}
                   >

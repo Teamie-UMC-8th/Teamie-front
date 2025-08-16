@@ -41,7 +41,7 @@ export default function ContributionSlider({ value, onChange }: ContributionSlid
   };
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-[28px]">
       <div className="w-[99px] h-[37px] bg-[#DAF3F3] rounded-[4px] px-[18px] py-[6px] flex items-center justify-center font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-[#000000] whitespace-nowrap">
         기여도
       </div>
