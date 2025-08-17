@@ -6,7 +6,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Calendar as BigCalendar, momentLocalizer, Views } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import CustomDateCellWrapper from '@/features/teamCalendar/CustomDateCellWrapper';
 import axiosInstance from '@/lib/axiosInstance';
+import CalendarEventBox from '@/features/teamCalendar/components/CalendarEventBox';
 import { useGetCalendarPlans } from '@/hooks/queries/useGetTeamCalendar';
 import { useGetDashboard } from '@/hooks/queries/useGetDashboard';
 import { useWebSocket } from '@/contexts/WebSocketContext';
@@ -17,8 +19,6 @@ import {
   isTaskResponse,
   isPlanResponse,
 } from '@/types/webSocket';
-import CustomDateCellWrapper from '@/features/teamCalendar/CustomDateCellWrapper';
-import CalendarEventBox from '@/features/teamCalendar/components/CalendarEventBox';
 
 const localizer = momentLocalizer(moment);
 
