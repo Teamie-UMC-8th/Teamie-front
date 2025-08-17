@@ -9,16 +9,16 @@ import {
 } from '@/hooks/queries/useGetMasterPortfolio';
 import { useUpdateContribution } from '@/hooks/mutations/useUpdateContribution';
 import { usePatchMasterPortfolio } from '@/hooks/mutations/usePatchMasterPortfolio';
-import AIGenerationSection from '@/features/aiMasterPortfolio/components/AIGenerationSection';
-import MenuButton from '@/features/aiMasterPortfolio/components/MenuButton';
 import { CATEGORY_MAP, CATEGORY_LIST, CategoryKey } from '@/constants/category';
 import ContributionSlider from '@/components/ContributionSlider';
 import { useRouter } from 'next/navigation';
 import { useProjectHome } from '@/hooks/mutations/useProjectHome';
 import { formatDate } from '@/utils/formatDate';
 import Image from 'next/image';
-import LoadingModal from '@/features/aiMasterPortfolio/components/MasterLoadingModal';
 import { useQueryClient } from '@tanstack/react-query';
+import MenuButton from '@/features/aiMasterPortfolio/components/MenuButton';
+import AIGenerationSection from '@/features/aiMasterPortfolio/components/AIGenerationSection';
+import LoadingModal from '@/features/aiMasterPortfolio/components/MasterLoadingModal';
 
 const STYLES = {
   tag: 'w-[99px] h-[37px] bg-[#DAF3F3] rounded-[4px] px-[18px] py-[6px] flex items-center justify-center font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-[#000000] whitespace-nowrap',
@@ -31,7 +31,7 @@ function ProjectHeader({ title }: { title: string }) {
     <div className="flex flex-col gap-[12px] px-[30px]">
       <div className="flex items-center gap-[20px] max-lg:gap-[8px]">
         <button
-          onClick={() => router.push('/mypage')}
+          onClick={() => router.push('/myPage')}
           aria-label="뒤로가기"
           className="cursor-pointer"
         >

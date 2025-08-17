@@ -1,6 +1,6 @@
 'use client';
 
-import Projects from '@/features/mypage/components/Projects';
+import Projects from '@/features/myPage/components/Projects';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useMemo, useState } from 'react';
 import AddLoadingModal from '@/features/correction/components/AddLoadingModal';
@@ -171,7 +171,7 @@ function ProjectSelectContent() {
       const query = submissionTarget
         ? `?submissionTarget=${encodeURIComponent(submissionTarget)}`
         : '';
-      router.push(`/mypage/tailoredportfolio/${correctionId}${query}`);
+      router.push(`/myPage/tailoredPortfolio/${correctionId}${query}`);
     } catch (err: unknown) {
       console.error('[UI][GENERATE] failed', err);
       let reason: string | undefined;

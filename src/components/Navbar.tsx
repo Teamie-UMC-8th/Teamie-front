@@ -216,7 +216,7 @@ export default function Navbar() {
             items={[
               {
                 label: '마이페이지',
-                href: '/mypage',
+                href: '/myPage',
                 icon: user?.imageUrl ? user.imageUrl : '/icons/myPage-dropdown.svg',
               },
               {

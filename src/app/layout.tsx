@@ -19,7 +19,7 @@ const pretendard = localFont({
 const queryClient = new QueryClient();
 
 // 인증이 필요한 페이지들
-const PROTECTED_ROUTES = ['/home', '/projects', '/mypage', '/new'];
+const PROTECTED_ROUTES = ['/home', '/projects', '/myPage', '/new'];
 
 function AuthWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

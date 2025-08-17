@@ -7,10 +7,10 @@ interface StepSidebarProps {
     id: number;
     title: string;
   }[];
-   goToStep: (step: number) => void;
+  goToStep: (step: number) => void;
 }
 
-export default function StepsSidebar({ steps, currentStep}: StepSidebarProps) {
+export default function StepsSidebar({ steps, currentStep }: StepSidebarProps) {
   const router = useRouter();
   const params = useParams();
   const portfolioId = params.portfolioId as string;
@@ -22,7 +22,7 @@ export default function StepsSidebar({ steps, currentStep}: StepSidebarProps) {
         className="flex items-center gap-2 justify-end mb-8 cursor-pointer hover:bg-gray-50 p-2 rounded
         max-lg:justify-start max-lg:mb-2 max-lg:px-[2px] max-lg:py-[2px]"
         onClick={() => {
-          router.push(`/mypage/aimasterportfolio/${portfolioId}`);
+          router.push(`/myPage/aiMasterPortfolio/${portfolioId}`);
         }}
       >
         <Image src="/icons/arrow-left.svg" alt="뒤로가기" width={24} height={24} />
@@ -31,7 +31,6 @@ export default function StepsSidebar({ steps, currentStep}: StepSidebarProps) {
 
       {/* 스텝 리스트 */}
       <div className=" flex flex-col gap-[28px] max-lg:flex-row max-lg:gap-[16px] max-lg:justify-end">
-
         {steps.map((step, index) => {
           const isActive = currentStep + 1 === step.id;
           const isCompleted = currentStep + 1 > step.id;
@@ -39,9 +38,7 @@ export default function StepsSidebar({ steps, currentStep}: StepSidebarProps) {
           return (
             <div key={step.id} className="relative max-lg:flex max-lg:items-center max-lg:gap-2">
               {/* 스텝 항목 */}
-              <div
-                className="flex items-center gap-4 py-3 max-lg:py-[1px] select-none"
-              >
+              <div className="flex items-center gap-4 py-3 max-lg:py-[1px] select-none">
                 <div
                   className={`w-[32px] max-lg:w-[28px] h-[32px] max-lg:h-[28px] rounded-full flex items-center justify-center text-white font-medium text-lg
                     ${isActive ? 'bg-black' : isCompleted ? 'bg-gray-400' : 'bg-gray-300'}

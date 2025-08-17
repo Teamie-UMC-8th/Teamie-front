@@ -66,7 +66,7 @@ function AIMasterPortfolioCreatePageContent() {
     if (!status) return;
 
     if (status === 'DONE') {
-      router.replace(`/mypage/aimasterportfolio/${portfolioId}`);
+      router.replace(`/myPage/aiMasterPortfolio/${portfolioId}`);
       return;
     }
 
@@ -334,7 +334,7 @@ function AIMasterPortfolioCreatePageContent() {
                           queryClient.invalidateQueries({
                             queryKey: ['masterPortfolioGeneratedResult', portfolioId],
                           });
-                          router.replace(`/mypage/aimasterportfolio/${portfolioId}`);
+                          router.replace(`/myPage/aiMasterPortfolio/${portfolioId}`);
                         },
                         onError: (error) => {
                           console.error('포트폴리오 생성 실패:', error);

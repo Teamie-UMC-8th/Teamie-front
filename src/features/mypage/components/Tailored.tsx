@@ -62,7 +62,7 @@ export default function Tailored() {
                 try {
                   sessionStorage.removeItem(`analyzingPrefetch:${correction.correctionId}`);
                 } catch {}
-                router.push(`/mypage/tailoredportfolio/${correction.correctionId}`);
+                router.push(`/myPage/tailoredPortfolio/${correction.correctionId}`);
                 return;
               }
             } catch {}
@@ -71,7 +71,7 @@ export default function Tailored() {
             try {
               if (sessionStorage.getItem(`analyzingPrefetch:${correction.correctionId}`)) {
                 router.push(
-                  `/mypage/addcorrection/analyzing?correctionId=${correction.correctionId}&submissionTarget=${encodeURIComponent(
+                  `/myPage/addCorrection/analyzing?correctionId=${correction.correctionId}&submissionTarget=${encodeURIComponent(
                     correction.submissionTarget || ''
                   )}`
                 );
@@ -85,7 +85,7 @@ export default function Tailored() {
               const status = (detail as unknown as { status?: string })?.status;
               if (status && status !== 'DONE') {
                 router.push(
-                  `/mypage/addcorrection/analyzing?correctionId=${correction.correctionId}&submissionTarget=${encodeURIComponent(
+                  `/myPage/addCorrection/analyzing?correctionId=${correction.correctionId}&submissionTarget=${encodeURIComponent(
                     correction.submissionTarget || ''
                   )}`
                 );
@@ -94,7 +94,7 @@ export default function Tailored() {
             } catch {}
 
             // 4) 기본: 완료 상태이거나 판단 불가 → 기존 상세 페이지로 이동
-            router.push(`/mypage/tailoredportfolio/${correction.correctionId}`);
+            router.push(`/myPage/tailoredPortfolio/${correction.correctionId}`);
           }}
           className="bg-[#F8F8F8] w-[465px] h-[190px] rounded-[8px] px-[13px] cursor-pointer
             max-lg:w-[421px] max-lg:h-[180px]"

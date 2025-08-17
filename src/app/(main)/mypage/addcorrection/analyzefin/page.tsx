@@ -61,7 +61,7 @@ export default function Analyzefin() {
           max-lg:ml-[660px]"
           >
             <img src="/icons/NextPageBubble.svg" alt="다음으로 말풍선" />
-            <Link href="/mypage/addcorrection/projectSelect">
+            <Link href="/myPage/addcorrection/projectSelect">
               <img
                 src="/icons/NextPage.svg"
                 alt="다음으로"

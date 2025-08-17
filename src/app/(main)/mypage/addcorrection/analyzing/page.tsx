@@ -242,7 +242,7 @@ function AiLoadingPageContent() {
       } catch {}
     }
     const nextUrl =
-      `/mypage/addcorrection/projectSelect?correctionId=${correctionId}` +
+      `/myPage/addCorrection/projectSelect?correctionId=${correctionId}` +
       (companyName ? `&submissionTarget=${encodeURIComponent(companyName)}` : '');
     router.push(nextUrl);
   };
@@ -260,7 +260,7 @@ function AiLoadingPageContent() {
     } catch (err) {
       console.error('[Analyzing] temporary save failed:', err);
     }
-    router.push('/mypage');
+    router.push('/myPage');
   };
 
   // 포커스 아웃 시 즉시 저장 보장
@@ -438,7 +438,7 @@ function AiLoadingPageContent() {
               >
                 임시저장
               </button>
-              <Link href="/mypage/addcorrection/projectSelect" onClick={handleNextClick}>
+              <Link href="/myPage/addCorrection/projectSelect" onClick={handleNextClick}>
                 <img src="/icons/NextPage.svg" alt="다음으로" className="cursor-pointer" />
               </Link>
             </div>

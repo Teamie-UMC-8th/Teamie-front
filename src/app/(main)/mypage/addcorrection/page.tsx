@@ -2,6 +2,6 @@
 
 import { redirect } from 'next/navigation';
 
-export default function addcorrection() {
-  redirect('/mypage/addcorrection/correctionIntro');
+export default function AddCorrection() {
+  redirect('/myPage/addCorrection/correctionIntro');
 }
