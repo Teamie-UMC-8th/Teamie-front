@@ -14,7 +14,6 @@ export function Divider() {
 export type Step3Handle = {
   buildDraftPayload: () => PatchMasterPortfolioQuestionsRequest;
   clearLocalDraft: () => void;
-  showSuccessToast: () => void;
   saveToLocalStorage: () => void;
 };
 
@@ -22,18 +21,11 @@ const Step3 = forwardRef<Step3Handle>(function Step3(_, ref) {
   const params = useParams();
   const portfolioId = Number(params.portfolioId);
   const { data: masterPortfolioQuestions } = useMasterPortfolioQuestions(portfolioId);
-  const [showToast, setShowToast] = useState(false);
 
   // 로컬 상태: questionId -> { answer, reason }
   const [localAnswers, setLocalAnswers] = useState<
     Record<number, { answer: 'YES' | 'NO' | null; reason: string }>
   >({});
-
-  // 토스트 표시 함수
-  const showSuccessToast = () => {
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 2000); // 3초 후 자동 숨김
-  };
 
   const questions: MasterPortfolioQuestion[] = useMemo(
     () => (masterPortfolioQuestions?.result as MasterPortfolioQuestion[]) ?? [],
@@ -143,7 +135,6 @@ const Step3 = forwardRef<Step3Handle>(function Step3(_, ref) {
       localStorage.removeItem(`step3-draft-${portfolioId}`);
       setLocalAnswers({});
     },
-    showSuccessToast: showSuccessToast,
     saveToLocalStorage: saveToLocalStorage,
   }));
 
