@@ -18,187 +18,112 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
   const [selectedLogDate, setSelectedLogDate] = useState('');
   const [localSelectedIndexes, setLocalSelectedIndexes] = useState<number[]>([]);
   const [modalRecordIndex, setModalRecordIndex] = useState<number | null>(null);
+
   const portfolioId = useParams().portfolioId;
   const { data: masterPortfolioDetailRecords } = useMasterPortfolioDetailRecords(
     Number(portfolioId)
   );
-
   const { data: user } = useUser();
-  // index → id 매핑을 위해 메모리 동기화
+
+  // selectedIds → localSelectedIndexes 동기화
   useEffect(() => {
-    if (!masterPortfolioDetailRecords || masterPortfolioDetailRecords.length === 0) return;
-    const nextIndexes: number[] = [];
-    masterPortfolioDetailRecords.forEach((record, idx) => {
-      if (selectedIds.includes(record.id)) nextIndexes.push(idx);
-    });
-    setLocalSelectedIndexes(nextIndexes);
+    if (!masterPortfolioDetailRecords) return;
+
+    const currentIds = localSelectedIndexes
+      .map((i) => masterPortfolioDetailRecords[i]?.id)
+      .filter(Boolean);
+
+    if (JSON.stringify(currentIds.sort()) !== JSON.stringify(selectedIds.sort())) {
+      const nextIndexes: number[] = [];
+      masterPortfolioDetailRecords.forEach((record, idx) => {
+        if (selectedIds.includes(record.id)) nextIndexes.push(idx);
+      });
+      setLocalSelectedIndexes(nextIndexes);
+    }
   }, [masterPortfolioDetailRecords, selectedIds]);
 
   const toggleCardSelection = (index: number) => {
+    if (typeof index !== 'number' || index < 0) return;
+
     setLocalSelectedIndexes((prev) => {
       const alreadySelected = prev.includes(index);
-      let next: number[];
-      if (alreadySelected) {
-        next = prev.filter((i) => i !== index);
-      } else {
-        if (prev.length >= 8) return prev;
-        next = [...prev, index];
-      }
-      return next;
+      if (alreadySelected) return prev.filter((i) => i !== index);
+      if (prev.length >= 8) return prev;
+      return [...prev, index];
     });
   };
 
-  // useEffect로 상태 변경 처리 (렌더링 중 콜백 호출 방지)
+  // 부모에게 선택된 ID 전달
   useEffect(() => {
-    if (onChangeSelectedIds && masterPortfolioDetailRecords) {
-      const ids = localSelectedIndexes.map((i) => masterPortfolioDetailRecords[i].id);
-      onChangeSelectedIds(ids);
-    }
-  }, [localSelectedIndexes, masterPortfolioDetailRecords, onChangeSelectedIds]);
+    if (!onChangeSelectedIds || !masterPortfolioDetailRecords) return;
+    const ids = localSelectedIndexes
+      .map((i) => masterPortfolioDetailRecords[i]?.id)
+      .filter(Boolean);
+    onChangeSelectedIds(ids);
+  }, [localSelectedIndexes, masterPortfolioDetailRecords]);
 
-  const length = localSelectedIndexes.length;
-
-  // 회의록이 작성된 일정만 필터링 (내용이 비어있거나 공백만 있는 경우 제외)
-  const filteredRecords = (masterPortfolioDetailRecords ?? [])
-    .map((record, idx) => ({ record, idx }))
-    .filter(({ record }) =>
-      Boolean(record?.meetingRecords && String(record.meetingRecords).trim().length > 0)
-    );
-
-  // ISO or arbitrary date string -> YYYY.MM.DD
-  function formatToYYYYMMDD(dateString: string): string {
+  // 날짜 포맷
+  const formatToYYYYMMDD = (dateString: string) => {
     if (!dateString) return '';
-    // Already in YYYY.MM.DD
-    if (/^\d{4}\.\d{2}\.\d{2}$/.test(dateString)) return dateString;
-    // If begins with YYYY-MM-DD
-    if (/^\d{4}-\d{2}-\d{2}/.test(dateString)) {
-      const [y, m, d] = dateString.slice(0, 10).split('-');
-      return `${y}.${m}.${d}`;
+    try {
+      if (/^\d{4}\.\d{2}\.\d{2}$/.test(dateString)) return dateString;
+      if (/^\d{4}-\d{2}-\d{2}/.test(dateString)) {
+        const [y, m, d] = dateString.slice(0, 10).split('-');
+        return `${y}.${m}.${d}`;
+      }
+      const parsed = new Date(dateString);
+      if (Number.isNaN(parsed.getTime())) return dateString;
+      return `${parsed.getFullYear()}.${String(parsed.getMonth() + 1).padStart(2, '0')}.${String(parsed.getDate()).padStart(2, '0')}`;
+    } catch {
+      return dateString;
     }
-    const parsed = new Date(dateString);
-    if (Number.isNaN(parsed.getTime())) return dateString;
-    const y = parsed.getFullYear();
-    const m = String(parsed.getMonth() + 1).padStart(2, '0');
-    const d = String(parsed.getDate()).padStart(2, '0');
-    return `${y}.${m}.${d}`;
-  }
+  };
 
   return (
-    <div className="flex flex-col items-center gap-[36px] max-lg:gap-[28px]">
-      <div className="self-start items-start flex flex-col">
-        <strong>
-          포트폴리오 생성 시에 참고하면 좋을 회의록이 있다면 최대 8개까지 선택해주세요.
-        </strong>
-        아래 내용들이 포함된 회의록이 있다면, 생성에 큰 도움이 돼요!
-        <br />
-        <br />
-        <ul className="list-disc list-inside">
-          <li>프로젝트 시작 배경, 해결하고자 한 문제, 전하고자 한 메세지 또는 컨셉</li>
-          <li>역할별 인원 구성, 협업 파트 구성</li>
-          <li>시작 전, 목표로 한 수치화된 지표</li>
-          <li>실제로 달성한 정량적 성과와 받은 피드백</li>
-          <li>어려웠던 점과 극복한 방법</li>
-        </ul>
-        <br />
-        회의록은 필수로 선택하지 않아도 되지만, 양질의 회의록이 많다면 좋은 마스터 포트폴리오를
-        생성할 수 있어요.
-        <br />
-        제가 참고할 회의록을 모두 선택하셨다면, 생성을 시작할게요!
-      </div>
+    <div className="flex flex-col gap-4">
+      {masterPortfolioDetailRecords?.map((record, idx) => {
+        const isSelected = localSelectedIndexes.includes(idx);
+        return (
+          <div
+            key={record.id}
+            className={`relative group border p-3 rounded ${isSelected ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-white'}`}
+            onClick={() => toggleCardSelection(idx)}
+          >
+            <div className="flex justify-between items-center">
+              <div className="text-black font-medium">{record.name}</div>
+              <div className="text-gray-500 text-sm">{formatToYYYYMMDD(record.date)}</div>
+            </div>
 
-      <div className="w-fit self-center flex flex-col justify-center items-center border-[2px] border-[#81D7D4] bg-[#DAF3F3]/25 rounded-[100px] py-[16px] px-[36px]">
-        <h3 className="text-[#000000] text-[20px] max-lg:text-[18px] leading-[28px] max-lg:leading-[26px] font-normal tracking-[0.8px]">
-          생성 시 최대 <strong>{length * 10 + 100} Credit</strong>이 사용됩니다
-        </h3>
-        <p className="text-[#898989] text-[14px] leading-[22px]">
-          {length}개의 회의록이 선택되었습니다.
-        </p>
-      </div>
+            <div className="mt-2 text-gray-700 text-sm whitespace-pre-wrap">
+              {record.meetingRecords}
+            </div>
 
-      {filteredRecords.length === 0 ? (
-        <div className="w-fit self-center bg-[#F8F8F8] rounded-[8px] shadow-[0_0_4px_rgba(0,0,0,0.20)] px-[16px] py-[24px] text-[#505050] text-center min-w-[660px] mt-8">
-          {user?.name}님이 참석한 일정에 작성된 회의록이 없어요.
-          <br /> 회의록 없이 마스터 포트폴리오를 생성할게요.
-        </div>
-      ) : (
-        <div className="w-[934px] max-lg:w-[475px] h-[512px] border-[1.5px] border-[#898989] rounded-[20px] p-[24px] max-h-[512px] overflow-y-auto">
-          <div className="grid grid-cols-2 max-lg:grid-cols-1 gap-[20px]">
-            {filteredRecords.map(({ record, idx }) => {
-              const isSelected = localSelectedIndexes.includes(idx);
-              return (
-                <div key={record.id} className="flex flex-col gap-[8px]">
-                  <div
-                    onClick={() => toggleCardSelection(idx)}
-                    className={`flex flex-col w-[427px] h-[205px] max-lg:w-[419px] rounded-[8px] p-[16px] cursor-pointer shadow-[0_0_4px_rgba(0,0,0,0.25)] ${
-                      isSelected
-                        ? "border-[3px] border-[#81D7D4] relative after:content-[''] after:absolute after:inset-0 after:bg-[#81D7D4]/10 after:rounded-[8px] after:pointer-events-none"
-                        : 'bg-[#F8F8F8] border border-transparent'
-                    }`}
-                  >
-                    <div className="pl-[12px] w-[395px] h-[46px] p-2 rounded-[4px] border border-[#E7E7E7] bg-white text-black text-[18px] leading-[26px] font-normal tracking-[0.72px] flex items-center justify-start text-center">
-                      {record.name}
-                    </div>
-
-                    <div className="w-full flex gap-[14px] mt-[8px]">
-                      <div className="flex-1 text-[#898989] text-[14px] leading-[22px] font-normal tracking-[0.56px]">
-                        일자
-                      </div>
-                      <div className="flex-9 text-black text-[14px] leading-[22px] font-normal tracking-[0.56px]">
-                        {formatToYYYYMMDD(record.date)}
-                      </div>
-                    </div>
-
-                    <div className="w-[395px] h-[83px] flex gap-[8px] mt-[8px]">
-                      <div className="flex-1 text-[#898989] text-[14px] leading-[22px] font-normal tracking-[0.56px] whitespace-pre">
-                        회의록
-                      </div>
-
-                      <div
-                        className="relative group flex-9 rounded-[4px] border border-[#E7E7E7] bg-white text-black text-[14px] leading-[22px] font-normal tracking-[0.56px] whitespace-pre-wrap px-[12px] py-[4px] overflow-hidden"
-                        style={{
-                          display: '-webkit-box',
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: 'vertical' as const,
-                        }}
-                      >
-                        <div className="absolute inset-0 bg-[rgba(0,0,0,0.1)] opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-[4px]" />
-                        {record.meetingRecords}
-                        <button
-                          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-[12px] py-[4px] text-[14px] font-semibold rounded-[4px] shadow opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 cursor-pointer"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedLogContent(record.meetingRecords);
-                            setSelectedLogTitle(record.name);
-                            setSelectedLogDate(formatToYYYYMMDD(record.date));
-                            setModalRecordIndex(idx);
-                            setOpenModal(true);
-                          }}
-                        >
-                          회의록 보기
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            <button
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 py-1 text-sm font-semibold rounded shadow opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedLogContent(record.meetingRecords);
+                setSelectedLogTitle(record.name);
+                setSelectedLogDate(formatToYYYYMMDD(record.date));
+                setModalRecordIndex(idx);
+                setOpenModal(true);
+              }}
+            >
+              회의록 보기
+            </button>
           </div>
-        </div>
-      )}
+        );
+      })}
 
-      <MeetingLogModal
-        isOpen={openModal}
-        onClose={() => setOpenModal(false)}
-        title={selectedLogTitle || '회의록'}
-        date={selectedLogDate}
-        content={selectedLogContent}
-        onSelect={() => {
-          if (modalRecordIndex !== null) {
-            toggleCardSelection(modalRecordIndex);
-          }
-          setOpenModal(false);
-        }}
-      />
+      {openModal && (
+        <MeetingLogModal
+          isOpen={openModal}
+          onClose={() => setOpenModal(false)}
+          title={selectedLogTitle || '회의록'}
+          date={selectedLogDate}
+          content={selectedLogContent}
+        />
+      )}
     </div>
   );
 }
