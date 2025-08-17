@@ -1,4 +1,4 @@
-import { patchMasterPortfolio } from '@/services/masterPortfolio/masterPortfolio';
+import { patchMasterPortfolio } from '@/services/masterPortfolio/masterportfolio';
 import { PatchMasterPortfolioRequest } from '@/types/api/masterportfolio';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 

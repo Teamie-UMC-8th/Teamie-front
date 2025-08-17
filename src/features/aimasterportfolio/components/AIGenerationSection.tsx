@@ -20,9 +20,9 @@ export default function AIGenerationSection({ contribution }: AIGenerationSectio
   const handleStartClick = () => {
     if (contribution > 0) {
       if (status?.result.status === 'NEED_ANSWERS') {
-        router.push(`/mypage/aimasterportfolio/${portfolioId}/create/ai?step=2`);
+        router.push(`/myPage/aiMasterPortfolio/${portfolioId}/create/ai?step=2`);
       } else {
-        router.push(`/mypage/aimasterportfolio/${portfolioId}/create/ai`);
+        router.push(`/myPage/aiMasterPortfolio/${portfolioId}/create/ai`);
       }
     } else {
       setShowToast(true);

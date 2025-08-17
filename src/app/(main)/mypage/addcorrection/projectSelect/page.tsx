@@ -171,7 +171,7 @@ function ProjectSelectContent() {
       const query = submissionTarget
         ? `?submissionTarget=${encodeURIComponent(submissionTarget)}`
         : '';
-      router.push(`/mypage/tailoredportfolio/${correctionId}${query}`);
+      router.push(`/myPage/tailoredPortfolio/${correctionId}${query}`);
     } catch (err: unknown) {
       console.error('[UI][GENERATE] failed', err);
       let reason: string | undefined;

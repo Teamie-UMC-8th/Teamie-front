@@ -14,7 +14,7 @@ const CorrectionSidebar: React.FC = () => {
       style={{ boxShadow: '4px 0px 3px 0px #0000000D' }}
     >
       <div className="flex items-center ml-[152px] mt-[80px]">
-        <Link href="/mypage">
+        <Link href="/myPage">
           <Image
             src="/icons/arrow-left.svg"
             alt="뒤로가기"
@@ -29,7 +29,7 @@ const CorrectionSidebar: React.FC = () => {
       {/* 기업 분석 정보 */}
       {(pathname.includes('correctionIntro') ||
         pathname.includes('analyzing') ||
-        pathname.includes('analyzefin')) && (
+        pathname.includes('analyzeFin')) && (
         <div className="mt-[92px] ml-[40px]">
           <Image src="/icons/EnterAnalyze.svg" alt="기업 분석 정보" width={162} height={32} />
           <Image

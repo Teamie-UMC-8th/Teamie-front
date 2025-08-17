@@ -16,8 +16,8 @@ import type { CorrectionSelectableProject } from '@/types/api/correction';
 
 export default function Projects() {
   const pathname = usePathname();
-  const isProjectSelectPage = pathname === '/mypage/addcorrection/projectSelect';
-  const isMyPage = pathname === '/mypage';
+  const isProjectSelectPage = pathname === '/myPage/addCorrection/projectSelect';
+  const isMyPage = pathname === '/myPage';
   const { data } = useMasterPortfolioList();
   const { data: selectable } = useCorrectionProjects();
   const updateMainTask = useUpdateMainTask();
@@ -170,7 +170,7 @@ export default function Projects() {
       {cardsToRender.map((item: MasterPortfolio) => (
         <Link
           key={item.portfolioId}
-          href={isProjectSelectPage ? '#' : `/mypage/aimasterportfolio/${item.portfolioId}`}
+          href={isProjectSelectPage ? '#' : `/myPage/aiMasterPortfolio/${item.portfolioId}`}
         >
           {(() => {
             // 선택 가능 여부(hasMasterPortfolio)로 제어. id 또는 name으로 매핑

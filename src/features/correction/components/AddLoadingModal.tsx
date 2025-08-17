@@ -271,7 +271,7 @@ export default function LoadingModal({
           console.warn('[LoadingModal] failed to write prefetch to sessionStorage', e);
         }
         router.push(
-          `/mypage/addcorrection/analyzing?correctionId=${created.id}&submissionTarget=${encodeURIComponent(
+          `/myPage/addCorrection/analyzing?correctionId=${created.id}&submissionTarget=${encodeURIComponent(
             payload.submissionTarget
           )}`
         );

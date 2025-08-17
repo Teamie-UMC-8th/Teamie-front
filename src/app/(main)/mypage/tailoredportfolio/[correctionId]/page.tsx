@@ -255,7 +255,7 @@ function TailoredPortfolioContent() {
               queryClient.invalidateQueries({ queryKey: ['generated-rag', correctionId] });
               queryClient.invalidateQueries({ queryKey: ['company-insight', correctionId] });
               queryClient.invalidateQueries({ queryKey: ['correction-list'] });
-              router.push('/mypage');
+              router.push('/myPage');
             }
           }}
           modalTitle="이 AI 첨삭 내용을 정말 삭제하시겠습니까?"
