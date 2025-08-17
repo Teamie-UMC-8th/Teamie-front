@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, useEffect, useRef } from 'react';
+import { Suspense, useState, useEffect, useRef, useCallback } from 'react';
 import StepsSidebar from '@/features/aiMasterPortfolio/components/StepSidebar';
 import Portal from '@/components/Portal';
 import { useFunnel } from '@/features/aiMasterPortfolio/hooks/useFunnel';
@@ -50,6 +50,11 @@ function AIMasterPortfolioCreatePageContent() {
   const [synced, setSynced] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+
+  // onChangeSelectedIds 함수를 useCallback으로 메모이제이션
+  const handleSelectedRecordIdsChange = useCallback((ids: number[]) => {
+    setSelectedRecordIds(ids);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -159,8 +164,6 @@ function AIMasterPortfolioCreatePageContent() {
             });
             // localStorage에 임시저장 데이터 저장
             step3Ref.current?.saveToLocalStorage();
-            // 토스트 메시지 표시
-            step3Ref.current?.showSuccessToast();
             setToastMessage('임시저장이 완료되었습니다');
             setShowToast(true);
             setTimeout(() => setShowToast(false), 3000);
@@ -217,7 +220,7 @@ function AIMasterPortfolioCreatePageContent() {
                     {currentStep === 0 && <Step1 />}
                     {currentStep === 1 && (
                       <Step2
-                        onChangeSelectedIds={setSelectedRecordIds}
+                        onChangeSelectedIds={handleSelectedRecordIdsChange}
                         selectedIds={selectedRecordIds}
                       />
                     )}
