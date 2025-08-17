@@ -1,4 +1,4 @@
-import ManualWriteSection from '@/features/aimasterportfolio/components/ManualWriteSection';
+import ManualWriteSection from '@/features/aiMasterPortfolio/components/ManualWriteSection';
 
 export default function manual() {
   return <ManualWriteSection />;

@@ -9,15 +9,15 @@ import {
 } from '@/hooks/queries/useGetMasterPortfolio';
 import { useUpdateContribution } from '@/hooks/mutations/useUpdateContribution';
 import { usePatchMasterPortfolio } from '@/hooks/mutations/usePatchMasterPortfolio';
-import AIGenerationSection from '@/features/aimasterportfolio/components/AIGenerationSection';
-import MenuButton from '@/features/aimasterportfolio/components/MenuButton';
+import AIGenerationSection from '@/features/aiMasterPortfolio/components/AIGenerationSection';
+import MenuButton from '@/features/aiMasterPortfolio/components/MenuButton';
 import { CATEGORY_MAP, CATEGORY_LIST, CategoryKey } from '@/constants/category';
 import ContributionSlider from '@/components/ContributionSlider';
 import { useRouter } from 'next/navigation';
 import { useProjectHome } from '@/hooks/mutations/useProjectHome';
 import { formatDate } from '@/utils/formatDate';
 import Image from 'next/image';
-import LoadingModal from '@/features/aimasterportfolio/components/MasterLoadingModal';
+import LoadingModal from '@/features/aiMasterPortfolio/components/MasterLoadingModal';
 import { useQueryClient } from '@tanstack/react-query';
 
 const STYLES = {

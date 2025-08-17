@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { patchMasterPortfolioQuestions } from '@/services/masterportfolio/masterportfolio';
+import { patchMasterPortfolioQuestions } from '@/services/masterPortfolio/masterPortfolio';
 import { PatchMasterPortfolioQuestionsRequest } from '@/types/api/masterportfolio';
 
 interface PatchQuestionsVariables {

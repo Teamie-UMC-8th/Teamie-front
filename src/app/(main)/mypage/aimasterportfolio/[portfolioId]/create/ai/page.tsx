@@ -1,16 +1,16 @@
 'use client';
 
 import { Suspense, useState, useEffect, useRef } from 'react';
-import StepsSidebar from '@/features/aimasterportfolio/components/StepSidebar';
+import StepsSidebar from '@/features/aiMasterPortfolio/components/StepSidebar';
 import Portal from '@/components/Portal';
-import { useFunnel } from '@/features/aimasterportfolio/hooks/useFunnel';
+import { useFunnel } from '@/features/aiMasterPortfolio/hooks/useFunnel';
 import Image from 'next/image';
-import Step1 from '@/features/aimasterportfolio/components/steps/Step1';
-import Step2 from '@/features/aimasterportfolio/components/steps/Step2';
-import Step3, { type Step3Handle } from '@/features/aimasterportfolio/components/steps/Step3';
+import Step1 from '@/features/aiMasterPortfolio/components/steps/Step1';
+import Step2 from '@/features/aiMasterPortfolio/components/steps/Step2';
+import Step3, { type Step3Handle } from '@/features/aiMasterPortfolio/components/steps/Step3';
 import { useRouter, useParams, useSearchParams, usePathname } from 'next/navigation';
-import AIConfirmModal from '@/features/aimasterportfolio/components/AIConfirmModal';
-import LoadingModal from '@/features/aimasterportfolio/components/MasterLoadingModal';
+import AIConfirmModal from '@/features/aiMasterPortfolio/components/AIConfirmModal';
+import LoadingModal from '@/features/aiMasterPortfolio/components/MasterLoadingModal';
 import {
   useMasterPortfolioDetail,
   useMasterPortfolioStatus,
