@@ -48,6 +48,8 @@ function AIMasterPortfolioCreatePageContent() {
   const [isPostingQuestions, setIsPostingQuestions] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [synced, setSynced] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -142,7 +144,9 @@ function AIMasterPortfolioCreatePageContent() {
     } else if (currentStep === 2) {
       const payload = step3Ref.current?.buildDraftPayload() ?? [];
       if (Array.isArray(payload) && payload.length === 0) {
-        alert('변경 사항이 없습니다.');
+        setToastMessage('변경 사항이 없습니다.');
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000);
         return;
       }
 
@@ -153,7 +157,13 @@ function AIMasterPortfolioCreatePageContent() {
             queryClient.invalidateQueries({
               queryKey: ['master-portfolio-questions', portfolioId],
             });
-            alert('임시저장이 완료되었습니다.');
+            // localStorage에 임시저장 데이터 저장
+            step3Ref.current?.saveToLocalStorage();
+            // 토스트 메시지 표시
+            step3Ref.current?.showSuccessToast();
+            setToastMessage('임시저장이 완료되었습니다');
+            setShowToast(true);
+            setTimeout(() => setShowToast(false), 3000);
           },
           onError: (error) => {
             console.error('임시저장 실패:', error);
@@ -290,6 +300,15 @@ function AIMasterPortfolioCreatePageContent() {
                   width={30}
                   height={30}
                 />
+
+                {/* 토스트 메시지 - 2번째 말풍선 왼쪽에 위치 */}
+                {showToast && (
+                  <div className="absolute right-full mr-[20px] top-1/2 -translate-y-1/2 z-50">
+                    <div className="w-[232px] h-[42px] bg-[#F8F8F8] border-[1.5px] border-[#BBBBBB] rounded-[6px] text-[18px] text-[#505050] flex items-center justify-center whitespace-nowrap leading-[26px] text-center">
+                      {toastMessage}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
