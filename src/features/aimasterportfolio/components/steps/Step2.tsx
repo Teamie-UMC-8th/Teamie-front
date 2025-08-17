@@ -44,18 +44,26 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
         if (prev.length >= 8) return prev;
         next = [...prev, index];
       }
-
-      // 상위로 id 배열 전달
-      if (onChangeSelectedIds && masterPortfolioDetailRecords) {
-        const ids = next.map((i) => masterPortfolioDetailRecords[i].id);
-        onChangeSelectedIds(ids);
-      }
-
       return next;
     });
   };
 
+  // useEffect로 상태 변경 처리 (렌더링 중 콜백 호출 방지)
+  useEffect(() => {
+    if (onChangeSelectedIds && masterPortfolioDetailRecords) {
+      const ids = localSelectedIndexes.map((i) => masterPortfolioDetailRecords[i].id);
+      onChangeSelectedIds(ids);
+    }
+  }, [localSelectedIndexes, masterPortfolioDetailRecords, onChangeSelectedIds]);
+
   const length = localSelectedIndexes.length;
+
+  // 회의록이 작성된 일정만 필터링 (내용이 비어있거나 공백만 있는 경우 제외)
+  const filteredRecords = (masterPortfolioDetailRecords ?? [])
+    .map((record, idx) => ({ record, idx }))
+    .filter(({ record }) =>
+      Boolean(record?.meetingRecords && String(record.meetingRecords).trim().length > 0)
+    );
 
   // ISO or arbitrary date string -> YYYY.MM.DD
   function formatToYYYYMMDD(dateString: string): string {
@@ -107,7 +115,7 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
         </p>
       </div>
 
-      {masterPortfolioDetailRecords?.length === 0 ? (
+      {filteredRecords.length === 0 ? (
         <div className="w-fit self-center bg-[#F8F8F8] rounded-[8px] shadow-[0_0_4px_rgba(0,0,0,0.20)] px-[16px] py-[24px] text-[#505050] text-center min-w-[660px] mt-8">
           {user?.name}님이 참석한 일정에 작성된 회의록이 없어요.
           <br /> 회의록 없이 마스터 포트폴리오를 생성할게요.
@@ -115,12 +123,12 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
       ) : (
         <div className="w-[934px] max-lg:w-[475px] h-[512px] border-[1.5px] border-[#898989] rounded-[20px] p-[24px] max-h-[512px] overflow-y-auto">
           <div className="grid grid-cols-2 max-lg:grid-cols-1 gap-[20px]">
-            {masterPortfolioDetailRecords?.map((record, index) => {
-              const isSelected = localSelectedIndexes.includes(index);
+            {filteredRecords.map(({ record, idx }) => {
+              const isSelected = localSelectedIndexes.includes(idx);
               return (
                 <div key={record.id} className="flex flex-col gap-[8px]">
                   <div
-                    onClick={() => toggleCardSelection(index)}
+                    onClick={() => toggleCardSelection(idx)}
                     className={`flex flex-col w-[427px] h-[205px] max-lg:w-[419px] rounded-[8px] p-[16px] cursor-pointer shadow-[0_0_4px_rgba(0,0,0,0.25)] ${
                       isSelected
                         ? "border-[3px] border-[#81D7D4] relative after:content-[''] after:absolute after:inset-0 after:bg-[#81D7D4]/10 after:rounded-[8px] after:pointer-events-none"
@@ -162,7 +170,7 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
                             setSelectedLogContent(record.meetingRecords);
                             setSelectedLogTitle(record.name);
                             setSelectedLogDate(formatToYYYYMMDD(record.date));
-                            setModalRecordIndex(index);
+                            setModalRecordIndex(idx);
                             setOpenModal(true);
                           }}
                         >
