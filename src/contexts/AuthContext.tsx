@@ -19,6 +19,9 @@ interface AuthContextType {
   user: UserProfile | null;
   logout: () => Promise<void>;
   isLoading: boolean;
+  // pro 업그레이드 토글 상태 추가
+  isUpgraded: boolean;
+  setIsUpgraded: (value: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,6 +36,8 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // pro 업그레이드 상태 추가
+  const [isUpgraded, setIsUpgraded] = useState(false);
   const { data: userData, error: userError, isLoading } = useUser();
   const { data: projects = [] } = useUserProjects(!!userData);
   const logoutMutation = useLogout();
@@ -89,8 +94,10 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       user,
       logout,
       isLoading,
+      isUpgraded,
+      setIsUpgraded,
     }),
-    [isAuthenticated, user, isLoading]
+    [isAuthenticated, user, isLoading, isUpgraded]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

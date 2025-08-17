@@ -12,12 +12,11 @@ import Image from 'next/image';
 
 export default function Navbar() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const [isUpgraded, setIsUpgraded] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<string>('나의 프로젝트');
   const navbarRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
-  const { user, logout } = useAuth(); // AuthContext에서 사용자 정보와 로그아웃 함수 가져오기
+  const { user, logout, isUpgraded, setIsUpgraded } = useAuth(); // AuthContext에서 사용자 정보와 로그아웃 함수, pro 업그레이드 상태 가져오기
 
   const toggleMenu = (menuKey: string) => {
     setOpenMenu((prev) => (prev === menuKey ? null : menuKey));
@@ -98,7 +97,7 @@ export default function Navbar() {
   ];
 
   const upgradeButtonClick = () => {
-    setIsUpgraded((prev) => !prev);
+    setIsUpgraded(!isUpgraded);
   };
 
   return (
