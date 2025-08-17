@@ -342,6 +342,7 @@ export default function TeamCalendar() {
         startAccessor="start"
         endAccessor="end"
         date={currentDate}
+        showAllEvents={true}
         onNavigate={() => {}} // 기본 이동 비활성화 (커스텀 버튼 사용 중)
         style={{ height: 'calc(100vh - 300px)', backgroundColor: 'white' }}
         components={{
