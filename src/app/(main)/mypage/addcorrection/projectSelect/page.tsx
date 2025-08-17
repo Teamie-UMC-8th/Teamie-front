@@ -1,6 +1,6 @@
 'use client';
 
-import Projects from '@/features/mypage/components/Projects';
+import Projects from '@/features/myPage/components/Projects';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useMemo, useState } from 'react';
 import AddLoadingModal from '@/features/correction/components/AddLoadingModal';

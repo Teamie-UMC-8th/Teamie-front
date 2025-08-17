@@ -1,14 +1,14 @@
 'use client';
 
-import useToggle from '@/features/mypage/hooks/useToggle';
-import Tailored from '@/features/mypage/components/Tailored';
+import useToggle from '@/features/myPage/hooks/useToggle';
+import Tailored from '@/features/myPage/components/Tailored';
 import ToggleButton from '@/components/ToggleButton';
 import { useState } from 'react';
-import Projects from '@/features/mypage/components/Projects';
-import AddCorrectionButton from '@/features/mypage/components/AddCorrectionButton';
+import Projects from '@/features/myPage/components/Projects';
+import AddCorrectionButton from '@/features/myPage/components/AddCorrectionButton';
 import { useUser, useUpdateUserProfile } from '@/hooks/mutations/useUser';
-import ProfileImageUpload from '@/features/mypage/components/ProfileImageUpload';
-import EditableField from '@/features/mypage/components/EditableField';
+import ProfileImageUpload from '@/features/myPage/components/ProfileImageUpload';
+import EditableField from '@/features/myPage/components/EditableField';
 
 export default function MyPage() {
   const { selected, setSelected } = useToggle();
