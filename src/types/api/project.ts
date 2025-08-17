@@ -60,3 +60,12 @@ export interface CompleteProjectResponse {
     completedAt: string;
   } | null;
 }
+
+// 프로젝트 종료 여부 조회 응답 타입
+export interface GetProjectIsCompletedResponse {
+  isSuccess: boolean;
+  error: ApiErrorResponse | null;
+  result: {
+    isCompleted: boolean | number; // 서버는 0/1을 줄 수 있으므로 number 허용
+  } | null;
+}
