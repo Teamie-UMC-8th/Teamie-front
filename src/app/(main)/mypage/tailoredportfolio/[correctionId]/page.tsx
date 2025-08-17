@@ -386,7 +386,7 @@ function TailoredPortfolioContent() {
             {durationLabel}
           </p>
           <div
-            className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[154px] mr-[8px] font-semibold text-[18px]
+            className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[200px] mr-[8px] font-semibold text-[18px]
           max-lg:ml-[229px]"
           >
             분류
@@ -403,7 +403,7 @@ function TailoredPortfolioContent() {
               {categoryLabel}
             </span>
           </div>
-          <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[154px] font-semibold text-[18px]">
+          <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[200px] font-semibold text-[18px]">
             기여도
           </div>
           <div className="ml-[28px] flex items-center">

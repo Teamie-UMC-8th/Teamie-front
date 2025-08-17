@@ -124,6 +124,9 @@ export default function MasterPortfolioDetail() {
   const patchMasterPortfolio = usePatchMasterPortfolio();
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey>('COURSE');
   const [contribution, setContribution] = useState(0); // 초기값 0으로 변경
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastPosition, setToastPosition] = useState({ x: 0, y: 0 });
   const {
     data: status,
     isLoading: statusLoading,
@@ -216,9 +219,22 @@ export default function MasterPortfolioDetail() {
     }
   };
 
-  const handleCopyField = (ref: React.RefObject<HTMLDivElement | null>) => {
+  const handleCopyField = (
+    ref: React.RefObject<HTMLDivElement | null>,
+    event: React.MouseEvent
+  ) => {
     const text = ref.current?.innerText ?? '';
     navigator.clipboard.writeText(text);
+
+    // 클릭한 버튼의 위치를 기준으로 토스트 위치 설정
+    const rect = event.currentTarget.getBoundingClientRect();
+    setToastPosition({
+      x: rect.right + 10,
+      y: rect.top + rect.height / 2 - 21,
+    });
+    setToastMessage('복사되었습니다.');
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 1000);
   };
 
   if (isLoading || statusLoading || projectLoading)
@@ -244,8 +260,8 @@ export default function MasterPortfolioDetail() {
       <ProjectHeader title={projectData.title} />
       <hr className="w-[1600px] max-lg:w-[976px] h-0 border-t-[2px] border-[#E7E7E7]" />
       <div className="flex flex-col gap-4 pr-[30px] pl-[30px] pt-[40px] pb-[12px]">
-        <section className="flex items-center justify-between pb-[60px] max-lg:flex-col max-lg:items-start">
-          <div className="flex flex-nowrap gap-[200px] max-lg:gap-[100px]">
+        <section className="flex items-center pb-[60px] max-lg:flex-col max-lg:items-start">
+          <div className="flex flex-nowrap gap-[265px] max-lg:gap-[100px]">
             <ProjectPeriod startDate={projectData.startDate} endDate={projectData.endDate} />
             <CategorySelector selected={selectedCategory} onSelect={handleCategoryChange} />
           </div>
@@ -274,7 +290,7 @@ export default function MasterPortfolioDetail() {
                   {data.detailInfo}
                 </div>
                 <button
-                  onClick={() => handleCopyField(detailRef)}
+                  onClick={(event) => handleCopyField(detailRef, event)}
                   className="absolute top-[8px] right-[8px] justify-end max-lg:hidden cursor-pointer opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity"
                 >
                   <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
@@ -293,7 +309,7 @@ export default function MasterPortfolioDetail() {
                   {data.assignedTask}
                 </div>
                 <button
-                  onClick={() => handleCopyField(taskRef)}
+                  onClick={(event) => handleCopyField(taskRef, event)}
                   className="absolute top-[8px] right-[8px] justify-end max-lg:hidden cursor-pointer opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity"
                 >
                   <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
@@ -312,7 +328,7 @@ export default function MasterPortfolioDetail() {
                   {data.keyAchievement}
                 </div>
                 <button
-                  onClick={() => handleCopyField(resultRef)}
+                  onClick={(event) => handleCopyField(resultRef, event)}
                   className="absolute top-[8px] right-[8px] justify-end max-lg:hidden cursor-pointer opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity"
                 >
                   <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
@@ -331,7 +347,7 @@ export default function MasterPortfolioDetail() {
                   {data.insight}
                 </div>
                 <button
-                  onClick={() => handleCopyField(learnRef)}
+                  onClick={(event) => handleCopyField(learnRef, event)}
                   className="absolute top-[8px] right-[8px] justify-end max-lg:hidden cursor-pointer opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity"
                 >
                   <Image src="/icons/AI-copy.svg" alt="복사" width={36} height={36} />
@@ -346,6 +362,21 @@ export default function MasterPortfolioDetail() {
 
       {/* 생성 진행 중 재진입 시 마지막 단계부터 표시되는 로딩 모달 */}
       {status?.result.status === 'GENERATING' && <LoadingModal isOpen startFromLast />}
+
+      {/* 토스트 메시지 */}
+      {showToast && (
+        <div
+          className="fixed z-50"
+          style={{
+            left: `${toastPosition.x}px`,
+            top: `${toastPosition.y}px`,
+          }}
+        >
+          <div className="w-[154px] h-[42px] bg-[#F8F8F8] border-[1.5px] border-[#BBBBBB] rounded-[6px] text-[18px] text-[#505050] flex items-center justify-center whitespace-nowrap leading-[26px] text-center">
+            {toastMessage}
+          </div>
+        </div>
+      )}
     </main>
   );
 }

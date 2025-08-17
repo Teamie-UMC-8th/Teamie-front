@@ -13,6 +13,8 @@ export function Divider() {
 
 export type Step3Handle = {
   buildDraftPayload: () => PatchMasterPortfolioQuestionsRequest;
+  clearLocalDraft: () => void;
+  saveToLocalStorage: () => void;
 };
 
 const Step3 = forwardRef<Step3Handle>(function Step3(_, ref) {
@@ -30,21 +32,48 @@ const Step3 = forwardRef<Step3Handle>(function Step3(_, ref) {
     [masterPortfolioQuestions]
   );
 
+  // 페이지 진입 시 저장된 임시저장 데이터 로드
+  useEffect(() => {
+    const savedData = localStorage.getItem(`step3-draft-${portfolioId}`);
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        setLocalAnswers(parsed);
+      } catch (e) {
+        console.error('저장된 데이터 파싱 실패:', e);
+      }
+    }
+  }, [portfolioId]);
+
+  // API 데이터와 로컬 데이터 동기화 (로컬 데이터 우선)
   useEffect(() => {
     if (!questions || questions.length === 0) return;
+
     setLocalAnswers((prev) => {
-      const next: Record<number, { answer: 'YES' | 'NO' | null; reason: string }> = { ...prev };
+      const next = { ...prev }; // 기존 로컬 데이터 유지
+
       for (const q of questions) {
-        next[q.id!] = {
-          answer: (q.answer as 'YES' | 'NO' | null) ?? null,
-          reason: q.reason ?? '',
-        };
+        if (q.questionId) {
+          // 로컬에 없으면 API 데이터 사용, 있으면 로컬 데이터 유지
+          if (!(q.questionId in prev)) {
+            next[q.questionId] = {
+              answer: (q.answer as 'YES' | 'NO' | null) ?? null,
+              reason: q.reason ?? '',
+            };
+          }
+        }
       }
       return next;
     });
   }, [questions]);
 
-  // 외부에서 호출할 임시저장 페이로드 생성기
+  // 임시저장을 localStorage에 저장하는 함수
+  const saveToLocalStorage = () => {
+    if (Object.keys(localAnswers).length > 0) {
+      localStorage.setItem(`step3-draft-${portfolioId}`, JSON.stringify(localAnswers));
+    }
+  };
+
   useImperativeHandle(ref, () => ({
     buildDraftPayload: () => {
       const payload: PatchMasterPortfolioQuestionsRequest = [];
@@ -102,6 +131,11 @@ const Step3 = forwardRef<Step3Handle>(function Step3(_, ref) {
       console.log('Generated payload:', payload);
       return payload;
     },
+    clearLocalDraft: () => {
+      localStorage.removeItem(`step3-draft-${portfolioId}`);
+      setLocalAnswers({});
+    },
+    saveToLocalStorage: saveToLocalStorage,
   }));
 
   const handleYesNo = (questionId: number, value: 'YES' | 'NO') => {
@@ -147,7 +181,7 @@ const Step3 = forwardRef<Step3Handle>(function Step3(_, ref) {
                   <div className="flex gap-3 ml-4 ">
                     <button
                       onClick={() => handleYesNo(q.questionId!, 'YES')}
-                      className={`px-6 py-2 rounded-md font-medium transition-colors cursor-pointer ${
+                      className={`w-[77px] h-[30px] rounded-md font-medium transition-colors cursor-pointer items-center justify-center whitespace-nowrap ${
                         state.answer === 'YES'
                           ? 'border-[1px] border-[#81D7D4] bg-[#DAF3F3]'
                           : 'border-[0.6px] border-[#898989] bg-[#FFF]'
@@ -157,7 +191,7 @@ const Step3 = forwardRef<Step3Handle>(function Step3(_, ref) {
                     </button>
                     <button
                       onClick={() => handleYesNo(q.questionId!, 'NO')}
-                      className={`px-6 py-2 rounded-md font-medium transition-colors ${
+                      className={`w-[77px] h-[30px] rounded-md font-medium transition-colors cursor-pointer items-center justify-center whitespace-nowrap ${
                         state.answer === 'NO'
                           ? 'border-[1px] border-[#81D7D4] bg-[#DAF3F3]'
                           : 'border-[0.6px] border-[#898989] bg-[#FFF]'

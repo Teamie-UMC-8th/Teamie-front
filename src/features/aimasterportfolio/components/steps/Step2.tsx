@@ -27,8 +27,11 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
   // index → id 매핑을 위해 메모리 동기화
   useEffect(() => {
     if (!masterPortfolioDetailRecords || masterPortfolioDetailRecords.length === 0) return;
+    const filteredRecords = masterPortfolioDetailRecords.filter(
+      (record) => record.meetingRecords && record.meetingRecords.trim() !== ''
+    );
     const nextIndexes: number[] = [];
-    masterPortfolioDetailRecords.forEach((record, idx) => {
+    filteredRecords.forEach((record, idx) => {
       if (selectedIds.includes(record.id)) nextIndexes.push(idx);
     });
     setLocalSelectedIndexes(nextIndexes);
@@ -47,7 +50,10 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
 
       // 상위로 id 배열 전달
       if (onChangeSelectedIds && masterPortfolioDetailRecords) {
-        const ids = next.map((i) => masterPortfolioDetailRecords[i].id);
+        const filteredRecords = masterPortfolioDetailRecords.filter(
+          (record) => record.meetingRecords && record.meetingRecords.trim() !== ''
+        );
+        const ids = next.map((i) => filteredRecords[i].id);
         onChangeSelectedIds(ids);
       }
 
@@ -107,7 +113,10 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
         </p>
       </div>
 
-      {masterPortfolioDetailRecords?.length === 0 ? (
+      {!masterPortfolioDetailRecords ||
+      masterPortfolioDetailRecords.filter(
+        (record) => record.meetingRecords && record.meetingRecords.trim() !== ''
+      ).length === 0 ? (
         <div className="w-fit self-center bg-[#F8F8F8] rounded-[8px] shadow-[0_0_4px_rgba(0,0,0,0.20)] px-[16px] py-[24px] text-[#505050] text-center min-w-[660px] mt-8">
           {user?.name}님이 참석한 일정에 작성된 회의록이 없어요.
           <br /> 회의록 없이 마스터 포트폴리오를 생성할게요.
@@ -115,65 +124,67 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
       ) : (
         <div className="w-[934px] max-lg:w-[475px] h-[512px] border-[1.5px] border-[#898989] rounded-[20px] p-[24px] max-h-[512px] overflow-y-auto">
           <div className="grid grid-cols-2 max-lg:grid-cols-1 gap-[20px]">
-            {masterPortfolioDetailRecords?.map((record, index) => {
-              const isSelected = localSelectedIndexes.includes(index);
-              return (
-                <div key={record.id} className="flex flex-col gap-[8px]">
-                  <div
-                    onClick={() => toggleCardSelection(index)}
-                    className={`flex flex-col w-[427px] h-[205px] max-lg:w-[419px] rounded-[8px] p-[16px] cursor-pointer shadow-[0_0_4px_rgba(0,0,0,0.25)] ${
-                      isSelected
-                        ? 'bg-[#DAF3F3] border-[2px] border-[#81D7D4]'
-                        : 'bg-[#F8F8F8] border border-transparent'
-                    }`}
-                  >
-                    <div className="pl-[12px] w-[395px] h-[46px] p-2 rounded-[4px] border border-[#E7E7E7] bg-white text-black text-[18px] leading-[26px] font-normal tracking-[0.72px] flex items-center justify-start text-center">
-                      {record.name}
-                    </div>
-
-                    <div className="w-full flex gap-[14px] mt-[8px]">
-                      <div className="flex-1 text-[#898989] text-[14px] leading-[22px] font-normal tracking-[0.56px]">
-                        일자
-                      </div>
-                      <div className="flex-9 text-black text-[14px] leading-[22px] font-normal tracking-[0.56px]">
-                        {formatToYYYYMMDD(record.date)}
-                      </div>
-                    </div>
-
-                    <div className="w-[395px] h-[83px] flex gap-[8px] mt-[8px]">
-                      <div className="flex-1 text-[#898989] text-[14px] leading-[22px] font-normal tracking-[0.56px] whitespace-pre">
-                        회의록
+            {masterPortfolioDetailRecords
+              ?.filter((record) => record.meetingRecords && record.meetingRecords.trim() !== '')
+              .map((record, index) => {
+                const isSelected = localSelectedIndexes.includes(index);
+                return (
+                  <div key={record.id} className="flex flex-col gap-[8px]">
+                    <div
+                      onClick={() => toggleCardSelection(index)}
+                      className={`flex flex-col w-[427px] h-[205px] max-lg:w-[419px] rounded-[8px] p-[16px] cursor-pointer shadow-[0_0_4px_rgba(0,0,0,0.25)] ${
+                        isSelected
+                          ? "border-[3px] border-[#81D7D4] relative after:content-[''] after:absolute after:inset-0 after:bg-[#81D7D4]/10 after:rounded-[8px] after:pointer-events-none"
+                          : 'bg-[#F8F8F8] border border-transparent'
+                      }`}
+                    >
+                      <div className="pl-[12px] w-[395px] h-[46px] p-2 rounded-[4px] border border-[#E7E7E7] bg-white text-black text-[18px] leading-[26px] font-normal tracking-[0.72px] flex items-center justify-start text-center">
+                        {record.name}
                       </div>
 
-                      <div
-                        className="relative group flex-9 rounded-[4px] border border-[#E7E7E7] bg-white text-black text-[14px] leading-[22px] font-normal tracking-[0.56px] whitespace-pre-wrap px-[12px] py-[4px] overflow-hidden"
-                        style={{
-                          display: '-webkit-box',
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: 'vertical' as const,
-                        }}
-                      >
-                        <div className="absolute inset-0 bg-[rgba(0,0,0,0.1)] opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-[4px]" />
-                        {record.meetingRecords}
-                        <button
-                          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-[12px] py-[4px] text-[14px] font-semibold rounded-[4px] shadow opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 cursor-pointer"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedLogContent(record.meetingRecords);
-                            setSelectedLogTitle(record.name);
-                            setSelectedLogDate(formatToYYYYMMDD(record.date));
-                            setModalRecordIndex(index);
-                            setOpenModal(true);
+                      <div className="w-full flex gap-[14px] mt-[8px]">
+                        <div className="flex-1 text-[#898989] text-[14px] leading-[22px] font-normal tracking-[0.56px]">
+                          일자
+                        </div>
+                        <div className="flex-9 text-black text-[14px] leading-[22px] font-normal tracking-[0.56px]">
+                          {formatToYYYYMMDD(record.date)}
+                        </div>
+                      </div>
+
+                      <div className="w-[395px] h-[83px] flex gap-[8px] mt-[8px]">
+                        <div className="flex-1 text-[#898989] text-[14px] leading-[22px] font-normal tracking-[0.56px] whitespace-pre">
+                          회의록
+                        </div>
+
+                        <div
+                          className="relative group flex-9 rounded-[4px] border border-[#E7E7E7] bg-white text-black text-[14px] leading-[22px] font-normal tracking-[0.56px] whitespace-pre-wrap px-[12px] py-[4px] overflow-hidden"
+                          style={{
+                            display: '-webkit-box',
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: 'vertical' as const,
                           }}
                         >
-                          회의록 보기
-                        </button>
+                          <div className="absolute inset-0 bg-[rgba(0,0,0,0.1)] opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-[4px]" />
+                          {record.meetingRecords}
+                          <button
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-[12px] py-[4px] text-[14px] font-semibold rounded-[4px] shadow opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedLogContent(record.meetingRecords);
+                              setSelectedLogTitle(record.name);
+                              setSelectedLogDate(formatToYYYYMMDD(record.date));
+                              setModalRecordIndex(index);
+                              setOpenModal(true);
+                            }}
+                          >
+                            회의록 보기
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </div>
       )}
