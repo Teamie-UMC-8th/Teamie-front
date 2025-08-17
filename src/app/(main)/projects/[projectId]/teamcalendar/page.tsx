@@ -45,20 +45,17 @@ export default function TeamCalendar() {
 
   // 현재 월 + 이전/다음 월 일부 포함하여 조회
   const startDate = useMemo(
-    () => moment(currentDate).subtract(1, 'month').startOf('month').toISOString(),
+    () => moment(currentDate).startOf('month').toISOString(),
     [currentDate]
   );
-  const endDate = useMemo(
-    () => moment(currentDate).add(1, 'month').endOf('month').toISOString(),
-    [currentDate]
-  );
+  const endDate = useMemo(() => moment(currentDate).endOf('month').toISOString(), [currentDate]);
 
   // API 요청: 일정 목록
-  const {
-    data: calendarData,
-    isLoading,
-    refetch, // ✅ refetch 포함
-  } = useGetCalendarPlans(projectId ?? '', startDate, endDate);
+  const { data: calendarData, isLoading } = useGetCalendarPlans(
+    projectId ?? '',
+    startDate,
+    endDate
+  );
 
   console.log('calendarData', calendarData);
 
@@ -121,17 +118,16 @@ export default function TeamCalendar() {
     endDate,
   ]);
 
-  // ✅ 창이 다시 focus될 때 refetch 실행
-  useEffect(() => {
-    const handleFocus = () => {
-      refetch();
-    };
-
-    window.addEventListener('focus', handleFocus);
-    return () => {
-      window.removeEventListener('focus', handleFocus);
-    };
-  }, [refetch]);
+  // 창 포커스 refetch 제거
+  // useEffect(() => {
+  //   const handleFocus = () => {
+  //     refetch();
+  //   };
+  //   window.addEventListener('focus', handleFocus);
+  //   return () => {
+  //     window.removeEventListener('focus', handleFocus);
+  //   };
+  // }, [refetch]);
 
   // 프로젝트 생성일을 조회해 해당 일 이전 날짜 차단
   useEffect(() => {
@@ -309,7 +305,7 @@ export default function TeamCalendar() {
         >
           팀 캘린더
         </h2>
-        <hr className="w-full border-t-[2px] border-[#E7E7E7] rotate-180 mb-[44px]" />
+        <hr className=" w-[1500px] border-t-[2px] border-[#E7E7E7] rotate-180 mb-[44px] -ml-[10px]" />
       </div>
 
       {/* 월 네비게이션 */}
