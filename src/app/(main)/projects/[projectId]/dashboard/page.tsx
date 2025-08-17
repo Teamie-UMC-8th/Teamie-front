@@ -245,7 +245,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-white flex flex-col">
+    <div className="h-full w-full bg-white flex flex-col">
       <header className="flex items-center justify-between pb-[1rem] px-[0.5rem] border-b-[0.125rem] border-[#E7E7E7]">
         <div>
           <h1 className="lg:text-[1.5rem] text-[1.375rem] lg:font-bold font-semibold">
