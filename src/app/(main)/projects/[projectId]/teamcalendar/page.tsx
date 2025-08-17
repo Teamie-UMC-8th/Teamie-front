@@ -43,12 +43,15 @@ export default function TeamCalendar() {
   const queryClient = useQueryClient();
   const { socket, subscribe, unsubscribe, isConnected } = useWebSocket();
 
-  // 현재 보고 있는 달의 첫 날 ~ 마지막 날 계산
+  // 현재 월 + 이전/다음 월 일부 포함하여 조회
   const startDate = useMemo(
-    () => moment(currentDate).startOf('month').toISOString(),
+    () => moment(currentDate).subtract(1, 'month').startOf('month').toISOString(),
     [currentDate]
   );
-  const endDate = useMemo(() => moment(currentDate).endOf('month').toISOString(), [currentDate]);
+  const endDate = useMemo(
+    () => moment(currentDate).add(1, 'month').endOf('month').toISOString(),
+    [currentDate]
+  );
 
   // API 요청: 일정 목록
   const {
@@ -254,7 +257,7 @@ export default function TeamCalendar() {
       console.warn('onSelectEvent: 유효하지 않은 이벤트 또는 projectId 누락', { projectId, event });
       return;
     }
-    const target = `/projects/${projectId}/teamcalendar/${event.id}/teamtask`;
+    const target = `/projects/${projectId}/teamCalendar/${event.id}/teamTask`;
     console.log('onSelectEvent: 팀태스크로 이동', {
       projectId,
       planId: event.id,

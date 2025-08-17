@@ -70,10 +70,10 @@ export default function CustomDateCellWrapper({
           });
           console.log('일정 목록 refetch 요청!');
 
-          router.push(`/projects/${projectId}/teamcalendar/${planId}/teamtask`);
+          router.push(`/projects/${projectId}/teamCalendar/${planId}/teamTask`);
           console.log(
             '상세 페이지로 이동:',
-            `/projects/${projectId}/teamcalendar/${planId}/teamtask`
+            `/projects/${projectId}/teamCalendar/${planId}/teamTask`
           );
         },
         onError: (error) => {

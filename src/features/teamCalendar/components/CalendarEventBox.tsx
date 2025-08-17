@@ -34,7 +34,7 @@ export default function CalendarEventBox({ event }: { event: CalendarEvent }) {
     if (!projectId || event?.id == null) return;
     const target = isTask
       ? `/projects/${projectId}/tasks/${taskId}`
-      : `/projects/${projectId}/teamcalendar/${String(event.id)}/teamtask`;
+      : `/projects/${projectId}/teamCalendar/${String(event.id)}/teamTask`;
     console.log('이벤트 클릭: 팀태스크로 이동', {
       projectId,
       id: String(event.id),
