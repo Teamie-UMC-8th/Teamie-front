@@ -3,20 +3,18 @@
 import useToggle from '@/features/myPage/hooks/useToggle';
 import Tailored from '@/features/myPage/components/Tailored';
 import ToggleButton from '@/components/ToggleButton';
-import { useState } from 'react';
 import Projects from '@/features/myPage/components/Projects';
 import AddCorrectionButton from '@/features/myPage/components/AddCorrectionButton';
 import { useUser, useUpdateUserProfile } from '@/hooks/mutations/useUser';
 import ProfileImageUpload from '@/features/myPage/components/ProfileImageUpload';
 import EditableField from '@/features/myPage/components/EditableField';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function MyPage() {
   const { selected, setSelected } = useToggle();
   const { data, isLoading, error } = useUser();
   const updateUserProfile = useUpdateUserProfile();
-
-  // Pro로 업그레이드 시에 만 토글이 보이도록 설정
-  const [showToggle, setShowToggle] = useState(false);
+  const { isUpgraded, setIsUpgraded } = useAuth(); // AuthContext에서 pro 업그레이드 상태와 설정 함수 가져오기
 
   const handleProfileImageChange = (file: File) => {
     updateUserProfile.mutate(
@@ -157,8 +155,8 @@ export default function MyPage() {
                 <div className="text-black">{data?.projectNum}</div>
               </div>
             </div>
-            <button className="cursor-pointer" onClick={() => setShowToggle(true)}>
-              {!showToggle && (
+            <button className="cursor-pointer" onClick={() => setIsUpgraded(!isUpgraded)}>
+              {!isUpgraded && (
                 <img
                   src="/icons/Upgrade-pro.svg"
                   alt="UpgradePro"
@@ -166,7 +164,7 @@ export default function MyPage() {
                   max-lg:translate-x-[-43.8rem] max-lg:translate-y-[3.75rem]"
                 />
               )}
-              {showToggle && (
+              {isUpgraded && (
                 <div
                   className="flex flex-col
                 max-lg:translate-x-[-43.125rem] max-lg:translate-y-[4.375rem]"
@@ -211,8 +209,8 @@ export default function MyPage() {
             <h2 className="text-[1.375rem] font-bold ">포트폴리오</h2>
             <div className="flex items-center gap-4 h-[20px]">
               {/* AI 첨삭일 때만 + 버튼 표시 */}
-              {showToggle && selected === 'ai' && <AddCorrectionButton />}
-              {showToggle && (
+              {isUpgraded && selected === 'ai' && <AddCorrectionButton />}
+              {isUpgraded && (
                 <ToggleButton
                   leftLabel="프로젝트"
                   rightLabel="AI 첨삭"
