@@ -12,6 +12,7 @@ interface TeamMemberCardProps {
   currentUserImageUrl?: string;
   onClick?: () => void;
   onUpdate?: (field: 'role', value: string) => void;
+  readOnly?: boolean;
 }
 
 export default function TeamMemberCard({
@@ -24,6 +25,7 @@ export default function TeamMemberCard({
   currentUserImageUrl,
   onClick,
   onUpdate,
+  readOnly = false,
 }: TeamMemberCardProps) {
   const [editingField, setEditingField] = useState<'role' | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -32,6 +34,7 @@ export default function TeamMemberCard({
   const isCurrentUser = currentUserEmail === email;
 
   const handleFieldClick = (field: 'role', currentValue: string) => {
+    if (readOnly) return;
     setEditingField(field);
     setEditValue(currentValue);
   };
@@ -58,6 +61,7 @@ export default function TeamMemberCard({
   };
 
   const handleCardClick = () => {
+    if (readOnly) return;
     // 팀장인 경우 클릭 이벤트를 무시 (팀장 변경 불가)
     if (isLeader) {
       return;
@@ -70,7 +74,7 @@ export default function TeamMemberCard({
     <div
       className={`w-[316px] h-[368px] rounded-[12px] bg-white mt-[24px] flex-col py-[36px] px-[40px] 
       max-lg:ml-[142px] max-lg:w-[580px] max-lg:h-[241px] ${
-        !isLeader ? 'cursor-pointer hover:shadow-lg transition-shadow' : ''
+        !isLeader && !readOnly ? 'cursor-pointer hover:shadow-lg transition-shadow' : ''
       }`}
       style={{ boxShadow: '0px 0px 10px 0px #00000033' }}
       onClick={handleCardClick}
@@ -122,7 +126,9 @@ export default function TeamMemberCard({
               />
             ) : (
               <div
-                className="text-black text-[18px] cursor-pointer hover:bg-gray-100 px-1 py-0.5 rounded"
+                className={`text-black text-[18px] ${
+                  readOnly ? '' : 'cursor-pointer hover:bg-gray-100'
+                } px-1 py-0.5 rounded`}
                 onClick={(e) => {
                   e.stopPropagation();
                   handleFieldClick('role', role);

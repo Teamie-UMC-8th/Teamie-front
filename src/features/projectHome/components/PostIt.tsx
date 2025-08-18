@@ -9,9 +9,15 @@ interface PostItProps {
   content?: string;
   onDelete?: () => void;
   createdAt?: number;
+  readOnly?: boolean;
 }
 
-export default function PostIt({ content = '', onDelete, createdAt }: PostItProps) {
+export default function PostIt({
+  content = '',
+  onDelete,
+  createdAt,
+  readOnly = false,
+}: PostItProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [postItContent, setPostItContent] = useState(content);
@@ -55,7 +61,7 @@ export default function PostIt({ content = '', onDelete, createdAt }: PostItProp
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!onDelete) return; // 삭제 권한/식별자가 없으면 무시
+    if (readOnly || !onDelete) return; // 읽기 전용 또는 삭제 권한/식별자가 없으면 무시
     setIsDeleteModalOpen(true);
   };
 
@@ -72,7 +78,7 @@ export default function PostIt({ content = '', onDelete, createdAt }: PostItProp
 
   return (
     <>
-      <div onClick={handlePostItClick} className="cursor-pointer group">
+      <div onClick={handlePostItClick} className={`${readOnly ? '' : 'cursor-pointer'} group`}>
         <img
           src="/icons/Post-it.svg"
           alt="게시판 포스트잇"
@@ -80,7 +86,7 @@ export default function PostIt({ content = '', onDelete, createdAt }: PostItProp
         />
         <div className="flex items-center translate-y-[4px]">
           <p className="w-[8px] h-[8px] rounded-full bg-[#898989] relative ml-[56px]" />
-          {onDelete && (
+          {onDelete && !readOnly && (
             <img
               src="/icons/delete_steps.svg"
               alt="삭제 아이콘"
@@ -100,7 +106,7 @@ export default function PostIt({ content = '', onDelete, createdAt }: PostItProp
         </Portal>
       )}
 
-      {onDelete && isDeleteModalOpen && (
+      {onDelete && !readOnly && isDeleteModalOpen && (
         <Portal>
           <DeleteButtonModal
             title="포스트잇을 삭제하시겠습니까?"
