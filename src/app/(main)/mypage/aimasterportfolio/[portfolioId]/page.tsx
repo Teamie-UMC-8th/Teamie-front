@@ -69,7 +69,7 @@ function CategorySelector({
     <div className="flex items-center gap-[28px]">
       <div className={STYLES.tag}>분류</div>
       <div className="relative">
-        <button
+        <div
           className="flex items-center gap-[20px] cursor-pointer"
           onClick={() => setIsOpen(!isOpen)}
         >
@@ -79,20 +79,14 @@ function CategorySelector({
           >
             {CATEGORY_MAP[selected]?.label ?? '분류'}
           </div>
-          <svg
-            width="14"
-            height="8"
-            viewBox="0 0 14 8"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}
-          >
-            <path
-              d="M13.4393 1.56365L7.77721 7.56922C7.64608 7.70832 7.50507 7.81525 7.35419 7.89003C7.20331 7.96481 7.03763 8.00145 6.85714 7.99996C6.67666 7.99846 6.51097 7.96107 6.3601 7.88779C6.20922 7.8145 6.06821 7.70757 5.93708 7.56698L0.274961 1.5614C0.197407 1.47765 0.13184 1.38119 0.0782577 1.27201C0.0260853 1.16283 -3.03994e-07 1.04542 -3.09486e-07 0.919795C-3.20469e-07 0.668534 0.0775525 0.452419 0.23266 0.271451C0.390587 0.0904841 0.597162 -2.61028e-08 0.852384 -3.72589e-08L12.8598 -5.62119e-07C13.1164 -5.73337e-07 13.323 0.0927276 13.4795 0.278182C13.636 0.463636 13.7143 0.679003 13.7143 0.924281C13.7143 0.987096 13.6226 1.19947 13.4393 1.5614"
-              fill="black"
-            />
-          </svg>
-        </button>
+          <img
+            src="/icons/drop-down.svg"
+            alt="드롭다운"
+            width={24}
+            height={24}
+            className={isOpen ? 'rotate-180' : ''}
+          />
+        </div>
         {isOpen && (
           <ul className="absolute top-[40px] left-0 z-10 w-[104px] bg-white rounded-[8px] shadow-[0_0_15px_rgba(0,0,0,0.2)] px-[12px] py-[10px] flex flex-col gap-[8px]">
             {CATEGORY_LIST.map((option) => (
