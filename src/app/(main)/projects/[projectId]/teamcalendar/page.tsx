@@ -43,12 +43,15 @@ export default function TeamCalendar() {
   const queryClient = useQueryClient();
   const { socket, subscribe, unsubscribe, isConnected } = useWebSocket();
 
-  // 현재 월 + 이전/다음 월 일부 포함하여 조회
+  // 현재 월 + 이전/다음 월 일부 포함하여 조회 (45일 범위로 확장)
   const startDate = useMemo(
-    () => moment(currentDate).startOf('month').toISOString(),
+    () => moment(currentDate).subtract(22, 'days').startOf('day').toISOString(),
     [currentDate]
   );
-  const endDate = useMemo(() => moment(currentDate).endOf('month').toISOString(), [currentDate]);
+  const endDate = useMemo(
+    () => moment(currentDate).add(22, 'days').endOf('day').toISOString(),
+    [currentDate]
+  );
 
   // API 요청: 일정 목록
   const { data: calendarData, isLoading } = useGetCalendarPlans(
