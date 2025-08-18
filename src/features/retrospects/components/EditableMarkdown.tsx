@@ -18,8 +18,6 @@ export default function EditableMarkdown({ initialValue = '', onSave }: Props) {
     setTimeout(() => {
       if (textareaRef.current) {
         textareaRef.current.focus();
-        textareaRef.current.style.height = 'auto';
-        textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
       }
     }, 0);
   };
@@ -32,8 +30,6 @@ export default function EditableMarkdown({ initialValue = '', onSave }: Props) {
   useEffect(() => {
     if (!editing) return;
     if (!textareaRef.current) return;
-    textareaRef.current.style.height = 'auto';
-    textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
   }, [content, editing]);
 
   return (
