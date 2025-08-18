@@ -21,10 +21,19 @@ function AiLoadingPageContent() {
   const [keywords, setKeywords] = useState<string[]>([]);
   const [links, setLinks] = useState<{ name: string; url: string }[]>([]);
   const [companyInsight, setCompanyInsight] = useState<string>('');
+  const [showToast, setShowToast] = useState<boolean>(false);
   const lastIdRef = useRef<number | null>(null);
   const loadedFromPrefetchRef = useRef<boolean>(false);
   const lastSavedRef = useRef<string>('');
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const correctionIdNum = idParamStr ? Number(idParamStr) : NaN;
+
+  // 언마운트 시 토스트 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     const scrollContainer = scrollContainerRef.current;
@@ -148,8 +157,8 @@ function AiLoadingPageContent() {
             typeof parsed.insight?.companyInsight === 'string' &&
             parsed.insight.companyInsight.trim().length > 0;
           if (hasReadyPrefetch) {
+            // 네트워크 재호출은 줄이되 최신 회사 인사이트는 항상 새로 조회해야 하므로 조기 종료하지 않음
             loadedFromPrefetchRef.current = true;
-            return; // effect 조기 종료 → 아래 fetch 호출 생략
           }
         }
       }
@@ -162,52 +171,53 @@ function AiLoadingPageContent() {
       companyNameFromQuery,
     });
 
-    if (loadedFromPrefetchRef.current) return;
+    if (!loadedFromPrefetchRef.current) {
+      fetchCorrectionDetail(correctionId)
+        .then((res) => {
+          console.log('[Analyzing] correction detail:', res);
+          setCompanyName(res.title || '');
+        })
+        .catch((error) => {
+          console.error('[Analyzing] failed to fetch correction detail:', error);
+        });
 
-    fetchCorrectionDetail(correctionId)
-      .then((res) => {
-        console.log('[Analyzing] correction detail:', res);
-        setCompanyName(res.title || '');
-      })
-      .catch((error) => {
-        console.error('[Analyzing] failed to fetch correction detail:', error);
-      });
-
-    fetchRagData(correctionId)
-      .then((res) => {
-        console.log('[Analyzing] RAG data response:', res);
-        const fetchedLinks = res?.links ?? [];
-        setKeywords(res?.keywords ?? []);
-        if (Array.isArray(fetchedLinks)) {
-          const normalized = fetchedLinks
-            .map((raw) => {
-              try {
-                if (typeof raw === 'string') {
-                  const url = new URL(raw);
-                  const hostname = url.hostname.replace(/^www\./, '');
-                  return { name: hostname, url: raw };
+      fetchRagData(correctionId)
+        .then((res) => {
+          console.log('[Analyzing] RAG data response:', res);
+          const fetchedLinks = res?.links ?? [];
+          setKeywords(res?.keywords ?? []);
+          if (Array.isArray(fetchedLinks)) {
+            const normalized = fetchedLinks
+              .map((raw) => {
+                try {
+                  if (typeof raw === 'string') {
+                    const url = new URL(raw);
+                    const hostname = url.hostname.replace(/^www\./, '');
+                    return { name: hostname, url: raw };
+                  }
+                  if (raw && typeof raw === 'object' && 'name' in raw && 'url' in raw) {
+                    return { name: String(raw.name), url: String(raw.url) };
+                  }
+                } catch {
+                  return typeof raw === 'string'
+                    ? { name: '', url: raw }
+                    : {
+                        name: String((raw as Record<string, unknown>)?.name || ''),
+                        url: String((raw as Record<string, unknown>)?.url || ''),
+                      };
                 }
-                if (raw && typeof raw === 'object' && 'name' in raw && 'url' in raw) {
-                  return { name: String(raw.name), url: String(raw.url) };
-                }
-              } catch {
-                return typeof raw === 'string'
-                  ? { name: '', url: raw }
-                  : {
-                      name: String((raw as Record<string, unknown>)?.name || ''),
-                      url: String((raw as Record<string, unknown>)?.url || ''),
-                    };
-              }
-              return null;
-            })
-            .filter((v): v is { name: string; url: string } => !!v && !!v.url);
-          setLinks(normalized);
-        }
-      })
-      .catch((error) => {
-        console.error('[Analyzing] failed to fetch RAG data:', error);
-      });
+                return null;
+              })
+              .filter((v): v is { name: string; url: string } => !!v && !!v.url);
+            setLinks(normalized);
+          }
+        })
+        .catch((error) => {
+          console.error('[Analyzing] failed to fetch RAG data:', error);
+        });
+    }
 
+    // 회사 인사이트는 항상 최신값을 가져와서 표시
     fetchCompanyInsight(correctionId)
       .then((res) => {
         console.log(
@@ -231,36 +241,33 @@ function AiLoadingPageContent() {
     e.preventDefault();
     const idParam = searchParams.get('correctionId');
     const correctionId = idParam ? Number(idParam) : NaN;
-    if (correctionId && companyInsight) {
-      try {
-        console.log('[Analyzing] saving company insight before next step:', {
-          correctionId,
-          length: companyInsight.length,
-        });
-        await patchCompanyInsight(correctionId, { companyInsight });
-        lastSavedRef.current = companyInsight;
-      } catch {}
-    }
+    // 다음으로 이동 시에는 서버 저장하지 않음 (임시저장 버튼에서만 저장)
     const nextUrl =
       `/myPage/addCorrection/projectSelect?correctionId=${correctionId}` +
       (companyName ? `&submissionTarget=${encodeURIComponent(companyName)}` : '');
     router.push(nextUrl);
   };
 
-  // 임시저장 후 마이페이지로 이동
+  // 임시 저장 (페이지 이동 없음)
   const handleTempSaveAndExit = async (e: React.MouseEvent) => {
     e.preventDefault();
     const idParam = searchParams.get('correctionId');
     const correctionId = idParam ? Number(idParam) : NaN;
     try {
-      if (correctionId && companyInsight && companyInsight !== lastSavedRef.current) {
+      if (correctionId) {
+        // 임시저장 시에만 기업 분석 정보 수정 API 호출
         await patchCompanyInsight(correctionId, { companyInsight });
         lastSavedRef.current = companyInsight;
       }
     } catch (err) {
       console.error('[Analyzing] temporary save failed:', err);
     }
-    router.push('/myPage');
+    // 임시 저장 시 페이지 이동하지 않음
+    setShowToast(true);
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
   };
 
   // 포커스 아웃 시 즉시 저장 보장
@@ -268,14 +275,8 @@ function AiLoadingPageContent() {
     if (!correctionIdNum) return;
     const value = companyInsight;
     try {
-      if (value.trim().length === 0) return;
+      // 포커스 아웃 시 서버 저장하지 않음 (임시저장 버튼에서만 저장)
       if (value === lastSavedRef.current) return;
-      console.log('[Analyzing] blur -> request save:', {
-        correctionId: correctionIdNum,
-        length: value.length,
-      });
-      await patchCompanyInsight(correctionIdNum, { companyInsight: value });
-      console.log('[Analyzing] blur -> save success');
       lastSavedRef.current = value;
     } catch (err) {
       console.error('[Analyzing] blur save failed:', err);
@@ -425,22 +426,30 @@ function AiLoadingPageContent() {
               </div>
             </div>
           </div>
-
           <div
-            className="relative ml-[930px] mt-[20px]
-          max-lg:ml-[500px]"
+            className="flex ml-[680px] gap-[20px] mt-[20px] items-center
+          max-lg:ml-[240px]"
           >
-            <img src="/icons/NextPageBubble-ProjectSelect.svg" alt="다음으로 말풍선" />
-            <div className="absolute left-[52px] top-[36px] flex items-center gap-[24px]">
-              <button
-                onClick={handleTempSaveAndExit}
-                className="px-[32px] py-[6px] text-black text-[18px] font-medium border border-[#898989] rounded-[6px] bg-[#FFFFFF] cursor-pointer"
-              >
-                임시저장
-              </button>
-              <Link href="/myPage/addCorrection/projectSelect" onClick={handleNextClick}>
-                <img src="/icons/NextPage.svg" alt="다음으로" className="cursor-pointer" />
-              </Link>
+            <div
+              className={`${''} border-[2px] border-[#BBBBBB] bg-[#F8F8F8] px-[20px] py-[6px] w-[236px] h-[42px] text-[18px] rounded-[6px] text-[#505050] items-center ${
+                showToast ? 'opacity-100' : 'opacity-0'
+              } transition-opacity pointer-events-none`}
+            >
+              임시저장이 완료되었습니다
+            </div>
+            <div className="relative">
+              <img src="/icons/NextPageBubble-ProjectSelect.svg" alt="다음으로 말풍선" />
+              <div className="absolute left-[52px] top-[36px] flex items-center gap-[24px]">
+                <button
+                  onClick={handleTempSaveAndExit}
+                  className="px-[32px] py-[6px] text-black text-[18px] font-medium border border-[#898989] rounded-[6px] bg-[#FFFFFF] cursor-pointer"
+                >
+                  임시저장
+                </button>
+                <Link href="/myPage/addCorrection/projectSelect" onClick={handleNextClick}>
+                  <img src="/icons/NextPage.svg" alt="다음으로" className="cursor-pointer" />
+                </Link>
+              </div>
             </div>
           </div>
         </div>
