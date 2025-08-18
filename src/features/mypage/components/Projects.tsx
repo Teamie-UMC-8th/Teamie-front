@@ -26,6 +26,8 @@ export default function Projects() {
   const [editValue, setEditValue] = useState('');
   const [selectedProjects, setSelectedProjects] = useState<Set<number>>(new Set());
   const inputRef = useRef<HTMLInputElement>(null);
+  const [disabledToastFor, setDisabledToastFor] = useState<number | null>(null);
+  const toastTimerRef = useRef<number | null>(null);
 
   const handleTaskClick = (portfolioId: number, currentTask: string) => {
     setEditingTask(portfolioId);
@@ -46,6 +48,13 @@ export default function Projects() {
         },
       }
     );
+  };
+
+  // 비활성 카드 클릭 시 3초간 토스트 노출
+  const showDisabledToast = (portfolioId: number) => {
+    setDisabledToastFor(portfolioId);
+    if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = window.setTimeout(() => setDisabledToastFor(null), 3000);
   };
 
   const handleTaskKeyDown = (e: React.KeyboardEvent, portfolioId: number) => {
@@ -121,6 +130,12 @@ export default function Projects() {
       inputRef.current.select();
     }
   }, [editingTask]);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
+    };
+  }, []);
 
   const isUpdating = updateMainTask.isPending;
 
@@ -201,15 +216,23 @@ export default function Projects() {
                     if (isDisabledOnSelectPage) {
                       e.preventDefault();
                       e.stopPropagation();
+                      showDisabledToast(Number(item.portfolioId as unknown as number));
                       return;
                     }
                     handleProjectSelect(item.portfolioId, e);
                   }
                 }}
               >
+                {/* 비활성화 오버레이는 카테고리/기여도 영역을 가리지 않도록 하단 섹션 위로는 깔지 않음 */}
                 {isDisabledOnSelectPage && (
-                  <div className="absolute inset-0 rounded-[8px] bg-[#0000001A]" />
+                  <div className="absolute left-0 right-0 top-0 h-full rounded-[8px] bg-[#0000001A] z-20 pointer-events-none" />
                 )}
+                {isDisabledOnSelectPage &&
+                  disabledToastFor === Number(item.portfolioId as unknown as number) && (
+                    <div className="absolute left-1/2 -translate-x-1/2 top-[116px] -translate-y-full w-[326px] h-[34px] bg-[#F8F8F8] border border-[#BBBBBB] rounded-[8px] px-[20px] py-[6px] text-[14px] z-[60] text-[#505050] ">
+                      마스터 포트폴리오가 작성되지 않은 프로젝트입니다.
+                    </div>
+                  )}
                 <div
                   className="relative bg-white w-[439px] h-[48px] rounded-[4px] border-[1px] border-[#E7E7E7] flex flex-col justify-center mt-[12px] mx-[13px]
               max-lg:w-[397px] max-lg:h-[40px] max-lg:ml-[12px]"
