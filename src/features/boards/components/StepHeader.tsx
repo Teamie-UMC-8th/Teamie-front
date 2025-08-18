@@ -1,55 +1,58 @@
 import { useState } from 'react';
 import Image from 'next/image';
+import { Task } from '@/types/api/tasks';
 
 interface StepHeaderProps {
-  stepName: string;
-  stepId: number;
+  step: {
+    stepName: string;
+    stepId: number;
+    tasks: Task[];
+  };
   isOpen: boolean;
   onToggle: () => void;
-  showDelete?: boolean;
-  onDelete?: () => void;
-  onUpdateName?: (stepId: number, newName: string) => Promise<void>;
+  onDelete: (stepId: number) => void;
+  onUpdate: (stepId: number, newName: string) => Promise<void>;
+  isCompleted: boolean;
 }
 
 export default function StepHeader({
-  stepName,
-  stepId,
+  step,
   isOpen,
   onToggle,
-  showDelete,
   onDelete,
-  onUpdateName,
+  onUpdate,
+  isCompleted,
 }: StepHeaderProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editName, setEditName] = useState(stepName);
+  const [editName, setEditName] = useState(step.stepName);
 
   const handleIconClick = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
-    if (onDelete) onDelete();
+    if (onDelete && !isCompleted) onDelete(step.stepId);
   };
 
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (onUpdateName) {
+    if (!isCompleted) {
       setIsEditing(true);
-      setEditName(stepName);
+      setEditName(step.stepName);
     }
   };
 
   const handleBlur = async () => {
-    if (!onUpdateName) return;
+    if (!onUpdate || isCompleted) return;
 
     const trimmedName = editName.trim();
-    if (trimmedName && trimmedName !== stepName) {
+    if (trimmedName && trimmedName !== step.stepName) {
       try {
-        await onUpdateName(stepId, trimmedName);
+        await onUpdate(step.stepId, trimmedName);
       } catch (error) {
         console.error('스텝 이름 수정 실패:', error);
-        setEditName(stepName); // 실패 시 원래 이름으로 복원
+        setEditName(step.stepName); // 실패 시 원래 이름으로 복원
       }
     } else {
-      setEditName(stepName); // 빈 값이거나 변경사항이 없으면 원래 이름으로 복원
+      setEditName(step.stepName); // 빈 값이거나 변경사항이 없으면 원래 이름으로 복원
     }
     setIsEditing(false);
   };
@@ -59,10 +62,13 @@ export default function StepHeader({
       e.preventDefault();
       e.currentTarget.blur();
     } else if (e.key === 'Escape') {
-      setEditName(stepName);
+      setEditName(step.stepName);
       setIsEditing(false);
     }
   };
+
+  // 삭제 가능 여부 (업무가 없고 프로젝트가 종료되지 않은 경우)
+  const showDelete = step.tasks.length === 0 && !isCompleted;
 
   return (
     <div
@@ -84,10 +90,10 @@ export default function StepHeader({
             />
           ) : (
             <span
-              className="font-medium text-[1.125rem] cursor-pointer"
+              className={`font-medium text-[1.125rem] ${!isCompleted ? 'cursor-pointer' : 'cursor-default'}`}
               onDoubleClick={handleDoubleClick}
             >
-              {stepName}
+              {step.stepName}
             </span>
           )}
           {showDelete && isHovered ? (
