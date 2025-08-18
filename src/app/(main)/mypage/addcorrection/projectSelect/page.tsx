@@ -266,7 +266,7 @@ function ProjectSelectContent() {
           </div>
 
           <div
-            className="relative ml-[920px] mt-[20px]
+            className="relative ml-[850px] mt-[20px]
           max-lg:ml-[496px]"
           >
             <Image
@@ -279,16 +279,26 @@ function ProjectSelectContent() {
             />
             <button
               onClick={handleGenerate}
-              className="absolute top-[36px] left-[52px] cursor-pointer"
+              className="absolute top-[36px] ml-[50px] z-10 px-[40px] py-[4px] bg-[#81D7D4] rounded-[6px] flex items-center gap-[8px] text-[18px] font-bold text-white"
             >
-              <Image
-                src="/icons/CorrectionStartButton.svg"
-                alt="첨삭 시작 버튼"
-                width={0}
-                height={0}
-                sizes="100vw"
-                style={{ width: 'auto', height: 'auto' }}
-              />
+              <span className="relative block w-[32px] h-[32px]">
+                <Image
+                  src="/icons/CreditIconBackground.svg"
+                  alt="크레딧 아이콘 배경"
+                  width={32}
+                  height={32}
+                  className="absolute inset-0 w-[32px] h-[32px] pointer-events-none"
+                  priority
+                />
+                <Image
+                  src="/icons/CreditIcon.svg"
+                  alt="크레딧 아이콘"
+                  width={24}
+                  height={24}
+                  className="absolute inset-0 m-auto w-[24px] h-[24px] object-contain"
+                />
+              </span>
+              <p>AI 지원 맞춤 포트폴리오 첨착 시작</p>
             </button>
           </div>
 
