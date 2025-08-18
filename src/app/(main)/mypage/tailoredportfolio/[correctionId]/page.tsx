@@ -495,23 +495,33 @@ function TailoredPortfolioContent() {
 
               {/* 축소 대상 라인 목록 (type === 1) */}
               <div className="mt-[20px]">
-                {(
-                  currentCorrection?.correctionResult?.detailInfo?.lines ||
-                  ([] as GeneratedLineItem[])
-                )
-                  .filter((ln: GeneratedLineItem) => Number(ln?.type) === 1)
-                  .map((ln: GeneratedLineItem, idx: number) => {
-                    const text = String(ln?.review_comment || '').trim();
-                    if (!text) return null;
-                    return (
-                      <div key={`detail-reduce-${idx}`} className="flex items-start mb-[8px]">
-                        <span className="w-[24px] text-[#EF7C7C] font-semibold mr-[12px]">
-                          {idx + 1}.
-                        </span>
-                        <p className="text-[18px] leading-[28px]">{text}</p>
-                      </div>
-                    );
-                  })}
+                {(() => {
+                  const items = (
+                    currentCorrection?.correctionResult?.detailInfo?.lines ||
+                    ([] as GeneratedLineItem[])
+                  )
+                    .filter((ln: GeneratedLineItem) => Number(ln?.type) === 1)
+                    .map((ln: GeneratedLineItem, idx: number) => {
+                      const text = String(ln?.review_comment || '').trim();
+                      if (!text) return null;
+                      return (
+                        <div key={`detail-reduce-${idx}`} className="flex items-start mb-[8px]">
+                          <span className="w-[24px] text-[#EF7C7C] font-semibold mr-[12px]">
+                            {idx + 1}.
+                          </span>
+                          <p className="text-[18px] leading-[28px]">{text}</p>
+                        </div>
+                      );
+                    })
+                    .filter(Boolean);
+                  return items.length > 0 ? (
+                    items
+                  ) : (
+                    <p className="text-[18px] leading-[28px] text-[#505050] ml-[8px]">
+                      -- 첨삭 내용이 없습니다
+                    </p>
+                  );
+                })()}
               </div>
 
               {/* 총평 내용은 상단 박스 안에 표시됨 */}
@@ -534,23 +544,33 @@ function TailoredPortfolioContent() {
 
               {/* 구체화 대상 라인 목록 (type === 2) */}
               <div className="mt-[20px]">
-                {(
-                  currentCorrection?.correctionResult?.detailInfo?.lines ||
-                  ([] as GeneratedLineItem[])
-                )
-                  .filter((ln: GeneratedLineItem) => Number(ln?.type) === 2)
-                  .map((ln: GeneratedLineItem, idx: number) => {
-                    const text = String(ln?.review_comment || '').trim();
-                    if (!text) return null;
-                    return (
-                      <div key={`detail-concrete-${idx}`} className="flex items-start mb-[8px]">
-                        <span className="w-[24px] text-[#97D099] font-semibold mr-[12px]">
-                          {idx + 1}.
-                        </span>
-                        <p className="text-[18px] leading-[28px]">{text}</p>
-                      </div>
-                    );
-                  })}
+                {(() => {
+                  const items = (
+                    currentCorrection?.correctionResult?.detailInfo?.lines ||
+                    ([] as GeneratedLineItem[])
+                  )
+                    .filter((ln: GeneratedLineItem) => Number(ln?.type) === 2)
+                    .map((ln: GeneratedLineItem, idx: number) => {
+                      const text = String(ln?.review_comment || '').trim();
+                      if (!text) return null;
+                      return (
+                        <div key={`detail-concrete-${idx}`} className="flex items-start mb-[8px]">
+                          <span className="w-[24px] text-[#97D099] font-semibold mr-[12px]">
+                            {idx + 1}.
+                          </span>
+                          <p className="text-[18px] leading-[28px]">{text}</p>
+                        </div>
+                      );
+                    })
+                    .filter(Boolean);
+                  return items.length > 0 ? (
+                    items
+                  ) : (
+                    <p className="text-[18px] leading-[28px] text-[#505050] ml-[8px]">
+                      -- 첨삭 내용이 없습니다
+                    </p>
+                  );
+                })()}
               </div>
 
               {/* 가이드 문구 제거 */}
@@ -628,23 +648,33 @@ function TailoredPortfolioContent() {
 
               {/* 축소 대상 라인 목록 (type === 1) */}
               <div className="mt-[20px]">
-                {(
-                  currentCorrection?.correctionResult?.assignedTasks?.lines ||
-                  ([] as GeneratedLineItem[])
-                )
-                  .filter((ln: GeneratedLineItem) => Number(ln?.type) === 1)
-                  .map((ln: GeneratedLineItem, idx: number) => {
-                    const text = String(ln?.review_comment || '').trim();
-                    if (!text) return null;
-                    return (
-                      <div key={`tasks-reduce-${idx}`} className="flex items-start mb-[8px]">
-                        <span className="w-[24px] text-[#EF7C7C] font-semibold mr-[12px]">
-                          {idx + 1}.
-                        </span>
-                        <p className="text-[18px] leading-[28px]">{text}</p>
-                      </div>
-                    );
-                  })}
+                {(() => {
+                  const items = (
+                    currentCorrection?.correctionResult?.assignedTasks?.lines ||
+                    ([] as GeneratedLineItem[])
+                  )
+                    .filter((ln: GeneratedLineItem) => Number(ln?.type) === 1)
+                    .map((ln: GeneratedLineItem, idx: number) => {
+                      const text = String(ln?.review_comment || '').trim();
+                      if (!text) return null;
+                      return (
+                        <div key={`tasks-reduce-${idx}`} className="flex items-start mb-[8px]">
+                          <span className="w-[24px] text-[#EF7C7C] font-semibold mr-[12px]">
+                            {idx + 1}.
+                          </span>
+                          <p className="text-[18px] leading-[28px]">{text}</p>
+                        </div>
+                      );
+                    })
+                    .filter(Boolean);
+                  return items.length > 0 ? (
+                    items
+                  ) : (
+                    <p className="text-[18px] leading-[28px] text-[#505050] ml-[8px]">
+                      -- 첨삭 내용이 없습니다
+                    </p>
+                  );
+                })()}
               </div>
 
               {/* 총평 내용은 상단 박스 안에 표시됨 */}
@@ -667,23 +697,33 @@ function TailoredPortfolioContent() {
 
               {/* 구체화 대상 라인 목록 (type === 2) */}
               <div className="mt-[20px]">
-                {(
-                  currentCorrection?.correctionResult?.assignedTasks?.lines ||
-                  ([] as GeneratedLineItem[])
-                )
-                  .filter((ln: GeneratedLineItem) => Number(ln?.type) === 2)
-                  .map((ln: GeneratedLineItem, idx: number) => {
-                    const text = String(ln?.review_comment || '').trim();
-                    if (!text) return null;
-                    return (
-                      <div key={`tasks-concrete-${idx}`} className="flex items-start mb-[8px]">
-                        <span className="w-[24px] text-[#97D099] font-semibold mr-[12px]">
-                          {idx + 1}.
-                        </span>
-                        <p className="text-[18px] leading-[28px]">{text}</p>
-                      </div>
-                    );
-                  })}
+                {(() => {
+                  const items = (
+                    currentCorrection?.correctionResult?.assignedTasks?.lines ||
+                    ([] as GeneratedLineItem[])
+                  )
+                    .filter((ln: GeneratedLineItem) => Number(ln?.type) === 2)
+                    .map((ln: GeneratedLineItem, idx: number) => {
+                      const text = String(ln?.review_comment || '').trim();
+                      if (!text) return null;
+                      return (
+                        <div key={`tasks-concrete-${idx}`} className="flex items-start mb-[8px]">
+                          <span className="w-[24px] text-[#97D099] font-semibold mr-[12px]">
+                            {idx + 1}.
+                          </span>
+                          <p className="text-[18px] leading-[28px]">{text}</p>
+                        </div>
+                      );
+                    })
+                    .filter(Boolean);
+                  return items.length > 0 ? (
+                    items
+                  ) : (
+                    <p className="text-[18px] leading-[28px] text-[#505050] ml-[8px]">
+                      -- 첨삭 내용이 없습니다
+                    </p>
+                  );
+                })()}
               </div>
 
               {/* 가이드 문구 제거 */}
@@ -761,23 +801,33 @@ function TailoredPortfolioContent() {
 
               {/* 축소 대상 라인 목록 (type === 1) */}
               <div className="mt-[20px]">
-                {(
-                  currentCorrection?.correctionResult?.keyAchievements?.lines ||
-                  ([] as GeneratedLineItem[])
-                )
-                  .filter((ln: GeneratedLineItem) => Number(ln?.type) === 1)
-                  .map((ln: GeneratedLineItem, idx: number) => {
-                    const text = String(ln?.review_comment || '').trim();
-                    if (!text) return null;
-                    return (
-                      <div key={`ach-reduce-${idx}`} className="flex items-start mb-[8px]">
-                        <span className="w-[24px] text-[#EF7C7C] font-semibold mr-[12px]">
-                          {idx + 1}.
-                        </span>
-                        <p className="text-[18px] leading-[28px]">{text}</p>
-                      </div>
-                    );
-                  })}
+                {(() => {
+                  const items = (
+                    currentCorrection?.correctionResult?.keyAchievements?.lines ||
+                    ([] as GeneratedLineItem[])
+                  )
+                    .filter((ln: GeneratedLineItem) => Number(ln?.type) === 1)
+                    .map((ln: GeneratedLineItem, idx: number) => {
+                      const text = String(ln?.review_comment || '').trim();
+                      if (!text) return null;
+                      return (
+                        <div key={`ach-reduce-${idx}`} className="flex items-start mb-[8px]">
+                          <span className="w-[24px] text-[#EF7C7C] font-semibold mr-[12px]">
+                            {idx + 1}.
+                          </span>
+                          <p className="text-[18px] leading-[28px]">{text}</p>
+                        </div>
+                      );
+                    })
+                    .filter(Boolean);
+                  return items.length > 0 ? (
+                    items
+                  ) : (
+                    <p className="text-[18px] leading-[28px] text-[#505050] ml-[8px]">
+                      -- 첨삭 내용이 없습니다
+                    </p>
+                  );
+                })()}
               </div>
 
               {/* 총평 내용은 상단 박스 안에 표시됨 */}
@@ -800,23 +850,33 @@ function TailoredPortfolioContent() {
 
               {/* 구체화 대상 라인 목록 (type === 2) */}
               <div className="mt-[20px]">
-                {(
-                  currentCorrection?.correctionResult?.keyAchievements?.lines ||
-                  ([] as GeneratedLineItem[])
-                )
-                  .filter((ln: GeneratedLineItem) => Number(ln?.type) === 2)
-                  .map((ln: GeneratedLineItem, idx: number) => {
-                    const text = String(ln?.review_comment || '').trim();
-                    if (!text) return null;
-                    return (
-                      <div key={`ach-concrete-${idx}`} className="flex items-start mb-[8px]">
-                        <span className="w-[24px] text-[#97D099] font-semibold mr-[12px]">
-                          {idx + 1}.
-                        </span>
-                        <p className="text-[18px] leading-[28px]">{text}</p>
-                      </div>
-                    );
-                  })}
+                {(() => {
+                  const items = (
+                    currentCorrection?.correctionResult?.keyAchievements?.lines ||
+                    ([] as GeneratedLineItem[])
+                  )
+                    .filter((ln: GeneratedLineItem) => Number(ln?.type) === 2)
+                    .map((ln: GeneratedLineItem, idx: number) => {
+                      const text = String(ln?.review_comment || '').trim();
+                      if (!text) return null;
+                      return (
+                        <div key={`ach-concrete-${idx}`} className="flex items-start mb-[8px]">
+                          <span className="w-[24px] text-[#97D099] font-semibold mr-[12px]">
+                            {idx + 1}.
+                          </span>
+                          <p className="text-[18px] leading-[28px]">{text}</p>
+                        </div>
+                      );
+                    })
+                    .filter(Boolean);
+                  return items.length > 0 ? (
+                    items
+                  ) : (
+                    <p className="text-[18px] leading-[28px] text-[#505050] ml-[8px]">
+                      -- 첨삭 내용이 없습니다
+                    </p>
+                  );
+                })()}
               </div>
 
               {/* 가이드 문구 제거 */}
@@ -893,23 +953,33 @@ function TailoredPortfolioContent() {
 
               {/* 축소 대상 라인 목록 (type === 1) */}
               <div className="mt-[20px]">
-                {(
-                  currentCorrection?.correctionResult?.insights?.lines ||
-                  ([] as GeneratedLineItem[])
-                )
-                  .filter((ln: GeneratedLineItem) => Number(ln?.type) === 1)
-                  .map((ln: GeneratedLineItem, idx: number) => {
-                    const text = String(ln?.review_comment || '').trim();
-                    if (!text) return null;
-                    return (
-                      <div key={`ins-reduce-${idx}`} className="flex items-start mb-[8px]">
-                        <span className="w-[24px] text-[#EF7C7C] font-semibold mr-[12px]">
-                          {idx + 1}.
-                        </span>
-                        <p className="text-[18px] leading-[28px]">{text}</p>
-                      </div>
-                    );
-                  })}
+                {(() => {
+                  const items = (
+                    currentCorrection?.correctionResult?.insights?.lines ||
+                    ([] as GeneratedLineItem[])
+                  )
+                    .filter((ln: GeneratedLineItem) => Number(ln?.type) === 1)
+                    .map((ln: GeneratedLineItem, idx: number) => {
+                      const text = String(ln?.review_comment || '').trim();
+                      if (!text) return null;
+                      return (
+                        <div key={`ins-reduce-${idx}`} className="flex items-start mb-[8px]">
+                          <span className="w-[24px] text-[#EF7C7C] font-semibold mr-[12px]">
+                            {idx + 1}.
+                          </span>
+                          <p className="text-[18px] leading-[28px]">{text}</p>
+                        </div>
+                      );
+                    })
+                    .filter(Boolean);
+                  return items.length > 0 ? (
+                    items
+                  ) : (
+                    <p className="text-[18px] leading-[28px] text-[#505050] ml-[8px]">
+                      -- 첨삭 내용이 없습니다
+                    </p>
+                  );
+                })()}
               </div>
 
               {/* 총평 내용은 상단 박스 안에 표시됨 */}
@@ -932,23 +1002,33 @@ function TailoredPortfolioContent() {
 
               {/* 구체화 대상 라인 목록 (type === 2) */}
               <div className="mt-[20px]">
-                {(
-                  currentCorrection?.correctionResult?.insights?.lines ||
-                  ([] as GeneratedLineItem[])
-                )
-                  .filter((ln: GeneratedLineItem) => Number(ln?.type) === 2)
-                  .map((ln: GeneratedLineItem, idx: number) => {
-                    const text = String(ln?.review_comment || '').trim();
-                    if (!text) return null;
-                    return (
-                      <div key={`ins-concrete-${idx}`} className="flex items-start mb-[8px]">
-                        <span className="w-[24px] text-[#97D099] font-semibold mr-[12px]">
-                          {idx + 1}.
-                        </span>
-                        <p className="text-[18px] leading-[28px]">{text}</p>
-                      </div>
-                    );
-                  })}
+                {(() => {
+                  const items = (
+                    currentCorrection?.correctionResult?.insights?.lines ||
+                    ([] as GeneratedLineItem[])
+                  )
+                    .filter((ln: GeneratedLineItem) => Number(ln?.type) === 2)
+                    .map((ln: GeneratedLineItem, idx: number) => {
+                      const text = String(ln?.review_comment || '').trim();
+                      if (!text) return null;
+                      return (
+                        <div key={`ins-concrete-${idx}`} className="flex items-start mb-[8px]">
+                          <span className="w-[24px] text-[#97D099] font-semibold mr-[12px]">
+                            {idx + 1}.
+                          </span>
+                          <p className="text-[18px] leading-[28px]">{text}</p>
+                        </div>
+                      );
+                    })
+                    .filter(Boolean);
+                  return items.length > 0 ? (
+                    items
+                  ) : (
+                    <p className="text-[18px] leading-[28px] text-[#505050] ml-[8px]">
+                      -- 첨삭 내용이 없습니다
+                    </p>
+                  );
+                })()}
               </div>
 
               {/* 가이드 문구 제거 */}
