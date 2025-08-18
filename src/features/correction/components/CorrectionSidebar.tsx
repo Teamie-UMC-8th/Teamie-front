@@ -37,7 +37,7 @@ const CorrectionSidebar: React.FC = () => {
             alt="구분선"
             width={2}
             height={46}
-            className="ml-[16px] mb-[8px] mt-[2px]"
+            className="ml-[16px] mb-[8px] mt-[8px]"
           />
           <Image src="/icons/ProjectSelectOff.svg" alt="프로젝트 선택" width={157} height={32} />
         </div>
