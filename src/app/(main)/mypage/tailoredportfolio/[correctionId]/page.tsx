@@ -763,7 +763,7 @@ function TailoredPortfolioContent() {
                     : { borderLeft: '4px solid transparent', borderRadius: '4px' };
                 return (
                   <p key={`ach-${idx}`} style={style}>
-                    - {text}
+                    {text}
                   </p>
                 );
               })}
