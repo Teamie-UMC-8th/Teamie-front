@@ -265,25 +265,27 @@ function TailoredPortfolioContent() {
             {data.title || '새로운 첨삭'}
           </h1>
         </div>
-        <DeleteButton
-          onDelete={async () => {
-            try {
-              const { deleteCorrection } = await import('@/services/correction/correction');
-              await deleteCorrection(correctionId);
-            } finally {
-              // 목록/상세 관련 캐시 무효화 후 마이페이지로 이동
-              queryClient.invalidateQueries({ queryKey: ['correction-detail', correctionId] });
-              queryClient.invalidateQueries({ queryKey: ['generated-correction', correctionId] });
-              queryClient.invalidateQueries({ queryKey: ['generated-rag', correctionId] });
-              queryClient.invalidateQueries({ queryKey: ['company-insight', correctionId] });
-              queryClient.invalidateQueries({ queryKey: ['correction-list'] });
-              router.push('/myPage');
-            }
-          }}
-          modalTitle="이 AI 첨삭 내용을 정말 삭제하시겠습니까?"
-          confirmText="삭제"
-          cancelText="취소"
-        />
+        <div className="translate-y-[26px]">
+          <DeleteButton
+            onDelete={async () => {
+              try {
+                const { deleteCorrection } = await import('@/services/correction/correction');
+                await deleteCorrection(correctionId);
+              } finally {
+                // 목록/상세 관련 캐시 무효화 후 마이페이지로 이동
+                queryClient.invalidateQueries({ queryKey: ['correction-detail', correctionId] });
+                queryClient.invalidateQueries({ queryKey: ['generated-correction', correctionId] });
+                queryClient.invalidateQueries({ queryKey: ['generated-rag', correctionId] });
+                queryClient.invalidateQueries({ queryKey: ['company-insight', correctionId] });
+                queryClient.invalidateQueries({ queryKey: ['correction-list'] });
+                router.push('/myPage');
+              }
+            }}
+            modalTitle="이 AI 첨삭 내용을 정말 삭제하시겠습니까?"
+            confirmText="삭제"
+            cancelText="취소"
+          />
+        </div>
       </div>
 
       {/* Divider line */}
