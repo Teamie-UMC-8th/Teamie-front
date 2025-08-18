@@ -121,15 +121,6 @@ function AiLoadingPageContent() {
       }
     } catch {}
 
-    // 언마운트될 때도 마지막 위치를 analyzing로 유지 (다른 페이지에서 덮어씌우지 않는 한)
-    return () => {
-      try {
-        if (!sessionStorage.getItem('correctionIntro:last')) {
-          sessionStorage.setItem(`correctionReturn:${correctionId}`, 'analyzing');
-        }
-      } catch {}
-    };
-
     // 다른 ID로 전환될 때 이전 상태 초기화
     if (lastIdRef.current !== correctionId) {
       console.log('[Analyzing] switching to new correctionId, clearing previous state:', {
@@ -167,8 +158,11 @@ function AiLoadingPageContent() {
           insight: Awaited<ReturnType<typeof fetchCompanyInsight>> | null;
         };
         if (parsed && parsed.id === correctionId) {
-          const hasDetailTitle = !!(parsed.detail && (parsed.detail as { title?: string }).title);
-          if (hasDetailTitle) setCompanyName((parsed.detail as { title?: string }).title || '');
+          const hasSubmissionTarget = !!(
+            parsed.detail && (parsed.detail as { submissionTarget?: string }).submissionTarget
+          );
+          if (hasSubmissionTarget)
+            setCompanyName((parsed.detail as { submissionTarget?: string }).submissionTarget || '');
           const hasRagKeywords = !!(parsed.rag && (parsed.rag as { keywords?: string[] }).keywords);
           if (hasRagKeywords) setKeywords((parsed.rag as { keywords?: string[] }).keywords || []);
           if (parsed.rag && Array.isArray((parsed.rag as { links?: unknown[] }).links)) {
@@ -251,7 +245,7 @@ function AiLoadingPageContent() {
       fetchCorrectionDetail(correctionId)
         .then((res) => {
           console.log('[Analyzing] correction detail:', res);
-          setCompanyName(res.title || '');
+          setCompanyName(res.submissionTarget || '');
         })
         .catch((error) => {
           console.error('[Analyzing] failed to fetch correction detail:', error);
@@ -325,7 +319,14 @@ function AiLoadingPageContent() {
       });
 
     // analyzing 페이지에서는 폴링하지 않음 (LoadingModal에서 준비 완료 후 진입)
-    return undefined;
+    // 언마운트될 때도 마지막 위치를 analyzing로 유지 (다른 페이지에서 덮어씌우지 않는 한)
+    return () => {
+      try {
+        if (!sessionStorage.getItem('correctionIntro:last')) {
+          sessionStorage.setItem(`correctionReturn:${correctionId}`, 'analyzing');
+        }
+      } catch {}
+    };
   }, [idParamStr, companyNameQuery]);
 
   const handleNextClick = async (e: React.MouseEvent) => {
@@ -478,7 +479,7 @@ function AiLoadingPageContent() {
                   <div className="flex">
                     <div className="border-l-[2px] border-[#E7E7E7] h-[260px] ml-[4px] mr-[21px]" />
                     <div
-                      className="border border-[#BBBBBB] rounded-[8px] bg-[#F8F8F8] w-[828px] h-[206px] mt-[6px] p-[12px] overflow-y-auto
+                      className="border border-[#BBBBBB] rounded-[8px] bg-[#F8F8F8] w-[940px] h-[206px] mt-[6px] p-[12px] overflow-y-auto flex-none
                 max-lg:w-[608px]"
                     >
                       <div className="flex flex-col gap-[12px]">
