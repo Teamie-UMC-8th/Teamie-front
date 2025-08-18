@@ -10,6 +10,7 @@ import { formatToKoreanDate } from '@/utils/formatDate';
 // TaskItem 컴포넌트 Props에 onTaskComplete 콜백 추가
 interface TaskItemProps extends TaskItemComponentProps {
   onTaskComplete?: (taskId: number, title: string) => void;
+  isCompleted?: boolean;
 }
 
 export default function TaskItem({
@@ -20,6 +21,7 @@ export default function TaskItem({
   deadline,
   assignee,
   onTaskComplete,
+  isCompleted = false,
 }: TaskItemProps) {
   const { displayAssignees, deadlineTextColor } = useTaskItems({
     task: { id: taskId, title, status, deadline, assignee },
@@ -35,6 +37,9 @@ export default function TaskItem({
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation();
+
+    // 프로젝트가 종료된 경우 체크박스 비활성화
+    if (isCompleted) return;
 
     // 현재 상태에 따라 토글
     let newStatus: 'ONGOING' | 'COMPLETED';
@@ -72,7 +77,10 @@ export default function TaskItem({
             type="checkbox"
             checked={isChecked}
             onChange={handleCheckboxChange}
-            className="peer appearance-none w-[20px] h-[20px] border-2 border-[#898989] rounded bg-white cursor-pointer checked:bg-[#81D7D4]"
+            disabled={isCompleted}
+            className={`peer appearance-none w-[20px] h-[20px] border-2 border-[#898989] rounded bg-white ${
+              isCompleted ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer checked:bg-[#81D7D4]'
+            }`}
             onClick={stop}
             onMouseDown={stop}
             onTouchStart={stop}
