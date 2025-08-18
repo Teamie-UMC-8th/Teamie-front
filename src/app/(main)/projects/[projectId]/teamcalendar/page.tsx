@@ -11,6 +11,7 @@ import axiosInstance from '@/lib/axiosInstance';
 import CalendarEventBox from '@/features/teamCalendar/components/CalendarEventBox';
 import { useGetCalendarPlans } from '@/hooks/queries/useGetTeamCalendar';
 import { useGetDashboard } from '@/hooks/queries/useGetDashboard';
+import { useGetProjectIsCompleted } from '@/hooks/queries/projects/useGetProject';
 import { useWebSocket } from '@/contexts/WebSocketContext';
 import Image from 'next/image';
 import {
@@ -68,6 +69,10 @@ export default function TeamCalendar() {
     projectId: projectIdForDashboard,
     view: 'status',
   });
+
+  // 프로젝트 종료 여부 확인
+  const { data: projectIsCompletedData } = useGetProjectIsCompleted(projectIdNum ?? 0);
+  const isProjectCompleted = Boolean(projectIsCompletedData?.result?.isCompleted);
 
   // 웹소켓 이벤트 처리 (팀 캘린더)
   useEffect(() => {
@@ -421,6 +426,7 @@ export default function TeamCalendar() {
               endDate={endDate}
               setCurrentDate={setCurrentDate}
               projectCreatedAtISO={projectCreatedAtISO}
+              isProjectCompleted={isProjectCompleted}
             />
           ),
           event: (props) => (
