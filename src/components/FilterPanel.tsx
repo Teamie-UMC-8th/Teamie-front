@@ -10,6 +10,7 @@ import Image from 'next/image';
 interface FilterPanelProps {
   isOpen: boolean;
   onClose: (filters: TaskFilters) => void;
+  onFilterChange?: (filters: TaskFilters) => void; // 필터 변경 시 즉시 호출
   assignees: Array<{ userId: number; name: string; imageUrl: string }>;
   buttonRect: DOMRect | null;
   initialFilters?: TaskFilters;
@@ -18,6 +19,7 @@ interface FilterPanelProps {
 export default function FilterPanel({
   isOpen,
   onClose,
+  onFilterChange,
   assignees,
   buttonRect,
   initialFilters,
@@ -65,6 +67,53 @@ export default function FilterPanel({
       }
     }
   }, [initialFilters]); // initialFilters가 변경될 때만 실행
+
+  // 현재 필터 상태를 TaskFilters 형태로 변환하는 함수
+  const getCurrentFilters = (): TaskFilters => {
+    let dateBefore: Date | undefined;
+    let dateAfter: Date | undefined;
+
+    if (selectedDate && selectedEndDate) {
+      // 두 개 날짜가 선택된 경우: 자동으로 범위 선택
+      const startDate = new Date(selectedDate);
+      const endDate = new Date(selectedEndDate);
+      if (startDate < endDate) {
+        dateAfter = startDate;
+        dateBefore = endDate;
+      } else {
+        dateAfter = endDate;
+        dateBefore = startDate;
+      }
+    } else if (selectedDate) {
+      if (dateFilterType === 'before') {
+        dateBefore = selectedDate;
+      } else if (dateFilterType === 'after') {
+        dateAfter = selectedDate;
+      }
+    }
+
+    return {
+      statuses: selectedStatuses.map(getApiStatusValue),
+      managerIds: selectedAssignees,
+      dateBefore,
+      dateAfter,
+    };
+  };
+
+  // 필터 변경 시 즉시 콜백 호출
+  const triggerFilterChange = () => {
+    if (onFilterChange) {
+      const filters = getCurrentFilters();
+      onFilterChange(filters);
+    }
+  };
+
+  // 상태 변경 시 필터 변경 트리거
+  useEffect(() => {
+    if (onFilterChange) {
+      triggerFilterChange();
+    }
+  }, [selectedStatuses, selectedAssignees, selectedDate, selectedEndDate, dateFilterType]);
 
   const handleStatusChange = (status: string) => {
     setSelectedStatuses((prev) =>
@@ -162,42 +211,36 @@ export default function FilterPanel({
     );
   };
 
-  const handleDateFilterChange = (type: 'before' | 'after') => {
-    if (dateFilterType === type) {
-      // 같은 타입을 다시 클릭하면 해제
-      setDateFilterType(null);
-      setSelectedDate(undefined);
-      setSelectedEndDate(undefined);
-    } else {
-      // 다른 타입을 클릭하면 해당 타입으로 변경
-      setDateFilterType(type);
-
-      // 기존에 선택된 날짜가 있으면 유지, 없으면 오늘 날짜 설정
-      if (!selectedDate) {
-        setSelectedDate(new Date());
-      }
-      setSelectedEndDate(undefined);
-    }
+  const handleDateFilterChange = (type: 'before' | 'after' | null) => {
+    setDateFilterType(type);
   };
 
-  const handleDateChange = (date: Date) => {
-    // 단일 날짜 선택
+  const handleDateChange = (date: Date | undefined) => {
     setSelectedDate(date);
-    setSelectedEndDate(undefined);
   };
 
   // 범위 선택 시 날짜 변경 처리
-  const handleRangeChange = (startDate: Date, endDate: Date) => {
+  const handleRangeChange = (startDate: Date | undefined, endDate: Date | undefined) => {
     setSelectedDate(startDate);
     setSelectedEndDate(endDate);
   };
 
-  const handleReset = () => {
+  const handleResetFilters = () => {
     setSelectedStatuses([]);
     setSelectedAssignees([]);
     setSelectedDate(undefined);
     setSelectedEndDate(undefined);
     setDateFilterType(null);
+
+    // 초기화 후 필터 변경 콜백 호출
+    if (onFilterChange) {
+      onFilterChange({
+        statuses: [],
+        managerIds: [],
+        dateBefore: undefined,
+        dateAfter: undefined,
+      });
+    }
   };
 
   return (
@@ -214,7 +257,7 @@ export default function FilterPanel({
         {/* 완료 여부 섹션 */}
         <div className="flex justify-end mb-[4px]">
           <button
-            onClick={handleReset}
+            onClick={handleResetFilters}
             className="flex items-center gap-[4px] text-[14px] rounded-[24px] border px-3 py-1 border-black cursor-pointer"
           >
             <Image src="/icons/refresh.svg" alt="초기화" width={16} height={16} />

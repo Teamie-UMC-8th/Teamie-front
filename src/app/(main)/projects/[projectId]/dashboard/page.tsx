@@ -229,8 +229,75 @@ export default function DashboardPage() {
     setFilterButtonRect(null);
   };
 
+  // 필터 변경 시 즉시 데이터 재페칭
+  const handleFilterChange = async (filters: TaskFilters) => {
+    // 필터가 실제로 변경되었는지 확인
+    const filtersChanged = JSON.stringify(filters) !== JSON.stringify(currentFilters);
+
+    if (filtersChanged) {
+      setCurrentFilters(filters);
+
+      // 활성 필터가 있으면 즉시 데이터 재페칭
+      const hasActiveFilters =
+        filters.statuses.length > 0 ||
+        filters.managerIds.length > 0 ||
+        filters.dateBefore ||
+        filters.dateAfter;
+
+      if (hasActiveFilters) {
+        try {
+          setIsFiltered(true);
+          const searchParams = {
+            projectId: parseInt(projectId),
+            view: isStepView ? ('step' as const) : ('status' as const),
+            statuses: filters.statuses.length > 0 ? filters.statuses : undefined,
+            managerIds: filters.managerIds.length > 0 ? filters.managerIds : undefined,
+            dateBefore: filters.dateBefore,
+            dateAfter: filters.dateAfter,
+          };
+
+          const searchResult = await searchTasks(searchParams);
+          setFilteredData(searchResult);
+        } catch (error) {
+          console.error('필터링 실패:', error);
+          // 실패 시 원본 데이터 사용
+          setIsFiltered(false);
+          setFilteredData(null);
+        }
+      } else {
+        // 활성 필터가 없으면 원본 데이터 사용
+        setIsFiltered(false);
+        setFilteredData(null);
+      }
+    }
+  };
+
   // 현재 표시할 데이터 결정 (필터링된 데이터 또는 원본 데이터)
   const displayData = isFiltered ? filteredData : dashboardData;
+
+  // 필터링된 데이터 재페칭 함수
+  const handleRefetchFilteredData = async () => {
+    if (!isFiltered) return;
+
+    try {
+      const searchParams = {
+        projectId: parseInt(projectId),
+        view: isStepView ? ('step' as const) : ('status' as const),
+        statuses: currentFilters.statuses.length > 0 ? currentFilters.statuses : undefined,
+        managerIds: currentFilters.managerIds.length > 0 ? currentFilters.managerIds : undefined,
+        dateBefore: currentFilters.dateBefore,
+        dateAfter: currentFilters.dateAfter,
+      };
+
+      const searchResult = await searchTasks(searchParams);
+      setFilteredData(searchResult);
+    } catch (error) {
+      console.error('필터링된 데이터 재페칭 실패:', error);
+      // 실패 시 원본 데이터 사용
+      setIsFiltered(false);
+      setFilteredData(null);
+    }
+  };
 
   // 로딩 상태 처리 (프로젝트 상태도 함께 체크)
   if (isLoading || isStatusLoading) {
@@ -270,6 +337,7 @@ export default function DashboardPage() {
           <FilterPanel
             isOpen={isFilterOpen}
             onClose={handleFilterClose}
+            onFilterChange={handleFilterChange}
             assignees={getAllAssignees()}
             buttonRect={filterButtonRect}
             initialFilters={
@@ -306,6 +374,7 @@ export default function DashboardPage() {
               steps={displayData && 'steps' in displayData ? displayData.steps : []}
               projectId={projectId}
               isCompleted={Boolean(isCompleted?.result?.isCompleted)}
+              onRefetchFilteredData={handleRefetchFilteredData}
             />
           ) : (
             <StatusBoard
