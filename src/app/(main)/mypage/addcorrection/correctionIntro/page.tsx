@@ -7,10 +7,12 @@ import { useEffect, useRef, useState } from 'react';
 import { useUser } from '@/hooks/mutations/useUser';
 // import { useRouter } from 'next/navigation';
 import { CreateCorrectionRequest } from '@/types/api/correction';
+import Image from 'next/image';
 
 export default function CorrectionIntro() {
   // const router = useRouter();
   const formRef = useRef<HTMLDivElement>(null);
+  const jdRef = useRef<HTMLTextAreaElement>(null);
   const [isLoadingOpen, setIsLoadingOpen] = useState(false);
   const [startFromLast, setStartFromLast] = useState(false);
   const [payload, setPayload] = useState<CreateCorrectionRequest | null>(null);
@@ -18,6 +20,13 @@ export default function CorrectionIntro() {
   const [companyName, setCompanyName] = useState('');
   const [jobTitle, setJobTitle] = useState('');
   const [jd, setJd] = useState('');
+
+  const autoResizeJd = () => {
+    const el = jdRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  };
 
   // 이 페이지를 마지막 방문 위치로 기록 (복귀 라우팅에 사용) + 모달 복구
   useEffect(() => {
@@ -31,6 +40,11 @@ export default function CorrectionIntro() {
       }
     } catch {}
   }, []);
+
+  // 내용 변경 시 자동 높이 조절
+  useEffect(() => {
+    autoResizeJd();
+  }, [jd]);
 
   const handleStart = () => {
     const company = companyName.trim();
@@ -76,7 +90,7 @@ export default function CorrectionIntro() {
           AI 지원 맞춤 포트폴리오 첨삭
         </div>
         <div
-          className="w-[1359px] h-[800px] bg-[#F8F8F8] rounded-[16px] relative
+          className="w-[1359px] h-auto pb-[40px] bg-[#F8F8F8] rounded-[16px] relative
         max-lg:w-[928px] max-lg:h-[878px]"
           style={{ boxShadow: '0px 0px 10px 0px #00000033' }}
         >
@@ -119,13 +133,13 @@ export default function CorrectionIntro() {
               </div>
             </div>
           </div>
-          <div className="relative">
+
+          <div className="flex mt-[36px] ml-[560px]">
             <div
-              className="absolute right-7 mt-[16px]
-            max-lg:right-0"
+              className="relative w-[726px] px-[40px] py-[24px] bg-white rounded-[16px] "
+              style={{ boxShadow: '0px 0px 15px 0px #0000001A' }}
             >
-              <img src="/icons/SubBubble.svg" alt="말풍선" />
-              <div className="absolute top-[40px] left-[50px] flex-col" ref={formRef}>
+              <div className="flex flex-col" ref={formRef}>
                 <p className="font-semibold text-[18px] ">기업명</p>
                 <input
                   value={companyName}
@@ -142,7 +156,9 @@ export default function CorrectionIntro() {
                 <textarea
                   value={jd}
                   onChange={(e) => setJd(e.target.value)}
-                  className="border border-[#BBBBBB] w-[645px] h-[64px] resize-none rounded-[4px] mt-[2px] px-[12px] py-[10px] "
+                  onInput={autoResizeJd}
+                  ref={jdRef}
+                  className="border border-[#BBBBBB] w-[645px] min-h-[68px] max-h-[284px] h-auto resize-none overflow-y-auto rounded-[4px] mt-[2px] px-[12px] py-[10px] mb-[8px] "
                 />
 
                 <CorrectionRequestStartButton
@@ -150,6 +166,14 @@ export default function CorrectionIntro() {
                   disabled={!(companyName.trim() && jobTitle.trim() && jd.trim())}
                 />
               </div>
+              <Image
+                src="/icons/BubbleTail.svg"
+                alt="말풍선 꼬리"
+                width={72}
+                height={72}
+                className="absolute right-[-40px] top-[20px]"
+                priority
+              />
             </div>
           </div>
         </div>
