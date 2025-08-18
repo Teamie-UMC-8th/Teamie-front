@@ -112,7 +112,8 @@ export default function StatusBoard({ statusGroups, projectId, isCompleted }: St
 
   // 복사될 링크 URL
   const getTaskUrl = (taskId: number) => {
-    return `/projects/${projectId}/tasks/${taskId}`;
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    return `${baseUrl}/projects/${projectId}/tasks/${taskId}`;
   };
 
   // 클립보드에 복사될 순수 텍스트
