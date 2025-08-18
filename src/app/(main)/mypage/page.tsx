@@ -10,9 +10,9 @@ import ProfileImageUpload from '@/features/myPage/components/ProfileImageUpload'
 import EditableField from '@/features/myPage/components/EditableField';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 
-export default function MyPage() {
+function MyPageContent() {
   const searchParams = useSearchParams();
   const tab = (searchParams.get('tab') || '').toLowerCase();
   const [initialTab, setInitialTab] = useState<'project' | 'ai'>('project');
@@ -247,5 +247,13 @@ export default function MyPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function MyPage() {
+  return (
+    <Suspense fallback={null}>
+      <MyPageContent />
+    </Suspense>
   );
 }
