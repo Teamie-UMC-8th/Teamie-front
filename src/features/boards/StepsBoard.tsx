@@ -14,7 +14,7 @@ import CopyModal from '@/components/CopyModal';
 import Portal from '@/components/Portal';
 import Link from 'next/link';
 
-export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
+export default function StepsBoard({ steps, projectId, isCompleted }: StepsBoardProps) {
   const { openStepIds, toggleStep, openStep } = useSteps();
   const createStepMutation = useCreateStep();
   const deleteStepMutation = useDeleteStep();
@@ -27,8 +27,8 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
     null
   );
 
-  // STEP 추가 제한 (최대 8개)
-  const canAddStep = steps.length < 8;
+  // STEP 추가 제한 (최대 8개, 프로젝트 종료 시 비활성화)
+  const canAddStep = steps.length < 8 && !isCompleted;
 
   // 상태 매핑 함수 (API 상태를 표시 텍스트로 변환)
   const mapTaskStatus = (status: string) => {
@@ -55,8 +55,9 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
   };
 
   // 복사될 링크 URL
-  const getTaskUrl = (taskId: number) =>
-    `http://localhost:3000/projects/${projectId}/tasks/${taskId}`;
+  const getTaskUrl = (taskId: number) => {
+    return `/projects/${projectId}/tasks/${taskId}`;
+  };
 
   // 클립보드에 복사될 순수 텍스트
   const getTextToCopy = (title: string, taskId: number) =>
@@ -64,7 +65,7 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
 
   // STEP 추가 처리
   const handleAddStep = async () => {
-    if (!canAddStep) return;
+    if (!canAddStep || isCompleted) return;
 
     try {
       const response = await createStepMutation.mutateAsync({
@@ -84,6 +85,9 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
 
   // STEP 삭제 처리
   const handleDeleteStep = async (stepId: number) => {
+    // 프로젝트가 종료된 경우 삭제 비활성화
+    if (isCompleted) return;
+
     // if (!confirm('정말로 이 STEP을 삭제하시겠습니까?')) {
     //   return;
     // }
@@ -110,6 +114,9 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
 
   // 드래그가 끝났을 때 호출되는 함수
   const onDragEnd = async (result: DropResult) => {
+    // 프로젝트가 종료된 경우 DnD 비활성화
+    if (isCompleted) return;
+
     const { source, destination } = result;
 
     // 드롭할 위치가 없으면 아무것도 안 함
@@ -160,21 +167,21 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
           {steps.map((step) => (
             <div key={step.stepId} className="flex flex-col">
               <StepHeader
-                stepName={step.stepName}
-                stepId={step.stepId}
+                step={step}
                 isOpen={openStepIds.includes(step.stepId)}
                 onToggle={() => toggleStep(step.stepId)}
-                showDelete={step.tasks.length === 0}
-                onDelete={() => handleDeleteStep(step.stepId)}
-                onUpdateName={handleUpdateStepName}
+                onDelete={handleDeleteStep}
+                onUpdate={handleUpdateStepName}
+                isCompleted={isCompleted}
               />
+
               {openStepIds.includes(step.stepId) && (
-                <Droppable droppableId={step.stepId.toString()}>
+                <Droppable droppableId={step.stepId.toString()} isDropDisabled={isCompleted}>
                   {(provided) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className="flex flex-col mt-6 min-h-[0.625rem]"
+                      className="mt-4 space-y-3"
                       style={{ overflow: 'visible' }}
                     >
                       {step.tasks.map((task, idx) => (
@@ -182,6 +189,7 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
                           key={`${step.stepId}-${task.taskId}`}
                           draggableId={task.taskId.toString()}
                           index={idx}
+                          isDragDisabled={isCompleted}
                         >
                           {(provided, snapshot) => (
                             <div
@@ -205,7 +213,12 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
                                     name: manager.name,
                                     imageUrl: manager.imageUrl,
                                   }))}
-                                  onTaskComplete={handleTaskComplete}
+                                  isCompleted={isCompleted}
+                                  onTaskComplete={(taskId, title) => {
+                                    // 프로젝트가 종료된 경우 완료 처리 비활성화
+                                    if (isCompleted) return;
+                                    handleTaskComplete(taskId, title);
+                                  }}
                                 />
                               </div>
                             </div>
@@ -216,7 +229,11 @@ export default function StepsBoard({ steps, projectId }: StepsBoardProps) {
                       {provided.placeholder}
 
                       <div className="mt-2">
-                        <AddTaskButton stepId={step.stepId} stepName={step.stepName} />
+                        <AddTaskButton
+                          stepId={step.stepId}
+                          stepName={step.stepName}
+                          isCompleted={isCompleted}
+                        />
                       </div>
                     </div>
                   )}
