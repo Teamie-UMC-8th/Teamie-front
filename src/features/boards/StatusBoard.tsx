@@ -9,7 +9,7 @@ import CopyModal from '@/components/CopyModal';
 import Portal from '@/components/Portal';
 import Link from 'next/link';
 
-export default function StatusBoard({ statusGroups, projectId }: StatusBoardProps) {
+export default function StatusBoard({ statusGroups, projectId, isCompleted }: StatusBoardProps) {
   const updateTaskStatusMutation = useUpdateTaskStatus();
   const [showCopyModal, setShowCopyModal] = useState(false);
   const [completedTask, setCompletedTask] = useState<{ title: string; taskId: number } | null>(
@@ -46,6 +46,9 @@ export default function StatusBoard({ statusGroups, projectId }: StatusBoardProp
 
   // 드래그가 끝났을 때 호출되는 함수
   const onDragEnd = async (result: DropResult) => {
+    // 프로젝트가 종료된 경우 DnD 비활성화
+    if (isCompleted) return;
+
     const { source, destination } = result;
 
     // 드롭할 위치가 없으면 아무것도 안 함
@@ -108,8 +111,9 @@ export default function StatusBoard({ statusGroups, projectId }: StatusBoardProp
   );
 
   // 복사될 링크 URL
-  const getTaskUrl = (taskId: number) =>
-    `http://localhost:3000/projects/${projectId}/tasks/${taskId}`;
+  const getTaskUrl = (taskId: number) => {
+    return `/projects/${projectId}/tasks/${taskId}`;
+  };
 
   // 클립보드에 복사될 순수 텍스트
   const getTextToCopy = (title: string, taskId: number) =>
@@ -131,7 +135,7 @@ export default function StatusBoard({ statusGroups, projectId }: StatusBoardProp
                 {status}
               </div>
 
-              <Droppable droppableId={status}>
+              <Droppable droppableId={status} isDropDisabled={isCompleted}>
                 {(provided) => (
                   <div
                     ref={provided.innerRef}
@@ -144,6 +148,7 @@ export default function StatusBoard({ statusGroups, projectId }: StatusBoardProp
                         key={task.taskId}
                         draggableId={task.taskId.toString()}
                         index={index}
+                        isDragDisabled={isCompleted}
                       >
                         {(provided, snapshot) => (
                           <div
@@ -167,7 +172,11 @@ export default function StatusBoard({ statusGroups, projectId }: StatusBoardProp
                                   name: manager.name,
                                   imageUrl: manager.imageUrl,
                                 }))}
+                                isCompleted={isCompleted}
                                 onTaskComplete={(taskId, title) => {
+                                  // 프로젝트가 종료된 경우 완료 처리 비활성화
+                                  if (isCompleted) return;
+
                                   // 완료 상태로 변경된 경우 모달 표시
                                   setCompletedTask({ title, taskId });
                                   setShowCopyModal(true);
