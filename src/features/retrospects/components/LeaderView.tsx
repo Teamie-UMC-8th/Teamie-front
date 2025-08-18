@@ -48,7 +48,7 @@ export default function LeaderView() {
           </p>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="bg-[#81D7D4] border border-[#81D7D4] rounded-[6px] px-[40px] py-[10px] text-white text-[18px] font-bold leading-[22px] w-[178px] h-[46px] whitespace-nowrap items-center"
+            className="bg-[#81D7D4] border border-[#81D7D4] rounded-[6px] px-[40px] py-[10px] text-white text-[18px] font-bold leading-[22px] w-[178px] h-[46px] whitespace-nowrap items-center cursor-pointer"
           >
             프로젝트 종료
           </button>
@@ -66,7 +66,7 @@ export default function LeaderView() {
             개인 회고만 진행하게 됩니다.
           </p>
           <button
-            className="bg-[#EFC9C9] border border-[#EFC9C9] rounded-[6px] px-[40px] py-[10px] text-white text-[18px] font-bold leading-[22px] w-[178px] h-[46px] whitespace-nowrap opacity-50 cursor-not-allowed mb-[40px]"
+            className="bg-[#EFC9C9] border border-[#EFC9C9] rounded-[6px] px-[40px] py-[10px] text-white text-[18px] font-bold leading-[22px] w-[178px] h-[46px] whitespace-nowrap opacity-50 cursor-not-allowed mb-[40px] cursor-pointer"
             disabled
           >
             프로젝트 이탈

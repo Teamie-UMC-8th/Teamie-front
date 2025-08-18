@@ -63,7 +63,7 @@ export function MemberView() {
             또, 지금까지 진행한 내용을 바탕으로 팀 회고와 개인회고를 작성합니다.
           </p>
           <button
-            className="bg-[#BAE5E4] border border-[#BAE5E4] rounded-[6px] px-[40px] py-[10px] text-white text-[18px] font-bold leading-[22px] w-[178px] h-[46px] whitespace-nowrap opacity-50 cursor-not-allowed mb-[40px]"
+            className="bg-[#BAE5E4] border border-[#BAE5E4] rounded-[6px] px-[40px] py-[10px] text-white text-[18px] font-bold leading-[22px] w-[178px] h-[46px] whitespace-nowrap opacity-50 cursor-not-allowed mb-[40px] cursor-pointer"
             disabled
           >
             프로젝트 종료
@@ -82,7 +82,7 @@ export function MemberView() {
             개인 회고만 진행하게 됩니다.
           </p>
           <button
-            className="bg-[#D81B1B] border border-[#D81B1B] rounded-[6px] px-[40px] py-[10px] text-white text-[18px] font-bold leading-[22px] w-[178px] h-[46px] whitespace-nowrap"
+            className="bg-[#D81B1B] border border-[#D81B1B] rounded-[6px] px-[40px] py-[10px] text-white text-[18px] font-bold leading-[22px] w-[178px] h-[46px] whitespace-nowrap cursor-pointer"
             onClick={handleLeaveClick}
           >
             프로젝트 이탈
