@@ -98,7 +98,7 @@
   overflow: visible !important;
   text-overflow: unset !important;
   display: block !important;
-  word-break: keep-all !important;
+  word-break: break-all !important;
 }
 
 /* 드래그 라인 인디케이터 대비용: 캘린더 셀은 overflow visible */
