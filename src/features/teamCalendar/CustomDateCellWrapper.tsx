@@ -19,6 +19,7 @@ interface CustomDateCellWrapperProps {
   setCurrentDate: (date: Date) => void;
   latestPlanDate?: string; // 가장 최근 일정 날짜 추가
   projectCreatedAtISO?: string; // 프로젝트 생성일 (이전 날짜에는 추가/호버 비활성화)
+  isProjectCompleted?: boolean; // 프로젝트 종료 여부
 }
 
 export default function CustomDateCellWrapper({
@@ -29,6 +30,7 @@ export default function CustomDateCellWrapper({
   endDate,
   setCurrentDate,
   projectCreatedAtISO,
+  isProjectCompleted = false,
 }: CustomDateCellWrapperProps) {
   const [hovered, setHovered] = useState(false);
   const router = useRouter();
@@ -44,8 +46,8 @@ export default function CustomDateCellWrapper({
     ? moment(value).isBefore(moment(projectCreatedAtISO), 'day')
     : false;
 
-  // 플러스 버튼 표시 조건: 오늘 이후이면서, 프로젝트 생성일 이후만
-  const canShowPlusButton = isTodayOrAfter && !isBeforeProjectCreation;
+  // 플러스 버튼 표시 조건: 오늘 이후이면서, 프로젝트 생성일 이후만, 그리고 프로젝트가 종료되지 않았을 때
+  const canShowPlusButton = isTodayOrAfter && !isBeforeProjectCreation && !isProjectCompleted;
 
   const handleClick = () => {
     if (!projectId || !canShowPlusButton) return;

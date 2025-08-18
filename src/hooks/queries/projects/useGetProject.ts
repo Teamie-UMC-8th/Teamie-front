@@ -23,6 +23,7 @@ export const useGetProjectIsCompleted = (projectId?: number) => {
     queryKey: ['projectIsCompleted', projectId],
     queryFn: () => getProjectIsCompleted(projectId as number),
     enabled: typeof projectId === 'number' && projectId > 0,
-    staleTime: 60 * 1000,
+    staleTime: 0, // 즉시 stale 상태로 만들어 더 자주 갱신
+    refetchInterval: 3000, // 3초마다 자동 refetch
   });
 };
