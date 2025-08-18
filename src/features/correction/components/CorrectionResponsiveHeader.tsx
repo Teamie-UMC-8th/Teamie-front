@@ -12,10 +12,10 @@ const CorrectionResponsiveHeader: React.FC = () => {
     >
       {/* navbar 내용 */}
       <div className="flex items-center mt-[24px] ml-[24px]">
-        <Link href="/myPage?tab=ai">
-          <img src="/icons/arrow-left.svg" alt="뒤로가기" className="cursor-pointer mr-[12px]" />
+        <Link href="/myPage?tab=ai" className="flex items-center cursor-pointer">
+          <img src="/icons/arrow-left.svg" alt="뒤로가기" className="mr-[12px]" />
+          <p className="text-[18px]">돌아가기</p>
         </Link>
-        <p className="text-[18px]">돌아가기</p>
       </div>
 
       {(pathname.includes('correctionIntro') ||

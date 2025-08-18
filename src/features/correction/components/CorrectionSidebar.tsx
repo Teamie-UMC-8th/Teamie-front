@@ -14,16 +14,16 @@ const CorrectionSidebar: React.FC = () => {
       style={{ boxShadow: '4px 0px 3px 0px #0000000D' }}
     >
       <div className="flex items-center ml-[152px] mt-[80px]">
-        <Link href="/myPage?tab=ai">
+        <Link href="/myPage?tab=ai" className="flex items-center cursor-pointer">
           <Image
             src="/icons/arrow-left.svg"
             alt="뒤로가기"
             width={28}
             height={28}
-            className="cursor-pointer mr-[12px]"
+            className="mr-[12px]"
           />
+          <p className="text-[18px]">돌아가기</p>
         </Link>
-        <p className="text-[18px]">돌아가기</p>
       </div>
 
       {/* 기업 분석 정보 */}
