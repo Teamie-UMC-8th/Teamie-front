@@ -198,7 +198,7 @@ function AIMasterPortfolioCreatePageContent() {
       </Portal>
 
       <div className="ml-0 max-lg:ml-0]">
-        <main className="flex flex-col gap-0 max-w-[1323px] mx-auto p-6">
+        <main className="flex flex-col gap-0 max-w-[1323px] mx-auto px-[140px] max-lg:mx-auto max-lg:px-2">
           <section className="max-lg:mt-[120px] w-[1323px] max-lg:w-[908px] h-[52px] flex items-center justify-between bg-[#E9F8F8] rounded-tl-[8px] rounded-tr-[8px] px-[24px] py-[8px] mr-[12px] ml-[12px]">
             <h2 className="text-[20px] leading-[28px] font-semibold text-[#000000] font-[Pretendard]">
               AI 마스터 포트폴리오 생성
