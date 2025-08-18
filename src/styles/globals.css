@@ -98,11 +98,31 @@
   overflow: visible !important;
   text-overflow: unset !important;
   display: block !important;
-  word-break: keep-all !important;
+  word-break: break-all !important;
 }
 
 /* 드래그 라인 인디케이터 대비용: 캘린더 셀은 overflow visible */
 .rbc-day-bg,
 .rbc-date-cell {
   overflow: visible !important;
+}
+
+/* 각 주(row) */
+.rbc-month-row {
+  height: auto !important; /* 일정에 따라 자동 높이 조정 */
+}
+
+/* 드래그 라인 인디케이터 대비용: 캘린더 셀은 overflow visible */
+.rbc-day-bg,
+.rbc-date-cell {
+  overflow: visible !important;
+}
+
+/* 날짜 셀 */
+.rbc-date-cell {
+  min-width: 200px !important; /* 가로 고정 */
+}
+
+.rbc-month-view {
+  height: auto; /* 달력 전체 높이 자동 */
 }

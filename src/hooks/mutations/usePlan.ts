@@ -11,6 +11,7 @@ export const useGetPlanDetail = (planId: string) =>
     queryKey: ['planDetail', planId],
     queryFn: () => getPlanDetail(planId),
     enabled: !!planId,
+    staleTime: 60 * 1000,
   });
 
 // Mutation Hooks

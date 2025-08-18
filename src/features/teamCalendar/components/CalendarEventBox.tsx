@@ -34,7 +34,7 @@ export default function CalendarEventBox({ event }: { event: CalendarEvent }) {
     if (!projectId || event?.id == null) return;
     const target = isTask
       ? `/projects/${projectId}/tasks/${taskId}`
-      : `/projects/${projectId}/teamcalendar/${String(event.id)}/teamtask`;
+      : `/projects/${projectId}/teamCalendar/${String(event.id)}/teamTask`;
     console.log('이벤트 클릭: 팀태스크로 이동', {
       projectId,
       id: String(event.id),
@@ -49,11 +49,11 @@ export default function CalendarEventBox({ event }: { event: CalendarEvent }) {
       draggable
       onDragStart={handleDragStart}
       onClick={handleClick}
-      className="relative z-[60] w-full h-full rounded-[4px] px-[22px] py-[4px] text-[16px] leading-[20px] text-black cursor-pointer pointer-events-auto"
+      className="relative z-[10] w-full h-full rounded-[4px] px-[22px] py-[4px] text-[16px] leading-[20px] text-black cursor-pointer pointer-events-auto"
       title={event.title ?? ''}
       role="button"
     >
-      <div className="w-full h-full flex items-center justify-center text-center break-words whitespace-normal overflow-wrap-anywhere">
+      <div className="w-full h-full flex items-center justify-center text-center break-words whitespace-normal overflow-wrap-anywhere Z-[90px]">
         {event.title || '빈 일정'}
       </div>
     </div>

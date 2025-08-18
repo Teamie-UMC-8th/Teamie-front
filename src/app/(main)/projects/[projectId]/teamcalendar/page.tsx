@@ -43,19 +43,22 @@ export default function TeamCalendar() {
   const queryClient = useQueryClient();
   const { socket, subscribe, unsubscribe, isConnected } = useWebSocket();
 
-  // 현재 보고 있는 달의 첫 날 ~ 마지막 날 계산
+  // 현재 월 + 이전/다음 월 일부 포함하여 조회 (45일 범위로 확장)
   const startDate = useMemo(
-    () => moment(currentDate).startOf('month').toISOString(),
+    () => moment(currentDate).subtract(22, 'days').startOf('day').toISOString(),
     [currentDate]
   );
-  const endDate = useMemo(() => moment(currentDate).endOf('month').toISOString(), [currentDate]);
+  const endDate = useMemo(
+    () => moment(currentDate).add(22, 'days').endOf('day').toISOString(),
+    [currentDate]
+  );
 
   // API 요청: 일정 목록
-  const {
-    data: calendarData,
-    isLoading,
-    refetch, // ✅ refetch 포함
-  } = useGetCalendarPlans(projectId ?? '', startDate, endDate);
+  const { data: calendarData, isLoading } = useGetCalendarPlans(
+    projectId ?? '',
+    startDate,
+    endDate
+  );
 
   console.log('calendarData', calendarData);
 
@@ -118,17 +121,16 @@ export default function TeamCalendar() {
     endDate,
   ]);
 
-  // ✅ 창이 다시 focus될 때 refetch 실행
-  useEffect(() => {
-    const handleFocus = () => {
-      refetch();
-    };
-
-    window.addEventListener('focus', handleFocus);
-    return () => {
-      window.removeEventListener('focus', handleFocus);
-    };
-  }, [refetch]);
+  // 창 포커스 refetch 제거
+  // useEffect(() => {
+  //   const handleFocus = () => {
+  //     refetch();
+  //   };
+  //   window.addEventListener('focus', handleFocus);
+  //   return () => {
+  //     window.removeEventListener('focus', handleFocus);
+  //   };
+  // }, [refetch]);
 
   // 프로젝트 생성일을 조회해 해당 일 이전 날짜 차단
   useEffect(() => {
@@ -254,7 +256,7 @@ export default function TeamCalendar() {
       console.warn('onSelectEvent: 유효하지 않은 이벤트 또는 projectId 누락', { projectId, event });
       return;
     }
-    const target = `/projects/${projectId}/teamcalendar/${event.id}/teamtask`;
+    const target = `/projects/${projectId}/teamCalendar/${event.id}/teamTask`;
     console.log('onSelectEvent: 팀태스크로 이동', {
       projectId,
       planId: event.id,
@@ -265,6 +267,9 @@ export default function TeamCalendar() {
   };
 
   const handlePrevMonth = () => {
+    // 프로젝트 생성일 이전 월로는 이동 불가
+    if (!canGoToPrevMonth) return;
+
     const [year, month, day] = [
       currentDate.getFullYear(),
       currentDate.getMonth(),
@@ -274,6 +279,21 @@ export default function TeamCalendar() {
     const prevYear = month === 0 ? year - 1 : year;
     setCurrentDate(new Date(prevYear, prevMonth, day));
   };
+
+  // 프로젝트 생성일 이후의 월만 조회 가능하도록 제한
+  const canGoToPrevMonth = useMemo(() => {
+    if (!projectCreatedAtISO) return true; // 생성일을 못 가져오면 제한 없음
+
+    // 현재 월의 시작일이 프로젝트 생성일 이전인지 확인
+    const currentMonthStart = moment(currentDate).startOf('month');
+    const isBeforeProjectCreation = moment(currentMonthStart).isBefore(
+      moment(projectCreatedAtISO),
+      'day'
+    );
+
+    // 프로젝트 생성일 이전 월이면 이동 불가
+    return !isBeforeProjectCreation;
+  }, [projectCreatedAtISO, currentDate]);
 
   const handleNextMonth = () => {
     const [year, month, day] = [
@@ -287,6 +307,41 @@ export default function TeamCalendar() {
   };
 
   const formattedTitle = moment(currentDate).format('YYYY년 M월');
+
+  // 현재 월의 주 수 계산 (5주 또는 6주)
+  const weeksInMonth = useMemo(() => {
+    const firstDayOfMonth = moment(currentDate).startOf('month');
+    const lastDayOfMonth = moment(currentDate).endOf('month');
+
+    // 첫 번째 주의 시작일 (일요일)
+    const firstWeekStart = firstDayOfMonth.clone().startOf('week');
+    // 마지막 주의 끝일 (토요일)
+    const lastWeekEnd = lastDayOfMonth.clone().endOf('week');
+
+    // 주 수 계산
+    const weeks = lastWeekEnd.diff(firstWeekStart, 'weeks') + 1;
+    return weeks;
+  }, [currentDate]);
+
+  // 캘린더 높이 동적 계산 (기본 높이 208px 고정)
+  const calendarHeight = useMemo(() => {
+    const weekHeight = 208; // 각 주의 높이 (208px 고정)
+    const headerHeight = 40; // 요일 헤더 높이
+    const totalHeight = weeksInMonth * weekHeight + headerHeight;
+
+    return totalHeight;
+  }, [weeksInMonth]);
+
+  // 캘린더 높이 디버깅
+  useEffect(() => {
+    console.log('캘린더 정보:', {
+      month: formattedTitle,
+      weeksInMonth,
+      calendarHeight: `${calendarHeight}px`,
+      weekHeight: '208px (고정)',
+      headerHeight: '40px',
+    });
+  }, [formattedTitle, weeksInMonth, calendarHeight]);
 
   if (isLoading) {
     return (
@@ -306,18 +361,24 @@ export default function TeamCalendar() {
         >
           팀 캘린더
         </h2>
-        <hr className="w-full border-t-[2px] border-[#E7E7E7] rotate-180 mb-[44px]" />
+        <hr className=" w-[1490px] border-t-[2px] border-[#E7E7E7] rotate-180 mb-[44px] -ml-[15px]" />
       </div>
 
       {/* 월 네비게이션 */}
       <div className="flex justify-start items-center font-semibold text-[20px] leading-[29px] text-black mb-[47px]">
-        <button onClick={handlePrevMonth}>
+        <button
+          onClick={handlePrevMonth}
+          disabled={!canGoToPrevMonth}
+          className={`flex items-center justify-center ${
+            canGoToPrevMonth ? 'cursor-pointer opacity-100' : 'cursor-not-allowed opacity-30'
+          }`}
+        >
           <Image
             src="/icons/Vector-left.svg"
             alt="왼쪽"
             width={24}
             height={24}
-            className="w-[24px] h-[24px] cursor-pointer"
+            className="w-[24px] h-[24px]"
           />
         </button>
         <span className="mx-4">{formattedTitle}</span>
@@ -343,8 +404,14 @@ export default function TeamCalendar() {
         startAccessor="start"
         endAccessor="end"
         date={currentDate}
+        showAllEvents={true}
         onNavigate={() => {}} // 기본 이동 비활성화 (커스텀 버튼 사용 중)
-        style={{ height: 'calc(100vh - 300px)', backgroundColor: 'white' }}
+        style={{
+          width: '1400px',
+          height: `${calendarHeight}px`,
+          backgroundColor: 'white',
+          margin: '32px',
+        }}
         components={{
           dateCellWrapper: (props) => (
             <CustomDateCellWrapper
@@ -357,7 +424,7 @@ export default function TeamCalendar() {
             />
           ),
           event: (props) => (
-            <div className="relative z-[60] pointer-events-auto">
+            <div className="relative z-[90] pointer-events-auto">
               <CalendarEventBox {...props} />
             </div>
           ), // ✅ 커스텀 일정 카드 디자인 - 클릭 가능 보장
@@ -375,7 +442,8 @@ export default function TeamCalendar() {
               color: '#000000',
               borderRadius: '4px',
               position: 'relative',
-              zIndex: 60,
+              zIndex: 90,
+              marginBottom: '2px',
             },
           };
         }}

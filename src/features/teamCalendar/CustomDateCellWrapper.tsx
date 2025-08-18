@@ -70,10 +70,10 @@ export default function CustomDateCellWrapper({
           });
           console.log('일정 목록 refetch 요청!');
 
-          router.push(`/projects/${projectId}/teamcalendar/${planId}/teamtask`);
+          router.push(`/projects/${projectId}/teamCalendar/${planId}/teamTask`);
           console.log(
             '상세 페이지로 이동:',
-            `/projects/${projectId}/teamcalendar/${planId}/teamtask`
+            `/projects/${projectId}/teamCalendar/${planId}/teamTask`
           );
         },
         onError: (error) => {
@@ -88,14 +88,14 @@ export default function CustomDateCellWrapper({
   // 드래그 앤 드롭: 드래그 진입 시 상단 라인 인디케이터 표시
   const [isDragOver, setIsDragOver] = useState(false);
   const [indicatorY, setIndicatorY] = useState<number>(4);
-  const indicatorVisible = isDragOver && canShowPlusButton;
+  const indicatorVisible = isDragOver; // 호버 상태와 독립적으로 작동
 
   // 드롭할 목표 날짜 문자열 (로컬 자정)
   const dropTargetDate = useMemo(() => moment(value).format('YYYY-MM-DD[T]00:00:00'), [value]);
 
   return (
     <div
-      className={`relative w-full h-full transition-all duration-200 rounded-[4px] overflow-visible ${hoverActive ? 'shadow-[0_0_10px_rgba(0,0,0,0.25)] cursor-pointer' : ''}`}
+      className={`relative w-full h-full transition-all duration-200 rounded-[4px] overflow-visible ${hoverActive ? 'shadow-[0_0_10px_rgba(0,0,0,0.25)] cursor-pointer z-[90px]' : ''}`}
       onMouseEnter={() => {
         if (canShowPlusButton) setHovered(true);
       }}
@@ -106,9 +106,11 @@ export default function CustomDateCellWrapper({
           e.dataTransfer.types.includes('application/x-teamie-plan') ||
           e.dataTransfer.types.includes('application/x-teamie-task') ||
           e.dataTransfer.types.includes('text/plain');
-        if (hasData && canShowPlusButton) {
+        if (hasData) {
           const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
-          const y = Math.max(12, Math.min(e.clientY - rect.top, rect.height - 12));
+          let y = e.clientY - rect.top;
+          // 셀 경계를 넘어서는 드롭 허용 (확장된 드롭 영역)
+          y = Math.max(-20, Math.min(y, rect.height + 20));
           setIndicatorY(y);
           setIsDragOver(true);
         }
@@ -118,11 +120,13 @@ export default function CustomDateCellWrapper({
           e.dataTransfer.types.includes('application/x-teamie-plan') ||
           e.dataTransfer.types.includes('application/x-teamie-task') ||
           e.dataTransfer.types.includes('text/plain');
-        if (hasData && canShowPlusButton) {
+        if (hasData) {
           e.preventDefault();
           e.dataTransfer.dropEffect = 'move';
           const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
-          const y = Math.max(12, Math.min(e.clientY - rect.top, rect.height - 12));
+          let y = e.clientY - rect.top;
+          // 셀 경계를 넘어서는 드롭 허용 (확장된 드롭 영역)
+          y = Math.max(-20, Math.min(y, rect.height + 20));
           setIndicatorY(y);
           setIsDragOver(true);
         }
@@ -208,10 +212,9 @@ export default function CustomDateCellWrapper({
       {/* 드래그 오버 라인 인디케이터 */}
       {indicatorVisible && (
         <div
-          className="pointer-events-none absolute left-1/2 -translate-x-1/2 "
+          className="pointer-events-none absolute inset-x-0"
           style={{
             top: indicatorY,
-            width: '100%',
             height: '3px',
             borderRadius: '10px',
             backgroundColor: '#81D7D4',
@@ -221,7 +224,7 @@ export default function CustomDateCellWrapper({
       )}
       {/* 플러스 버튼 - 가벼운 호버 센서 사용: 캘린더 이벤트 클릭을 막지 않음 */}
       {canShowPlusButton && (
-        <div className="absolute top-0 right-0 z-[70] w-[40px] h-[40px] pointer-events-auto">
+        <div className="absolute top-0 right-0 z-[90] w-[40px] h-[40px] pointer-events-auto">
           <div
             className="absolute top-[8px] right-[8px]"
             onMouseEnter={() => setHovered(true)}
@@ -232,13 +235,7 @@ export default function CustomDateCellWrapper({
                 className="flex items-center justify-center rounded-[4px] cursor-pointer"
                 onClick={handleClick}
               >
-                <Image
-                  src="/icons/AddProject.svg"
-                  alt="일정 추가"
-                  width={24}
-                  height={24}
-                  className="w-[24px] h-[24px]"
-                />
+                <Image src="/icons/AddProject.svg" alt="일정 추가" width={24} height={24} />
               </button>
             )}
           </div>

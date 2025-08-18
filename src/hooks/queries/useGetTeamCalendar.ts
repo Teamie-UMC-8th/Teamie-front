@@ -6,4 +6,5 @@ export const useGetCalendarPlans = (projectId: string, startDate: string, endDat
     queryKey: ['calendarPlans', projectId, startDate, endDate],
     queryFn: () => getCalendarPlans({ projectId, startDate, endDate }),
     enabled: !!projectId && !!startDate && !!endDate,
+    staleTime: 5 * 60 * 1000,
   });
