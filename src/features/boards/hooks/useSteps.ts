@@ -3,8 +3,8 @@
 import { useState } from 'react';
 
 // UI 상태만 관리하는 훅
-export function useSteps() {
-  const [openStepIds, setOpenStepIds] = useState<number[]>([]);
+export function useSteps(initialStepIds: number[] = []) {
+  const [openStepIds, setOpenStepIds] = useState<number[]>(initialStepIds);
 
   const toggleStep = (id: number) => {
     setOpenStepIds((prev) =>

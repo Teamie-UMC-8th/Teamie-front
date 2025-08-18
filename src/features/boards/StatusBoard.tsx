@@ -122,7 +122,7 @@ export default function StatusBoard({ statusGroups, projectId, isCompleted }: St
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <div className="grid [grid-template-columns:repeat(2,20.313rem)] lg:[grid-template-columns:repeat(4,20.313rem)] gap-x-[2.25rem] gap-y-[5rem] mt-[3.75rem]">
+      <div className="grid [grid-template-columns:repeat(2,20.313rem)] lg:[grid-template-columns:repeat(4,20.313rem)] gap-x-[2.25rem] gap-y-[5rem] mt-[3.75rem] pb-[5rem]">
         {STATUS_ORDER.map(({ status, color }) => {
           // 해당 상태의 업무들 필터링
           const tasksByStatus = allTasksWithStatus.filter((task) => task.displayStatus === status);

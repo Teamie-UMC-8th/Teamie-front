@@ -24,6 +24,7 @@ export default function MyTaskBoard() {
 
   useEffect(() => {
     if (projects.length > 0) {
+      // 모든 프로젝트를 기본적으로 펼친 상태로 설정
       setOpenProjectIds(projects.map((p) => String(p.projectId)));
     }
   }, [projects]);
@@ -73,7 +74,7 @@ export default function MyTaskBoard() {
   return (
     <>
       <div
-        className="grid [grid-template-columns:repeat(2,20.313rem)] lg:[grid-template-columns:repeat(4,20.313rem)] gap-x-[2.25rem] gap-y-[5rem] mt-[3.75rem] min-w-[64rem]"
+        className="grid [grid-template-columns:repeat(2,20.313rem)] lg:[grid-template-columns:repeat(4,20.313rem)] gap-x-[2.25rem] gap-y-[5rem] mt-[3.75rem] min-w-[64rem] pb-[5rem]"
         style={{ paddingLeft: 'clamp(43px, calc(112px - ((100vw - 1024px) * 0.077)), 112px)' }}
       >
         {projects.map((project) => (

@@ -9,18 +9,17 @@ import AddTaskButton from './components/AddTaskButton';
 import StepHeader from './components/StepHeader';
 import TaskItem from '@/components/TaskItem';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import CopyModal from '@/components/CopyModal';
 import Portal from '@/components/Portal';
 import Link from 'next/link';
 
-export default function StepsBoard({
-  steps,
-  projectId,
-  isCompleted,
-  onRefetchFilteredData,
-}: StepsBoardProps) {
-  const { openStepIds, toggleStep, openStep } = useSteps();
+export default function StepsBoard({ steps, projectId, isCompleted, onRefetchFilteredData }: StepsBoardProps) {
+  // 스텝 ID 배열을 메모이제이션하여 안정적인 참조 제공
+  const stepIds = useMemo(() => steps.map((step) => step.stepId), [steps]);
+
+  // 모든 스텝 ID를 초기값으로 전달하여 기본적으로 펼침
+  const { openStepIds, toggleStep, openStep } = useSteps(stepIds);
   const createStepMutation = useCreateStep();
   const deleteStepMutation = useDeleteStep();
   const updateStepMutation = useUpdateStep();
@@ -177,7 +176,7 @@ export default function StepsBoard({
     <>
       <DragDropContext onDragEnd={onDragEnd}>
         <div
-          className="grid [grid-template-columns:repeat(2,20.313rem)] lg:[grid-template-columns:repeat(4,20.313rem)] gap-x-[2.25rem] gap-y-[5rem] mt-[3.75rem]"
+          className="grid [grid-template-columns:repeat(2,20.313rem)] lg:[grid-template-columns:repeat(4,20.313rem)] gap-x-[2.25rem] gap-y-[5rem] mt-[3.75rem] pb-[5rem]"
           style={{ overflow: 'visible' }}
         >
           {steps.map((step) => (
@@ -196,7 +195,7 @@ export default function StepsBoard({
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className="flex flex-col mt-6 min-h-[0.625rem]"
+                      className="mt-6 space-y-3"
                       style={{ overflow: 'visible' }}
                     >
                       {step.tasks.map((task, idx) => (
@@ -209,7 +208,7 @@ export default function StepsBoard({
                             <div
                               ref={provided.innerRef}
                               {...provided.draggableProps}
-                              className={`mb-3 last:mb-0 transition-all duration-200 ${snapshot.isDragging ? 'opacity-50 z-50' : ''}`}
+                              className={`transition-all duration-200 ${snapshot.isDragging ? 'opacity-50 z-50' : ''}`}
                               style={{
                                 ...provided.draggableProps.style,
                                 width: '325px',
@@ -237,7 +236,7 @@ export default function StepsBoard({
 
                       {provided.placeholder}
 
-                      <div className="mt-2">
+                      <div className="mt-6">
                         <AddTaskButton
                           stepId={step.stepId}
                           stepName={step.stepName}
