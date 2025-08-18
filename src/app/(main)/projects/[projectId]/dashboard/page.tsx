@@ -7,6 +7,7 @@ import ToggleButton from '@/components/ToggleButton';
 import StepsBoard from '@/features/boards/StepsBoard';
 import StatusBoard from '@/features/boards/StatusBoard';
 import { useGetDashboard } from '@/hooks/queries/useGetDashboard';
+import { useGetProjectIsCompleted } from '@/hooks/queries/projects/useGetProject';
 import { useWebSocket } from '@/contexts/WebSocketContext';
 import {
   SubEventType,
@@ -48,6 +49,11 @@ export default function DashboardPage() {
 
   // 프로젝트 ID 파라미터 가져오기
   const { projectId } = useParams() as { projectId: string };
+
+  // 프로젝트 종료 여부 조회
+  const { data: isCompleted, isLoading: isStatusLoading } = useGetProjectIsCompleted(
+    parseInt(projectId)
+  );
 
   // 웹소켓 훅 사용
   const { socket, subscribe, unsubscribe, isConnected } = useWebSocket();
@@ -226,8 +232,8 @@ export default function DashboardPage() {
   // 현재 표시할 데이터 결정 (필터링된 데이터 또는 원본 데이터)
   const displayData = isFiltered ? filteredData : dashboardData;
 
-  // 로딩 상태 처리
-  if (isLoading) {
+  // 로딩 상태 처리 (프로젝트 상태도 함께 체크)
+  if (isLoading || isStatusLoading) {
     return (
       <div className="min-h-screen w-full bg-white flex items-center justify-center">
         <div className="text-lg">로딩 중...</div>
@@ -299,6 +305,7 @@ export default function DashboardPage() {
             <StepsBoard
               steps={displayData && 'steps' in displayData ? displayData.steps : []}
               projectId={projectId}
+              isCompleted={Boolean(isCompleted?.result?.isCompleted)}
             />
           ) : (
             <StatusBoard
@@ -306,6 +313,7 @@ export default function DashboardPage() {
                 displayData && 'statusGroups' in displayData ? displayData.statusGroups : []
               }
               projectId={projectId}
+              isCompleted={Boolean(isCompleted?.result?.isCompleted)}
             />
           )}
         </div>

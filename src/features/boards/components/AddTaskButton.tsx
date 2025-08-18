@@ -6,15 +6,19 @@ interface AddTaskButtonProps {
   stepId: number;
   stepName: string;
   className?: string;
+  isCompleted: boolean;
 }
 
-export default function AddTaskButton({ stepId, className = '' }: AddTaskButtonProps) {
+export default function AddTaskButton({ stepId, className = '', isCompleted }: AddTaskButtonProps) {
   const createTaskMutation = useCreateTask();
   const router = useRouter();
   const params = useParams();
   const projectId = params.projectId as string;
 
   const handleClick = async () => {
+    // 프로젝트가 종료된 경우 업무 추가 비활성화
+    if (isCompleted) return;
+
     try {
       const response = await createTaskMutation.mutateAsync(stepId);
 
@@ -30,9 +34,11 @@ export default function AddTaskButton({ stepId, className = '' }: AddTaskButtonP
 
   return (
     <button
-      className={`flex bg-[#FFFFFF] text-[#898989] w-[20.313rem] h-[2.75rem] items-center justify-center rounded-[0.5rem] text-[1rem] cursor-pointer border border-[#BBBBBB] ${className}`}
+      className={`flex bg-[#FFFFFF] text-[#898989] w-[20.313rem] h-[2.75rem] items-center justify-center rounded-[0.5rem] text-[1rem] border border-[#BBBBBB] ${
+        isCompleted ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#F8F8F8] cursor-pointer'
+      } ${className}`}
       onClick={handleClick}
-      disabled={createTaskMutation.isPending}
+      disabled={createTaskMutation.isPending || isCompleted}
     >
       + 업무 추가
     </button>
