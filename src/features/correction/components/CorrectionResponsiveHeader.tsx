@@ -22,14 +22,14 @@ const CorrectionResponsiveHeader: React.FC = () => {
         pathname.includes('analyzing') ||
         pathname.includes('analyzeFin')) && (
         <div className="flex ml-[632px] mt-[10px] items-center w-[344px]">
-          <img src="/icons/EnterAnalyze.svg" alt="기업 정보 분석" />
+          <img src="/icons/EnterAnalyze.svg" alt="기업 분석 정보" />
           <p className="w-[40px] h-[2px] bg-[#BBBBBB] m-[12px] min-w-[40px]" />
           <img src="/icons/ProjectSelectOff.svg" alt="프로젝트 선택" />
         </div>
       )}
       {pathname.includes('projectSelect') && (
         <div className="flex ml-[632px] mt-[10px] items-center w-[344px]">
-          <img src="/icons/EnterAnalyzeOff.svg" alt="기업 정보 분석" />
+          <img src="/icons/EnterAnalyzeOff.svg" alt="기업 분석 정보" />
           <p className="w-[40px] h-[2px] bg-[#BBBBBB] m-[12px] min-w-[40px]" />
           <img src="/icons/ProjectSelect.svg" alt="프로젝트 선택" />
         </div>

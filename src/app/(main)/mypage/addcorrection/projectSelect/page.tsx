@@ -195,8 +195,8 @@ function ProjectSelectContent() {
   };
   return (
     <div
-      className="ml-[300px]
-    max-lg:ml-[24px]"
+      className="ml-[140px]
+    max-lg:ml-[0px]"
     >
       <div className="flex flex-col items-center">
         <div
