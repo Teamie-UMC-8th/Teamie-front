@@ -102,7 +102,7 @@ export default function Navbar() {
 
   return (
     <nav
-      className="w-full border-b-[0.125rem] border-[#E7E7E7] bg-white h-[3.625rem] z-10 relative"
+      className="w-full border-b-[0.125rem] border-[#E7E7E7] bg-white h-[3.625rem] z-10 fixed top-0 left-0"
       ref={navbarRef}
     >
       <div className="flex items-center h-full pl-[1.313rem] min-w-[1024px]">

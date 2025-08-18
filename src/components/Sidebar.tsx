@@ -22,7 +22,7 @@ export default function Sidebar() {
   const menuItems = menus[activeMenu];
 
   return (
-    <aside className="w-[4.125rem] lg:w-[11.563rem] h-full bg-[#F8F8F8] border-r-[0.125rem] border-[#E7E7E7] flex flex-col py-[0.25rem] px-[0.125rem]">
+    <aside className="w-[4.125rem] lg:w-[11.563rem] h-full bg-[#F8F8F8] border-r-[0.125rem] border-[#E7E7E7] flex flex-col py-[0.25rem] px-[0.125rem] fixed left-0 top-[3.625rem] z-10">
       <nav className="flex flex-col text-[1.125rem]">
         {menuItems.map((item) => {
           let href = '';

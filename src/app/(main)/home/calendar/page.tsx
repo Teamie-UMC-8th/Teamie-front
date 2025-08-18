@@ -2,8 +2,8 @@ import Image from 'next/image';
 
 export default function CalendarPage() {
   return (
-    <div className="flex flex-col items-center h-screen">
-      <div className="mt-[25vh] flex flex-col items-center">
+    <div className="flex flex-col items-center h-full">
+      <div className="mt-[20vh] flex flex-col items-center">
         <Image
           src="/icons/constructionTeamie.svg"
           alt="공사중"
