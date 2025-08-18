@@ -123,7 +123,7 @@ export default function ProjectHomePage() {
       </div>
       {/* 게시판, 업데이트 */}
       <div
-        className="flex mt-[68px] gap-[29px]
+        className="flex mt-[68px] gap-[29px] ml-[40px]
       max-lg:ml-[24px] max-lg:flex-col"
       >
         <div className="flex-col">
@@ -167,7 +167,7 @@ export default function ProjectHomePage() {
       </div>
       {/* 팀 목표, 규칙 */}
       <div
-        className="flex mt-[80px] gap-[42px]
+        className="flex mt-[80px] gap-[42px] ml-[40px]
       max-lg:flex-col max-lg:ml-[24px]"
       >
         <TextField
@@ -247,7 +247,7 @@ export default function ProjectHomePage() {
       </div>
       {/* 팀원 프로필 */}
       <div
-        className="mt-[82px] w-[1416px]
+        className="mt-[82px] w-[1416px] ml-[40px]
       max-lg:ml-[24px]"
       >
         <div
