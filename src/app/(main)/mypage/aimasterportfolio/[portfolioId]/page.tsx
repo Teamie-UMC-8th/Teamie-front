@@ -69,7 +69,7 @@ function CategorySelector({
     <div className="flex items-center gap-[28px]">
       <div className={STYLES.tag}>분류</div>
       <div className="relative">
-        <div
+        <button
           className="flex items-center gap-[20px] cursor-pointer"
           onClick={() => setIsOpen(!isOpen)}
         >
@@ -86,7 +86,7 @@ function CategorySelector({
             height={24}
             className={isOpen ? 'rotate-180' : ''}
           />
-        </div>
+        </button>
         {isOpen && (
           <ul className="absolute top-[40px] left-0 z-10 w-[104px] bg-white rounded-[8px] shadow-[0_0_15px_rgba(0,0,0,0.2)] px-[12px] py-[10px] flex flex-col gap-[8px]">
             {CATEGORY_LIST.map((option) => (

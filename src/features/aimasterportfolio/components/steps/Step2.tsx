@@ -138,7 +138,7 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
                           : 'bg-[#F8F8F8] border border-transparent'
                       }`}
                     >
-                      <div className="pl-[12px] w-[395px] h-[46px] p-2 rounded-[4px] border border-[#E7E7E7] bg-white text-black text-[18px] leading-[26px] font-normal tracking-[0.72px] flex items-center justify-start text-center">
+                      <div className="pl-[12px] w-[395px] max-lg:w-[387px] h-[46px] max-lg:h-[40px] p-2 rounded-[4px] border border-[#E7E7E7] bg-white text-black text-[18px] leading-[26px] font-normal tracking-[0.72px] flex items-center justify-start text-center">
                         {record.name}
                       </div>
 
@@ -157,7 +157,7 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
                         </div>
 
                         <div
-                          className="relative group flex-9 rounded-[4px] border border-[#E7E7E7] bg-white text-black text-[14px] leading-[22px] font-normal tracking-[0.56px] whitespace-pre-wrap px-[12px] py-[4px] overflow-hidden"
+                          className=" max-lg:w-[387px] max-lg:h-[79px] relative group flex-9 rounded-[4px] border border-[#E7E7E7] bg-white text-black text-[14px] leading-[22px] font-normal tracking-[0.56px] whitespace-pre-wrap px-[12px] py-[4px] overflow-hidden"
                           style={{
                             display: '-webkit-box',
                             WebkitLineClamp: 3,
