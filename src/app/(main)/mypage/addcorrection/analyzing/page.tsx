@@ -35,6 +35,38 @@ function AiLoadingPageContent() {
     };
   }, []);
 
+  // 상태 변화 콘솔 반영
+  useEffect(() => {
+    console.log('[Analyzing][state] companyName:', companyName || '(empty)');
+  }, [companyName]);
+
+  useEffect(() => {
+    if (!keywords || keywords.length === 0) {
+      console.log('[Analyzing][state] keywords: (empty)');
+    } else {
+      console.log('[Analyzing][state] keywords:', keywords);
+    }
+  }, [keywords]);
+
+  useEffect(() => {
+    if (!links || links.length === 0) {
+      console.log('[Analyzing][state] links: (empty)');
+    } else {
+      console.log('[Analyzing][state] links count:', links.length, links);
+    }
+  }, [links]);
+
+  useEffect(() => {
+    const preview = (companyInsight || '').slice(0, 160);
+    console.log(
+      '[Analyzing][state] companyInsight length:',
+      (companyInsight || '').length,
+      'preview:',
+      preview,
+      '...'
+    );
+  }, [companyInsight]);
+
   useEffect(() => {
     const scrollContainer = scrollContainerRef.current;
     if (!scrollContainer) return;
@@ -178,6 +210,7 @@ function AiLoadingPageContent() {
               })
               .filter((v): v is { title: string; url: string } => !!v && !!v.url);
             setLinks(normalized);
+            console.log('[Analyzing][prefetch] links normalized count:', normalized.length);
           }
           if (
             parsed.insight &&
@@ -201,6 +234,7 @@ function AiLoadingPageContent() {
           if (hasReadyPrefetch) {
             // 네트워크 재호출은 줄이되 최신 회사 인사이트는 항상 새로 조회해야 하므로 조기 종료하지 않음
             loadedFromPrefetchRef.current = true;
+            console.log('[Analyzing][prefetch] applied from session cache');
           }
         }
       }
@@ -266,6 +300,7 @@ function AiLoadingPageContent() {
               })
               .filter((v): v is { title: string; url: string } => !!v && !!v.url);
             setLinks(normalized);
+            console.log('[Analyzing] RAG links normalized count:', normalized.length);
           }
         })
         .catch((error) => {
@@ -301,6 +336,7 @@ function AiLoadingPageContent() {
     const nextUrl =
       `/myPage/addCorrection/projectSelect?correctionId=${correctionId}` +
       (companyName ? `&submissionTarget=${encodeURIComponent(companyName)}` : '');
+    console.log('[Analyzing] navigating to projectSelect:', { nextUrl });
     router.push(nextUrl);
   };
 
@@ -311,6 +347,10 @@ function AiLoadingPageContent() {
     const correctionId = idParam ? Number(idParam) : NaN;
     try {
       if (correctionId) {
+        console.log('[Analyzing] temporary save triggered:', {
+          correctionId,
+          companyInsightLength: companyInsight.length,
+        });
         // 임시저장 시에만 기업 분석 정보 수정 API 호출
         await patchCompanyInsight(correctionId, { companyInsight });
         lastSavedRef.current = companyInsight;
@@ -334,6 +374,9 @@ function AiLoadingPageContent() {
       // 포커스 아웃 시 서버 저장하지 않음 (임시저장 버튼에서만 저장)
       if (value === lastSavedRef.current) return;
       lastSavedRef.current = value;
+      console.log('[Analyzing] insight blur updated lastSavedRef:', {
+        length: value.length,
+      });
     } catch (err) {
       console.error('[Analyzing] blur save failed:', err);
     }

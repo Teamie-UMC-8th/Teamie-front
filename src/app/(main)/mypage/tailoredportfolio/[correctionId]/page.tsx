@@ -432,7 +432,7 @@ function TailoredPortfolioContent() {
             className="w-[1400px] rounded-[8px] border border-[#E7E7E7] bg-white mt-[12px] px-[40px] py-[28px] flex
           max-lg:w-[856px] max-lg:flex-col"
           >
-            <div className="w-[620px] text-[18px] mt-[8px] max-lg:text-[16px] max-lg:w-[784px]">
+            <div className="w-[620px] text-[18px] mt-[8px] max-lg:text-[16px] max-lg:w-[784px] leading-[34px]">
               {(
                 currentCorrection?.correctionResult?.detailInfo?.lines ||
                 ([] as GeneratedLineItem[])
@@ -471,7 +471,7 @@ function TailoredPortfolioContent() {
               max-lg:w-[784px]"
               >
                 <div className="text-[16px] font-semibold mb-[6px]">항목 총평</div>
-                <div className="text-[18px] leading-[26px] whitespace-pre-line">
+                <div className="text-[18px] leading-[34px] whitespace-pre-line">
                   {currentCorrection?.correctionResult?.detailInfo?.field_summary || ''}
                 </div>
               </div>
@@ -485,11 +485,9 @@ function TailoredPortfolioContent() {
                     if (v) setDetailConcreteOn(false);
                   }}
                 />
-                <div className="flex ml-[16px]">
-                  <div className="bg-[#EF7C7C] w-[4px] h-[34px] rounded-l-[4px]"></div>
-                  <div className="w-[189px] h-[34px] bg-[#D846460D] px-[12px] py-[4px] rounded-r-[4px]">
-                    <p className="text-[18px]">축소하거나 제외하세요.</p>
-                  </div>
+                <div className="flex items-center ml-[16px] h-[34px] w-[193px] rounded-[4px] overflow-hidden bg-[#D846460D]">
+                  <div className="bg-[#EF7C7C] w-[4px] h-full"></div>
+                  <p className="text-[18px] px-[12px]">축소하거나 제외하세요.</p>
                 </div>
               </div>
 
@@ -509,7 +507,7 @@ function TailoredPortfolioContent() {
                           <span className="w-[24px] text-[#EF7C7C] font-semibold mr-[12px]">
                             {idx + 1}.
                           </span>
-                          <p className="text-[18px] leading-[28px]">{text}</p>
+                          <p className="text-[18px] leading-[34px]">{text}</p>
                         </div>
                       );
                     })
@@ -517,7 +515,7 @@ function TailoredPortfolioContent() {
                   return items.length > 0 ? (
                     items
                   ) : (
-                    <p className="text-[18px] leading-[28px] text-[#505050] ml-[8px]">
+                    <p className="text-[18px] leading-[34px] text-[#505050] ml-[8px]">
                       -- 첨삭 내용이 없습니다
                     </p>
                   );
@@ -534,11 +532,9 @@ function TailoredPortfolioContent() {
                     if (v) setDetailReduceOn(false);
                   }}
                 />
-                <div className="flex ml-[16px]">
-                  <div className="bg-[#97D099] w-[4px] h-[34px] rounded-l-[4px]"></div>
-                  <div className="w-[260px] h-[34px] bg-[#97D0991A] px-[12px] py-[4px] rounded-r-[4px]">
-                    <p className="text-[18px]">내용을 더 구체화하여 강조하세요.</p>
-                  </div>
+                <div className="flex items-center ml-[16px] h-[34px] w-[264px] rounded-[4px] overflow-hidden bg-[#97D0991A]">
+                  <div className="bg-[#97D099] w-[4px] h-full"></div>
+                  <p className="text-[18px] px-[12px]">내용을 더 구체화하여 강조하세요.</p>
                 </div>
               </div>
 
@@ -558,7 +554,7 @@ function TailoredPortfolioContent() {
                           <span className="w-[24px] text-[#97D099] font-semibold mr-[12px]">
                             {idx + 1}.
                           </span>
-                          <p className="text-[18px] leading-[28px]">{text}</p>
+                          <p className="text-[18px] leading-[34px]">{text}</p>
                         </div>
                       );
                     })
@@ -566,7 +562,7 @@ function TailoredPortfolioContent() {
                   return items.length > 0 ? (
                     items
                   ) : (
-                    <p className="text-[18px] leading-[28px] text-[#505050] ml-[8px]">
+                    <p className="text-[18px] leading-[34px] text-[#505050] ml-[8px]">
                       -- 첨삭 내용이 없습니다
                     </p>
                   );
@@ -581,12 +577,12 @@ function TailoredPortfolioContent() {
           className="mt-[40px]
         max-lg:mt-[32px]"
         >
-          <div className="text-[18px] font-semibold">담당 업무</div>
+          <div className="h-[34px] leading-[34px] text-[18px] font-semibold">담당 업무</div>
           <div
             className="w-[1400px] rounded-[8px] border border-[#E7E7E7] bg-white mt-[12px] px-[40px] py-[28px] flex
           max-lg:w-[856px] max-lg:flex-col"
           >
-            <div className="w-[620px] text-[18px] mt-[8px] max-lg:text-[16px] max-lg:w-[784px]">
+            <div className="w-[620px] text-[18px] mt-[8px] max-lg:text-[16px] max-lg:w-[784px] leading-[34px]">
               {(
                 currentCorrection?.correctionResult?.assignedTasks?.lines ||
                 ([] as GeneratedLineItem[])
@@ -624,7 +620,7 @@ function TailoredPortfolioContent() {
               max-lg:w-[784px]"
               >
                 <div className="text-[16px] font-semibold mb-[6px]">항목 총평</div>
-                <div className="text-[18px] leading-[22px] whitespace-pre-line">
+                <div className="text-[18px] leading-[34px] whitespace-pre-line">
                   {currentCorrection?.correctionResult?.assignedTasks?.field_summary || ''}
                 </div>
               </div>
@@ -638,11 +634,9 @@ function TailoredPortfolioContent() {
                     if (v) setTasksConcreteOn(false);
                   }}
                 />
-                <div className="flex ml-[16px]">
-                  <div className="bg-[#EF7C7C] w-[4px] h-[34px] rounded-l-[4px]"></div>
-                  <div className="w-[189px] h-[34px] bg-[#D846460D] px-[12px] py-[4px] rounded-r-[4px]">
-                    <p className="text-[18px]">축소하거나 제외하세요.</p>
-                  </div>
+                <div className="flex items-center ml-[16px] h-[34px] w-[193px] rounded-[4px] overflow-hidden bg-[#D846460D]">
+                  <div className="bg-[#EF7C7C] w-[4px] h-full"></div>
+                  <p className="text-[18px] px-[12px]">축소하거나 제외하세요.</p>
                 </div>
               </div>
 
@@ -662,7 +656,7 @@ function TailoredPortfolioContent() {
                           <span className="w-[24px] text-[#EF7C7C] font-semibold mr-[12px]">
                             {idx + 1}.
                           </span>
-                          <p className="text-[18px] leading-[28px]">{text}</p>
+                          <p className="text-[18px] leading-[34px]">{text}</p>
                         </div>
                       );
                     })
@@ -670,7 +664,7 @@ function TailoredPortfolioContent() {
                   return items.length > 0 ? (
                     items
                   ) : (
-                    <p className="text-[18px] leading-[28px] text-[#505050] ml-[8px]">
+                    <p className="text-[18px] leading-[34px] text-[#505050] ml-[8px]">
                       -- 첨삭 내용이 없습니다
                     </p>
                   );
@@ -687,11 +681,9 @@ function TailoredPortfolioContent() {
                     if (v) setTasksReduceOn(false);
                   }}
                 />
-                <div className="flex ml-[16px]">
-                  <div className="bg-[#97D099] w-[4px] h-[34px] rounded-l-[4px]"></div>
-                  <div className="w-[260px] h-[34px] bg-[#97D0991A] px-[12px] py-[4px] rounded-r-[4px]">
-                    <p className="text-[18px]">내용을 더 구체화하여 강조하세요.</p>
-                  </div>
+                <div className="flex items-center ml-[16px] h-[34px] w-[264px] rounded-[4px] overflow-hidden bg-[#97D0991A]">
+                  <div className="bg-[#97D099] w-[4px] h-full"></div>
+                  <p className="text-[18px] px-[12px]">내용을 더 구체화하여 강조하세요.</p>
                 </div>
               </div>
 
@@ -711,7 +703,7 @@ function TailoredPortfolioContent() {
                           <span className="w-[24px] text-[#97D099] font-semibold mr-[12px]">
                             {idx + 1}.
                           </span>
-                          <p className="text-[18px] leading-[28px]">{text}</p>
+                          <p className="text-[18px] leading-[34px]">{text}</p>
                         </div>
                       );
                     })
@@ -719,7 +711,7 @@ function TailoredPortfolioContent() {
                   return items.length > 0 ? (
                     items
                   ) : (
-                    <p className="text-[18px] leading-[28px] text-[#505050] ml-[8px]">
+                    <p className="text-[18px] leading-[34px] text-[#505050] ml-[8px]">
                       -- 첨삭 내용이 없습니다
                     </p>
                   );
@@ -739,7 +731,7 @@ function TailoredPortfolioContent() {
             className="w-[1400px] rounded-[8px] border border-[#E7E7E7] bg-white mt-[12px] px-[40px] py-[28px] flex
           max-lg:w-[856px] max-lg:flex-col"
           >
-            <div className="w-[620px] text-[18px] mt-[8px] max-lg:text-[16px] max-lg:w-[784px]">
+            <div className="w-[620px] text-[18px] mt-[8px] max-lg:text-[16px] max-lg:w-[784px] leading-[34px]">
               {(
                 currentCorrection?.correctionResult?.keyAchievements?.lines ||
                 ([] as GeneratedLineItem[])
@@ -777,7 +769,7 @@ function TailoredPortfolioContent() {
               max-lg:w-[784px]"
               >
                 <div className="text-[16px] font-semibold mb-[6px]">항목 총평</div>
-                <div className="text-[18px] leading-[26px] whitespace-pre-line">
+                <div className="text-[18px] leading-[34px] whitespace-pre-line">
                   {currentCorrection?.correctionResult?.keyAchievements?.field_summary || ''}
                 </div>
               </div>
@@ -791,11 +783,9 @@ function TailoredPortfolioContent() {
                     if (v) setAchConcreteOn(false);
                   }}
                 />
-                <div className="flex ml-[16px]">
-                  <div className="bg-[#EF7C7C] w-[4px] h-[34px] rounded-l-[4px]"></div>
-                  <div className="w-[189px] h-[34px] bg-[#D846460D] px-[12px] py-[4px] rounded-r-[4px]">
-                    <p className="text-[18px]">축소하거나 제외하세요.</p>
-                  </div>
+                <div className="flex items-center ml-[16px] h-[34px] w-[193px] rounded-[4px] overflow-hidden bg-[#D846460D]">
+                  <div className="bg-[#EF7C7C] w-[4px] h-full"></div>
+                  <p className="text-[18px] px-[12px]">축소하거나 제외하세요.</p>
                 </div>
               </div>
 
@@ -815,7 +805,7 @@ function TailoredPortfolioContent() {
                           <span className="w-[24px] text-[#EF7C7C] font-semibold mr-[12px]">
                             {idx + 1}.
                           </span>
-                          <p className="text-[18px] leading-[28px]">{text}</p>
+                          <p className="text-[18px] leading-[34px]">{text}</p>
                         </div>
                       );
                     })
@@ -840,11 +830,9 @@ function TailoredPortfolioContent() {
                     if (v) setAchReduceOn(false);
                   }}
                 />
-                <div className="flex ml-[16px]">
-                  <div className="bg-[#97D099] w-[4px] h-[34px] rounded-l-[4px]"></div>
-                  <div className="w-[260px] h-[34px] bg-[#97D0991A] px-[12px] py-[4px] rounded-r-[4px]">
-                    <p className="text-[18px]">내용을 더 구체화하여 강조하세요.</p>
-                  </div>
+                <div className="flex items-center ml-[16px] h-[34px] w-[264px] rounded-[4px] overflow-hidden bg-[#97D0991A]">
+                  <div className="bg-[#97D099] w-[4px] h-full"></div>
+                  <p className="text-[18px] px-[12px]">내용을 더 구체화하여 강조하세요.</p>
                 </div>
               </div>
 
@@ -864,7 +852,7 @@ function TailoredPortfolioContent() {
                           <span className="w-[24px] text-[#97D099] font-semibold mr-[12px]">
                             {idx + 1}.
                           </span>
-                          <p className="text-[18px] leading-[28px]">{text}</p>
+                          <p className="text-[18px] leading-[34px]">{text}</p>
                         </div>
                       );
                     })
@@ -872,7 +860,7 @@ function TailoredPortfolioContent() {
                   return items.length > 0 ? (
                     items
                   ) : (
-                    <p className="text-[18px] leading-[28px] text-[#505050] ml-[8px]">
+                    <p className="text-[18px] leading-[34px] text-[#505050] ml-[8px]">
                       -- 첨삭 내용이 없습니다
                     </p>
                   );
@@ -887,12 +875,12 @@ function TailoredPortfolioContent() {
           className="mt-[40px]
         max-lg:mt-[32px]"
         >
-          <div className="text-[18px] font-semibold">배운 점</div>
+          <div className=" text-[18px] font-semibold">배운 점</div>
           <div
             className="w-[1400px] rounded-[8px] border border-[#E7E7E7] bg-white mt-[12px] px-[40px] py-[28px] flex
           max-lg:w-[856px] max-lg:flex-col"
           >
-            <div className="w-[620px] text-[18px] mt-[8px] max-lg:text-[16px] max-lg:w-[784px]">
+            <div className="w-[620px] text-[18px] mt-[8px] max-lg:text-[16px] max-lg:w-[784px] leading-[34px]">
               {(
                 currentCorrection?.correctionResult?.insights?.lines || ([] as GeneratedLineItem[])
               ).map((ln: GeneratedLineItem, idx) => {
@@ -929,7 +917,7 @@ function TailoredPortfolioContent() {
               max-lg:w-[784px]"
               >
                 <div className="text-[16px] font-semibold mb-[6px]">항목 총평</div>
-                <div className="text-[18px] leading-[26px] whitespace-pre-line">
+                <div className="text-[18px] leading-[34px] whitespace-pre-line">
                   {currentCorrection?.correctionResult?.insights?.field_summary || ''}
                 </div>
               </div>
@@ -943,11 +931,9 @@ function TailoredPortfolioContent() {
                     if (v) setInsConcreteOn(false);
                   }}
                 />
-                <div className="flex ml-[16px]">
-                  <div className="bg-[#EF7C7C] w-[4px] h-[34px] rounded-l-[4px]"></div>
-                  <div className="w-[189px] h-[34px] bg-[#D846460D] px-[12px] py-[4px] rounded-r-[4px]">
-                    <p className="text-[18px]">축소하거나 제외하세요.</p>
-                  </div>
+                <div className="flex items-center ml-[16px] h-[34px] w-[193px] rounded-[4px] overflow-hidden bg-[#D846460D]">
+                  <div className="bg-[#EF7C7C] w-[4px] h-full"></div>
+                  <p className="text-[18px] px-[12px]">축소하거나 제외하세요.</p>
                 </div>
               </div>
 
@@ -967,7 +953,7 @@ function TailoredPortfolioContent() {
                           <span className="w-[24px] text-[#EF7C7C] font-semibold mr-[12px]">
                             {idx + 1}.
                           </span>
-                          <p className="text-[18px] leading-[28px]">{text}</p>
+                          <p className="text-[18px] leading-[34px]">{text}</p>
                         </div>
                       );
                     })
@@ -975,7 +961,7 @@ function TailoredPortfolioContent() {
                   return items.length > 0 ? (
                     items
                   ) : (
-                    <p className="text-[18px] leading-[28px] text-[#505050] ml-[8px]">
+                    <p className="text-[18px] leading-[34px] text-[#505050] ml-[8px]">
                       -- 첨삭 내용이 없습니다
                     </p>
                   );
@@ -992,11 +978,9 @@ function TailoredPortfolioContent() {
                     if (v) setInsReduceOn(false);
                   }}
                 />
-                <div className="flex ml-[16px]">
-                  <div className="bg-[#97D099] w-[4px] h-[34px] rounded-l-[4px]"></div>
-                  <div className="w-[260px] h-[34px] bg-[#97D0991A] px-[12px] py-[4px] rounded-r-[4px]">
-                    <p className="text-[18px]">내용을 더 구체화하여 강조하세요.</p>
-                  </div>
+                <div className="flex items-center ml-[16px] h-[34px] w-[264px] rounded-[4px] overflow-hidden bg-[#97D0991A]">
+                  <div className="bg-[#97D099] w-[4px] h-full"></div>
+                  <p className="text-[18px] px-[12px]">내용을 더 구체화하여 강조하세요.</p>
                 </div>
               </div>
 
@@ -1016,7 +1000,7 @@ function TailoredPortfolioContent() {
                           <span className="w-[24px] text-[#97D099] font-semibold mr-[12px]">
                             {idx + 1}.
                           </span>
-                          <p className="text-[18px] leading-[28px]">{text}</p>
+                          <p className="text-[18px] leading-[34px]">{text}</p>
                         </div>
                       );
                     })
@@ -1024,7 +1008,7 @@ function TailoredPortfolioContent() {
                   return items.length > 0 ? (
                     items
                   ) : (
-                    <p className="text-[18px] leading-[28px] text-[#505050] ml-[8px]">
+                    <p className="text-[18px] leading-[34px] text-[#505050] ml-[8px]">
                       -- 첨삭 내용이 없습니다
                     </p>
                   );

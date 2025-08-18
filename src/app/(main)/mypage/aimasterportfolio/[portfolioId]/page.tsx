@@ -280,7 +280,7 @@ export default function MasterPortfolioDetail() {
             <div className="w-[1492px] max-lg:w-[928px] h-auto rounded-[16px] bg-[#F8F8F8] shadow-[0_0_8px_rgba(0,0,0,0.25)] p-[40px] max-lg:px-[28px] py-[40px] flex flex-col gap-[28px] max-lg:gap-[53px]">
               {/* 상세 정보 */}
               <div className="flex w-full max-lg:flex-col max-lg:gap-[8px] relative group">
-                <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
+                <div className="w-full lg:flex-[0.6] h-[34px] text-[18px] leading-[34px] font-semibold text-[#000000] whitespace-nowrap">
                   상세 정보
                 </div>
                 <div
@@ -299,7 +299,7 @@ export default function MasterPortfolioDetail() {
 
               {/* 담당 업무 */}
               <div className="flex w-full max-lg:flex-col max-lg:gap-[8px] relative group">
-                <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
+                <div className="w-full lg:flex-[0.6] h-[34px] text-[18px] leading-[34px] font-semibold text-[#000000] whitespace-nowrap">
                   담당 업무
                 </div>
                 <div
@@ -318,7 +318,7 @@ export default function MasterPortfolioDetail() {
 
               {/* 주요 성과 */}
               <div className="flex w-full max-lg:flex-col max-lg:gap-[8px] relative group">
-                <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
+                <div className="w-full lg:flex-[0.6] h-[34px] text-[18px] leading-[34px] font-semibold text-[#000000] whitespace-nowrap">
                   주요 성과
                 </div>
                 <div
@@ -337,7 +337,7 @@ export default function MasterPortfolioDetail() {
 
               {/* 배운 점 */}
               <div className="flex w-full max-lg:flex-col max-lg:gap-[8px] relative group">
-                <div className="w-full lg:flex-[0.6] text-[18px] font-semibold text-[#000000] whitespace-nowrap">
+                <div className="w-full lg:flex-[0.6] h-[34px] text-[18px] leading-[34px] font-semibold text-[#000000] whitespace-nowrap">
                   배운 점
                 </div>
                 <div
