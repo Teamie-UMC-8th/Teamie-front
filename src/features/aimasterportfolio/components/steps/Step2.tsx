@@ -104,7 +104,7 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
         제가 참고할 회의록을 모두 선택하셨다면, 생성을 시작할게요!
       </div>
 
-      <div className="w-fit self-center flex flex-col justify-center items-center border-[2px] border-[#81D7D4] bg-[#DAF3F3] rounded-[100px] py-[16px] px-[36px]">
+      <div className="w-fit self-center flex flex-col justify-center items-center border-[2px] border-[#81D7D4] bg-[#DAF3F3]/25 rounded-[100px] py-[16px] px-[36px]">
         <h3 className="text-[#000000] text-[20px] max-lg:text-[18px] leading-[28px] max-lg:leading-[26px] font-normal tracking-[0.8px]">
           생성 시 최대 <strong>{length * 10 + 100} Credit</strong>이 사용됩니다
         </h3>
@@ -138,11 +138,11 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
                           : 'bg-[#F8F8F8] border border-transparent'
                       }`}
                     >
-                      <div className="pl-[12px] w-[395px] max-lg:w-[387px] h-[46px] max-lg:h-[40px] p-2 rounded-[4px] border border-[#E7E7E7] bg-white text-black text-[18px] leading-[26px] font-normal tracking-[0.72px] flex items-center justify-start text-center">
+                      <div className="pl-[12px] w-[395px] max-lg:w-[387px] h-[46px] max-lg:h-[40px] p-2 rounded-[4px] border border-[#E7E7E7] bg-white text-black text-[18px] leading-[26px] font-normal tracking-[0.72px] flex items-center justify-start text-center mb-[16px]">
                         {record.name}
                       </div>
 
-                      <div className="w-full flex gap-[14px] mt-[8px]">
+                      <div className="w-full flex gap-[14px] mb-[12px]">
                         <div className="flex-1 text-[#898989] text-[14px] leading-[22px] font-normal tracking-[0.56px]">
                           일자
                         </div>
@@ -151,13 +151,13 @@ export default function Step2({ selectedIds = [], onChangeSelectedIds }: Step2Pr
                         </div>
                       </div>
 
-                      <div className="w-[395px] h-[83px] flex gap-[8px] mt-[8px]">
+                      <div className="w-[395px] h-[83px]  max-lg:w-[387px] max-lg:h-[79px] flex gap-[8px] rounded-[4px]">
                         <div className="flex-1 text-[#898989] text-[14px] leading-[22px] font-normal tracking-[0.56px] whitespace-pre">
                           회의록
                         </div>
 
                         <div
-                          className=" max-lg:w-[387px] max-lg:h-[79px] relative group flex-9 rounded-[4px] border border-[#E7E7E7] bg-white text-black text-[14px] leading-[22px] font-normal tracking-[0.56px] whitespace-pre-wrap px-[12px] py-[4px] overflow-hidden"
+                          className="relative group flex-9 rounded-[4px] border border-[#E7E7E7] bg-white text-black text-[14px] leading-[22px] font-normal tracking-[0.56px] whitespace-pre-wrap px-[12px] py-[4px] overflow-hidden"
                           style={{
                             display: '-webkit-box',
                             WebkitLineClamp: 3,
