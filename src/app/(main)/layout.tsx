@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const showSidebar =
-    !pathname.includes('/new') && !pathname.includes('/mypage') && !pathname.includes('/join');
+    !pathname.includes('/new') && !pathname.includes('/myPage') && !pathname.includes('/join');
 
   return (
     <div className="bg-white overflow-x-hidden">
