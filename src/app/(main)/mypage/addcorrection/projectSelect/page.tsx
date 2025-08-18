@@ -2,7 +2,7 @@
 
 import Projects from '@/features/myPage/components/Projects';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useCallback, useMemo, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import AddLoadingModal from '@/features/correction/components/AddLoadingModal';
 import {
   fetchGeneratedCorrection,
@@ -30,6 +30,32 @@ function ProjectSelectContent() {
     }
   }, [correctionIdFromQuery]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedCount, setSelectedCount] = useState<number>(0);
+
+  const readSelectedCount = useCallback(() => {
+    try {
+      const raw = sessionStorage.getItem('projectSelect:selected');
+      const arr = raw ? (JSON.parse(raw) as unknown) : [];
+      return Array.isArray(arr) ? arr.length : 0;
+    } catch {
+      return 0;
+    }
+  }, []);
+
+  useEffect(() => {
+    setSelectedCount(readSelectedCount());
+  }, [readSelectedCount]);
+
+  // 카드 내부 클릭이 stopPropagation되어도 즉시 반영되도록 캡처 단계에서 감지
+  useEffect(() => {
+    const update = () => setTimeout(() => setSelectedCount(readSelectedCount()), 0);
+    document.addEventListener('click', update, true);
+    document.addEventListener('keyup', update, true);
+    return () => {
+      document.removeEventListener('click', update, true);
+      document.removeEventListener('keyup', update, true);
+    };
+  }, [readSelectedCount]);
 
   // 선택된 항목 읽기: portfolioId 배열, projectId 배열, 그리고 매핑 쌍
   const getSelectedPortfolioIds = (): number[] => {
@@ -258,6 +284,8 @@ function ProjectSelectContent() {
                 <div
                   className="border border-[#898989] rounded-[12px] w-[1008px] h-[506px] mt-[24px] px-[24px] py-[24px] overflow-y-auto
                 max-lg:mt-[50px] max-lg:w-[521px] max-lg:h-[512px] max-lg:px-[28px] max-lg:py-[24px] max-lg:ml-[57px]"
+                  onClick={() => setTimeout(() => setSelectedCount(readSelectedCount()), 0)}
+                  onKeyUp={() => setTimeout(() => setSelectedCount(readSelectedCount()), 0)}
                 >
                   <Projects />
                 </div>
@@ -279,7 +307,10 @@ function ProjectSelectContent() {
             />
             <button
               onClick={handleGenerate}
-              className="absolute top-[36px] ml-[50px] z-10 px-[40px] py-[4px] bg-[#81D7D4] rounded-[6px] flex items-center gap-[8px] text-[18px] font-bold text-white"
+              className={`absolute top-[36px] ml-[50px] z-10 px-[40px] py-[4px] rounded-[6px] flex items-center gap-[8px] text-[18px] font-bold text-white ${
+                selectedCount > 0 ? 'bg-[#81D7D4] cursor-pointer' : 'bg-[#BAE5E4]'
+              }`}
+              disabled={selectedCount === 0}
             >
               <span className="relative block w-[32px] h-[32px]">
                 <Image

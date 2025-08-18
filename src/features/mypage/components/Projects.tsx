@@ -277,7 +277,7 @@ export default function Projects() {
                       <div
                         className={`text-[16px] truncate flex-1 px-1 py-1 rounded transition-colors text-left h-6 flex items-center ${
                           isUpdating
-                            ? 'cursor-not-allowed opacity-50'
+                            ? ' opacity-50'
                             : isProjectSelectPage
                               ? 'cursor-default'
                               : 'cursor-pointer hover:bg-gray-100'
