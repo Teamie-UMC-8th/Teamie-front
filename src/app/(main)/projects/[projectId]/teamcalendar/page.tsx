@@ -361,7 +361,7 @@ export default function TeamCalendar() {
         >
           팀 캘린더
         </h2>
-        <hr className=" w-[1500px] border-t-[2px] border-[#E7E7E7] rotate-180 mb-[44px] -ml-[15px]" />
+        <hr className=" w-[1490px] border-t-[2px] border-[#E7E7E7] rotate-180 mb-[44px] -ml-[15px]" />
       </div>
 
       {/* 월 네비게이션 */}
@@ -424,7 +424,7 @@ export default function TeamCalendar() {
             />
           ),
           event: (props) => (
-            <div className="relative z-[60] pointer-events-auto">
+            <div className="relative z-[90] pointer-events-auto">
               <CalendarEventBox {...props} />
             </div>
           ), // ✅ 커스텀 일정 카드 디자인 - 클릭 가능 보장
@@ -442,7 +442,7 @@ export default function TeamCalendar() {
               color: '#000000',
               borderRadius: '4px',
               position: 'relative',
-              zIndex: 60,
+              zIndex: 90,
             },
           };
         }}
