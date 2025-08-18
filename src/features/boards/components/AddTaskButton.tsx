@@ -34,8 +34,8 @@ export default function AddTaskButton({ stepId, className = '', isCompleted }: A
 
   return (
     <button
-      className={`flex bg-[#FFFFFF] text-[#898989] w-[20.313rem] h-[2.75rem] items-center justify-center rounded-[0.5rem] text-[1rem] cursor-pointer border border-[#BBBBBB] ${
-        isCompleted ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#F8F8F8]'
+      className={`flex bg-[#FFFFFF] text-[#898989] w-[20.313rem] h-[2.75rem] items-center justify-center rounded-[0.5rem] text-[1rem] border border-[#BBBBBB] ${
+        isCompleted ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#F8F8F8] cursor-pointer'
       } ${className}`}
       onClick={handleClick}
       disabled={createTaskMutation.isPending || isCompleted}
