@@ -308,6 +308,41 @@ export default function TeamCalendar() {
 
   const formattedTitle = moment(currentDate).format('YYYY년 M월');
 
+  // 현재 월의 주 수 계산 (5주 또는 6주)
+  const weeksInMonth = useMemo(() => {
+    const firstDayOfMonth = moment(currentDate).startOf('month');
+    const lastDayOfMonth = moment(currentDate).endOf('month');
+
+    // 첫 번째 주의 시작일 (일요일)
+    const firstWeekStart = firstDayOfMonth.clone().startOf('week');
+    // 마지막 주의 끝일 (토요일)
+    const lastWeekEnd = lastDayOfMonth.clone().endOf('week');
+
+    // 주 수 계산
+    const weeks = lastWeekEnd.diff(firstWeekStart, 'weeks') + 1;
+    return weeks;
+  }, [currentDate]);
+
+  // 캘린더 높이 동적 계산 (기본 높이 208px 고정)
+  const calendarHeight = useMemo(() => {
+    const weekHeight = 208; // 각 주의 높이 (208px 고정)
+    const headerHeight = 40; // 요일 헤더 높이
+    const totalHeight = weeksInMonth * weekHeight + headerHeight;
+
+    return totalHeight;
+  }, [weeksInMonth]);
+
+  // 캘린더 높이 디버깅
+  useEffect(() => {
+    console.log('캘린더 정보:', {
+      month: formattedTitle,
+      weeksInMonth,
+      calendarHeight: `${calendarHeight}px`,
+      weekHeight: '208px (고정)',
+      headerHeight: '40px',
+    });
+  }, [formattedTitle, weeksInMonth, calendarHeight]);
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[500px] text-lg">
@@ -326,7 +361,7 @@ export default function TeamCalendar() {
         >
           팀 캘린더
         </h2>
-        <hr className=" w-[1500px] border-t-[2px] border-[#E7E7E7] rotate-180 mb-[44px] -ml-[10px]" />
+        <hr className=" w-[1500px] border-t-[2px] border-[#E7E7E7] rotate-180 mb-[44px] -ml-[15px]" />
       </div>
 
       {/* 월 네비게이션 */}
@@ -371,7 +406,12 @@ export default function TeamCalendar() {
         date={currentDate}
         showAllEvents={true}
         onNavigate={() => {}} // 기본 이동 비활성화 (커스텀 버튼 사용 중)
-        style={{ height: 'calc(100vh - 300px)', backgroundColor: 'white' }}
+        style={{
+          width: '1400px',
+          height: `${calendarHeight}px`,
+          backgroundColor: 'white',
+          margin: '32px',
+        }}
         components={{
           dateCellWrapper: (props) => (
             <CustomDateCellWrapper

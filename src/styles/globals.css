@@ -106,3 +106,17 @@
 .rbc-date-cell {
   overflow: visible !important;
 }
+
+/* 각 주(row) */
+.rbc-month-row {
+  height: auto !important; /* 일정에 따라 자동 높이 조정 */
+}
+
+/* 날짜 셀 */
+.rbc-date-cell {
+  min-width: 200px !important; /* 가로 고정 */
+}
+
+.rbc-month-view {
+  height: auto; /* 달력 전체 높이 자동 */
+}
