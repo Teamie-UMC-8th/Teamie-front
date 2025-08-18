@@ -12,7 +12,7 @@ const CorrectionResponsiveHeader: React.FC = () => {
     >
       {/* navbar 내용 */}
       <div className="flex items-center mt-[24px] ml-[24px]">
-        <Link href="/myPage">
+        <Link href="/myPage?tab=ai">
           <img src="/icons/arrow-left.svg" alt="뒤로가기" className="cursor-pointer mr-[12px]" />
         </Link>
         <p className="text-[18px]">돌아가기</p>

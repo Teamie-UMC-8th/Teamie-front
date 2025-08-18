@@ -14,7 +14,7 @@ const CorrectionSidebar: React.FC = () => {
       style={{ boxShadow: '4px 0px 3px 0px #0000000D' }}
     >
       <div className="flex items-center ml-[152px] mt-[80px]">
-        <Link href="/myPage">
+        <Link href="/myPage?tab=ai">
           <Image
             src="/icons/arrow-left.svg"
             alt="뒤로가기"

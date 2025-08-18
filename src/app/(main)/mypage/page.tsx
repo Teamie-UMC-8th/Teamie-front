@@ -9,9 +9,28 @@ import { useUser, useUpdateUserProfile } from '@/hooks/mutations/useUser';
 import ProfileImageUpload from '@/features/myPage/components/ProfileImageUpload';
 import EditableField from '@/features/myPage/components/EditableField';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function MyPage() {
-  const { selected, setSelected } = useToggle();
+  const searchParams = useSearchParams();
+  const tab = (searchParams.get('tab') || '').toLowerCase();
+  const [initialTab, setInitialTab] = useState<'project' | 'ai'>('project');
+  const { selected, setSelected } = useToggle(initialTab);
+
+  // 클라이언트 사이드에서 localStorage 접근
+  useEffect(() => {
+    const savedTab = localStorage.getItem('myPageTab') as 'project' | 'ai' | null;
+    const newInitial = tab === 'ai' ? 'ai' : savedTab || 'project';
+    setInitialTab(newInitial);
+    setSelected(newInitial);
+  }, [tab, setSelected]);
+
+  // 토글 상태를 localStorage에 저장
+  useEffect(() => {
+    localStorage.setItem('myPageTab', selected);
+  }, [selected]);
+
   const { data, isLoading, error } = useUser();
   const updateUserProfile = useUpdateUserProfile();
   const { isUpgraded, setIsUpgraded } = useAuth(); // AuthContext에서 pro 업그레이드 상태와 설정 함수 가져오기
