@@ -19,7 +19,7 @@ function AiLoadingPageContent() {
   const router = useRouter();
   const [companyName, setCompanyName] = useState<string>('');
   const [keywords, setKeywords] = useState<string[]>([]);
-  const [links, setLinks] = useState<{ name: string; url: string }[]>([]);
+  const [links, setLinks] = useState<{ title: string; url: string }[]>([]);
   const [companyInsight, setCompanyInsight] = useState<string>('');
   const [showToast, setShowToast] = useState<boolean>(false);
   const lastIdRef = useRef<number | null>(null);
@@ -146,25 +146,37 @@ function AiLoadingPageContent() {
                   if (typeof raw === 'string') {
                     const url = new URL(raw);
                     const hostname = url.hostname.replace(/^www\./, '');
-                    return { name: hostname, url: raw };
+                    return { title: hostname, url: raw };
                   }
-                  if (raw && typeof raw === 'object' && 'name' in raw && 'url' in raw) {
-                    return {
-                      name: String((raw as Record<string, unknown>)?.name),
-                      url: String((raw as Record<string, unknown>)?.url),
-                    };
+                  if (raw && typeof raw === 'object') {
+                    if ('title' in raw && 'url' in raw) {
+                      return {
+                        title: String((raw as Record<string, unknown>)?.title),
+                        url: String((raw as Record<string, unknown>)?.url),
+                      };
+                    }
+                    if ('name' in raw && 'url' in raw) {
+                      return {
+                        title: String((raw as Record<string, unknown>)?.name),
+                        url: String((raw as Record<string, unknown>)?.url),
+                      };
+                    }
                   }
                 } catch {
                   return typeof raw === 'string'
-                    ? { name: '', url: raw }
+                    ? { title: '', url: raw }
                     : {
-                        name: String((raw as Record<string, unknown>)?.name || ''),
+                        title: String(
+                          (raw as Record<string, unknown>)?.title ||
+                            (raw as Record<string, unknown>)?.name ||
+                            ''
+                        ),
                         url: String((raw as Record<string, unknown>)?.url || ''),
                       };
                 }
                 return null;
               })
-              .filter((v): v is { name: string; url: string } => !!v && !!v.url);
+              .filter((v): v is { title: string; url: string } => !!v && !!v.url);
             setLinks(normalized);
           }
           if (
@@ -223,22 +235,36 @@ function AiLoadingPageContent() {
                   if (typeof raw === 'string') {
                     const url = new URL(raw);
                     const hostname = url.hostname.replace(/^www\./, '');
-                    return { name: hostname, url: raw };
+                    return { title: hostname, url: raw };
                   }
-                  if (raw && typeof raw === 'object' && 'name' in raw && 'url' in raw) {
-                    return { name: String(raw.name), url: String(raw.url) };
+                  if (
+                    raw &&
+                    typeof raw === 'object' &&
+                    (('title' in raw && 'url' in raw) || ('name' in raw && 'url' in raw))
+                  ) {
+                    const obj = raw as { title?: unknown; name?: unknown; url?: unknown };
+                    return {
+                      title: String(
+                        (obj.title as string | undefined) || (obj.name as string | undefined) || ''
+                      ),
+                      url: String(obj.url as string | undefined),
+                    };
                   }
                 } catch {
                   return typeof raw === 'string'
-                    ? { name: '', url: raw }
+                    ? { title: '', url: raw }
                     : {
-                        name: String((raw as Record<string, unknown>)?.name || ''),
+                        title: String(
+                          (raw as Record<string, unknown>)?.title ||
+                            (raw as Record<string, unknown>)?.name ||
+                            ''
+                        ),
                         url: String((raw as Record<string, unknown>)?.url || ''),
                       };
                 }
                 return null;
               })
-              .filter((v): v is { name: string; url: string } => !!v && !!v.url);
+              .filter((v): v is { title: string; url: string } => !!v && !!v.url);
             setLinks(normalized);
           }
         })
@@ -416,21 +442,20 @@ function AiLoadingPageContent() {
                 max-lg:w-[608px]"
                     >
                       <div className="flex flex-col gap-[12px]">
-                        {(links.length > 0
-                          ? links
-                          : [{ name: '사이트명', url: '사이트 주소주소주소' }]
-                        ).map((item, idx) => (
-                          <a
-                            key={`${item.url}-${idx}`}
-                            href={item.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center"
-                          >
-                            <img src="/icons/URLIcon.svg" alt="URL 아이콘" className="mr-[8px]" />
-                            <p className="break-all">{`${item.name ? item.name + ' ' : ''}${item.url}`}</p>
-                          </a>
-                        ))}
+                        {(links.length > 0 ? links : [{ title: '사이트명', url: '주소' }]).map(
+                          (item, idx) => (
+                            <a
+                              key={`${item.url}-${idx}`}
+                              href={item.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center"
+                            >
+                              <img src="/icons/URLIcon.svg" alt="URL 아이콘" className="mr-[8px]" />
+                              <p className="break-all">{`${item.title ? item.title + ' ' : ''}${item.url}`}</p>
+                            </a>
+                          )
+                        )}
                       </div>
                     </div>
                   </div>
