@@ -95,7 +95,7 @@ export default function CustomDateCellWrapper({
 
   return (
     <div
-      className={`relative w-full h-full transition-all duration-200 rounded-[4px] overflow-visible ${hoverActive ? 'shadow-[0_0_10px_rgba(0,0,0,0.25)] cursor-pointer' : ''}`}
+      className={`relative w-full h-full transition-all duration-200 rounded-[4px] overflow-visible ${hoverActive ? 'shadow-[0_0_10px_rgba(0,0,0,0.25)] cursor-pointer z-[60]' : ''}`}
       onMouseEnter={() => {
         if (canShowPlusButton) setHovered(true);
       }}

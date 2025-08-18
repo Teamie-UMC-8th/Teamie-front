@@ -267,6 +267,9 @@ export default function TeamCalendar() {
   };
 
   const handlePrevMonth = () => {
+    // 프로젝트 생성일 이전 월로는 이동 불가
+    if (!canGoToPrevMonth) return;
+
     const [year, month, day] = [
       currentDate.getFullYear(),
       currentDate.getMonth(),
@@ -276,6 +279,21 @@ export default function TeamCalendar() {
     const prevYear = month === 0 ? year - 1 : year;
     setCurrentDate(new Date(prevYear, prevMonth, day));
   };
+
+  // 프로젝트 생성일 이후의 월만 조회 가능하도록 제한
+  const canGoToPrevMonth = useMemo(() => {
+    if (!projectCreatedAtISO) return true; // 생성일을 못 가져오면 제한 없음
+
+    // 현재 월의 시작일이 프로젝트 생성일 이전인지 확인
+    const currentMonthStart = moment(currentDate).startOf('month');
+    const isBeforeProjectCreation = moment(currentMonthStart).isBefore(
+      moment(projectCreatedAtISO),
+      'day'
+    );
+
+    // 프로젝트 생성일 이전 월이면 이동 불가
+    return !isBeforeProjectCreation;
+  }, [projectCreatedAtISO, currentDate]);
 
   const handleNextMonth = () => {
     const [year, month, day] = [
@@ -313,13 +331,19 @@ export default function TeamCalendar() {
 
       {/* 월 네비게이션 */}
       <div className="flex justify-start items-center font-semibold text-[20px] leading-[29px] text-black mb-[47px]">
-        <button onClick={handlePrevMonth}>
+        <button
+          onClick={handlePrevMonth}
+          disabled={!canGoToPrevMonth}
+          className={`flex items-center justify-center ${
+            canGoToPrevMonth ? 'cursor-pointer opacity-100' : 'cursor-not-allowed opacity-30'
+          }`}
+        >
           <Image
             src="/icons/Vector-left.svg"
             alt="왼쪽"
             width={24}
             height={24}
-            className="w-[24px] h-[24px] cursor-pointer"
+            className="w-[24px] h-[24px]"
           />
         </button>
         <span className="mx-4">{formattedTitle}</span>
