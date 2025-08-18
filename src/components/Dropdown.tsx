@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { ReactNode } from 'react';
+import { ReactNode, Fragment } from 'react';
 
 interface DropdownItem {
   label: string;
@@ -29,7 +29,7 @@ export default function Dropdown({
   items,
   className = '',
   dropdownClassName = '',
-  width = 'w-[16rem]',
+  width = 'w-[16rem]', // 요청하신 대로 원상 복구
 }: DropdownProps) {
   return (
     <div className={`relative ${className}`}>
@@ -40,56 +40,62 @@ export default function Dropdown({
       {isOpen && (
         <ul
           data-dropdown-menu
-          className={`absolute mt-[0.75rem] bg-white rounded-[0.5rem] shadow-[0_0_15px_rgba(0,0,0,0.2)] z-20 ${dropdownClassName}`}
+          // rem 대신 px 단위를 사용하여 패딩을 지정합니다. (0.3125rem = 5px)
+          className={`absolute mt-[0.75rem] bg-white rounded-[0.5rem] shadow-[0_0_15px_rgba(0,0,0,0.2)] z-20 ${dropdownClassName} flex flex-col p-[5px]`}
         >
           {items.map((item, index) => (
-            <li key={index} className="mx-[0.25rem] my-[0.25rem]">
-              {item.onClick && !item.href ? (
-                // onClick만 있는 경우 (로그아웃 등) - button으로 렌더링
-                <button
-                  onClick={() => {
-                    onToggle();
-                    item.onClick?.();
-                  }}
-                  className={`block cursor-pointer hover:bg-[#E7E7E7] px-[1rem] py-[0.5rem] ${width} text-[#505050] text-[1.125rem] whitespace-nowrap flex items-center h-[2.625rem] text-left`}
-                >
-                  {item.icon && (
-                    <Image
-                      src={item.icon}
-                      alt={item.label}
-                      className="mr-[0.75rem] rounded-full"
-                      width={24}
-                      height={24}
-                    />
-                  )}
-                  {item.label}
-                </button>
-              ) : (
-                // href가 있는 경우 (프로젝트 이동 등) - Link로 렌더링하고 onClick도 실행
-                <Link
-                  href={item.href}
-                  onClick={() => {
-                    onToggle();
-                    item.onClick?.(); // onClick이 있으면 실행
-                  }}
-                  className={`block hover:bg-[#E7E7E7] px-[1rem] py-[0.5rem] ${width} text-[#505050] text-[1.125rem] whitespace-nowrap flex items-center h-[2.625rem]`}
-                >
-                  {item.icon && (
-                    <Image
-                      src={item.icon}
-                      alt={item.label}
-                      className="mr-[0.75rem] rounded-full"
-                      width={24}
-                      height={24}
-                    />
-                  )}
-                  {item.label}
-                </Link>
-              )}
+            <Fragment key={index}>
+              {/* 메뉴 아이템 */}
+              <li className="h-[40px]">
+                {item.onClick && !item.href ? (
+                  <button
+                    onClick={() => {
+                      onToggle();
+                      item.onClick?.();
+                    }}
+                    className={`flex h-full cursor-pointer items-center whitespace-nowrap rounded-[0.375rem] px-[1rem] text-left text-[1.125rem] text-[#505050] hover:bg-[#E7E7E7] ${width}`}
+                  >
+                    {item.icon && (
+                      <Image
+                        src={item.icon}
+                        alt={item.label}
+                        className="mr-[0.75rem] rounded-full"
+                        width={24}
+                        height={24}
+                      />
+                    )}
+                    {item.label}
+                  </button>
+                ) : (
+                  <Link
+                    href={item.href}
+                    onClick={() => {
+                      onToggle();
+                      item.onClick?.();
+                    }}
+                    className={`flex h-full items-center whitespace-nowrap rounded-[0.375rem] px-[1rem] text-[1.125rem] text-[#505050] hover:bg-[#E7E7E7] ${width}`}
+                  >
+                    {item.icon && (
+                      <Image
+                        src={item.icon}
+                        alt={item.label}
+                        className="mr-[0.75rem] rounded-full"
+                        width={24}
+                        height={24}
+                      />
+                    )}
+                    {item.label}
+                  </Link>
+                )}
+              </li>
+
+              {/* 구분선 */}
               {index < items.length - 1 && (
-                <div className="mx-[0.25rem] my-[0.25rem] h-[0.125rem] bg-[#BBBBBB]"></div>
+                <div className="h-[10px] flex items-center justify-center">
+                  <div className="h-[1px] rounded-full bg-[#BBBBBB] w-full mx-[3px]"></div>
+                </div>
               )}
-            </li>
+            </Fragment>
           ))}
         </ul>
       )}
