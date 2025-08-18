@@ -22,7 +22,6 @@ import CompanyInsightProcessModal from '@/features/correction/components/Company
 import { useMasterPortfolioList } from '@/hooks/queries/useGetMasterPortfolio';
 import type { MasterPortfolio } from '@/types/api/masterportfolio';
 import { CATEGORY_MAP } from '@/constants/category';
-import { formatDateRange } from '@/utils/formatDate';
 
 function TailoredPortfolioContent() {
   const params = useParams();
@@ -111,8 +110,31 @@ function TailoredPortfolioContent() {
     return list.find((m) => (m.projectName || '').trim() === selectedName);
   })();
 
+  const formatDateRangeFull = (start?: string, end?: string): string => {
+    try {
+      const startDate = new Date(String(start || ''));
+      const endDate = new Date(String(end || ''));
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        return `${String(start || '')} ~ ${String(end || '')}`.trim();
+      }
+      const pad = (n: number) => String(n).padStart(2, '0');
+      const startStr = `${startDate.getFullYear()}.${pad(startDate.getMonth() + 1)}.${pad(
+        startDate.getDate()
+      )}`;
+      const endStr = `${endDate.getFullYear()}.${pad(endDate.getMonth() + 1)}.${pad(
+        endDate.getDate()
+      )}`;
+      return `${startStr} ~ ${endStr}`;
+    } catch {
+      return `${String(start || '')} ~ ${String(end || '')}`.trim();
+    }
+  };
+
   const durationLabel = selectedMaster
-    ? formatDateRange(String(selectedMaster.startDate || ''), String(selectedMaster.endDate || ''))
+    ? formatDateRangeFull(
+        String(selectedMaster.startDate || ''),
+        String(selectedMaster.endDate || '')
+      )
     : '';
   const categoryLabel = selectedMaster
     ? CATEGORY_MAP[(selectedMaster.category as keyof typeof CATEGORY_MAP) || 'OTHER']?.label ||
@@ -378,42 +400,52 @@ function TailoredPortfolioContent() {
         max-lg:w-[928px] max-lg:h-[4325px] max-lg:p-[36px] max-lg:ml-[24px]"
         style={{ boxShadow: '0px 0px 4px 0px #00000033' }}
       >
-        <div className="flex flex-row items-center w-[1500px]">
-          <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] font-semibold text-[18px]">
-            진행 기간
-          </div>
-          <p className="text-black text-[20px] grid place-items-center ml-[28px]">
-            {durationLabel}
-          </p>
-          <div
-            className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[200px] mr-[8px] font-semibold text-[18px]
-          max-lg:ml-[229px]"
-          >
-            분류
-          </div>
-          <div className="ml-[28px] w-[160px]">
-            <span
-              className="inline-block text-[18px] px-[10px] py-[4px] rounded-[4px]"
-              style={{
-                backgroundColor:
-                  CATEGORY_MAP[(selectedMaster?.category as keyof typeof CATEGORY_MAP) || 'OTHER']
-                    ?.color || '#C8C8C8',
-              }}
-            >
-              {categoryLabel}
-            </span>
-          </div>
-          <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[200px] font-semibold text-[18px]">
-            기여도
-          </div>
-          <div className="ml-[28px] flex items-center">
-            <div className="bg-white border border-[#E7E7E7] rounded-[2px] w-[286px] h-[10px] max-lg:w-[248px]">
-              <div
-                className="bg-[#81D7D4] rounded-[2px] h-[8px]"
-                style={{ width: String(selectedMaster?.contributionRate || 0) + '%' }}
-              />
+        <div
+          className="flex items-center w-[1500px] 
+        max-lg:flex-col max-lg:items-start max-lg:gap-[40px]"
+        >
+          <div className="flex items-center">
+            <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] font-semibold text-[18px]">
+              진행 기간
             </div>
-            <span className="text-[20px] ml-[12px]">{contributionRateLabel}</span>
+            <p className="text-black text-[20px] grid place-items-center ml-[24px] w-[232px]">
+              {durationLabel}
+            </p>
+            <div
+              className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[200px] mr-[8px] font-semibold text-[18px]
+          max-lg:ml-[229px]"
+            >
+              분류
+            </div>
+            <div className="ml-[20px] w-[160px]">
+              <span
+                className="inline-block text-[16px] px-[12px] py-[4px] rounded-[4px] w-[80px] h-[32px]"
+                style={{
+                  backgroundColor:
+                    CATEGORY_MAP[(selectedMaster?.category as keyof typeof CATEGORY_MAP) || 'OTHER']
+                      ?.color || '#C8C8C8',
+                }}
+              >
+                {categoryLabel}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center">
+            <div
+              className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center rounded-[4px] gap-[10px] ml-[100px] font-semibold text-[18px]
+            max-lg:ml-0"
+            >
+              기여도
+            </div>
+            <div className="ml-[28px] flex items-center">
+              <div className="bg-white border border-[#E7E7E7] rounded-[2px] w-[286px] h-[18px] max-lg:w-[300px]">
+                <div
+                  className="bg-[#81D7D4] rounded-[2px] h-[18px]"
+                  style={{ width: String(selectedMaster?.contributionRate || 0) + '%' }}
+                />
+              </div>
+              <span className="text-[20px] ml-[12px]">{contributionRateLabel}</span>
+            </div>
           </div>
         </div>
         <div
