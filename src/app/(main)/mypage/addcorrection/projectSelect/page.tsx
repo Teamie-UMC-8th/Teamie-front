@@ -363,9 +363,10 @@ function ProjectSelectContent() {
             />
             <button
               onClick={handleGenerate}
-              className={`absolute top-[36px] ml-[50px] z-10 px-[40px] py-[4px] rounded-[6px] flex items-center gap-[8px] text-[18px] font-bold text-white ${
-                selectedCount > 0 ? 'bg-[#81D7D4] cursor-pointer' : 'bg-[#BAE5E4]'
-              }`}
+              className={`absolute top-[38px] ml-[50px] z-10 px-[40px] py-[4px] rounded-[6px] flex items-center gap-[8px] text-[18px] font-bold text-white
+                max-lg:top-[32px] max-lg:ml-[40px] max-lg:px-[30px] ${
+                  selectedCount > 0 ? 'bg-[#81D7D4] cursor-pointer' : 'bg-[#BAE5E4]'
+                }`}
               disabled={selectedCount === 0}
             >
               <span className="relative block w-[32px] h-[32px]">
