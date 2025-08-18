@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     if (!isLoading) {
       if (userData && !userError) {
         setIsAuthenticated(true);
-      } else {
+      } else if (userError) {
         setIsAuthenticated(false);
       }
     }
