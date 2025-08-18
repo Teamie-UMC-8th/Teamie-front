@@ -19,6 +19,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import MenuButton from '@/features/aiMasterPortfolio/components/MenuButton';
 import AIGenerationSection from '@/features/aiMasterPortfolio/components/AIGenerationSection';
 import LoadingModal from '@/features/aiMasterPortfolio/components/MasterLoadingModal';
+import Link from 'next/link';
 
 const STYLES = {
   tag: 'w-[99px] h-[37px] bg-[#DAF3F3] rounded-[4px] px-[18px] py-[6px] flex items-center justify-center font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-[#000000] whitespace-nowrap',
@@ -26,20 +27,15 @@ const STYLES = {
 } as const;
 
 function ProjectHeader({ title }: { title: string }) {
-  const router = useRouter();
   return (
     <div className="flex flex-col gap-[12px] px-[30px]">
       <div className="flex items-center gap-[20px] max-lg:gap-[8px]">
-        <button
-          onClick={() => router.push('/myPage')}
-          aria-label="뒤로가기"
-          className="cursor-pointer"
-        >
+        <Link href="/myPage" className="flex items-center gap-[8px] cursor-pointer">
           <Image src="/icons/arrow-left.svg" alt="뒤로가기" width={24} height={24} />
-        </button>
-        <h1 className="font-[Pretendard] font-bold text-[24px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap gap-[1437px]">
-          {title}
-        </h1>
+          <h1 className="font-[Pretendard] font-bold text-[24px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap">
+            {title}
+          </h1>
+        </Link>
         <MenuButton />
       </div>
     </div>
