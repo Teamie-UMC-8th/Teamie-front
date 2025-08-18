@@ -424,7 +424,7 @@ function AiLoadingPageContent() {
               <div
                 ref={scrollContainerRef}
                 className="absolute top-[40px] left-[0px] px-[94px] w-[1100px] h-[480px] overflow-y-auto
-              max-lg:px-[93px] max-lg:pt-[48px]"
+              max-lg:px-[93px] max-lg:pt-[48px] max-lg:w-[760px]"
               >
                 <div
                   className="mt-[-40px] pt-[50px]
@@ -451,8 +451,14 @@ function AiLoadingPageContent() {
                     <p className="mr-[4px]">검색을 진행할게요.</p>
                   </div>
                   <div className="flex">
-                    <div className="border-l-[2px] border-[#E7E7E7] ml-[4px] mr-[21px]" />
-                    <div className="mt-[6px] flex flex-wrap gap-[8px]">
+                    <div
+                      className="border-l-[2px] border-[#E7E7E7] ml-[4px] mr-[21px]
+"
+                    />
+                    <div
+                      className="mt-[6px] flex flex-wrap gap-[8px]
+                                        max-lg:w-[600px]"
+                    >
                       {(keywords && keywords.length > 0 ? keywords : ['검색어']).map(
                         (kw, idx, arr) => (
                           <div

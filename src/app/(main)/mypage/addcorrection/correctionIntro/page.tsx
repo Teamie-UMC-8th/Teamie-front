@@ -80,7 +80,7 @@ export default function CorrectionIntro() {
         </div>
         <div
           className="w-[1359px] h-auto pb-[40px] bg-[#F8F8F8] rounded-[16px] relative
-        max-lg:w-[928px] max-lg:h-[878px]"
+        max-lg:w-[928px] max-lg:h-[1068px]"
           style={{ boxShadow: '0px 0px 10px 0px #00000033' }}
         >
           <div
@@ -120,7 +120,10 @@ export default function CorrectionIntro() {
             </div>
           </div>
 
-          <div className="relative mt-[36px] ml-[560px] w-[770px] h-[600px]">
+          <div
+            className="relative mt-[36px] ml-[560px] w-[770px] h-[600px]
+            max-lg:ml-[150px] max-lg:mt-[16px] "
+          >
             <Image
               src="/icons/SubBubble.svg"
               alt="말풍선"
