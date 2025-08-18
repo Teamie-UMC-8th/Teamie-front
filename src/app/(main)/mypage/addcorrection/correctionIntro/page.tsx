@@ -101,13 +101,10 @@ export default function CorrectionIntro() {
             <img
               src="/icons/AiCharacter.svg"
               alt="AI 로고"
-              className="translate-y-[34px]
-            max-lg:w-[60px] max-lg:h-[60px] max-lg:translate-y-[32px]"
+              className="translate-y-[18px]
+            max-lg:w-[70px] max-lg:h-[70px] max-lg:translate-y-[32px]"
             />
-            <div
-              className="relative ml-[28px]
-            max-lg:ml-[8px]"
-            >
+            <div className="relative">
               <img src="/icons/TitleBubble.svg" alt="말풍선" className="block max-lg:hidden" />
               <img
                 src="/icons/ResponsiveTitleBubble.svg"

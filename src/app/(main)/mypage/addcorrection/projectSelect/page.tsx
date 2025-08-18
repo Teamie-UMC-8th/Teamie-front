@@ -302,16 +302,13 @@ function ProjectSelectContent() {
             <Image
               src="/icons/AiCharacter.svg"
               alt="AI 로고"
-              width={60}
-              height={60}
-              className="translate-y-[34px]
-            max-lg:w-[60px] max-lg:h-[60px] max-lg:translate-y-[32px]"
+              width={96}
+              height={96}
+              className="translate-y-[18px]
+            max-lg:w-[70px] max-lg:h-[70px] max-lg:translate-y-[32px]"
             />
 
-            <div
-              className="relative ml-[28px]
-            max-lg:ml-[8px]"
-            >
+            <div className="relative">
               <Image
                 src="/icons/ProjectSelectBubble.svg"
                 alt="로딩중 말풍선"
