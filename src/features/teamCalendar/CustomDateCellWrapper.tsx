@@ -95,7 +95,7 @@ export default function CustomDateCellWrapper({
 
   return (
     <div
-      className={`relative w-full h-full transition-all duration-200 rounded-[4px] overflow-visible ${hoverActive ? 'shadow-[0_0_10px_rgba(0,0,0,0.25)] cursor-pointer' : ''}`}
+      className={`relative w-full h-full transition-all duration-200 rounded-[4px] overflow-visible ${hoverActive ? 'shadow-[0_0_10px_rgba(0,0,0,0.25)] cursor-pointer z-[90px]' : ''}`}
       onMouseEnter={() => {
         if (canShowPlusButton) setHovered(true);
       }}
@@ -109,8 +109,8 @@ export default function CustomDateCellWrapper({
         if (hasData) {
           const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
           let y = e.clientY - rect.top;
-          // 셀 전체 영역에서 드래그 가능하도록 수정 (0부터 height까지)
-          y = Math.max(0, Math.min(y, rect.height));
+          // 셀 경계를 넘어서는 드롭 허용 (확장된 드롭 영역)
+          y = Math.max(-20, Math.min(y, rect.height + 20));
           setIndicatorY(y);
           setIsDragOver(true);
         }
@@ -125,8 +125,8 @@ export default function CustomDateCellWrapper({
           e.dataTransfer.dropEffect = 'move';
           const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
           let y = e.clientY - rect.top;
-          // 셀 전체 영역에서 드래그 가능하도록 수정 (0부터 height까지)
-          y = Math.max(0, Math.min(y, rect.height));
+          // 셀 경계를 넘어서는 드롭 허용 (확장된 드롭 영역)
+          y = Math.max(-20, Math.min(y, rect.height + 20));
           setIndicatorY(y);
           setIsDragOver(true);
         }

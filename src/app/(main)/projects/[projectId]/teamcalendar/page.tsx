@@ -443,6 +443,7 @@ export default function TeamCalendar() {
               borderRadius: '4px',
               position: 'relative',
               zIndex: 90,
+              marginBottom: '2px',
             },
           };
         }}
