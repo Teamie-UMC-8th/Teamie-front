@@ -5,6 +5,7 @@ export interface StepsBoardProps {
   steps: Step[];
   projectId: string;
   isCompleted: boolean;
+  onRefetchFilteredData?: () => void;
 }
 
 export interface StatusBoardProps {

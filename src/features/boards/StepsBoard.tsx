@@ -14,7 +14,12 @@ import CopyModal from '@/components/CopyModal';
 import Portal from '@/components/Portal';
 import Link from 'next/link';
 
-export default function StepsBoard({ steps, projectId, isCompleted }: StepsBoardProps) {
+export default function StepsBoard({
+  steps,
+  projectId,
+  isCompleted,
+  onRefetchFilteredData,
+}: StepsBoardProps) {
   const { openStepIds, toggleStep, openStep } = useSteps();
   const createStepMutation = useCreateStep();
   const deleteStepMutation = useDeleteStep();
@@ -55,10 +60,8 @@ export default function StepsBoard({ steps, projectId, isCompleted }: StepsBoard
   };
 
   // 복사될 링크 URL
-  const getTaskUrl = (taskId: number) => {
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-    return `${baseUrl}/projects/${projectId}/tasks/${taskId}`;
-  };
+  const getTaskUrl = (taskId: number) =>
+    `http://localhost:3000/projects/${projectId}/tasks/${taskId}`;
 
   // 클립보드에 복사될 순수 텍스트
   const getTextToCopy = (title: string, taskId: number) =>
@@ -78,6 +81,11 @@ export default function StepsBoard({ steps, projectId, isCompleted }: StepsBoard
       if (response.result?.stepId) {
         openStep(response.result.stepId);
       }
+
+      // 필터링된 상태라면 필터링된 데이터도 재페칭
+      if (onRefetchFilteredData) {
+        onRefetchFilteredData();
+      }
     } catch (error) {
       console.error('STEP 생성 실패:', error);
       alert('STEP 생성에 실패했습니다.');
@@ -96,6 +104,11 @@ export default function StepsBoard({ steps, projectId, isCompleted }: StepsBoard
     try {
       await deleteStepMutation.mutateAsync(stepId);
       // 성공 시 쿼리 무효화로 자동으로 데이터가 업데이트됩니다
+
+      // 필터링된 상태라면 필터링된 데이터도 재페칭
+      if (onRefetchFilteredData) {
+        onRefetchFilteredData();
+      }
     } catch (error) {
       console.error('STEP 삭제 실패:', error);
       alert('STEP 삭제에 실패했습니다.');
@@ -107,6 +120,11 @@ export default function StepsBoard({ steps, projectId, isCompleted }: StepsBoard
     try {
       await updateStepMutation.mutateAsync({ stepId, name: newName });
       // 성공 시 쿼리 무효화로 자동으로 데이터가 업데이트됩니다
+
+      // 필터링된 상태라면 필터링된 데이터도 재페칭
+      if (onRefetchFilteredData) {
+        onRefetchFilteredData();
+      }
     } catch (error) {
       console.error('STEP 이름 수정 실패:', error);
       throw error; // StepHeader에서 처리하도록 에러를 다시 던짐
@@ -115,9 +133,6 @@ export default function StepsBoard({ steps, projectId, isCompleted }: StepsBoard
 
   // 드래그가 끝났을 때 호출되는 함수
   const onDragEnd = async (result: DropResult) => {
-    // 프로젝트가 종료된 경우 DnD 비활성화
-    if (isCompleted) return;
-
     const { source, destination } = result;
 
     // 드롭할 위치가 없으면 아무것도 안 함
@@ -175,14 +190,13 @@ export default function StepsBoard({ steps, projectId, isCompleted }: StepsBoard
                 onUpdate={handleUpdateStepName}
                 isCompleted={isCompleted}
               />
-
               {openStepIds.includes(step.stepId) && (
-                <Droppable droppableId={step.stepId.toString()} isDropDisabled={isCompleted}>
+                <Droppable droppableId={step.stepId.toString()}>
                   {(provided) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className="mt-4 space-y-3"
+                      className="flex flex-col mt-6 min-h-[0.625rem]"
                       style={{ overflow: 'visible' }}
                     >
                       {step.tasks.map((task, idx) => (
@@ -190,7 +204,6 @@ export default function StepsBoard({ steps, projectId, isCompleted }: StepsBoard
                           key={`${step.stepId}-${task.taskId}`}
                           draggableId={task.taskId.toString()}
                           index={idx}
-                          isDragDisabled={isCompleted}
                         >
                           {(provided, snapshot) => (
                             <div
@@ -214,12 +227,7 @@ export default function StepsBoard({ steps, projectId, isCompleted }: StepsBoard
                                     name: manager.name,
                                     imageUrl: manager.imageUrl,
                                   }))}
-                                  isCompleted={isCompleted}
-                                  onTaskComplete={(taskId, title) => {
-                                    // 프로젝트가 종료된 경우 완료 처리 비활성화
-                                    if (isCompleted) return;
-                                    handleTaskComplete(taskId, title);
-                                  }}
+                                  onTaskComplete={handleTaskComplete}
                                 />
                               </div>
                             </div>
