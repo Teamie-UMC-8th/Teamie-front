@@ -81,6 +81,23 @@ function AiLoadingPageContent() {
     const correctionId = idParamStr ? Number(idParamStr) : NaN;
     if (!correctionId) return;
 
+    // 이 페이지를 마지막 방문 위치로 기록 (복귀 라우팅에 사용)
+    try {
+      // 인트로가 마지막 위치로 저장되어 있으면 우선권을 유지하고, 아니면 analyzing으로 기록
+      if (!sessionStorage.getItem('correctionIntro:last')) {
+        sessionStorage.setItem(`correctionReturn:${correctionId}`, 'analyzing');
+      }
+    } catch {}
+
+    // 언마운트될 때도 마지막 위치를 analyzing로 유지 (다른 페이지에서 덮어씌우지 않는 한)
+    return () => {
+      try {
+        if (!sessionStorage.getItem('correctionIntro:last')) {
+          sessionStorage.setItem(`correctionReturn:${correctionId}`, 'analyzing');
+        }
+      } catch {}
+    };
+
     // 다른 ID로 전환될 때 이전 상태 초기화
     if (lastIdRef.current !== correctionId) {
       console.log('[Analyzing] switching to new correctionId, clearing previous state:', {
@@ -102,14 +119,15 @@ function AiLoadingPageContent() {
       }
       // 보조 키: 생성 직전 저장했던 값이 있으면 최신값 유지
       const backup = sessionStorage.getItem('lastCorrectionCompanyName');
-      if (!companyNameFromQuery && backup) setCompanyName(backup);
+      if (!companyNameFromQuery && backup) setCompanyName(backup || '');
     } catch {}
 
     // 1) 세션스토리지 prefetch가 있으면 즉시 반영
     try {
-      const cached = sessionStorage.getItem(`analyzingPrefetch:${correctionId}`);
-      if (cached) {
-        const parsed = JSON.parse(cached) as {
+      const cached: string | null = sessionStorage.getItem(`analyzingPrefetch:${correctionId}`);
+      const cachedStr: string = cached ?? '';
+      if (cachedStr.length > 0) {
+        const parsed = JSON.parse(cachedStr) as {
           id: number;
           timestamp: number;
           detail: Awaited<ReturnType<typeof fetchCorrectionDetail>> | null;
@@ -117,10 +135,12 @@ function AiLoadingPageContent() {
           insight: Awaited<ReturnType<typeof fetchCompanyInsight>> | null;
         };
         if (parsed && parsed.id === correctionId) {
-          if (parsed.detail?.title) setCompanyName(parsed.detail.title);
-          if (parsed.rag?.keywords) setKeywords(parsed.rag.keywords);
-          if (Array.isArray(parsed.rag?.links)) {
-            const normalized = parsed.rag.links
+          const hasDetailTitle = !!(parsed.detail && (parsed.detail as { title?: string }).title);
+          if (hasDetailTitle) setCompanyName((parsed.detail as { title?: string }).title || '');
+          const hasRagKeywords = !!(parsed.rag && (parsed.rag as { keywords?: string[] }).keywords);
+          if (hasRagKeywords) setKeywords((parsed.rag as { keywords?: string[] }).keywords || []);
+          if (parsed.rag && Array.isArray((parsed.rag as { links?: unknown[] }).links)) {
+            const normalized = ((parsed.rag as { links?: unknown[] }).links || [])
               .map((raw) => {
                 try {
                   if (typeof raw === 'string') {
@@ -129,7 +149,10 @@ function AiLoadingPageContent() {
                     return { name: hostname, url: raw };
                   }
                   if (raw && typeof raw === 'object' && 'name' in raw && 'url' in raw) {
-                    return { name: String(raw.name), url: String(raw.url) };
+                    return {
+                      name: String((raw as Record<string, unknown>)?.name),
+                      url: String((raw as Record<string, unknown>)?.url),
+                    };
                   }
                 } catch {
                   return typeof raw === 'string'
@@ -144,18 +167,25 @@ function AiLoadingPageContent() {
               .filter((v): v is { name: string; url: string } => !!v && !!v.url);
             setLinks(normalized);
           }
-          if (typeof parsed.insight?.companyInsight === 'string') {
-            setCompanyInsight(parsed.insight.companyInsight);
+          if (
+            parsed.insight &&
+            typeof (parsed.insight as { companyInsight?: string }).companyInsight === 'string'
+          ) {
+            setCompanyInsight((parsed.insight as { companyInsight?: string }).companyInsight || '');
           }
 
           // prefetch에 필요한 모든 데이터가 이미 준비되었으면 네트워크 재호출 생략
           const hasReadyPrefetch =
-            Array.isArray(parsed.rag?.keywords) &&
-            parsed.rag!.keywords.length > 0 &&
-            Array.isArray(parsed.rag?.links) &&
-            parsed.rag!.links.length > 0 &&
-            typeof parsed.insight?.companyInsight === 'string' &&
-            parsed.insight.companyInsight.trim().length > 0;
+            !!(parsed.rag && Array.isArray((parsed.rag as { keywords?: unknown[] }).keywords)) &&
+            ((parsed.rag as { keywords?: unknown[] }).keywords || []).length > 0 &&
+            !!(parsed.rag && Array.isArray((parsed.rag as { links?: unknown[] }).links)) &&
+            ((parsed.rag as { links?: unknown[] }).links || []).length > 0 &&
+            !!(
+              parsed.insight &&
+              typeof (parsed.insight as { companyInsight?: string }).companyInsight === 'string'
+            ) &&
+            ((parsed.insight as { companyInsight?: string }).companyInsight || '').trim().length >
+              0;
           if (hasReadyPrefetch) {
             // 네트워크 재호출은 줄이되 최신 회사 인사이트는 항상 새로 조회해야 하므로 조기 종료하지 않음
             loadedFromPrefetchRef.current = true;

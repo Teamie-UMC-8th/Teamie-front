@@ -3,7 +3,7 @@
 import Projects from '@/features/myPage/components/Projects';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
-import AddLoadingModal from '@/features/correction/components/AddLoadingModal';
+import CorrectionLoadingModal from '@/features/correction/components/CorrectionLoadingModal';
 import {
   fetchGeneratedCorrection,
   postGenerateCorrection,
@@ -30,6 +30,7 @@ function ProjectSelectContent() {
     }
   }, [correctionIdFromQuery]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [startFromLast, setStartFromLast] = useState(false);
   const [selectedCount, setSelectedCount] = useState<number>(0);
 
   const readSelectedCount = useCallback(() => {
@@ -56,6 +57,17 @@ function ProjectSelectContent() {
       document.removeEventListener('keyup', update, true);
     };
   }, [readSelectedCount]);
+
+  // 이 페이지를 마지막 방문 위치로 기록 (사용자가 어디에서 떠났는지 복귀 시 활용)
+  useEffect(() => {
+    if (!Number.isFinite(correctionId) || correctionId <= 0) return;
+    try {
+      // 인트로가 마지막 위치로 저장되어 있으면 우선권을 유지하고, 아니면 projectSelect로 기록
+      if (!sessionStorage.getItem('correctionIntro:last')) {
+        sessionStorage.setItem(`correctionReturn:${correctionId}`, 'projectSelect');
+      }
+    } catch {}
+  }, [correctionId]);
 
   // 선택된 항목 읽기: portfolioId 배열, projectId 배열, 그리고 매핑 쌍
   const getSelectedPortfolioIds = (): number[] => {
@@ -162,8 +174,8 @@ function ProjectSelectContent() {
     }
   }, []);
 
-  const handleGenerate = async (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleGenerate = async (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
     const pairs = getSelectedPairs();
     const portfolioIds = pairs.map((p) => p.portfolioId);
     // 하위 호환: 만약 pairs가 비어있다면, 기존 방식 사용
@@ -171,6 +183,13 @@ function ProjectSelectContent() {
     if (!correctionId || (pairs.length === 0 && fallbackPortfolioIds.length === 0)) return;
     try {
       setIsGenerating(true);
+      setStartFromLast(false);
+      try {
+        sessionStorage.setItem(
+          'correctionGenerating',
+          JSON.stringify({ id: correctionId, startedAt: Date.now() })
+        );
+      } catch {}
       // hasMasterPortfolio를 기반으로 Projects에서 이미 필터링했으므로 그대로 projectId 사용
       const readyProjectIds = (
         pairs.length > 0 ? pairs.map((p) => p.projectId) : getSelectedProjectIds()
@@ -194,6 +213,10 @@ function ProjectSelectContent() {
       console.log('[UI][GENERATE] generated result ready, now wait for detail API to be readable');
       await waitUntilDetailReadable(correctionId);
       console.log('[UI][GENERATE] detail ready, navigate to tailored page');
+      try {
+        sessionStorage.removeItem('correctionGenerating');
+        sessionStorage.removeItem(`correctionReturn:${correctionId}`);
+      } catch {}
       const query = submissionTarget
         ? `?submissionTarget=${encodeURIComponent(submissionTarget)}`
         : '';
@@ -217,8 +240,44 @@ function ProjectSelectContent() {
         }${message ? `\n메시지: ${message}` : ''}`
       );
       setIsGenerating(false);
+      try {
+        sessionStorage.removeItem('correctionGenerating');
+      } catch {}
     }
   };
+
+  // 페이지 재진입 시 진행 중 상태라면 마지막 단계부터 로딩 모달 표시하며 재개
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('correctionGenerating');
+      if (!raw) return;
+      const obj = JSON.parse(raw) as { id?: number; startedAt?: number } | null;
+      if (!obj || !Number.isFinite(obj.id)) return;
+      const id = Number(obj.id);
+      if (!Number.isFinite(correctionId) || correctionId <= 0) return;
+      if (id !== correctionId) return;
+      // 재개
+      setIsGenerating(true);
+      setStartFromLast(true);
+      (async () => {
+        try {
+          await waitUntilGenerated(correctionId);
+          await waitUntilDetailReadable(correctionId);
+          try {
+            sessionStorage.removeItem('correctionGenerating');
+          } catch {}
+          const query = submissionTarget
+            ? `?submissionTarget=${encodeURIComponent(submissionTarget)}`
+            : '';
+          router.push(`/myPage/tailoredPortfolio/${correctionId}${query}`);
+        } catch (e) {
+          console.warn('[UI][GENERATE][RESUME] failed while waiting after resume', e);
+          setIsGenerating(false);
+        }
+      })();
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [correctionId]);
   return (
     <div
       className="ml-[140px]
@@ -329,11 +388,13 @@ function ProjectSelectContent() {
                   className="absolute inset-0 m-auto w-[24px] h-[24px] object-contain"
                 />
               </span>
-              <p>AI 지원 맞춤 포트폴리오 첨착 시작</p>
+              <p>AI 지원 맞춤 포트폴리오 첨삭 시작</p>
             </button>
           </div>
 
-          {isGenerating && <AddLoadingModal isOpen startFromLast payload={null} />}
+          {isGenerating && (
+            <CorrectionLoadingModal isOpen={true} startFromLast={startFromLast} payload={null} />
+          )}
         </div>
       </div>
     </div>

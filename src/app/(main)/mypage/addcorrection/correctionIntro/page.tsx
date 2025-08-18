@@ -3,7 +3,7 @@
 
 import CorrectionRequestStartButton from '@/features/correction/components/CorrectionRequestStartButton';
 import LoadingModal from '@/features/correction/components/AddLoadingModal';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useUser } from '@/hooks/mutations/useUser';
 // import { useRouter } from 'next/navigation';
 import { CreateCorrectionRequest } from '@/types/api/correction';
@@ -12,11 +12,25 @@ export default function CorrectionIntro() {
   // const router = useRouter();
   const formRef = useRef<HTMLDivElement>(null);
   const [isLoadingOpen, setIsLoadingOpen] = useState(false);
+  const [startFromLast, setStartFromLast] = useState(false);
   const [payload, setPayload] = useState<CreateCorrectionRequest | null>(null);
   const { data: currentUser } = useUser();
   const [companyName, setCompanyName] = useState('');
   const [jobTitle, setJobTitle] = useState('');
   const [jd, setJd] = useState('');
+
+  // 이 페이지를 마지막 방문 위치로 기록 (복귀 라우팅에 사용) + 모달 복구
+  useEffect(() => {
+    try {
+      sessionStorage.setItem('correctionIntro:last', 'true');
+      if (sessionStorage.getItem('correctionIntro:modal')) {
+        setIsLoadingOpen(true);
+        setStartFromLast(true);
+        // payload는 비워서 재생성 방지
+        setPayload(null);
+      }
+    } catch {}
+  }, []);
 
   const handleStart = () => {
     const company = companyName.trim();
@@ -41,6 +55,7 @@ export default function CorrectionIntro() {
       // analyzing, tailored에서 공통으로 사용할 기업명 캐시 저장
       // 생성 직전에 저장하여 이후 전 페이지에서 동일 기업명이 노출되도록 함
       sessionStorage.setItem('lastCorrectionCompanyName', company);
+      sessionStorage.setItem('correctionIntro:modal', 'true');
     } catch {}
     setPayload(payload);
     setIsLoadingOpen(true);
@@ -53,7 +68,7 @@ export default function CorrectionIntro() {
     max-lg:ml-[0px]"
     >
       <div className="flex flex-col items-center">
-        <LoadingModal isOpen={isLoadingOpen} payload={payload} />
+        <LoadingModal isOpen={isLoadingOpen} payload={payload} startFromLast={startFromLast} />
         <div
           className="w-[1323px] h-[52px] bg-[#E9F8F8] rounded-tl-[8px] rounded-tr-[8px] px-[24px] py-[12px] font-semibold text-[20px]
         max-lg:w-[908px]"

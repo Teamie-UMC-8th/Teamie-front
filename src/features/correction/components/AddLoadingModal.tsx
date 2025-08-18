@@ -214,6 +214,10 @@ export default function LoadingModal({
 
     const run = async () => {
       try {
+        // 모달 진입 플래그 설정(복귀 시 모달 상태 유지)
+        try {
+          sessionStorage.setItem('correctionIntro:modal', 'true');
+        } catch {}
         // 새로운 생성 시작 전에 이전 prefetch/마지막 ID 흔적 제거
         try {
           const keysToRemove: string[] = [];
@@ -275,6 +279,9 @@ export default function LoadingModal({
             payload.submissionTarget
           )}`
         );
+        try {
+          sessionStorage.removeItem('correctionIntro:modal');
+        } catch {}
       } catch (error) {
         console.error('[LoadingModal] failed during creation or RAG wait:', error);
         alert('첨삭 생성에 실패했습니다. 다시 시도해주세요.');

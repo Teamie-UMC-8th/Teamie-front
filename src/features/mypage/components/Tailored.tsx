@@ -50,6 +50,37 @@ export default function Tailored() {
           key={correction.correctionId}
           onClick={async (e) => {
             e.preventDefault();
+            // 인트로 모달이 실행 중이면 언제든 인트로(모달 유지)로 복귀
+            try {
+              if (sessionStorage.getItem('correctionIntro:modal')) {
+                router.push('/myPage/addCorrection/correctionIntro');
+                return;
+              }
+            } catch {}
+            // 진행 중 세션 플래그가 있으면 사용자가 떠나기 전 페이지로 복귀
+            try {
+              const raw = sessionStorage.getItem('correctionGenerating');
+              if (raw) {
+                const obj = JSON.parse(raw) as { id?: number } | null;
+                if (obj && Number(obj.id) === correction.correctionId) {
+                  // 모달 우선권 유지
+                  if (sessionStorage.getItem('correctionIntro:modal')) {
+                    router.push('/myPage/addCorrection/correctionIntro');
+                    return;
+                  }
+                  const last = sessionStorage.getItem(
+                    `correctionReturn:${correction.correctionId}`
+                  );
+                  const base = last === 'analyzing' ? 'analyzing' : 'projectSelect';
+                  router.push(
+                    `/myPage/addCorrection/${base}?correctionId=${correction.correctionId}&submissionTarget=${encodeURIComponent(
+                      correction.submissionTarget || ''
+                    )}`
+                  );
+                  return;
+                }
+              }
+            } catch {}
             // 1) 생성 결과가 이미 존재하면 상세 페이지로 이동 (우선순위 높음)
             try {
               const gen = await fetchGeneratedCorrection(correction.correctionId);
@@ -61,17 +92,25 @@ export default function Tailored() {
               ) {
                 try {
                   sessionStorage.removeItem(`analyzingPrefetch:${correction.correctionId}`);
+                  sessionStorage.removeItem('correctionIntro:last');
                 } catch {}
                 router.push(`/myPage/tailoredPortfolio/${correction.correctionId}`);
                 return;
               }
             } catch {}
 
-            // 2) 세션 캐시에 analyzing 프리패치가 남아있으면 이어서 진행
+            // 2) 세션 캐시에 analyzing 프리패치가 남아있으면 이전 페이지로 복귀
             try {
               if (sessionStorage.getItem(`analyzingPrefetch:${correction.correctionId}`)) {
+                // 모달 우선권 유지
+                if (sessionStorage.getItem('correctionIntro:modal')) {
+                  router.push('/myPage/addCorrection/correctionIntro');
+                  return;
+                }
+                const last = sessionStorage.getItem(`correctionReturn:${correction.correctionId}`);
+                const base = last === 'projectSelect' ? 'projectSelect' : 'analyzing';
                 router.push(
-                  `/myPage/addCorrection/analyzing?correctionId=${correction.correctionId}&submissionTarget=${encodeURIComponent(
+                  `/myPage/addCorrection/${base}?correctionId=${correction.correctionId}&submissionTarget=${encodeURIComponent(
                     correction.submissionTarget || ''
                   )}`
                 );
@@ -79,13 +118,20 @@ export default function Tailored() {
               }
             } catch {}
 
-            // 3) 서버 상태로 분기. 상세 조회에 status가 있다면 NOT_STARTED 등 진행 중으로 간주
+            // 3) 서버 상태로 분기. 진행 중이면 마지막 위치로 복귀
             try {
               const detail = await fetchCorrectionDetail(correction.correctionId);
               const status = (detail as unknown as { status?: string })?.status;
               if (status && status !== 'DONE') {
+                // 모달 우선권 유지
+                if (sessionStorage.getItem('correctionIntro:modal')) {
+                  router.push('/myPage/addCorrection/correctionIntro');
+                  return;
+                }
+                const last = sessionStorage.getItem(`correctionReturn:${correction.correctionId}`);
+                const base = last === 'projectSelect' ? 'projectSelect' : 'analyzing';
                 router.push(
-                  `/myPage/addCorrection/analyzing?correctionId=${correction.correctionId}&submissionTarget=${encodeURIComponent(
+                  `/myPage/addCorrection/${base}?correctionId=${correction.correctionId}&submissionTarget=${encodeURIComponent(
                     correction.submissionTarget || ''
                   )}`
                 );
@@ -93,7 +139,20 @@ export default function Tailored() {
               }
             } catch {}
 
-            // 4) 기본: 완료 상태이거나 판단 불가 → 기존 상세 페이지로 이동
+            // 3.5) 진행 중이 아니고 결과도 없으면, 인트로 플래그가 있으면 인트로로 복귀
+            try {
+              if (sessionStorage.getItem('correctionIntro:last')) {
+                router.push('/myPage/addCorrection/correctionIntro');
+                return;
+              }
+            } catch {}
+
+            // 4) 기본: 완료 상태이거나 판단 불가 → 마지막 위치 규칙 적용
+            const introLast = sessionStorage.getItem('correctionIntro:last');
+            if (introLast) {
+              router.push('/myPage/addCorrection/correctionIntro');
+              return;
+            }
             router.push(`/myPage/tailoredPortfolio/${correction.correctionId}`);
           }}
           className="bg-[#F8F8F8] w-[465px] h-[190px] rounded-[8px] px-[13px] cursor-pointer
