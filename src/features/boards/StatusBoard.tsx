@@ -125,7 +125,7 @@ export default function StatusBoard({ statusGroups, projectId }: StatusBoardProp
           return (
             <div key={status} className="flex flex-col">
               <div
-                className="w-full h-[2.875rem] flex items-center justify-center rounded-[0.5rem] font-medium text-[1.125rem]"
+                className="w-full h-[4.25rem] flex items-center justify-center rounded-[0.5rem] font-medium text-[1.125rem]"
                 style={{ backgroundColor: color }}
               >
                 {status}
