@@ -52,9 +52,12 @@ function AIMasterPortfolioCreatePageContent() {
   const [toastMessage, setToastMessage] = useState('');
 
   // onChangeSelectedIds 함수를 useCallback으로 메모이제이션
-  const handleSelectedRecordIdsChange = useCallback((ids: number[]) => {
-    setSelectedRecordIds(ids);
-  }, []);
+  const handleSelectedRecordIdsChange = useCallback(
+    (ids: number[]) => {
+      setSelectedRecordIds(ids);
+    },
+    [setSelectedRecordIds]
+  );
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -264,20 +267,20 @@ function AIMasterPortfolioCreatePageContent() {
                         '생성 중…'
                       ) : (
                         <div className="flex items-center gap-[10px]">
-                          <span className="relative w-[36px] h-[36px]">
+                          <span className="relative w-[32px] h-[32px]">
                             <Image
                               src="/icons/backgroundCoin.svg"
                               alt="coin-bg"
-                              width={24}
-                              height={24}
-                              className="w-[36px] h-[36px]"
+                              width={32}
+                              height={32}
+                              className="w-[32px] h-[32px]"
                             />
                             <Image
                               src="/icons/coin.svg"
                               alt="coin"
-                              width={32}
-                              height={32}
-                              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[20px] h-[20px]"
+                              width={24}
+                              height={24}
+                              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[24px] h-[24px]"
                             />
                           </span>
                           <span>AI 마스터 포트폴리오 생성하기</span>
