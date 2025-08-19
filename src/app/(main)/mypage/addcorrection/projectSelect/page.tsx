@@ -2,8 +2,8 @@
 
 import Projects from '@/features/myPage/components/Projects';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useCallback, useMemo, useState } from 'react';
-import AddLoadingModal from '@/features/correction/components/AddLoadingModal';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import CorrectionLoadingModal from '@/features/correction/components/CorrectionLoadingModal';
 import {
   fetchGeneratedCorrection,
   postGenerateCorrection,
@@ -30,6 +30,44 @@ function ProjectSelectContent() {
     }
   }, [correctionIdFromQuery]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [startFromLast, setStartFromLast] = useState(false);
+  const [selectedCount, setSelectedCount] = useState<number>(0);
+
+  const readSelectedCount = useCallback(() => {
+    try {
+      const raw = sessionStorage.getItem('projectSelect:selected');
+      const arr = raw ? (JSON.parse(raw) as unknown) : [];
+      return Array.isArray(arr) ? arr.length : 0;
+    } catch {
+      return 0;
+    }
+  }, []);
+
+  useEffect(() => {
+    setSelectedCount(readSelectedCount());
+  }, [readSelectedCount]);
+
+  // 카드 내부 클릭이 stopPropagation되어도 즉시 반영되도록 캡처 단계에서 감지
+  useEffect(() => {
+    const update = () => setTimeout(() => setSelectedCount(readSelectedCount()), 0);
+    document.addEventListener('click', update, true);
+    document.addEventListener('keyup', update, true);
+    return () => {
+      document.removeEventListener('click', update, true);
+      document.removeEventListener('keyup', update, true);
+    };
+  }, [readSelectedCount]);
+
+  // 이 페이지를 마지막 방문 위치로 기록 (사용자가 어디에서 떠났는지 복귀 시 활용)
+  useEffect(() => {
+    if (!Number.isFinite(correctionId) || correctionId <= 0) return;
+    try {
+      // 인트로가 마지막 위치로 저장되어 있으면 우선권을 유지하고, 아니면 projectSelect로 기록
+      if (!sessionStorage.getItem('correctionIntro:last')) {
+        sessionStorage.setItem(`correctionReturn:${correctionId}`, 'projectSelect');
+      }
+    } catch {}
+  }, [correctionId]);
 
   // 선택된 항목 읽기: portfolioId 배열, projectId 배열, 그리고 매핑 쌍
   const getSelectedPortfolioIds = (): number[] => {
@@ -136,8 +174,8 @@ function ProjectSelectContent() {
     }
   }, []);
 
-  const handleGenerate = async (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleGenerate = async (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
     const pairs = getSelectedPairs();
     const portfolioIds = pairs.map((p) => p.portfolioId);
     // 하위 호환: 만약 pairs가 비어있다면, 기존 방식 사용
@@ -145,6 +183,13 @@ function ProjectSelectContent() {
     if (!correctionId || (pairs.length === 0 && fallbackPortfolioIds.length === 0)) return;
     try {
       setIsGenerating(true);
+      setStartFromLast(false);
+      try {
+        sessionStorage.setItem(
+          'correctionGenerating',
+          JSON.stringify({ id: correctionId, startedAt: Date.now() })
+        );
+      } catch {}
       // hasMasterPortfolio를 기반으로 Projects에서 이미 필터링했으므로 그대로 projectId 사용
       const readyProjectIds = (
         pairs.length > 0 ? pairs.map((p) => p.projectId) : getSelectedProjectIds()
@@ -168,6 +213,10 @@ function ProjectSelectContent() {
       console.log('[UI][GENERATE] generated result ready, now wait for detail API to be readable');
       await waitUntilDetailReadable(correctionId);
       console.log('[UI][GENERATE] detail ready, navigate to tailored page');
+      try {
+        sessionStorage.removeItem('correctionGenerating');
+        sessionStorage.removeItem(`correctionReturn:${correctionId}`);
+      } catch {}
       const query = submissionTarget
         ? `?submissionTarget=${encodeURIComponent(submissionTarget)}`
         : '';
@@ -191,12 +240,48 @@ function ProjectSelectContent() {
         }${message ? `\n메시지: ${message}` : ''}`
       );
       setIsGenerating(false);
+      try {
+        sessionStorage.removeItem('correctionGenerating');
+      } catch {}
     }
   };
+
+  // 페이지 재진입 시 진행 중 상태라면 마지막 단계부터 로딩 모달 표시하며 재개
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('correctionGenerating');
+      if (!raw) return;
+      const obj = JSON.parse(raw) as { id?: number; startedAt?: number } | null;
+      if (!obj || !Number.isFinite(obj.id)) return;
+      const id = Number(obj.id);
+      if (!Number.isFinite(correctionId) || correctionId <= 0) return;
+      if (id !== correctionId) return;
+      // 재개
+      setIsGenerating(true);
+      setStartFromLast(true);
+      (async () => {
+        try {
+          await waitUntilGenerated(correctionId);
+          await waitUntilDetailReadable(correctionId);
+          try {
+            sessionStorage.removeItem('correctionGenerating');
+          } catch {}
+          const query = submissionTarget
+            ? `?submissionTarget=${encodeURIComponent(submissionTarget)}`
+            : '';
+          router.push(`/myPage/tailoredPortfolio/${correctionId}${query}`);
+        } catch (e) {
+          console.warn('[UI][GENERATE][RESUME] failed while waiting after resume', e);
+          setIsGenerating(false);
+        }
+      })();
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [correctionId]);
   return (
     <div
-      className="ml-[300px]
-    max-lg:ml-[24px]"
+      className="ml-[140px]
+    max-lg:ml-[0px]"
     >
       <div className="flex flex-col items-center">
         <div
@@ -217,16 +302,13 @@ function ProjectSelectContent() {
             <Image
               src="/icons/AiCharacter.svg"
               alt="AI 로고"
-              width={60}
-              height={60}
-              className="translate-y-[34px]
-            max-lg:w-[60px] max-lg:h-[60px] max-lg:translate-y-[32px]"
+              width={96}
+              height={96}
+              className="translate-y-[18px]
+            max-lg:w-[70px] max-lg:h-[70px] max-lg:translate-y-[32px]"
             />
 
-            <div
-              className="relative ml-[28px]
-            max-lg:ml-[8px]"
-            >
+            <div className="relative">
               <Image
                 src="/icons/ProjectSelectBubble.svg"
                 alt="로딩중 말풍선"
@@ -258,6 +340,8 @@ function ProjectSelectContent() {
                 <div
                   className="border border-[#898989] rounded-[12px] w-[1008px] h-[506px] mt-[24px] px-[24px] py-[24px] overflow-y-auto
                 max-lg:mt-[50px] max-lg:w-[521px] max-lg:h-[512px] max-lg:px-[28px] max-lg:py-[24px] max-lg:ml-[57px]"
+                  onClick={() => setTimeout(() => setSelectedCount(readSelectedCount()), 0)}
+                  onKeyUp={() => setTimeout(() => setSelectedCount(readSelectedCount()), 0)}
                 >
                   <Projects />
                 </div>
@@ -266,7 +350,7 @@ function ProjectSelectContent() {
           </div>
 
           <div
-            className="relative ml-[920px] mt-[20px]
+            className="relative ml-[850px] mt-[20px]
           max-lg:ml-[496px]"
           >
             <Image
@@ -279,20 +363,36 @@ function ProjectSelectContent() {
             />
             <button
               onClick={handleGenerate}
-              className="absolute top-[36px] left-[52px] cursor-pointer"
+              className={`absolute top-[38px] ml-[50px] z-10 px-[40px] py-[4px] rounded-[6px] flex items-center gap-[8px] text-[18px] font-bold text-white
+                max-lg:top-[32px] max-lg:ml-[40px] max-lg:px-[30px] ${
+                  selectedCount > 0 ? 'bg-[#81D7D4] cursor-pointer' : 'bg-[#BAE5E4]'
+                }`}
+              disabled={selectedCount === 0}
             >
-              <Image
-                src="/icons/CorrectionStartButton.svg"
-                alt="첨삭 시작 버튼"
-                width={0}
-                height={0}
-                sizes="100vw"
-                style={{ width: 'auto', height: 'auto' }}
-              />
+              <span className="relative block w-[32px] h-[32px]">
+                <Image
+                  src="/icons/CreditIconBackground.svg"
+                  alt="크레딧 아이콘 배경"
+                  width={32}
+                  height={32}
+                  className="absolute inset-0 w-[32px] h-[32px] pointer-events-none"
+                  priority
+                />
+                <Image
+                  src="/icons/CreditIcon.svg"
+                  alt="크레딧 아이콘"
+                  width={24}
+                  height={24}
+                  className="absolute inset-0 m-auto w-[24px] h-[24px] object-contain"
+                />
+              </span>
+              <p>AI 지원 맞춤 포트폴리오 첨삭 시작</p>
             </button>
           </div>
 
-          {isGenerating && <AddLoadingModal isOpen startFromLast payload={null} />}
+          {isGenerating && (
+            <CorrectionLoadingModal isOpen={true} startFromLast={startFromLast} payload={null} />
+          )}
         </div>
       </div>
     </div>

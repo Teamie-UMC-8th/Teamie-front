@@ -32,17 +32,28 @@ export default function CorrectionStartButton({
         type="button"
         onClick={() => !disabled && setIsModalOpen(true)}
         disabled={disabled}
-        className={`${className} inline-block mt-[14px] ml-[338px] p-0 border-0 bg-transparent ${
+        className={`${className} mt-[14px] ml-[254px] px-[40px] py-[4px] bg-[#81D7D4] rounded-[6px] flex items-center gap-[8px] text-[18px] font-bold text-white  ${
           disabled ? 'opacity-50' : 'cursor-pointer'
         }`}
       >
-        <Image
-          src="/icons/CorrectionRequestStartButton.svg"
-          alt="첨삭 의뢰 시작 버튼"
-          width={308}
-          height={48}
-          className="block"
-        />
+        <span className="relative block w-[32px] h-[32px]">
+          <Image
+            src="/icons/CreditIconBackground.svg"
+            alt="크레딧 아이콘 배경"
+            width={32}
+            height={32}
+            className="absolute inset-0 w-[32px] h-[32px] pointer-events-none"
+            priority
+          />
+          <Image
+            src="/icons/CreditIcon.svg"
+            alt="크레딧 아이콘"
+            width={24}
+            height={24}
+            className="absolute inset-0 m-auto w-[24px] h-[24px] object-contain"
+          />
+        </span>
+        <p>AI 지원 맞춤 포트폴리오 첨삭 의뢰하기</p>
       </button>
 
       {isModalOpen && (

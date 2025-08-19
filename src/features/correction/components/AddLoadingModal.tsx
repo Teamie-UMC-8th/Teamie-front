@@ -38,39 +38,14 @@ export default function LoadingModal({
     () => [
       {
         key: 'information',
-        frames: ['/icons/information1.svg', '/icons/information2.svg'],
-        message: '티미가 지원 정보를 파악하고 있어요...',
-        durationMs: 10_000,
-      },
-
-      {
-        key: 'collect',
-        frames: ['/icons/dataCollection1.svg', '/icons/dataCollection2.svg'],
-        message: '티미가 데이터를 수집하고 있어요...',
-        durationMs: 10_000,
+        frames: ['/icons/SearchInf1.svg', '/icons/SearchInf2.svg'],
+        message: '티미가 최신 정보를 검색 중이에요...',
+        durationMs: 5_000,
       },
       {
-        key: 'read',
-        frames: ['/icons/read1.svg', '/icons/read2.svg'],
-        message: '티미가 포트폴리오를 읽고 있어요...',
-        durationMs: 15_000,
-      },
-      {
-        key: 'write',
-        frames: ['/icons/writing1.svg', '/icons/writing2.svg'],
-        message: '티미가 첨삭 내용을 작성 중이에요...',
-        durationMs: 20_000,
-      },
-      {
-        key: 'review',
-        frames: ['/icons/review1.svg', '/icons/review2.svg'],
-        message: '티미가 검토 중이에요...',
-        durationMs: 15_000,
-      },
-      {
-        key: 'last',
-        frames: ['/icons/last1.svg', '/icons/last2.svg'],
-        message: '거의 다 됐어요...!',
+        key: 'writing',
+        frames: ['/icons/WritingJD1.svg', '/icons/WritingJD2.svg'],
+        message: '티미가 기업분석정보를 작성 중이에요...',
         durationMs: Number.POSITIVE_INFINITY,
       },
     ],
@@ -214,6 +189,10 @@ export default function LoadingModal({
 
     const run = async () => {
       try {
+        // 모달 진입 플래그 설정(복귀 시 모달 상태 유지)
+        try {
+          sessionStorage.setItem('correctionIntro:modal', 'true');
+        } catch {}
         // 새로운 생성 시작 전에 이전 prefetch/마지막 ID 흔적 제거
         try {
           const keysToRemove: string[] = [];
@@ -275,6 +254,9 @@ export default function LoadingModal({
             payload.submissionTarget
           )}`
         );
+        try {
+          sessionStorage.removeItem('correctionIntro:modal');
+        } catch {}
       } catch (error) {
         console.error('[LoadingModal] failed during creation or RAG wait:', error);
         alert('첨삭 생성에 실패했습니다. 다시 시도해주세요.');
@@ -293,8 +275,8 @@ export default function LoadingModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
       <div className="relative w-[524px] h-[248px] bg-[#FFFFFF] shadow-[0_0_15px_rgba(0,0,0,0.2)] rounded-[16px] flex flex-col items-center justify-center">
         <div className="flex flex-col items-center px-[32px] text-center">
-          <Image src={currentFrame} alt="loading" width={140} height={140} priority />
-          <p className="font-semibold text-[20px] leading-[28px] text-[#000000]">
+          <Image src={currentFrame} alt="loading" width={100} height={90} priority />
+          <p className="font-semibold text-[20px] leading-[28px] text-[#000000] mt-[25px]">
             {current.message}
           </p>
         </div>

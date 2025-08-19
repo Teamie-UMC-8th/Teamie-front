@@ -4,7 +4,14 @@ import Link from 'next/link';
 
 export default function AddCorrectionButton() {
   return (
-    <Link href="/myPage/addCorrection">
+    <Link
+      href="/myPage/addCorrection"
+      onClick={() => {
+        try {
+          sessionStorage.setItem('correctionIntro:last', 'true');
+        } catch {}
+      }}
+    >
       <img
         src="/icons/AddProject.svg"
         alt="프로젝트 추가"
