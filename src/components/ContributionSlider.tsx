@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
-import Image from 'next/image';
+import Img from 'next/image';
 
 interface ContributionSliderProps {
   value: number;
@@ -93,11 +93,11 @@ export default function ContributionSlider({ value, onChange }: ContributionSlid
   }, [isDragging]);
 
   return (
-    <div className="flex items-center gap-[60px]">
+    <div className="flex items-center gap-[28px]">
       <div className="w-[99px] h-[37px] bg-[#DAF3F3] rounded-[4px] px-[18px] py-[6px] flex items-center justify-center font-[Pretendard] font-semibold text-[18px] leading-[25.2px] text-[#000000] whitespace-nowrap">
         기여도
       </div>
-      <div className="flex items-center gap-[68px]">
+      <div className="flex items-center gap-[21px]">
         <div className="relative">
           <div
             ref={barRef}
@@ -110,13 +110,17 @@ export default function ContributionSlider({ value, onChange }: ContributionSlid
           </div>
           {/* ProgressBar.svg를 슬라이더 바 밖으로 완전히 배치 */}
           <div
-            className="absolute cursor-pointer"
-            style={{ left: `calc(${value}% - 10px)`, top: '-22px' }}
+            className="absolute cursor-pointer w-[24px] h-[31px]"
+            style={{ left: `${value}%`, transform: 'translateX(-50%)', top: '-29px' }}
             onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
           >
-            <Image src="/icons/ProgressBar .svg" alt="드래그 핸들" width={24} height={31} />
+            <Img
+              src="/icons/ProgressBar .svg"
+              alt="드래그 핸들"
+              width={24}
+              height={31}
+              draggable={false}
+            />
           </div>
         </div>
         {isEditing ? (
