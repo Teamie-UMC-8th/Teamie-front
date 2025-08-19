@@ -9,8 +9,14 @@ interface ProjectEndModalProps {
 
 export default function ProjectEndModal({ onConfirm, onCancel }: ProjectEndModalProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
-      <div className="relative w-[460px] h-[214px] bg-[#F8F8F8] shadow-[0_0_15px_rgba(0,0,0,0.2)] rounded-[12px] px-[32px] pt-[60px] pb-[40px]">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/20"
+      onClick={onCancel}
+    >
+      <div
+        className="relative w-[460px] h-[214px] bg-[#F8F8F8] shadow-[0_0_15px_rgba(0,0,0,0.2)] rounded-[12px] px-[32px] pt-[60px] pb-[40px]"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* 닫기 버튼 */}
         <button
           className="absolute top-[8px] right-[8px] w-[24px] h-[24px] cursor-pointer"
