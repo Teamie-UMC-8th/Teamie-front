@@ -52,9 +52,12 @@ function AIMasterPortfolioCreatePageContent() {
   const [toastMessage, setToastMessage] = useState('');
 
   // onChangeSelectedIds 함수를 useCallback으로 메모이제이션
-  const handleSelectedRecordIdsChange = useCallback((ids: number[]) => {
-    setSelectedRecordIds(ids);
-  }, []);
+  const handleSelectedRecordIdsChange = useCallback(
+    (ids: number[]) => {
+      setSelectedRecordIds(ids);
+    },
+    [setSelectedRecordIds]
+  );
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -73,6 +76,11 @@ function AIMasterPortfolioCreatePageContent() {
     if (!status) return;
 
     if (status === 'DONE') {
+      router.replace(`/myPage/aiMasterPortfolio/${portfolioId}`);
+      return;
+    }
+
+    if (status === 'GENERATING') {
       router.replace(`/myPage/aiMasterPortfolio/${portfolioId}`);
       return;
     }
@@ -198,7 +206,7 @@ function AIMasterPortfolioCreatePageContent() {
       </Portal>
 
       <div className="ml-0 max-lg:ml-0]">
-        <main className="flex flex-col gap-0 max-w-[1323px] mx-auto p-6">
+        <main className="flex flex-col gap-0 max-w-[1323px] mx-auto px-[140px] max-lg:mx-auto max-lg:px-2">
           <section className="max-lg:mt-[120px] w-[1323px] max-lg:w-[908px] h-[52px] flex items-center justify-between bg-[#E9F8F8] rounded-tl-[8px] rounded-tr-[8px] px-[24px] py-[8px] mr-[12px] ml-[12px]">
             <h2 className="text-[20px] leading-[28px] font-semibold text-[#000000] font-[Pretendard]">
               AI 마스터 포트폴리오 생성
@@ -264,20 +272,20 @@ function AIMasterPortfolioCreatePageContent() {
                         '생성 중…'
                       ) : (
                         <div className="flex items-center gap-[10px]">
-                          <span className="relative w-[36px] h-[36px]">
+                          <span className="relative w-[32px] h-[32px]">
                             <Image
                               src="/icons/backgroundCoin.svg"
                               alt="coin-bg"
-                              width={24}
-                              height={24}
-                              className="w-[36px] h-[36px]"
+                              width={32}
+                              height={32}
+                              className="w-[32px] h-[32px]"
                             />
                             <Image
                               src="/icons/coin.svg"
                               alt="coin"
-                              width={32}
-                              height={32}
-                              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[20px] h-[20px]"
+                              width={24}
+                              height={24}
+                              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[24px] h-[24px]"
                             />
                           </span>
                           <span>AI 마스터 포트폴리오 생성하기</span>

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useMasterPortfolioDetail } from '@/hooks/queries/useGetMasterPortfolio';
 import Image from 'next/image';
+import Dropdown from '@/components/Dropdown';
 
 export default function MenuButton() {
   const [open, setOpen] = useState(false);
@@ -15,44 +16,37 @@ export default function MenuButton() {
   const { data: portfolioDetail } = useMasterPortfolioDetail(portfolioId);
   const projectId = portfolioDetail?.projectId;
 
+  const menuItems = [
+    {
+      label: '프로젝트 홈으로 이동',
+      href: '#',
+      onClick: () => router.push(`/projects/${projectId}`),
+    },
+    {
+      label: '개인 회고로 이동',
+      href: '#',
+      onClick: () => projectId && router.push(`/projects/${projectId}/retrospect/create`),
+    },
+  ];
+
   return (
     <div className="absolute top-0 right-[20px] relative ml-auto max-lg:w-[32px] max-lg:h-[32px]">
-      {/* 메뉴 아이콘 버튼 */}
-      <button onClick={() => setOpen(!open)} aria-label="메뉴 열기">
-        <Image
-          src="/icons/menu-icon.svg"
-          alt="메뉴"
-          width={36}
-          height={36}
-          className="w-[36px] h-[36px] cursor-pointer"
-        />
-      </button>
-
-      {/* 드롭다운 메뉴 */}
-      {open && (
-        <div
-          className="absolute top-[40px] right-0 w-[256px] bg-white rounded-[8px] z-50 
-          shadow-[0_0_15px_rgba(0,0,0,0.2)] py-[12px]"
-        >
-          <div className="flex flex-col" onClick={() => setOpen(false)}>
-            <button
-              onClick={() => router.push(`/projects/${projectId}`)}
-              className="px-[24px] py-[4px] text-[18px] text-left leading-[26px] font-normal text-black cursor-pointer"
-            >
-              프로젝트 홈으로 이동
-            </button>
-
-            <hr className="w-[90%] border-[1px] border-[#BBBBBB] my-[8px] mx-auto" />
-
-            <button
-              onClick={() => projectId && router.push(`/projects/${projectId}/retrospect/create`)}
-              className="px-[24px] py-[4px] text-[18px] text-left leading-[26px] font-normal text-black cursor-pointer"
-            >
-              개인 회고로 이동
-            </button>
-          </div>
-        </div>
-      )}
+      <Dropdown
+        isOpen={open}
+        onToggle={() => setOpen(!open)}
+        trigger={
+          <Image
+            src="/icons/menu-icon.svg"
+            alt="메뉴"
+            width={36}
+            height={36}
+            className="w-[36px] h-[36px] cursor-pointer"
+          />
+        }
+        items={menuItems}
+        dropdownClassName="right-0"
+        width="w-[265px]"
+      />
     </div>
   );
 }
