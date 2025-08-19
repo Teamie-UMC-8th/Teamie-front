@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect, useCallback } from 'react';
-import Img from 'next/image';
+import Image from 'next/image';
 
 interface ContributionSliderProps {
   value: number;
@@ -126,7 +126,7 @@ export default function ContributionSlider({ value, onChange }: ContributionSlid
             style={{ left: `${value}%`, transform: 'translateX(-50%)', top: '-29px' }}
             onMouseDown={handleMouseDown}
           >
-            <Img
+            <Image
               src="/icons/ProgressBar .svg"
               alt="드래그 핸들"
               width={24}
