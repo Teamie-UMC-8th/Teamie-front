@@ -33,7 +33,7 @@ const CopyModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-[#00000033] flex items-center justify-center z-50">
       <div className="absolute inset-0 bg-opacity-50" onClick={onClose} />
       <div className="relative bg-white rounded-[0.75rem] shadow-[0_0_15px_0_rgba(0,0,0,0.2)] px-[5rem] py-[2.5rem] text-center">
         <button
