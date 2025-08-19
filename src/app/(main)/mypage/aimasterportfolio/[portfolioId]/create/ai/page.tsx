@@ -80,6 +80,11 @@ function AIMasterPortfolioCreatePageContent() {
       return;
     }
 
+    if (status === 'GENERATING') {
+      router.replace(`/myPage/aiMasterPortfolio/${portfolioId}`);
+      return;
+    }
+
     let changed = false;
     const stepNum = stepParam ? Number(stepParam) : NaN;
     if (!stepParam || Number.isNaN(stepNum) || stepNum < requiredStep) {
