@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import Img from 'next/image';
 
 interface ContributionSliderProps {
@@ -50,18 +50,21 @@ export default function ContributionSlider({ value, onChange }: ContributionSlid
     }
   };
 
-  const handleGlobalMouseMove = (e: MouseEvent) => {
-    if (isDragging && barRef.current) {
-      const rect = barRef.current.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const newValue = Math.round((clickX / rect.width) * 100);
-      onChange(Math.min(100, Math.max(0, newValue)));
-    }
-  };
+  const handleGlobalMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (isDragging && barRef.current) {
+        const rect = barRef.current.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const newValue = Math.round((clickX / rect.width) * 100);
+        onChange(Math.min(100, Math.max(0, newValue)));
+      }
+    },
+    [isDragging, onChange]
+  );
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     setIsDragging(false);
-  };
+  }, []);
 
   const handleSpanClick = () => {
     setIsEditing(true);
