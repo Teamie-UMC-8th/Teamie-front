@@ -88,7 +88,7 @@ export default function EditableField({
       ) : (
         <div
           className={`text-black px-1 py-1 rounded transition-colors h-6 flex items-center ${
-            isPlaceholder ? 'text-gray-400 italic' : ''
+            isPlaceholder ? 'text-gray-400' : ''
           } ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-100'}`}
           onClick={handleClick}
         >
