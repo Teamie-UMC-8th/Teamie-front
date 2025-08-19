@@ -19,13 +19,17 @@ export default function MenuButton() {
   const menuItems = [
     {
       label: '프로젝트 홈으로 이동',
-      href: '#',
+      href: `/projects/${projectId || ''}`,
       onClick: () => router.push(`/projects/${projectId}`),
     },
     {
       label: '개인 회고로 이동',
-      href: '#',
-      onClick: () => projectId && router.push(`/projects/${projectId}/retrospect/create`),
+      href: `/projects/${projectId || ''}/retrospect/create`,
+      onClick: () => {
+        if (projectId) {
+          router.push(`/projects/${projectId}/retrospect/create`);
+        }
+      },
     },
   ];
 
