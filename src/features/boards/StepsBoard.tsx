@@ -14,7 +14,12 @@ import CopyModal from '@/components/CopyModal';
 import Portal from '@/components/Portal';
 import Link from 'next/link';
 
-export default function StepsBoard({ steps, projectId, isCompleted, onRefetchFilteredData }: StepsBoardProps) {
+export default function StepsBoard({
+  steps,
+  projectId,
+  isCompleted,
+  onRefetchFilteredData,
+}: StepsBoardProps) {
   // 스텝 ID 배열을 메모이제이션하여 안정적인 참조 제공
   const stepIds = useMemo(() => steps.map((step) => step.stepId), [steps]);
 
@@ -132,6 +137,8 @@ export default function StepsBoard({ steps, projectId, isCompleted, onRefetchFil
 
   // 드래그가 끝났을 때 호출되는 함수
   const onDragEnd = async (result: DropResult) => {
+    // 프로젝트가 종료된 경우 DnD 비활성화
+    if (isCompleted) return;
     const { source, destination } = result;
 
     // 드롭할 위치가 없으면 아무것도 안 함
@@ -190,7 +197,7 @@ export default function StepsBoard({ steps, projectId, isCompleted, onRefetchFil
                 isCompleted={isCompleted}
               />
               {openStepIds.includes(step.stepId) && (
-                <Droppable droppableId={step.stepId.toString()}>
+                <Droppable droppableId={step.stepId.toString()} isDropDisabled={isCompleted}>
                   {(provided) => (
                     <div
                       ref={provided.innerRef}
@@ -203,6 +210,7 @@ export default function StepsBoard({ steps, projectId, isCompleted, onRefetchFil
                           key={`${step.stepId}-${task.taskId}`}
                           draggableId={task.taskId.toString()}
                           index={idx}
+                          isDragDisabled={isCompleted}
                         >
                           {(provided, snapshot) => (
                             <div
@@ -226,7 +234,12 @@ export default function StepsBoard({ steps, projectId, isCompleted, onRefetchFil
                                     name: manager.name,
                                     imageUrl: manager.imageUrl,
                                   }))}
-                                  onTaskComplete={handleTaskComplete}
+                                  isCompleted={isCompleted}
+                                  onTaskComplete={(taskId, title) => {
+                                    if (isCompleted) return;
+
+                                    handleTaskComplete(taskId, title);
+                                  }}
                                 />
                               </div>
                             </div>
