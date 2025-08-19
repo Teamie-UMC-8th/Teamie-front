@@ -13,7 +13,7 @@ export default function EditableMarkdown({ initialValue = '', onSave }: Props) {
   const [content, setContent] = useState(initialValue);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleDoubleClick = () => {
+  const handleClick = () => {
     setEditing(true);
     setTimeout(() => {
       if (textareaRef.current) {
@@ -33,7 +33,7 @@ export default function EditableMarkdown({ initialValue = '', onSave }: Props) {
   }, [content, editing]);
 
   return (
-    <div onDoubleClick={handleDoubleClick}>
+    <div onClick={handleClick}>
       {editing ? (
         <textarea
           ref={textareaRef}
