@@ -126,7 +126,7 @@ export default function JoinProject() {
   // 2. 에러 상태 (error) - 성공이 확정되지 않은 경우
   if (error && !isSuccess) {
     return (
-      <div className="w-full bg-white flex items-center justify-center mt-[10rem]">
+      <div className="h-full w-full bg-white flex items-center justify-center">
         <div className="flex flex-col items-center p-8 text-[1.375rem] font-semibold">
           <p className="text-lg text-gray-800 text-center">{error}</p>
           <p className="text-lg text-gray-800 text-center">
@@ -140,7 +140,7 @@ export default function JoinProject() {
   // 3. 성공 상태 (success) - 성공이 확정된 경우에만 정상 UI 렌더
   if (isSuccess && projectInfo.name) {
     return (
-      <div className="min-h-screen w-full bg-white flex items-center justify-center">
+      <div className="h-full w-full bg-white flex items-center justify-center">
         <div className="flex flex-col items-center gap-6 p-8 text-center">
           <h1 className="text-2xl font-bold text-[#000000]">프로젝트에 참여하시겠습니까?</h1>
           <p className="text-lg text-[#898989]]">
