@@ -56,6 +56,19 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   }, [userData, projects]);
 
   useEffect(() => {
+    const handleUnauthorized = () => {
+      setIsAuthenticated(false);
+      queryClient.clear();
+    };
+
+    window.addEventListener('unauthorized', handleUnauthorized);
+
+    return () => {
+      window.removeEventListener('unauthorized', handleUnauthorized);
+    };
+  }, [queryClient]);
+
+  useEffect(() => {
     if (!isLoading) {
       if (userData && !userError) {
         setIsAuthenticated(true);
