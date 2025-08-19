@@ -11,7 +11,6 @@ import { useUpdateContribution } from '@/hooks/mutations/useUpdateContribution';
 import { usePatchMasterPortfolio } from '@/hooks/mutations/usePatchMasterPortfolio';
 import { CATEGORY_MAP, CATEGORY_LIST, CategoryKey } from '@/constants/category';
 import ContributionSlider from '@/components/ContributionSlider';
-import { useRouter } from 'next/navigation';
 import { useProjectHome } from '@/hooks/mutations/useProjectHome';
 import { formatDate } from '@/utils/formatDate';
 import Image from 'next/image';
@@ -79,7 +78,7 @@ function CategorySelector({
           >
             {CATEGORY_MAP[selected]?.label ?? '분류'}
           </div>
-          <img
+          <Image
             src="/icons/drop-down.svg"
             alt="드롭다운"
             width={24}

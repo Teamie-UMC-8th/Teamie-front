@@ -50,6 +50,15 @@ export default function ContributionSlider({ value, onChange }: ContributionSlid
     }
   };
 
+  const handleGlobalMouseMove = (e: MouseEvent) => {
+    if (isDragging && barRef.current) {
+      const rect = barRef.current.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const newValue = Math.round((clickX / rect.width) * 100);
+      onChange(Math.min(100, Math.max(0, newValue)));
+    }
+  };
+
   const handleMouseUp = () => {
     setIsDragging(false);
   };
@@ -83,14 +92,14 @@ export default function ContributionSlider({ value, onChange }: ContributionSlid
   // 드래그 중일 때 전역 마우스 이벤트 리스너 추가
   useEffect(() => {
     if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove as any);
+      document.addEventListener('mousemove', handleGlobalMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
       return () => {
-        document.removeEventListener('mousemove', handleMouseMove as any);
+        document.removeEventListener('mousemove', handleGlobalMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [isDragging]);
+  }, [isDragging, handleGlobalMouseMove, handleMouseUp]);
 
   return (
     <div className="flex items-center gap-[28px]">
