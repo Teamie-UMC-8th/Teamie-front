@@ -421,7 +421,7 @@ function TailoredPortfolioContent() {
             </div>
             <div className="ml-[20px] w-[160px]">
               <span
-                className="inline-block text-[16px] px-[12px] py-[4px] rounded-[4px] w-[80px] h-[32px]"
+                className="inline-block text-[16px] px-[12px] py-[4px] rounded-[4px] w-[80px] h-[32px] text-center"
                 style={{
                   backgroundColor:
                     CATEGORY_MAP[(selectedMaster?.category as keyof typeof CATEGORY_MAP) || 'OTHER']
