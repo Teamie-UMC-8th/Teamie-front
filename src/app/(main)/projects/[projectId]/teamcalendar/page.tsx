@@ -345,8 +345,9 @@ export default function TeamCalendar() {
       month: formattedTitle,
       weeksInMonth,
       calendarHeight: `${calendarHeight}px`,
-      weekHeight: '208px (고정)',
-      headerHeight: '40px',
+      weekHeight: '200px (고정)',
+      headerHeight: '181px',
+      margin: '32px',
     });
   }, [formattedTitle, weeksInMonth, calendarHeight]);
 
@@ -417,7 +418,6 @@ export default function TeamCalendar() {
           width: '1400px',
           height: `${calendarHeight}px`,
           backgroundColor: 'white',
-          margin: '32px',
         }}
         components={{
           dateCellWrapper: (props) => (
