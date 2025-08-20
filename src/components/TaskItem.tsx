@@ -78,8 +78,8 @@ export default function TaskItem({
             checked={isChecked}
             onChange={handleCheckboxChange}
             disabled={isCompleted}
-            className={`peer appearance-none w-[20px] h-[20px] border-2 border-[#898989] rounded bg-white ${
-              isCompleted ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer checked:bg-[#81D7D4]'
+            className={`peer appearance-none w-[20px] h-[20px] border-2 border-[#898989] rounded bg-white checked:bg-[#81D7D4] ${
+              isCompleted ? 'cursor-not-allowed' : 'cursor-pointer'
             }`}
             onClick={stop}
             onMouseDown={stop}
