@@ -42,11 +42,19 @@ function ProjectHeader({ title }: { title: string }) {
 }
 
 function ProjectPeriod({ startDate, endDate }: { startDate: string; endDate: string }) {
+  const formatDateToYYYYMMDD = (dateString: string) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}.${month}.${day}`;
+  };
+
   return (
     <div className="flex items-center gap-[28px]">
       <div className={STYLES.tag}>진행 기간</div>
       <time className={STYLES.text}>
-        {startDate} ~ {endDate}
+        {formatDateToYYYYMMDD(startDate)} ~ {formatDateToYYYYMMDD(endDate)}
       </time>
     </div>
   );
@@ -237,10 +245,8 @@ export default function MasterPortfolioDetail() {
 
   const projectData = {
     title: project?.name || currentPortfolio?.projectName || '프로젝트 이름 없음',
-    startDate: currentPortfolio?.startDate
-      ? formatDate(currentPortfolio.startDate)
-      : '날짜 정보 없음',
-    endDate: currentPortfolio?.endDate ? formatDate(currentPortfolio.endDate) : '날짜 정보 없음',
+    startDate: currentPortfolio?.startDate || '날짜 정보 없음',
+    endDate: currentPortfolio?.endDate || '날짜 정보 없음',
     contribution: contribution,
   };
 
