@@ -168,6 +168,16 @@ export default function TeamTaskDetailPage() {
       userName: user.name,
     })) || [];
 
+  // 프로젝트 생성일 (선택 가능한 최소 날짜)
+  const projectCreatedAtString =
+    projectHomeData?.result?.project?.createAt ||
+    projectHomeData?.result?.createAt ||
+    projectHomeData?.result?.project?.createdAt ||
+    projectHomeData?.result?.createdAt;
+  const projectCreatedAtDate = projectCreatedAtString
+    ? new Date(projectCreatedAtString)
+    : undefined;
+
   const handleAttendeesChange = (selectedUserIds: number[]) => {
     console.log('handleAttendeesChange 호출:', selectedUserIds);
 
@@ -302,6 +312,20 @@ export default function TeamTaskDetailPage() {
   // };
 
   const handleDateChange = (date: Date) => {
+    // 프로젝트 생성일 이전 선택 방지 (클라이언트 가드)
+    if (projectCreatedAtDate) {
+      const min = new Date(
+        projectCreatedAtDate.getFullYear(),
+        projectCreatedAtDate.getMonth(),
+        projectCreatedAtDate.getDate()
+      );
+      const selected = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      if (selected < min) {
+        console.warn('프로젝트 생성일 이전은 선택할 수 없습니다.');
+        return;
+      }
+    }
+
     setSelectedDate(date);
     // 프로젝트 홈 권한 체크
     if (!isCurrentUserProjectMember()) {
@@ -500,6 +524,7 @@ export default function TeamTaskDetailPage() {
               onDateChange={handleDateChange}
               isOpen={isDatePickerOpen}
               onToggle={toggleDatePicker}
+              minDate={projectCreatedAtDate}
             />
           </div>
 

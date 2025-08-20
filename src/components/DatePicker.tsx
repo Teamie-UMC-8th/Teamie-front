@@ -6,6 +6,7 @@ interface DatePickerProps {
   onDateChange: (date: Date) => void;
   isOpen: boolean;
   onToggle: () => void;
+  minDate?: Date;
 }
 
 export default function DatePicker({
@@ -13,6 +14,7 @@ export default function DatePicker({
   onDateChange,
   isOpen,
   onToggle,
+  minDate,
 }: DatePickerProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -88,6 +90,15 @@ export default function DatePicker({
   // };
 
   const handleDateSelect = (date: Date) => {
+    // minDate 이전 날짜는 선택 불가
+    if (minDate) {
+      const normalizedMin = new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate());
+      const normalizedSelected = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      if (normalizedSelected < normalizedMin) {
+        return;
+      }
+    }
+
     // 한국 시간 기준으로 23:59 설정
     const selectedDate = new Date(date);
     // 로컬 시간대 기준으로 23:59 설정

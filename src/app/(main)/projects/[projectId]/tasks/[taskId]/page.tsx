@@ -56,6 +56,30 @@ export default function TaskDetailPage() {
     retry: 1, // 재시도 횟수 제한
   });
 
+  // 프로젝트 생성일을 조회하여 마감일 최소 선택일로 사용
+  const { data: projectData } = useQuery({
+    queryKey: ['projectMeta', projectId],
+    queryFn: async () => {
+      try {
+        const res = await axiosInstance.get(`/api/v1/projects/${projectId}`);
+        return res.data;
+      } catch (e) {
+        return null;
+      }
+    },
+    enabled: !!projectId,
+    retry: 1,
+  });
+
+  const projectCreatedAtString =
+    projectData?.result?.project?.createAt ||
+    projectData?.result?.createAt ||
+    projectData?.result?.project?.createdAt ||
+    projectData?.result?.createdAt;
+  const projectCreatedAtDate = projectCreatedAtString
+    ? new Date(projectCreatedAtString)
+    : undefined;
+
   // 웹소켓 구독 및 이벤트 처리 (실시간 동기화)
   useEffect(() => {
     if (isConnected && socket && taskId) {
@@ -327,6 +351,20 @@ export default function TaskDetailPage() {
   };
 
   const handleDateChange = (date: Date) => {
+    // 프로젝트 생성일 이전 선택 방지 (클라이언트 가드)
+    if (projectCreatedAtDate) {
+      const min = new Date(
+        projectCreatedAtDate.getFullYear(),
+        projectCreatedAtDate.getMonth(),
+        projectCreatedAtDate.getDate()
+      );
+      const selected = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      if (selected < min) {
+        console.warn('프로젝트 생성일 이전은 선택할 수 없습니다.');
+        return;
+      }
+    }
+
     setSelectedDate(date);
     if (data?.result) {
       // 로컬 시간대를 유지하면서 날짜를 포맷팅
@@ -571,6 +609,7 @@ export default function TaskDetailPage() {
               onDateChange={handleDateChange}
               isOpen={isDatePickerOpen}
               onToggle={() => setIsDatePickerOpen(!isDatePickerOpen)}
+              minDate={projectCreatedAtDate}
             />
           </div>
           {/* 진행상태 */}
