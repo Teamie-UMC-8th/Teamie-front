@@ -40,7 +40,7 @@ function LoginContent() {
         </div>
       </div>
       <button
-        className="self-center lg:px-[9.25rem] px-[8.75rem] lg:py-[0.75rem] py-[0.5rem] flex items-center gap-[0.5rem] bg-[#FEE500] text-black rounded-[0.5rem] lg:text-[1.25rem] text-[1.125rem] font-semibold cursor-pointer"
+        className="self-center lg:px-[9.25rem] px-[8.75rem] lg:py-[0.75rem] py-[0.5rem] whitespace-nowrap flex items-center gap-[0.5rem] bg-[#FEE500] text-black rounded-[0.5rem] lg:text-[1.25rem] text-[1.125rem] font-semibold cursor-pointer"
         onClick={handleLogin}
       >
         <Image src="/icons/kakao.svg" alt="Kakao Logo" width={22} height={21} />
