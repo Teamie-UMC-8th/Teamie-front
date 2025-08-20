@@ -384,8 +384,8 @@ function AiLoadingPageContent() {
   };
   return (
     <div
-      className="ml-[140px]
-    max-lg:ml-[0px]"
+      className="ml-[240px] fixed
+    max-lg:ml-[24px]"
     >
       <div className="flex flex-col items-center">
         <div
@@ -533,11 +533,11 @@ function AiLoadingPageContent() {
           max-lg:ml-[240px]"
           >
             <div
-              className={`${''} border-[2px] border-[#BBBBBB] bg-[#F8F8F8] px-[20px] py-[6px] w-[236px] h-[42px] text-[18px] rounded-[6px] text-[#505050] items-center ${
+              className={`${''} border-[2px] border-[#BBBBBB] bg-[#F8F8F8] px-[20px] py-[6px] w-[240px] h-[42px] text-[18px] rounded-[6px] text-[#505050] items-center ${
                 showToast ? 'opacity-100' : 'opacity-0'
               } transition-opacity pointer-events-none`}
             >
-              임시저장이 완료되었습니다
+              임시저장이 완료되었습니다.
             </div>
             <div className="relative">
               <img src="/icons/NextPageBubble-ProjectSelect.svg" alt="다음으로 말풍선" />

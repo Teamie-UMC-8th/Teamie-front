@@ -237,7 +237,7 @@ function TailoredPortfolioContent() {
     <div>
       <div className="flex justify-between">
         <div className="flex items-center">
-          <Link href="/mypage">
+          <Link href="/myPage?tab=ai">
             <Image
               src="/icons/arrow-left.svg"
               alt="뒤로가기"
@@ -278,7 +278,7 @@ function TailoredPortfolioContent() {
                 queryClient.invalidateQueries({ queryKey: ['generated-rag', correctionId] });
                 queryClient.invalidateQueries({ queryKey: ['company-insight', correctionId] });
                 queryClient.invalidateQueries({ queryKey: ['correction-list'] });
-                router.push('/myPage');
+                router.push('/myPage?tab=ai');
               }
             }}
             modalTitle="이 AI 첨삭 내용을 정말 삭제하시겠습니까?"
@@ -296,7 +296,7 @@ function TailoredPortfolioContent() {
 
       <div>
         <div
-          className="flex flex-row mt-[60px] ml-[80px] items-center w-[1500px]
+          className="flex flex-row mt-[60px] ml-[80px] items-center w-[3000px]
         max-lg:ml-[24px] max-lg:flex-col max-lg:items-start"
         >
           <div className="flex items-center">
@@ -398,7 +398,7 @@ function TailoredPortfolioContent() {
 
       {/* 프로젝트 별 첨삭 내용*/}
       <div
-        className="w-[1520px] h-auto bg-[#F8F8F8] ml-[80px] rounded-[16px] relative z-10 p-[60px]
+        className="w-[1520px] h-auto bg-[#F8F8F8] ml-[80px] rounded-[16px] relative z-0 p-[60px]
         max-lg:w-[928px] max-lg:h-[4325px] max-lg:p-[36px] max-lg:ml-[24px]"
         style={{ boxShadow: '0px 0px 4px 0px #00000033' }}
       >
@@ -421,7 +421,7 @@ function TailoredPortfolioContent() {
             </div>
             <div className="ml-[20px] w-[160px]">
               <span
-                className="inline-block text-[16px] px-[12px] py-[4px] rounded-[4px] w-[80px] h-[32px]"
+                className="inline-block text-[16px] px-[12px] py-[4px] rounded-[4px] w-[80px] h-[32px] text-center"
                 style={{
                   backgroundColor:
                     CATEGORY_MAP[(selectedMaster?.category as keyof typeof CATEGORY_MAP) || 'OTHER']

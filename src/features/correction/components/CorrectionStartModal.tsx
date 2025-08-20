@@ -26,6 +26,7 @@ export default function CorrectionStartButtonModal({
 
   const modalContent = (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-[#00000033]" onClick={onCancel} />
       <div
         className="relative w-[498px] h-[266px] bg-[#F8F8F8] rounded-[12px] px-[124px] py-[60px]"
         style={{
@@ -44,9 +45,9 @@ export default function CorrectionStartButtonModal({
             <Image
               src="/icons/CreditIcon.svg"
               alt="첨삭 모달 아이콘"
-              width={20}
-              height={20}
-              className="mt-[2px] mr-[12px]"
+              width={24}
+              height={24}
+              className="mt-[2px] mr-[6px]"
             />
             <h3 className="text-[20px] font-semibold text-center text-black">{title}</h3>
           </div>

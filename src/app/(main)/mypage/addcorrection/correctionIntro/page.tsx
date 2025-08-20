@@ -67,8 +67,8 @@ export default function CorrectionIntro() {
   /* TODO: Sidebar 제거 후 간격 재조정 */
   return (
     <div
-      className="ml-[140px]
-    max-lg:ml-[0px]"
+      className="ml-[240px] fixed
+    max-lg:ml-[24px]"
     >
       <div className="flex flex-col items-center">
         <LoadingModal isOpen={isLoadingOpen} payload={payload} startFromLast={startFromLast} />
