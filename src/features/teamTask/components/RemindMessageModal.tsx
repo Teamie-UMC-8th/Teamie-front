@@ -81,7 +81,7 @@ ${scheduleName} - ${dateMonthDay} ${time} (${relativeDate})
       onClick={onClose}
     >
       <div
-        className="w-[564px] h-[328px] bg-white rounded-[12px] px-[40px] py-[32px] relative flex flex-col items-center"
+        className="w-[564px] h-[328px] bg-white rounded-[12px] px-[40px] py-[40px] relative flex flex-col items-center"
         style={{ boxShadow: '0px 0px 15px 0px #00000033' }}
         onClick={(e) => e.stopPropagation()}
       >
