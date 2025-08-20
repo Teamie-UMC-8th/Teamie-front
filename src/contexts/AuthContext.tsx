@@ -12,7 +12,7 @@ import { useUser, useUserProjects } from '@/hooks/mutations/useUser';
 import { useLogout } from '@/hooks/mutations/useLogout';
 import { UserProfile } from '@/types/api/user';
 import { useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -36,13 +36,19 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authStatusChecked, setAuthStatusChecked] = useState(false); // 1. 인증 확인 완료 상태 추가
   // pro 업그레이드 상태 추가
   const [isUpgraded, setIsUpgraded] = useState(false);
-  const { data: userData, error: userError, isLoading } = useUser();
+  const {
+    data: userData,
+    error: userError,
+    isLoading: isUserLoading, // 2. useUser의 로딩 상태는 내부적으로만 사용
+  } = useUser();
   const { data: projects = [] } = useUserProjects(!!userData);
   const logoutMutation = useLogout();
   const queryClient = useQueryClient();
   const router = useRouter();
+  const pathname = usePathname(); // 현재 경로 추적
 
   // 사용자 정보와 프로젝트 정보를 합친 완전한 user 객체 (UI용)
   const user = useMemo(() => {
@@ -55,28 +61,23 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     return null;
   }, [userData, projects]);
 
+  // 페이지 이동 시마다 인증 상태를 다시 확인
   useEffect(() => {
-    const handleUnauthorized = () => {
-      setIsAuthenticated(false);
-      queryClient.clear();
-    };
-
-    window.addEventListener('unauthorized', handleUnauthorized);
-
-    return () => {
-      window.removeEventListener('unauthorized', handleUnauthorized);
-    };
-  }, [queryClient]);
+    setAuthStatusChecked(false); // 로딩 상태로 전환하여 UI 깜빡임 방지
+    queryClient.invalidateQueries({ queryKey: ['user'] }); // 사용자 정보 재조회 트리거
+  }, [pathname, queryClient]);
 
   useEffect(() => {
-    if (!isLoading) {
+    // 3. API 요청 로딩이 끝나면 인증 상태를 확정하고, 그 다음에 "인증 확인 절차 끝"으로 표시
+    if (!isUserLoading) {
       if (userData && !userError) {
         setIsAuthenticated(true);
       } else if (userError) {
         setIsAuthenticated(false);
       }
+      setAuthStatusChecked(true); // 인증 상태 세팅이 끝난 후, 확인 완료로 변경
     }
-  }, [userData, userError, isLoading]);
+  }, [userData, userError, isUserLoading]);
 
   const logout = async () => {
     try {
@@ -106,11 +107,11 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       isAuthenticated,
       user,
       logout,
-      isLoading,
+      isLoading: !authStatusChecked, // 4. 외부에는 "인증 확인이 끝나지 않음"을 로딩 상태로 전달
       isUpgraded,
       setIsUpgraded,
     }),
-    [isAuthenticated, user, isLoading, isUpgraded]
+    [isAuthenticated, user, authStatusChecked, isUpgraded]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
