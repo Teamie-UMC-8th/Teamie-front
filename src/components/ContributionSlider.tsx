@@ -144,8 +144,8 @@ export default function ContributionSlider({ value, onChange }: ContributionSlid
           {/* ProgressBar.svg를 슬라이더 바 밖으로 완전히 배치 */}
           {isActive && (
             <div
-              className="absolute cursor-pointer w-[24px] h-[31px]"
-              style={{ left: `${value}%`, transform: 'translateX(-50%)', top: '-29px' }}
+              className="absolute cursor-pointer w-[18px] h-[23px]"
+              style={{ left: `${value}%`, transform: 'translateX(-50%)', top: '-22px' }}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
@@ -153,8 +153,8 @@ export default function ContributionSlider({ value, onChange }: ContributionSlid
               <Image
                 src="/icons/ProgressBar .svg"
                 alt="드래그 핸들"
-                width={24}
-                height={31}
+                width={18}
+                height={23}
                 draggable={false}
               />
             </div>
