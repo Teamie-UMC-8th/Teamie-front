@@ -26,6 +26,7 @@ export default function CorrectionStartButtonModal({
 
   const modalContent = (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-[#00000033]" onClick={onCancel} />
       <div
         className="relative w-[498px] h-[266px] bg-[#F8F8F8] rounded-[12px] px-[124px] py-[60px]"
         style={{
