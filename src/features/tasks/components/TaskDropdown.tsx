@@ -80,7 +80,8 @@ export default function TaskDropdown({ status, onChange, readOnly = false }: Tas
         <img
           src="/icons/drop-down.svg"
           alt="드롭다운"
-          className={` ml-[4px] ${readOnly ? '' : 'cursor-pointer'}`}
+          className={` ml-[4px] ${readOnly ? '' : 'cursor-pointer'} transform ${isOpen ? 'rotate-180' : 'rotate-0'}`}
+          style={{ transition: 'none' }}
           onClick={toggleDropdown}
         />
       </div>
