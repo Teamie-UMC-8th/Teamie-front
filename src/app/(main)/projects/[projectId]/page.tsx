@@ -11,11 +11,14 @@ import AddTeamProfileModal from '@/features/projectHome/components/AddTeamProfil
 import ChangeLeaderModal from '@/features/projectHome/components/ChangeLeaderModal';
 import Portal from '@/components/Portal';
 import { useProjectHomeState } from '@/hooks/mutations/useProjectHome';
+import { useGetProjectIsCompleted } from '@/hooks/queries/projects/useGetProject';
 import axiosInstance from '@/lib/axiosInstance';
 
 export default function ProjectHomePage() {
   const params = useParams();
   const projectId = Number(params.projectId);
+  const { data: isCompletedData } = useGetProjectIsCompleted(projectId);
+  const isCompleted = Boolean(isCompletedData?.result?.isCompleted);
   const [currentUserEmail, setCurrentUserEmail] = useState<string>('');
   const [currentUserImageUrl, setCurrentUserImageUrl] = useState<string>('');
   const [projectName, setProjectName] = useState<string>('프로젝트');
@@ -123,15 +126,17 @@ export default function ProjectHomePage() {
       </div>
       {/* 게시판, 업데이트 */}
       <div
-        className="flex mt-[68px] gap-[29px]
+        className="flex mt-[68px] gap-[29px] ml-[40px]
       max-lg:ml-[24px] max-lg:flex-col"
       >
         <div className="flex-col">
           <p className="text-[22px] font-semibold">게시판</p>
           <div
-            className="w-[1415px] h-[344px] border-[2px] border-[#BBBBBB] mt-[24px] rounded-[8px] px-[48px] py-[36px] gap-x-[48px] gap-y-[32px] relative cursor-pointer
-          max-lg:w-[862px] max-lg:h-[344px]"
-            onClick={handleBoardClick}
+            className={`w-[1415px] h-[344px] border-[2px] border-[#BBBBBB] mt-[24px] rounded-[8px] px-[48px] py-[36px] gap-x-[48px] gap-y-[32px] relative ${
+              isCompleted ? '' : 'cursor-pointer'
+            }
+          max-lg:w-[862px] max-lg:h-[344px]`}
+            onClick={isCompleted ? undefined : handleBoardClick}
           >
             <div className="relative w-full h-full">
               {postIts.map((postIt, index) => {
@@ -151,11 +156,15 @@ export default function ProjectHomePage() {
                   >
                     <PostIt
                       content={postIt.content}
-                      onDelete={() =>
-                        handleDeletePostIt(
-                          (postIt as { serverId?: number; id: string }).serverId ?? postIt.id
-                        )
+                      onDelete={
+                        isCompleted
+                          ? undefined
+                          : () =>
+                              handleDeletePostIt(
+                                (postIt as { serverId?: number; id: string }).serverId ?? postIt.id
+                              )
                       }
+                      readOnly={isCompleted}
                       createdAt={postIt.createdAt}
                     />
                   </div>
@@ -167,7 +176,7 @@ export default function ProjectHomePage() {
       </div>
       {/* 팀 목표, 규칙 */}
       <div
-        className="flex mt-[80px] gap-[42px]
+        className="flex mt-[80px] gap-[42px] ml-[40px]
       max-lg:flex-col max-lg:ml-[24px]"
       >
         <TextField
@@ -175,12 +184,15 @@ export default function ProjectHomePage() {
           placeholder="우리 팀의 목표를 작성하세요"
           value={teamGoal}
           onChange={(value) => {
+            if (isCompleted) return;
             setTeamGoal(value);
           }}
           disabled={
+            isCompleted ||
             !teamMembers.some((member) => member.isLeader && member.email === currentUserEmail)
           }
           onBlur={() => {
+            if (isCompleted) return;
             // 현재 사용자가 팀장인지 확인
             const currentUser = teamMembers.find(
               (member) => member.isLeader && member.email === currentUserEmail
@@ -205,19 +217,22 @@ export default function ProjectHomePage() {
           }}
           maxLength={300}
           showFullViewButton={teamGoal.length >= 222}
-          onFullViewClick={() => handleShowFullText('goal')}
+          onFullViewClick={isCompleted ? undefined : () => handleShowFullText('goal')}
         />
         <TextField
           title="우리 팀의 규칙"
           placeholder="우리 팀의 규칙을 작성하세요"
           value={teamRules}
           onChange={(value) => {
+            if (isCompleted) return;
             setTeamRules(value);
           }}
           disabled={
+            isCompleted ||
             !teamMembers.some((member) => member.isLeader && member.email === currentUserEmail)
           }
           onBlur={() => {
+            if (isCompleted) return;
             // 현재 사용자가 팀장인지 확인
             const currentUser = teamMembers.find(
               (member) => member.isLeader && member.email === currentUserEmail
@@ -242,12 +257,12 @@ export default function ProjectHomePage() {
           }}
           maxLength={300}
           showFullViewButton={teamRules.length >= 222}
-          onFullViewClick={() => handleShowFullText('rules')}
+          onFullViewClick={isCompleted ? undefined : () => handleShowFullText('rules')}
         />
       </div>
       {/* 팀원 프로필 */}
       <div
-        className="mt-[82px] w-[1416px]
+        className="mt-[82px] w-[1416px] ml-[40px]
       max-lg:ml-[24px]"
       >
         <div
@@ -256,8 +271,11 @@ export default function ProjectHomePage() {
         >
           <p className="font-semibold text-[22px]">팀원 프로필</p>
           <button
-            className="w-[91px] h-[34px] px-[12px] py-[4px] text-white bg-[#81D7D4] rounded-[4px] font-bold cursor-pointer"
-            onClick={handleAddTeamMember}
+            className={`w-[91px] h-[34px] px-[12px] py-[4px] text-white rounded-[4px] font-bold ${
+              isCompleted ? 'bg-[#BBBBBB] cursor-not-allowed' : 'bg-[#81D7D4] cursor-pointer'
+            }`}
+            onClick={isCompleted ? undefined : handleAddTeamMember}
+            disabled={isCompleted}
           >
             팀원 추가
           </button>
@@ -277,16 +295,23 @@ export default function ProjectHomePage() {
               isLeader={member.isLeader}
               currentUserEmail={currentUserEmail}
               currentUserImageUrl={currentUserImageUrl}
-              onClick={() => handleChangeLeader(member.id)}
-              onUpdate={(field, value) => handleUpdateTeamMember(member.id, field, value)}
+              onClick={isCompleted ? undefined : () => handleChangeLeader(member.id)}
+              onUpdate={
+                isCompleted
+                  ? undefined
+                  : (field, value) => handleUpdateTeamMember(member.id, field, value)
+              }
+              readOnly={isCompleted}
             />
           ))}
         </div>
       </div>
 
-      {isModalOpen && <PostItModal onClose={handleCloseModal} onSave={handleSavePostIt} />}
+      {isModalOpen && !isCompleted && (
+        <PostItModal onClose={handleCloseModal} onSave={handleSavePostIt} />
+      )}
 
-      {isTextFieldModalOpen && (
+      {isTextFieldModalOpen && !isCompleted && (
         <Portal>
           <TextFieldModal
             type={textFieldModalType}
@@ -297,7 +322,7 @@ export default function ProjectHomePage() {
         </Portal>
       )}
 
-      {isAddTeamModalOpen && (
+      {isAddTeamModalOpen && !isCompleted && (
         <Portal>
           <AddTeamProfileModal
             onClose={handleCloseAddTeamModal}
@@ -308,7 +333,7 @@ export default function ProjectHomePage() {
         </Portal>
       )}
 
-      {isChangeLeaderModalOpen && (
+      {isChangeLeaderModalOpen && !isCompleted && (
         <Portal>
           <ChangeLeaderModal
             onClose={handleCloseChangeLeaderModal}

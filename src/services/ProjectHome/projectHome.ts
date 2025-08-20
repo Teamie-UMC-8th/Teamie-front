@@ -201,7 +201,7 @@ export const createPostIt = async (
       error: null,
       result: {
         id: Date.now(),
-        userId: 1,
+        author: 1,
         content: postItData.content,
         projectId: projectId,
         createdAt: new Date().toISOString(),

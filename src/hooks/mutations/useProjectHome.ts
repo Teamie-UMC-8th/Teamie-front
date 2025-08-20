@@ -79,6 +79,8 @@ export const useCreatePostIt = (projectId: number) => {
     onSuccess: () => {
       // 포스트잇 관련 쿼리를 무효화하여 데이터 업데이트
       queryClient.invalidateQueries({ queryKey: ['postIts', projectId] });
+      // 프로젝트 홈 응답에 posts가 포함될 수 있으므로 함께 무효화
+      queryClient.invalidateQueries({ queryKey: ['projectHome', projectId] });
     },
     onError: (error) => {
       console.error('포스트잇 생성 실패:', error);
@@ -99,6 +101,8 @@ export const useDeletePostIt = (projectId: number) => {
     onSuccess: () => {
       // 포스트잇 관련 쿼리를 무효화하여 데이터 업데이트
       queryClient.invalidateQueries({ queryKey: ['postIts', projectId] });
+      // 프로젝트 홈에도 posts가 포함될 수 있으므로 함께 무효화
+      queryClient.invalidateQueries({ queryKey: ['projectHome', projectId] });
     },
     onError: (error) => {
       console.error('포스트잇 삭제 실패:', error);
@@ -173,15 +177,19 @@ export const useProjectHomeState = (projectId: number) => {
   // map posts from API into local state so UI persists across refresh
   useEffect(() => {
     const posts = projectHomeData?.result?.posts as PostItInfo[] | undefined;
-    if (Array.isArray(posts)) {
-      const mapped: PostItData[] = posts.map((p, index) => ({
-        id: `${index}-${p.author ?? 'na'}`,
-        content: p.content || '',
-        createdAt: p.createdAt ? new Date(p.createdAt).getTime() : Date.now(),
-        serverId: (p as unknown as { id?: number }).id, // 서버에서 id를 주는 경우 연동
-      }));
-      setPostIts(mapped);
-    }
+    if (!Array.isArray(posts)) return;
+
+    // 서버 응답이 post id를 제공하지 않으면 기존 로컬 상태를 유지하여 서버 id를 보존
+    const hasServerIds = posts.some((p) => (p as unknown as { id?: number }).id !== undefined);
+    if (!hasServerIds) return;
+
+    const mapped: PostItData[] = posts.map((p, index) => ({
+      id: `${index}-${p.author ?? 'na'}`,
+      content: p.content || '',
+      createdAt: p.createdAt ? new Date(p.createdAt).getTime() : Date.now(),
+      serverId: (p as unknown as { id?: number }).id,
+    }));
+    setPostIts(mapped);
   }, [projectHomeData?.result]);
 
   // API 데이터가 로드되면 상태 업데이트
@@ -351,29 +359,44 @@ export const useProjectHomeState = (projectId: number) => {
       alert('삭제할 메모의 ID를 확인할 수 없습니다. 새로고침 후 다시 시도해주세요.');
       return;
     }
-    const numericId = typeof postId === 'number' ? postId : parseInt(postId);
-    if (Number.isNaN(numericId)) {
-      alert('삭제할 메모의 ID가 유효하지 않습니다.');
+    // 문자열 ID가 순수 숫자인지 체크 (서버에 생성된 포스트잇인지 여부)
+    const isNumericString = typeof postId === 'string' && /^\d+$/.test(postId);
+    const hasServerId = typeof postId === 'number' || isNumericString;
+
+    // 서버에 생성되지 않은 로컬 전용 포스트잇은 API 호출 없이 로컬에서만 제거
+    if (!hasServerId) {
+      setPostIts(postIts.filter((postIt) => postIt.id !== String(postId)));
       return;
     }
+
+    const numericId = typeof postId === 'number' ? postId : Number(postId);
     // API를 통해 포스트잇 삭제 (서버 ID 우선)
     deletePostItMutation.mutate(numericId, {
       onSuccess: (data) => {
         if (data.isSuccess) {
-          // 성공 시 로컬 상태에서도 제거
-          setPostIts(
-            postIts.filter((postIt) =>
+          setPostIts((prev) =>
+            prev.filter((postIt) =>
               postIt.serverId ? postIt.serverId !== numericId : postIt.id !== String(postId)
             )
+          );
+
+          // 서버가 프로젝트 수정 API를 통해 게시판 상태를 최신화하므로, 삭제 후 즉시 프로젝트 수정 API를 호출해 동기화
+          updateProjectMutation.mutate(
+            { goal: teamGoal, rule: teamRules },
+            {
+              onSuccess: () => {
+                // invalidate는 useUpdateProject의 onSuccess에서 처리됨
+              },
+            }
           );
         }
       },
       onError: (error) => {
         console.error('포스트잇 삭제 실패:', error);
-        // 에러 시에도 로컬에서 제거 (개발 환경)
+        // 개발 환경에서는 로컬 상태만 우선 업데이트
         if (process.env.NODE_ENV === 'development') {
-          setPostIts(
-            postIts.filter((postIt) =>
+          setPostIts((prev) =>
+            prev.filter((postIt) =>
               postIt.serverId ? postIt.serverId !== numericId : postIt.id !== String(postId)
             )
           );
