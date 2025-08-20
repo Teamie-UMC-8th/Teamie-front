@@ -33,6 +33,11 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
 
     const isProtectedRoute = PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
     const isLoginPage = pathname === '/login';
+    const isCallbackPage = pathname === '/callback';
+
+    if (isLoginPage || isCallbackPage) {
+      return;
+    }
 
     // 현재 전체 경로(쿼리 포함)
     const search = typeof window !== 'undefined' ? window.location.search : '';

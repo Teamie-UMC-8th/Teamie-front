@@ -10,19 +10,17 @@ const axiosInstance = axios.create({
   },
 });
 
-// Response interceptor - 401 에러(인증 실패) 시 로그인 페이지로 리다이렉트
 axiosInstance.interceptors.response.use(
   (response) => {
     // 2xx 범위의 상태 코드는 이 함수를 트리거합니다.
     return response;
   },
   (error) => {
-    // 2xx 외의 상태 코드는 이 함수를 트리거합니다.
-    if (typeof window !== 'undefined' && error.response?.status === 401) {
-      // 현재 요청이 로그인 페이지로 향하는 것을 방지하여 무한 리다이렉트를 막습니다.
-      if (window.location.pathname !== '/login') {
-        console.error('401 Unauthorized. 로그인 페이지로 이동합니다.');
-        window.location.href = '/login';
+    if (error.response?.status === 401) {
+      console.error('401 Unauthorized - 인증이 필요합니다.');
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('unauthorized'));
       }
     }
     return Promise.reject(error);
