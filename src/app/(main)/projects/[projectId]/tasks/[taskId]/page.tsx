@@ -543,7 +543,7 @@ export default function TaskDetailPage() {
         >
           {/* 마감 기한 */}
           <div className="flex items-center relative">
-            <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] mr-[28px]">
+            <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] mr-[20px]">
               마감 기한
             </div>
             <div
