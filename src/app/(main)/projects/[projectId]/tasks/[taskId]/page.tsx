@@ -145,27 +145,28 @@ export default function TaskDetailPage() {
     }
   }, [isConnected, socket, taskId, projectId, subscribe, unsubscribe, queryClient, router]);
 
-  // 삭제 성공 시 페이지 이동
+  // 삭제 성공 시 이전 페이지로 이동
   useEffect(() => {
     if (deleteTaskMutation.isSuccess && isTaskDeleted) {
-      // 삭제 성공 후 이전 페이지로 이동
       router.back();
     }
   }, [deleteTaskMutation.isSuccess, isTaskDeleted, router]);
 
   // 404 에러 처리 - 업무가 삭제되었거나 존재하지 않는 경우
   useEffect(() => {
-    if (error) {
+    if (error && !isTaskDeleted && !deleteTaskMutation.isPending) {
       console.error('🎯 TaskDetailPage - useQuery 실패:', error);
 
-      // 404 에러인 경우 업무가 삭제되었거나 존재하지 않음을 알림
-      if (error instanceof Error && error.message.includes('404')) {
+      // 삭제 또는 미존재 관련 메시지에 반응 (서버 메시지 포맷 고려)
+      if (
+        error instanceof Error &&
+        (error.message.includes('찾을 수 없') || error.message.includes('삭제'))
+      ) {
         alert('업무가 삭제되었거나 존재하지 않습니다.');
-        // 대시보드로 리다이렉트
-        window.location.href = `/projects/${projectId}/dashboard`;
+        router.back();
       }
     }
-  }, [error, projectId]);
+  }, [error, isTaskDeleted, deleteTaskMutation.isPending, router]);
 
   // 삭제 실패 시 isTaskDeleted 상태 되돌리기
   useEffect(() => {
@@ -435,6 +436,15 @@ export default function TaskDetailPage() {
     setIsEditingName(false);
     setEditingName('');
   };
+
+  // 삭제 진행/완료 상태 처리 (데이터 캐시 제거/비활성화 중 깜빡임 방지)
+  if (isTaskDeleted || deleteTaskMutation.isPending) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg">삭제 중...</div>
+      </div>
+    );
+  }
 
   // 로딩 상태 처리
   if (isLoading) {
