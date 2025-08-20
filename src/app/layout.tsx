@@ -33,27 +33,25 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
 
     const isProtectedRoute = PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
     const isLoginPage = pathname === '/login';
-    const isCallbackPage = pathname === '/callback';
-
-    if (isLoginPage || isCallbackPage) {
-      return;
-    }
 
     // 현재 전체 경로(쿼리 포함)
     const search = typeof window !== 'undefined' ? window.location.search : '';
     const currentFullPath = `${pathname}${search}`;
 
+    // 1. 인증된 사용자가 로그인 페이지에 접근한 경우
+    if (isLoginPage && isAuthenticated) {
+      const params = new URLSearchParams(search);
+      const next = params.get('next');
+      router.replace(next || '/home/tasks');
+      return;
+    }
+
+    // 2. 인증되지 않은 사용자가 보호된 경로에 접근한 경우
     if (isProtectedRoute && !isAuthenticated) {
       // 의도 경로를 next로 넘기며 로그인 페이지로 이동
       const nextParam = encodeURIComponent(currentFullPath);
       router.replace(`/login?next=${nextParam}`);
       return;
-    }
-
-    if (isLoginPage && isAuthenticated) {
-      const params = new URLSearchParams(search);
-      const next = params.get('next');
-      router.replace(next || '/home/tasks');
     }
   }, [pathname, isAuthenticated, router, isLoading]);
 

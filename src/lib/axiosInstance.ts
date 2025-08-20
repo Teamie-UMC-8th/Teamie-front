@@ -18,10 +18,6 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       console.error('401 Unauthorized - 인증이 필요합니다.');
-
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('unauthorized'));
-      }
     }
     return Promise.reject(error);
   }
