@@ -27,9 +27,9 @@ const STYLES = {
 
 function ProjectHeader({ title }: { title: string }) {
   return (
-    <div className="flex flex-col gap-[12px] px-[30px]">
+    <div className="flex flex-col gap-[12px]">
       <div className="flex items-center gap-[20px] max-lg:gap-[8px]">
-        <Link href="/myPage" className="flex items-center gap-[8px] cursor-pointer">
+        <Link href="/myPage" className="ml-[-30px] flex items-center gap-[20px] cursor-pointer">
           <Image src="/icons/arrow-left.svg" alt="뒤로가기" width={24} height={24} />
           <h1 className="font-[Pretendard] font-bold text-[24px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap">
             {title}
