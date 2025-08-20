@@ -68,6 +68,12 @@ export default function ReplyComment({
           <input
             value={replyValue}
             onChange={(e) => onChange(idx, e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && replyValue.trim()) {
+                e.preventDefault();
+                onSubmit(idx);
+              }
+            }}
             disabled={isAddingCocomment}
             className="rounded-[8px] w-[1224px] min-h-[46px] pl-[12px] py-[10px] bg-white border-[2px] border-[#BBBBBB]
             max-lg:w-[671px] disabled:opacity-50"
