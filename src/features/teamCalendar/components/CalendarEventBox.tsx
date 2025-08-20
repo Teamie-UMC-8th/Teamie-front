@@ -53,7 +53,7 @@ export default function CalendarEventBox({ event }: { event: CalendarEvent }) {
       title={event.title ?? ''}
       role="button"
     >
-      <div className="w-full h-full flex items-center justify-center text-center break-words whitespace-normal overflow-wrap-anywhere Z-[90px]">
+      <div className="w-full h-full flex items-center justify-center text-center break-words whitespace-normal overflow-wrap-anywhere z-[90px]">
         {event.title || '빈 일정'}
       </div>
     </div>
