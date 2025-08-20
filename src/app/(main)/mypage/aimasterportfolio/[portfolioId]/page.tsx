@@ -256,7 +256,7 @@ export default function MasterPortfolioDetail() {
       <hr className="w-[1600px] max-lg:w-[976px] h-0 border-t-[2px] border-[#E7E7E7]" />
       <div className="flex flex-col gap-4 pr-[30px] pl-[30px] pt-[40px] pb-[12px]">
         <section className="flex items-center pb-[60px] max-lg:flex-col max-lg:items-start">
-          <div className="flex flex-nowrap gap-[265px] max-lg:gap-[100px]">
+          <div className="flex flex-nowrap gap-[205px] max-lg:gap-[100px]">
             <ProjectPeriod startDate={projectData.startDate} endDate={projectData.endDate} />
             <CategorySelector selected={selectedCategory} onSelect={handleCategoryChange} />
           </div>
