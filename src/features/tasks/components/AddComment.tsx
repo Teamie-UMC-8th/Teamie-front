@@ -475,6 +475,7 @@ export default function AddComment() {
               </div>
               <div className="text-[#898989] text-[12px] ml-[16px] mt-[4px] ">
                 {formatDate(comment.createdAt)}
+                {comment.updatedAt && comment.updatedAt !== comment.createdAt && ' (수정됨)'}
               </div>
             </div>
           </div>
@@ -502,6 +503,7 @@ export default function AddComment() {
                     onChange={() => {}}
                     onSubmit={() => {}}
                     formatDate={() => formatDate(cocomment.createdAt)}
+                    isEdited={cocomment.updatedAt !== cocomment.createdAt}
                     isAddingCocomment={isAddingCocomment}
                     isDeletingCocomment={isDeletingCocomment}
                     onCocommentEdit={handleCocommentEdit}

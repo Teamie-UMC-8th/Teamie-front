@@ -22,6 +22,7 @@ type Props = {
   editCocommentContent?: string; // 수정 중인 대댓글 내용
   onCocommentEditChange?: (content: string) => void; // 대댓글 수정 내용 변경 핸들러
   onCocommentEditSubmit?: () => void; // 대댓글 수정 제출 핸들러
+  isEdited?: boolean; // 수정 여부
 };
 
 export default function ReplyComment({
@@ -44,6 +45,7 @@ export default function ReplyComment({
   editCocommentContent = '',
   onCocommentEditChange,
   onCocommentEditSubmit,
+  isEdited = false,
 }: Props) {
   // 현재 사용자 정보 가져오기
   const { data: currentUser } = useUser();
@@ -168,7 +170,10 @@ export default function ReplyComment({
               />
             )}
           </div>
-          <div className="text-[#898989] text-[12px] ml-[24px] mt-[4px]">{formatDate()}</div>
+          <div className="text-[#898989] text-[12px] ml-[24px] mt-[4px]">
+            {formatDate()}
+            {isEdited && ' (수정됨)'}
+          </div>
         </div>
       </div>
     );
