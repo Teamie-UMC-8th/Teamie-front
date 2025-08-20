@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { getPlanDetail, deletePlan, updatePlan, updatePlanUsers } from '@/services/plans/plan';
 import { PatchPlanRequest, PatchPlanUsersRequest } from '@/types/api/plans';
@@ -15,13 +15,18 @@ export const useGetPlanDetail = (planId: string) =>
   });
 
 // Mutation Hooks
-export const usePatchPlan = () =>
-  useMutation({
+export const usePatchPlan = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
     mutationFn: ({ planId, planData }: { planId: string; planData: PatchPlanRequest }) =>
       updatePlan(planId, planData),
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       if (data.isSuccess) {
         console.log('✅ 일정 수정 성공:', data.result);
+        // 캐시 무효화로 즉시 반영
+        queryClient.invalidateQueries({ queryKey: ['calendarPlans'] });
+        queryClient.invalidateQueries({ queryKey: ['planDetail', variables.planId] });
       } else {
         console.error('❌ 일정 수정 실패:', data.error);
       }
@@ -35,6 +40,7 @@ export const usePatchPlan = () =>
       }
     },
   });
+};
 
 export const usePatchPlanUsers = () =>
   useMutation({
