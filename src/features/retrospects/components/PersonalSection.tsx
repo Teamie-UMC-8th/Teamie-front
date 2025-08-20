@@ -52,7 +52,7 @@ export default function PersonalSection() {
   }
 
   return (
-    <div className="flex w-full flex flex-col gap-[28px] mb-[52px]">
+    <div className="flex w-full flex-col gap-[28px] mb-[52px]">
       <SectionBox
         title="1. 나의 역할과 일하는 방식"
         bullets={[

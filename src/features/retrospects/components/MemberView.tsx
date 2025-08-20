@@ -25,7 +25,7 @@ export function MemberView() {
   const handleFinalLeave = () => {
     setShowFinalModal(false);
     // 백엔드에서 자동 생성되므로 바로 이동
-    router.push(`/projects/${projectId}/retrospect/create`);
+    router.push(`/projects/${projectId}/retrospect`);
   };
 
   return (
