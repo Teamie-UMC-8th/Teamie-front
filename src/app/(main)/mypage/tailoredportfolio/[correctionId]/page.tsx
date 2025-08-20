@@ -296,7 +296,7 @@ function TailoredPortfolioContent() {
 
       <div>
         <div
-          className="flex flex-row mt-[60px] ml-[80px] items-center w-[1500px]
+          className="flex flex-row mt-[60px] ml-[80px] items-center w-[3000px]
         max-lg:ml-[24px] max-lg:flex-col max-lg:items-start"
         >
           <div className="flex items-center">
