@@ -237,7 +237,7 @@ function TailoredPortfolioContent() {
     <div>
       <div className="flex justify-between">
         <div className="flex items-center">
-          <Link href="/mypage">
+          <Link href="/myPage?tab=ai">
             <Image
               src="/icons/arrow-left.svg"
               alt="뒤로가기"
@@ -278,7 +278,7 @@ function TailoredPortfolioContent() {
                 queryClient.invalidateQueries({ queryKey: ['generated-rag', correctionId] });
                 queryClient.invalidateQueries({ queryKey: ['company-insight', correctionId] });
                 queryClient.invalidateQueries({ queryKey: ['correction-list'] });
-                router.push('/myPage');
+                router.push('/myPage?tab=ai');
               }
             }}
             modalTitle="이 AI 첨삭 내용을 정말 삭제하시겠습니까?"
