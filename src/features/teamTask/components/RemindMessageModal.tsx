@@ -76,10 +76,14 @@ ${scheduleName} - ${dateMonthDay} ${time} (${relativeDate})
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-[#00000033] rounded-[12px] flex items-center justify-center z-50">
+    <div
+      className="fixed inset-0 bg-[#00000033] rounded-[12px] flex items-center justify-center z-50"
+      onClick={onClose}
+    >
       <div
         className="w-[564px] h-[328px] bg-white rounded-[12px] px-[40px] py-[32px] relative flex flex-col items-center"
         style={{ boxShadow: '0px 0px 15px 0px #00000033' }}
+        onClick={(e) => e.stopPropagation()}
       >
         <Image
           src="/icons/CloseModal.svg"
