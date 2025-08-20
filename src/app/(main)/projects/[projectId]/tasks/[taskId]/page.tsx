@@ -133,7 +133,7 @@ export default function TaskDetailPage() {
 
       const handleForceUnsubscribe = () => {
         console.log('강제 구독 해제');
-        router.push(`/projects/${projectId}/dashboard`);
+        router.back();
       };
 
       socket.on('publish', handlePublish);

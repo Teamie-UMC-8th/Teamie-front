@@ -102,7 +102,9 @@ export default function TeamCalendar() {
       // 3) 강제 구독 해제 시 이동
       const handleForceUnsubscribe = () => {
         console.log('팀캘린더 강제 구독 해제');
-        window.location.href = '/home/tasks';
+        queryClient.invalidateQueries({
+          queryKey: ['calendarPlans', projectId, startDate, endDate],
+        });
       };
 
       socket.on('publish', handlePublish);
