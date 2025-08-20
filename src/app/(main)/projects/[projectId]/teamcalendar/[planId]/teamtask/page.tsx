@@ -172,10 +172,13 @@ export default function TeamTaskDetailPage() {
 
   // 참석자 정보 (프로젝트 홈의 사용자 목록 사용)
   const availableProfiles =
-    projectHomeData?.result?.project?.users?.map((user: { id: number; name: string }) => ({
-      userId: user.id,
-      userName: user.name,
-    })) || [];
+    projectHomeData?.result?.project?.users?.map(
+      (user: { id: number; name: string; imageUrl?: string | null }) => ({
+        userId: user.id,
+        userName: user.name,
+        imageUrl: user.imageUrl ?? null,
+      })
+    ) || [];
 
   // 프로젝트 생성일 (선택 가능한 최소 날짜)
   const projectCreatedAtString =

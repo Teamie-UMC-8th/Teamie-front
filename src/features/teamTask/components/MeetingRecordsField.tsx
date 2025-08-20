@@ -4,7 +4,7 @@ interface MeetingRecordsFieldProps {
   value: string;
   onChange: (value: string) => void;
   onBlur?: (value: string) => void;
-  availableProfiles: { userId: number; userName: string }[];
+  availableProfiles: { userId: number; userName: string; imageUrl?: string | null }[];
   selectedWriters: number[];
   onWritersChange: (selectedUserIds: number[]) => void;
   onPermissionCheck?: () => boolean;
