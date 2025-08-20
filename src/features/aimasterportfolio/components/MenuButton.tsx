@@ -24,17 +24,17 @@ export default function MenuButton() {
     },
     {
       label: '개인 회고로 이동',
-      href: `/projects/${projectId || ''}/retrospect/create`,
+      href: `/projects/${projectId || ''}/retrospect`,
       onClick: () => {
         if (projectId) {
-          router.push(`/projects/${projectId}/retrospect/create`);
+          router.push(`/projects/${projectId}/retrospect`);
         }
       },
     },
   ];
 
   return (
-    <div className="absolute top-0 right-[20px] relative ml-auto max-lg:w-[32px] max-lg:h-[32px]">
+    <div className="absolute top-0 right-[20px] relative ml-auto justify-end max-lg:w-[32px] max-lg:h-[32px]">
       <Dropdown
         isOpen={open}
         onToggle={() => setOpen(!open)}

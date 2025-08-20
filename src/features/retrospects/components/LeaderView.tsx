@@ -83,7 +83,7 @@ export default function LeaderView() {
             // 종료 완료 후 자동 생성된 회고로 이동
             completeProject(undefined, {
               onSettled: () => {
-                router.push(`/projects/${projectId}/retrospect/create`);
+                router.push(`/projects/${projectId}/retrospect`);
               },
             });
           }}

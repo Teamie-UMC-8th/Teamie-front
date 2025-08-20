@@ -18,15 +18,25 @@ export default function StepsSidebar({ steps, currentStep }: StepSidebarProps) {
   return (
     <div className="w-[280px]  max-lg:w-full h-full max-lg:h-[108px] shadow-lg bg-white border-gray-200 flex flex-col p-6">
       {/* 뒤로가기 */}
-      <div
-        className="flex items-center gap-2 justify-end mb-8 cursor-pointer hover:bg-gray-50 p-2 rounded
-        max-lg:justify-start max-lg:mb-2 max-lg:px-[2px] max-lg:py-[2px]"
-        onClick={() => {
-          router.push(`/myPage/aiMasterPortfolio/${portfolioId}`);
-        }}
-      >
-        <Image src="/icons/arrow-left.svg" alt="뒤로가기" width={24} height={24} />
-        <p className="font-normal text-lg text-black-400">돌아가기</p>
+      <div className="flex items-center gap-2 justify-end mb-8 max-lg:justify-start max-lg:mb-2 max-lg:px-[2px] max-lg:py-[2px]">
+        <Image
+          src="/icons/arrow-left.svg"
+          alt="뒤로가기"
+          width={24}
+          height={24}
+          className="cursor-pointer"
+          onClick={() => {
+            router.push(`/myPage/aiMasterPortfolio/${portfolioId}`);
+          }}
+        />
+        <p
+          className="font-normal text-lg text-black-400 cursor-pointer"
+          onClick={() => {
+            router.push(`/myPage/aiMasterPortfolio/${portfolioId}`);
+          }}
+        >
+          돌아가기
+        </p>
       </div>
 
       {/* 스텝 리스트 */}

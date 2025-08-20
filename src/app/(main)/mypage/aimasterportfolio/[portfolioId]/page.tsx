@@ -12,7 +12,6 @@ import { usePatchMasterPortfolio } from '@/hooks/mutations/usePatchMasterPortfol
 import { CATEGORY_MAP, CATEGORY_LIST, CategoryKey } from '@/constants/category';
 import ContributionSlider from '@/components/ContributionSlider';
 import { useProjectHome } from '@/hooks/mutations/useProjectHome';
-import { formatDate } from '@/utils/formatDate';
 import Image from 'next/image';
 import { useQueryClient } from '@tanstack/react-query';
 import MenuButton from '@/features/aiMasterPortfolio/components/MenuButton';
@@ -27,9 +26,9 @@ const STYLES = {
 
 function ProjectHeader({ title }: { title: string }) {
   return (
-    <div className="flex flex-col gap-[12px] px-[30px]">
+    <div className="flex flex-col gap-[12px]">
       <div className="flex items-center gap-[20px] max-lg:gap-[8px]">
-        <Link href="/myPage" className="flex items-center gap-[8px] cursor-pointer">
+        <Link href="/myPage" className="ml-[-30px] flex items-center gap-[20px] cursor-pointer">
           <Image src="/icons/arrow-left.svg" alt="뒤로가기" width={24} height={24} />
           <h1 className="font-[Pretendard] font-bold text-[24px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap">
             {title}
@@ -42,11 +41,19 @@ function ProjectHeader({ title }: { title: string }) {
 }
 
 function ProjectPeriod({ startDate, endDate }: { startDate: string; endDate: string }) {
+  const formatDateToYYYYMMDD = (dateString: string) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}.${month}.${day}`;
+  };
+
   return (
     <div className="flex items-center gap-[28px]">
       <div className={STYLES.tag}>진행 기간</div>
       <time className={STYLES.text}>
-        {startDate} ~ {endDate}
+        {formatDateToYYYYMMDD(startDate)} ~ {formatDateToYYYYMMDD(endDate)}
       </time>
     </div>
   );
@@ -60,12 +67,31 @@ function CategorySelector({
   onSelect: (category: CategoryKey) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const handleSelect = (value: CategoryKey) => {
     onSelect(value);
     setIsOpen(false);
   };
+
+  // 외부 클릭 시 드롭다운 닫기
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (containerRef.current && !containerRef.current.contains(target)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [isOpen]);
   return (
-    <div className="flex items-center gap-[28px]">
+    <div ref={containerRef} className="flex items-center gap-[28px]">
       <div className={STYLES.tag}>분류</div>
       <div className="relative">
         <button
@@ -237,10 +263,8 @@ export default function MasterPortfolioDetail() {
 
   const projectData = {
     title: project?.name || currentPortfolio?.projectName || '프로젝트 이름 없음',
-    startDate: currentPortfolio?.startDate
-      ? formatDate(currentPortfolio.startDate)
-      : '날짜 정보 없음',
-    endDate: currentPortfolio?.endDate ? formatDate(currentPortfolio.endDate) : '날짜 정보 없음',
+    startDate: currentPortfolio?.startDate || '날짜 정보 없음',
+    endDate: currentPortfolio?.endDate || '날짜 정보 없음',
     contribution: contribution,
   };
 
@@ -250,7 +274,7 @@ export default function MasterPortfolioDetail() {
       <hr className="w-[1600px] max-lg:w-[976px] h-0 border-t-[2px] border-[#E7E7E7]" />
       <div className="flex flex-col gap-4 pr-[30px] pl-[30px] pt-[40px] pb-[12px]">
         <section className="flex items-center pb-[60px] max-lg:flex-col max-lg:items-start">
-          <div className="flex flex-nowrap gap-[265px] max-lg:gap-[100px]">
+          <div className="flex flex-nowrap gap-[205px] max-lg:gap-[100px]">
             <ProjectPeriod startDate={projectData.startDate} endDate={projectData.endDate} />
             <CategorySelector selected={selectedCategory} onSelect={handleCategoryChange} />
           </div>
