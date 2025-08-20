@@ -192,3 +192,21 @@ export interface CorrectionDetailResponse {
     feedback?: string;
   };
 }
+
+// AI 첨삭 대상 마스터 포트폴리오 조회 응답 타입
+export interface AiCorrectionMasterPortfolioItem {
+  type: 'line' | 'header';
+  number?: number;
+  text: string;
+}
+
+export interface AiCorrectionMasterPortfolioResponse {
+  isSuccess: boolean;
+  error: null;
+  result: {
+    detailInfo: AiCorrectionMasterPortfolioItem[];
+    assignedTask: AiCorrectionMasterPortfolioItem[];
+    keyAchievement: AiCorrectionMasterPortfolioItem[];
+    insight: AiCorrectionMasterPortfolioItem[];
+  };
+}

@@ -22,6 +22,7 @@ import CompanyInsightProcessModal from '@/features/correction/components/Company
 import { useMasterPortfolioList } from '@/hooks/queries/useGetMasterPortfolio';
 import type { MasterPortfolio } from '@/types/api/masterportfolio';
 import { CATEGORY_MAP } from '@/constants/category';
+import { fetchAiCorrectionMasterPortfolio } from '@/services/correction/correction';
 
 function TailoredPortfolioContent() {
   const params = useParams();
@@ -94,6 +95,14 @@ function TailoredPortfolioContent() {
     const id = Number(proj?.id);
     return Number.isFinite(id) ? id : undefined;
   })();
+
+  // 선택된 프로젝트의 마스터 포트폴리오 원문 정보 조회 (좌측 컬럼 표시용)
+  const { data: masterLeft } = useQuery({
+    queryKey: ['ai-correction-master-left', selectedProjectId],
+    queryFn: () => fetchAiCorrectionMasterPortfolio(selectedProjectId!),
+    enabled: typeof selectedProjectId === 'number',
+    staleTime: 60_000,
+  });
 
   // 선택된 프로젝트의 마스터포트폴리오 메타데이터
   const selectedMaster: MasterPortfolio | undefined = (() => {
@@ -467,33 +476,46 @@ function TailoredPortfolioContent() {
           max-lg:w-[856px] max-lg:flex-col"
           >
             <div className="w-[620px] text-[18px] mt-[8px] max-lg:text-[16px] max-lg:w-[784px] leading-[34px]">
-              {(
-                currentCorrection?.correctionResult?.detailInfo?.lines ||
-                ([] as GeneratedLineItem[])
-              ).map((ln: GeneratedLineItem, idx) => {
-                const text = String(ln?.original_content || '').trim();
-                if (!text) return null;
-                const isReduction = detailReduceOn && Number(ln?.type) === 1;
-                const isConcretize = detailConcreteOn && Number(ln?.type) === 2;
-                const style = isReduction
-                  ? {
-                      backgroundColor: '#FDF5F5',
-                      borderLeft: '4px solid #EF7C7C',
-                      borderRadius: '4px',
-                    }
-                  : isConcretize
-                    ? {
-                        backgroundColor: '#F5FBF5',
-                        borderLeft: '4px solid #97D099',
-                        borderRadius: '4px',
-                      }
-                    : { borderLeft: '4px solid transparent', borderRadius: '4px' };
-                return (
-                  <p key={`detail-${idx}`} style={style}>
-                    {text}
-                  </p>
-                );
-              })}
+              {Array.isArray(masterLeft?.detailInfo) && masterLeft!.detailInfo.length > 0
+                ? masterLeft!.detailInfo.map((item, idx) => {
+                    const text = String(item?.text || '').trim();
+                    if (!text) return null;
+                    return (
+                      <p
+                        key={`detail-${idx}`}
+                        style={{ borderLeft: '4px solid transparent', borderRadius: '4px' }}
+                      >
+                        {text}
+                      </p>
+                    );
+                  })
+                : (
+                    currentCorrection?.correctionResult?.detailInfo?.lines ||
+                    ([] as GeneratedLineItem[])
+                  ).map((ln: GeneratedLineItem, idx) => {
+                    const text = String(ln?.original_content || '').trim();
+                    if (!text) return null;
+                    const isReduction = detailReduceOn && Number(ln?.type) === 1;
+                    const isConcretize = detailConcreteOn && Number(ln?.type) === 2;
+                    const style = isReduction
+                      ? {
+                          backgroundColor: '#FDF5F5',
+                          borderLeft: '4px solid #EF7C7C',
+                          borderRadius: '4px',
+                        }
+                      : isConcretize
+                        ? {
+                            backgroundColor: '#F5FBF5',
+                            borderLeft: '4px solid #97D099',
+                            borderRadius: '4px',
+                          }
+                        : { borderLeft: '4px solid transparent', borderRadius: '4px' };
+                    return (
+                      <p key={`detail-${idx}`} style={style}>
+                        {text}
+                      </p>
+                    );
+                  })}
             </div>
             {/* Divider line */}
             <div className="border-l-[2px] border-[#BBBBBB] ml-[40px] mr-[40px] block max-lg:hidden" />
@@ -617,33 +639,46 @@ function TailoredPortfolioContent() {
           max-lg:w-[856px] max-lg:flex-col"
           >
             <div className="w-[620px] text-[18px] mt-[8px] max-lg:text-[16px] max-lg:w-[784px] leading-[34px]">
-              {(
-                currentCorrection?.correctionResult?.assignedTasks?.lines ||
-                ([] as GeneratedLineItem[])
-              ).map((ln: GeneratedLineItem, idx) => {
-                const text = String(ln?.original_content || '').trim();
-                if (!text) return null;
-                const isReduction = tasksReduceOn && Number(ln?.type) === 1;
-                const isConcretize = tasksConcreteOn && Number(ln?.type) === 2;
-                const style = isReduction
-                  ? {
-                      backgroundColor: '#FDF5F5',
-                      borderLeft: '4px solid #EF7C7C',
-                      borderRadius: '4px',
-                    }
-                  : isConcretize
-                    ? {
-                        backgroundColor: '#F5FBF5',
-                        borderLeft: '4px solid #97D099',
-                        borderRadius: '4px',
-                      }
-                    : { borderLeft: '4px solid transparent', borderRadius: '4px' };
-                return (
-                  <p key={`tasks-${idx}`} style={style}>
-                    {text}
-                  </p>
-                );
-              })}
+              {Array.isArray(masterLeft?.assignedTask) && masterLeft!.assignedTask.length > 0
+                ? masterLeft!.assignedTask.map((item, idx) => {
+                    const text = String(item?.text || '').trim();
+                    if (!text) return null;
+                    return (
+                      <p
+                        key={`tasks-${idx}`}
+                        style={{ borderLeft: '4px solid transparent', borderRadius: '4px' }}
+                      >
+                        {text}
+                      </p>
+                    );
+                  })
+                : (
+                    currentCorrection?.correctionResult?.assignedTasks?.lines ||
+                    ([] as GeneratedLineItem[])
+                  ).map((ln: GeneratedLineItem, idx) => {
+                    const text = String(ln?.original_content || '').trim();
+                    if (!text) return null;
+                    const isReduction = tasksReduceOn && Number(ln?.type) === 1;
+                    const isConcretize = tasksConcreteOn && Number(ln?.type) === 2;
+                    const style = isReduction
+                      ? {
+                          backgroundColor: '#FDF5F5',
+                          borderLeft: '4px solid #EF7C7C',
+                          borderRadius: '4px',
+                        }
+                      : isConcretize
+                        ? {
+                            backgroundColor: '#F5FBF5',
+                            borderLeft: '4px solid #97D099',
+                            borderRadius: '4px',
+                          }
+                        : { borderLeft: '4px solid transparent', borderRadius: '4px' };
+                    return (
+                      <p key={`tasks-${idx}`} style={style}>
+                        {text}
+                      </p>
+                    );
+                  })}
             </div>
             {/* Divider line */}
             <div className="border-l-[2px] border-[#BBBBBB] ml-[40px] mr-[40px] block max-lg:hidden" />
@@ -766,33 +801,46 @@ function TailoredPortfolioContent() {
           max-lg:w-[856px] max-lg:flex-col"
           >
             <div className="w-[620px] text-[18px] mt-[8px] max-lg:text-[16px] max-lg:w-[784px] leading-[34px]">
-              {(
-                currentCorrection?.correctionResult?.keyAchievements?.lines ||
-                ([] as GeneratedLineItem[])
-              ).map((ln: GeneratedLineItem, idx) => {
-                const text = String(ln?.original_content || '').trim();
-                if (!text) return null;
-                const isReduction = achReduceOn && Number(ln?.type) === 1;
-                const isConcretize = achConcreteOn && Number(ln?.type) === 2;
-                const style = isReduction
-                  ? {
-                      backgroundColor: '#FDF5F5',
-                      borderLeft: '4px solid #EF7C7C',
-                      borderRadius: '4px',
-                    }
-                  : isConcretize
-                    ? {
-                        backgroundColor: '#F5FBF5',
-                        borderLeft: '4px solid #97D099',
-                        borderRadius: '4px',
-                      }
-                    : { borderLeft: '4px solid transparent', borderRadius: '4px' };
-                return (
-                  <p key={`ach-${idx}`} style={style}>
-                    {text}
-                  </p>
-                );
-              })}
+              {Array.isArray(masterLeft?.keyAchievement) && masterLeft!.keyAchievement.length > 0
+                ? masterLeft!.keyAchievement.map((item, idx) => {
+                    const text = String(item?.text || '').trim();
+                    if (!text) return null;
+                    return (
+                      <p
+                        key={`ach-${idx}`}
+                        style={{ borderLeft: '4px solid transparent', borderRadius: '4px' }}
+                      >
+                        {text}
+                      </p>
+                    );
+                  })
+                : (
+                    currentCorrection?.correctionResult?.keyAchievements?.lines ||
+                    ([] as GeneratedLineItem[])
+                  ).map((ln: GeneratedLineItem, idx) => {
+                    const text = String(ln?.original_content || '').trim();
+                    if (!text) return null;
+                    const isReduction = achReduceOn && Number(ln?.type) === 1;
+                    const isConcretize = achConcreteOn && Number(ln?.type) === 2;
+                    const style = isReduction
+                      ? {
+                          backgroundColor: '#FDF5F5',
+                          borderLeft: '4px solid #EF7C7C',
+                          borderRadius: '4px',
+                        }
+                      : isConcretize
+                        ? {
+                            backgroundColor: '#F5FBF5',
+                            borderLeft: '4px solid #97D099',
+                            borderRadius: '4px',
+                          }
+                        : { borderLeft: '4px solid transparent', borderRadius: '4px' };
+                    return (
+                      <p key={`ach-${idx}`} style={style}>
+                        {text}
+                      </p>
+                    );
+                  })}
             </div>
             {/* Divider line */}
             <div className="border-l-[2px] border-[#BBBBBB] ml-[40px] mr-[40px] block max-lg:hidden" />
@@ -915,32 +963,46 @@ function TailoredPortfolioContent() {
           max-lg:w-[856px] max-lg:flex-col"
           >
             <div className="w-[620px] text-[18px] mt-[8px] max-lg:text-[16px] max-lg:w-[784px] leading-[34px]">
-              {(
-                currentCorrection?.correctionResult?.insights?.lines || ([] as GeneratedLineItem[])
-              ).map((ln: GeneratedLineItem, idx) => {
-                const text = String(ln?.original_content || '').trim();
-                if (!text) return null;
-                const isReduction = insReduceOn && Number(ln?.type) === 1;
-                const isConcretize = insConcreteOn && Number(ln?.type) === 2;
-                const style = isReduction
-                  ? {
-                      backgroundColor: '#FDF5F5',
-                      borderLeft: '4px solid #EF7C7C',
-                      borderRadius: '4px',
-                    }
-                  : isConcretize
-                    ? {
-                        backgroundColor: '#F5FBF5',
-                        borderLeft: '4px solid #97D099',
-                        borderRadius: '4px',
-                      }
-                    : { borderLeft: '4px solid transparent', borderRadius: '4px' };
-                return (
-                  <p key={`ins-${idx}`} style={style}>
-                    {text}
-                  </p>
-                );
-              })}
+              {Array.isArray(masterLeft?.insight) && masterLeft!.insight.length > 0
+                ? masterLeft!.insight.map((item, idx) => {
+                    const text = String(item?.text || '').trim();
+                    if (!text) return null;
+                    return (
+                      <p
+                        key={`ins-${idx}`}
+                        style={{ borderLeft: '4px solid transparent', borderRadius: '4px' }}
+                      >
+                        {text}
+                      </p>
+                    );
+                  })
+                : (
+                    currentCorrection?.correctionResult?.insights?.lines ||
+                    ([] as GeneratedLineItem[])
+                  ).map((ln: GeneratedLineItem, idx) => {
+                    const text = String(ln?.original_content || '').trim();
+                    if (!text) return null;
+                    const isReduction = insReduceOn && Number(ln?.type) === 1;
+                    const isConcretize = insConcreteOn && Number(ln?.type) === 2;
+                    const style = isReduction
+                      ? {
+                          backgroundColor: '#FDF5F5',
+                          borderLeft: '4px solid #EF7C7C',
+                          borderRadius: '4px',
+                        }
+                      : isConcretize
+                        ? {
+                            backgroundColor: '#F5FBF5',
+                            borderLeft: '4px solid #97D099',
+                            borderRadius: '4px',
+                          }
+                        : { borderLeft: '4px solid transparent', borderRadius: '4px' };
+                    return (
+                      <p key={`ins-${idx}`} style={style}>
+                        {text}
+                      </p>
+                    );
+                  })}
             </div>
             {/* Divider line */}
             <div className="border-l-[2px] border-[#BBBBBB] ml-[40px] mr-[40px] block max-lg:hidden" />
