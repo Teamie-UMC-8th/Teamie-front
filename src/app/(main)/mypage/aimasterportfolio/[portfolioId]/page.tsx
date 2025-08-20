@@ -68,12 +68,31 @@ function CategorySelector({
   onSelect: (category: CategoryKey) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const handleSelect = (value: CategoryKey) => {
     onSelect(value);
     setIsOpen(false);
   };
+
+  // 외부 클릭 시 드롭다운 닫기
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (containerRef.current && !containerRef.current.contains(target)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [isOpen]);
   return (
-    <div className="flex items-center gap-[28px]">
+    <div ref={containerRef} className="flex items-center gap-[28px]">
       <div className={STYLES.tag}>분류</div>
       <div className="relative">
         <button
