@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -164,6 +164,51 @@ function TailoredPortfolioContent() {
   // 표시용 현재 프로젝트 결과 (탭 변경 시 갱신)
   const currentCorrection: FirstCorrectionBlock | undefined =
     selectedCorrection || generated?.firstCorrection;
+
+  // 좌측(마스터포트폴리오 원문) 하이라이트를 위해, 생성된 첨삭의 라인 번호 → 타입(1: 축소, 2: 구체화) 매핑을 섹션별로 준비
+  const detailTypeMap = useMemo(() => {
+    const map: Record<number, number> = {};
+    const lines = currentCorrection?.correctionResult?.detailInfo?.lines || [];
+    lines.forEach((ln) => {
+      const raw = String(ln?.line_number || '');
+      const n = Number((raw.split('_').pop() || '').replace(/[^0-9]/g, ''));
+      if (Number.isFinite(n)) map[n] = Number(ln?.type);
+    });
+    return map;
+  }, [currentCorrection]);
+
+  const tasksTypeMap = useMemo(() => {
+    const map: Record<number, number> = {};
+    const lines = currentCorrection?.correctionResult?.assignedTasks?.lines || [];
+    lines.forEach((ln) => {
+      const raw = String(ln?.line_number || '');
+      const n = Number((raw.split('_').pop() || '').replace(/[^0-9]/g, ''));
+      if (Number.isFinite(n)) map[n] = Number(ln?.type);
+    });
+    return map;
+  }, [currentCorrection]);
+
+  const achTypeMap = useMemo(() => {
+    const map: Record<number, number> = {};
+    const lines = currentCorrection?.correctionResult?.keyAchievements?.lines || [];
+    lines.forEach((ln) => {
+      const raw = String(ln?.line_number || '');
+      const n = Number((raw.split('_').pop() || '').replace(/[^0-9]/g, ''));
+      if (Number.isFinite(n)) map[n] = Number(ln?.type);
+    });
+    return map;
+  }, [currentCorrection]);
+
+  const insTypeMap = useMemo(() => {
+    const map: Record<number, number> = {};
+    const lines = currentCorrection?.correctionResult?.insights?.lines || [];
+    lines.forEach((ln) => {
+      const raw = String(ln?.line_number || '');
+      const n = Number((raw.split('_').pop() || '').replace(/[^0-9]/g, ''));
+      if (Number.isFinite(n)) map[n] = Number(ln?.type);
+    });
+    return map;
+  }, [currentCorrection]);
 
   // 세션 프리패치에 저장된 생성 결과가 있다면 우선 탭 이름에 사용 (네트워크 응답 전 즉시 표시)
   useEffect(() => {
@@ -480,11 +525,25 @@ function TailoredPortfolioContent() {
                 ? masterLeft!.detailInfo.map((item, idx) => {
                     const text = String(item?.text || '').trim();
                     if (!text) return null;
+                    const n = Number(item?.number);
+                    const t = Number.isFinite(n) ? detailTypeMap[n] : undefined;
+                    const isReduction = detailReduceOn && t === 1;
+                    const isConcretize = detailConcreteOn && t === 2;
+                    const style = isReduction
+                      ? {
+                          backgroundColor: '#FDF5F5',
+                          borderLeft: '4px solid #EF7C7C',
+                          borderRadius: '4px',
+                        }
+                      : isConcretize
+                        ? {
+                            backgroundColor: '#F5FBF5',
+                            borderLeft: '4px solid #97D099',
+                            borderRadius: '4px',
+                          }
+                        : { borderLeft: '4px solid transparent', borderRadius: '4px' };
                     return (
-                      <p
-                        key={`detail-${idx}`}
-                        style={{ borderLeft: '4px solid transparent', borderRadius: '4px' }}
-                      >
+                      <p key={`detail-${idx}`} style={style}>
                         {text}
                       </p>
                     );
@@ -641,13 +700,36 @@ function TailoredPortfolioContent() {
             <div className="w-[620px] text-[18px] mt-[8px] max-lg:text-[16px] max-lg:w-[784px] leading-[34px]">
               {Array.isArray(masterLeft?.assignedTask) && masterLeft!.assignedTask.length > 0
                 ? masterLeft!.assignedTask.map((item, idx) => {
+                    if (String(item?.type || '') === 'header') {
+                      const text = String(item?.text || '').trim();
+                      if (!text) return null;
+                      return (
+                        <p key={`tasks-${idx}`} style={{ fontWeight: 600 }}>
+                          {text}
+                        </p>
+                      );
+                    }
                     const text = String(item?.text || '').trim();
                     if (!text) return null;
+                    const n = Number(item?.number);
+                    const t = Number.isFinite(n) ? tasksTypeMap[n] : undefined;
+                    const isReduction = tasksReduceOn && t === 1;
+                    const isConcretize = tasksConcreteOn && t === 2;
+                    const style = isReduction
+                      ? {
+                          backgroundColor: '#FDF5F5',
+                          borderLeft: '4px solid #EF7C7C',
+                          borderRadius: '4px',
+                        }
+                      : isConcretize
+                        ? {
+                            backgroundColor: '#F5FBF5',
+                            borderLeft: '4px solid #97D099',
+                            borderRadius: '4px',
+                          }
+                        : { borderLeft: '4px solid transparent', borderRadius: '4px' };
                     return (
-                      <p
-                        key={`tasks-${idx}`}
-                        style={{ borderLeft: '4px solid transparent', borderRadius: '4px' }}
-                      >
+                      <p key={`tasks-${idx}`} style={style}>
                         {text}
                       </p>
                     );
@@ -805,11 +887,25 @@ function TailoredPortfolioContent() {
                 ? masterLeft!.keyAchievement.map((item, idx) => {
                     const text = String(item?.text || '').trim();
                     if (!text) return null;
+                    const n = Number(item?.number);
+                    const t = Number.isFinite(n) ? achTypeMap[n] : undefined;
+                    const isReduction = achReduceOn && t === 1;
+                    const isConcretize = achConcreteOn && t === 2;
+                    const style = isReduction
+                      ? {
+                          backgroundColor: '#FDF5F5',
+                          borderLeft: '4px solid #EF7C7C',
+                          borderRadius: '4px',
+                        }
+                      : isConcretize
+                        ? {
+                            backgroundColor: '#F5FBF5',
+                            borderLeft: '4px solid #97D099',
+                            borderRadius: '4px',
+                          }
+                        : { borderLeft: '4px solid transparent', borderRadius: '4px' };
                     return (
-                      <p
-                        key={`ach-${idx}`}
-                        style={{ borderLeft: '4px solid transparent', borderRadius: '4px' }}
-                      >
+                      <p key={`ach-${idx}`} style={style}>
                         {text}
                       </p>
                     );
@@ -967,11 +1063,25 @@ function TailoredPortfolioContent() {
                 ? masterLeft!.insight.map((item, idx) => {
                     const text = String(item?.text || '').trim();
                     if (!text) return null;
+                    const n = Number(item?.number);
+                    const t = Number.isFinite(n) ? insTypeMap[n] : undefined;
+                    const isReduction = insReduceOn && t === 1;
+                    const isConcretize = insConcreteOn && t === 2;
+                    const style = isReduction
+                      ? {
+                          backgroundColor: '#FDF5F5',
+                          borderLeft: '4px solid #EF7C7C',
+                          borderRadius: '4px',
+                        }
+                      : isConcretize
+                        ? {
+                            backgroundColor: '#F5FBF5',
+                            borderLeft: '4px solid #97D099',
+                            borderRadius: '4px',
+                          }
+                        : { borderLeft: '4px solid transparent', borderRadius: '4px' };
                     return (
-                      <p
-                        key={`ins-${idx}`}
-                        style={{ borderLeft: '4px solid transparent', borderRadius: '4px' }}
-                      >
+                      <p key={`ins-${idx}`} style={style}>
                         {text}
                       </p>
                     );
