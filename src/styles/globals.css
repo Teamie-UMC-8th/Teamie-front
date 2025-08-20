@@ -121,8 +121,5 @@
 /* 날짜 셀 */
 .rbc-date-cell {
   min-width: 200px !important; /* 가로 고정 */
-}
-
-.rbc-month-view {
-  height: auto; /* 달력 전체 높이 자동 */
+  height: 181px !important; /* 세로 고정 */
 }
