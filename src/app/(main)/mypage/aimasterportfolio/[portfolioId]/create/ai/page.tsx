@@ -172,7 +172,7 @@ function AIMasterPortfolioCreatePageContent() {
             });
             // localStorage에 임시저장 데이터 저장
             step3Ref.current?.saveToLocalStorage();
-            setToastMessage('임시저장이 완료되었습니다');
+            setToastMessage('임시저장이 완료되었습니다.');
             setShowToast(true);
             setTimeout(() => setShowToast(false), 3000);
           },
