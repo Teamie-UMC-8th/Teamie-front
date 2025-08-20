@@ -473,7 +473,7 @@ export default function TeamTaskDetailPage() {
       {/* 업무 상세 정보 */}
       <div className="flex flex-col">
         <div
-          className="flex mt-[40px] ml-[40px] items-center gap-[160px] w-[1100px]
+          className="flex mt-[40px] ml-[40px] items-center gap-[160px] w-[1300px]
         max-lg:flex-col max-lg:items-start max-lg:ml-[24px] max-lg:gap-[40px] max-lg:mt-[20px]"
         >
           {/* 일자 */}
@@ -509,7 +509,7 @@ export default function TeamTaskDetailPage() {
               시작 시간
             </div>
             <div
-              className={`flex items-center ${selectedTime ? 'w-[80px] max-lg:w-[68px]' : 'w-0'} overflow-hidden transition-all duration-200`}
+              className={`flex items-center ${selectedTime ? 'w-[68px]' : 'w-0'} overflow-hidden transition-all duration-200`}
             >
               <div
                 className="text-[20px] cursor-pointer whitespace-nowrap"
