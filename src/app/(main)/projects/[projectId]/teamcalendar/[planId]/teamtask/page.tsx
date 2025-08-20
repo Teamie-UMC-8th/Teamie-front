@@ -22,6 +22,7 @@ import {
 } from '@/hooks/mutations/usePlan';
 import { useWebSocket } from '@/contexts/WebSocketContext';
 import { SubEventType, WebSocketResponseUnion, isPlanResponse } from '@/types/webSocket';
+import { useGetProjectIsCompleted } from '@/hooks/queries/projects/useGetProject';
 
 export default function TeamTaskDetailPage() {
   const params = useParams();
@@ -70,6 +71,14 @@ export default function TeamTaskDetailPage() {
   const [selectedWriters, setSelectedWriters] = useState<number[]>([]);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editingTitle, setEditingTitle] = useState('');
+
+  // 프로젝트 종료 여부 조회 → 전체 ReadOnly 제어에 사용
+  const projectIdNum = Number(projectId);
+  const { data: projectIsCompletedData } = useGetProjectIsCompleted(
+    isNaN(projectIdNum) ? undefined : projectIdNum
+  );
+  const isProjectCompleted = Boolean(projectIsCompletedData?.result?.isCompleted);
+  const isEditable = () => !isProjectCompleted && isCurrentUserProjectMember();
 
   // API 데이터로 상태 업데이트
   useEffect(() => {
@@ -163,17 +172,30 @@ export default function TeamTaskDetailPage() {
 
   // 참석자 정보 (프로젝트 홈의 사용자 목록 사용)
   const availableProfiles =
-    projectHomeData?.result?.project?.users?.map((user: { id: number; name: string }) => ({
-      userId: user.id,
-      userName: user.name,
-    })) || [];
+    projectHomeData?.result?.project?.users?.map(
+      (user: { id: number; name: string; imageUrl?: string | null }) => ({
+        userId: user.id,
+        userName: user.name,
+        imageUrl: user.imageUrl ?? null,
+      })
+    ) || [];
+
+  // 프로젝트 생성일 (선택 가능한 최소 날짜)
+  const projectCreatedAtString =
+    projectHomeData?.result?.project?.createAt ||
+    projectHomeData?.result?.createAt ||
+    projectHomeData?.result?.project?.createdAt ||
+    projectHomeData?.result?.createdAt;
+  const projectCreatedAtDate = projectCreatedAtString
+    ? new Date(projectCreatedAtString)
+    : undefined;
 
   const handleAttendeesChange = (selectedUserIds: number[]) => {
     console.log('handleAttendeesChange 호출:', selectedUserIds);
 
     // 프로젝트 멤버 권한 체크
-    if (!isCurrentUserProjectMember()) {
-      alert('프로젝트 멤버만 참석자를 수정할 수 있습니다.');
+    if (!isEditable()) {
+      console.log('프로젝트 멤버만 참석자를 수정할 수 있습니다.');
       return;
     }
 
@@ -246,12 +268,11 @@ export default function TeamTaskDetailPage() {
   };
 
   const handleWritersChange = (selectedUserIds: number[]) => {
-    // 프로젝트 멤버 권한 체크
-    if (!isCurrentUserProjectMember()) {
-      alert('프로젝트 멤버만 기록자를 수정할 수 있습니다.');
+    if (!isEditable()) {
+      console.log('프로젝트 멤버만 기록자를 수정할 수 있습니다.');
       return;
     }
-
+    // 프로젝트 멤버 권한 체크
     // 상태 업데이트를 다음 렌더링 사이클로 지연
     setTimeout(() => {
       setSelectedWriters(selectedUserIds);
@@ -302,9 +323,24 @@ export default function TeamTaskDetailPage() {
   // };
 
   const handleDateChange = (date: Date) => {
+    if (isProjectCompleted) return; // 종료 시 수정 불가
+    // 프로젝트 생성일 이전 선택 방지 (클라이언트 가드)
+    if (projectCreatedAtDate) {
+      const min = new Date(
+        projectCreatedAtDate.getFullYear(),
+        projectCreatedAtDate.getMonth(),
+        projectCreatedAtDate.getDate()
+      );
+      const selected = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      if (selected < min) {
+        console.warn('프로젝트 생성일 이전은 선택할 수 없습니다.');
+        return;
+      }
+    }
+
     setSelectedDate(date);
     // 프로젝트 홈 권한 체크
-    if (!isCurrentUserProjectMember()) {
+    if (!isEditable()) {
       console.error('권한 없음: 프로젝트 멤버만 일정을 수정할 수 있습니다.');
       return;
     }
@@ -319,13 +355,14 @@ export default function TeamTaskDetailPage() {
   };
 
   const toggleDatePicker = () => {
+    if (isProjectCompleted) return;
     setIsDatePickerOpen(!isDatePickerOpen);
   };
 
   const handleTimeChange = (time: { hour: number; minute: number; period: 'AM' | 'PM' }) => {
     setSelectedTime(time);
     // 프로젝트 홈 권한 체크
-    if (!isCurrentUserProjectMember()) {
+    if (!isEditable()) {
       console.error('권한 없음: 프로젝트 멤버만 일정을 수정할 수 있습니다.');
       return;
     }
@@ -347,6 +384,7 @@ export default function TeamTaskDetailPage() {
   };
 
   const toggleTimePicker = () => {
+    if (isProjectCompleted) return;
     setIsTimePickerOpen(!isTimePickerOpen);
   };
 
@@ -370,6 +408,7 @@ export default function TeamTaskDetailPage() {
   };
 
   const handleTitleEdit = () => {
+    if (isProjectCompleted) return;
     setIsEditingTitle(true);
     setEditingTitle(scheduleName);
   };
@@ -379,7 +418,7 @@ export default function TeamTaskDetailPage() {
     setScheduleName(editingTitle);
 
     // 프로젝트 홈 권한 체크
-    if (!isCurrentUserProjectMember()) {
+    if (!isEditable()) {
       alert('프로젝트 멤버만 일정명을 수정할 수 있습니다.');
       return;
     }
@@ -450,14 +489,16 @@ export default function TeamTaskDetailPage() {
           )}
         </div>
         <div className="max-lg:mr-[74px]">
-          <DeleteButton
-            onDelete={() => {
-              deletePlanMutation.mutate(planId.toString());
-            }}
-            modalTitle="이 일정을 정말 삭제하시겠습니까?"
-            confirmText="삭제"
-            cancelText="취소"
-          />
+          {!isProjectCompleted && (
+            <DeleteButton
+              onDelete={() => {
+                deletePlanMutation.mutate(planId.toString());
+              }}
+              modalTitle="이 일정을 정말 삭제하시겠습니까?"
+              confirmText="삭제"
+              cancelText="취소"
+            />
+          )}
         </div>
       </div>
 
@@ -473,7 +514,7 @@ export default function TeamTaskDetailPage() {
       {/* 업무 상세 정보 */}
       <div className="flex flex-col">
         <div
-          className="flex mt-[40px] ml-[40px] items-center gap-[160px] w-[1100px]
+          className="flex mt-[40px] ml-[40px] items-center gap-[160px] w-[1300px]
         max-lg:flex-col max-lg:items-start max-lg:ml-[24px] max-lg:gap-[40px] max-lg:mt-[20px]"
         >
           {/* 일자 */}
@@ -482,7 +523,9 @@ export default function TeamTaskDetailPage() {
               일자
             </div>
             <div
-              className="text-[20px] cursor-pointer flex items-center"
+              className={`text-[20px] flex items-center ${
+                isProjectCompleted ? 'cursor-default' : 'cursor-pointer'
+              }`}
               onClick={toggleDatePicker}
             >
               {formatDate(selectedDate)}
@@ -492,7 +535,7 @@ export default function TeamTaskDetailPage() {
               alt="TimePicker"
               width={32}
               height={32}
-              className="ml-[20px] cursor-pointer"
+              className={`ml-[20px] ${isProjectCompleted ? 'cursor-default' : 'cursor-pointer'}`}
               onClick={toggleDatePicker}
             />
             <DatePicker
@@ -500,19 +543,22 @@ export default function TeamTaskDetailPage() {
               onDateChange={handleDateChange}
               isOpen={isDatePickerOpen}
               onToggle={toggleDatePicker}
+              minDate={projectCreatedAtDate}
             />
           </div>
 
           {/* 시작 시간 */}
           <div className="flex items-center relative w-[390px]">
-            <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] mr-[28px] flex-shrink-0">
+            <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] mr-[30px] flex-shrink-0">
               시작 시간
             </div>
             <div
-              className={`flex items-center ${selectedTime ? 'w-[60px]' : 'w-0'} overflow-hidden transition-all duration-200`}
+              className={`flex items-center ${selectedTime ? 'w-[68px]' : 'w-0'} overflow-hidden transition-all duration-200`}
             >
               <div
-                className="text-[20px] cursor-pointer whitespace-nowrap"
+                className={`text-[20px] whitespace-nowrap ${
+                  isProjectCompleted ? 'cursor-default' : 'cursor-pointer'
+                }`}
                 onClick={toggleTimePicker}
               >
                 {selectedTime ? formatTime(selectedTime) : ''}
@@ -523,7 +569,7 @@ export default function TeamTaskDetailPage() {
               alt="타임 피커"
               width={32}
               height={32}
-              className="ml-[16px] cursor-pointer"
+              className={isProjectCompleted ? '' : 'cursor-pointer'}
               onClick={toggleTimePicker}
             />
             <TimePicker
@@ -542,10 +588,14 @@ export default function TeamTaskDetailPage() {
               type="text"
               placeholder="장소를 입력해주세요."
               value={location}
-              onChange={(e) => setLocation(e.target.value)}
+              onChange={(e) => {
+                if (isProjectCompleted) return;
+                setLocation(e.target.value);
+              }}
               onBlur={(e) => {
+                if (isProjectCompleted) return;
                 // 프로젝트 홈 권한 체크
-                if (!isCurrentUserProjectMember()) {
+                if (!isEditable()) {
                   console.error('권한 없음: 프로젝트 멤버만 장소를 수정할 수 있습니다.');
                   return;
                 }
@@ -558,6 +608,7 @@ export default function TeamTaskDetailPage() {
                   },
                 });
               }}
+              readOnly={isProjectCompleted}
               className="text-[20px] border-none outline-none bg-transparent w-[174px] placeholder:text-[#898989]"
             />
           </div>
@@ -575,18 +626,21 @@ export default function TeamTaskDetailPage() {
             profiles={availableProfiles}
             initialSelectedIds={selectedAttendees}
             onChange={handleAttendeesChange}
-            onPermissionCheck={isCurrentUserProjectMember}
-            alertMessage="프로젝트 멤버만 참석자를 수정할 수 있습니다."
+            onPermissionCheck={isEditable}
           />
         </div>
 
         {/* 비고 */}
         <MemoField
           value={memo}
-          onChange={setMemo}
+          onChange={(value) => {
+            if (isProjectCompleted) return;
+            setMemo(value);
+          }}
           onBlur={(value) => {
+            if (isProjectCompleted) return;
             // 프로젝트 홈 권한 체크
-            if (!isCurrentUserProjectMember()) {
+            if (!isEditable()) {
               console.log('프로젝트 멤버만 비고를 수정할 수 있습니다.');
               return;
             }
@@ -604,10 +658,14 @@ export default function TeamTaskDetailPage() {
         {/* 회의록 */}
         <MeetingRecordsField
           value={meetingRecords}
-          onChange={setMeetingRecords}
+          onChange={(value) => {
+            if (isProjectCompleted) return;
+            setMeetingRecords(value);
+          }}
           onBlur={(value) => {
+            if (isProjectCompleted) return;
             // 프로젝트 홈 권한 체크
-            if (!isCurrentUserProjectMember()) {
+            if (!isEditable()) {
               console.log('프로젝트 멤버만 회의록을 수정할 수 있습니다.');
               return;
             }
@@ -623,7 +681,7 @@ export default function TeamTaskDetailPage() {
           availableProfiles={availableProfiles}
           selectedWriters={selectedWriters}
           onWritersChange={handleWritersChange}
-          onPermissionCheck={isCurrentUserProjectMember}
+          onPermissionCheck={isEditable}
         />
       </div>
       <RemindMessageModal

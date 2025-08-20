@@ -6,6 +6,7 @@ import Image from 'next/image';
 interface Manager {
   userId: number;
   userName: string;
+  imageUrl?: string | null;
 }
 
 interface AddProfileButtonProps {
@@ -21,7 +22,6 @@ export default function AddProfileButton({
   onChange,
   onPermissionCheck,
   initialSelectedIds = [],
-  alertMessage = '프로젝트 멤버만 수정할 수 있습니다.', // 기본값 설정
 }: AddProfileButtonProps) {
   const [selectedProfiles, setSelectedProfiles] = useState<Manager[]>([]);
   // const isInitialized = useRef(false);
@@ -42,7 +42,10 @@ export default function AddProfileButton({
     .filter((p) => !selectedProfiles.find((s) => s.userId === p.userId))
     .sort((a, b) => a.userName.localeCompare(b.userName, 'ko'));
 
-  const toggleDropdown = () => setDropdownOpen((prev) => !prev);
+  const toggleDropdown = () => {
+    if (onPermissionCheck && !onPermissionCheck()) return;
+    setDropdownOpen((prev) => !prev);
+  };
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -56,7 +59,7 @@ export default function AddProfileButton({
       console.log('AddProfileButton - 권한 점검 결과:', hasPermission);
 
       if (!hasPermission) {
-        alert(alertMessage);
+        console.log('프로젝트 멤버만 수정할 수 있습니다.');
         return;
       }
     }
@@ -99,7 +102,7 @@ export default function AddProfileButton({
       console.log('AddProfileButton - 권한 점검 결과:', hasPermission);
 
       if (!hasPermission) {
-        alert(alertMessage);
+        console.log('프로젝트 멤버만 수정할 수 있습니다.');
         return;
       }
     }
@@ -128,11 +131,11 @@ export default function AddProfileButton({
           onClick={() => handleRemove(profile)}
         >
           <Image
-            src="/icons/profile-image.svg"
+            src={profile.imageUrl || '/icons/profile-image.svg'}
             alt={profile.userName}
             width={28}
             height={28}
-            className="w-[28px] h-[28px] rounded-full ml-[5px] my-[4px]"
+            className="w-[28px] h-[28px] rounded-full ml-[5px] my-[4px] object-cover"
           />
           <span className="ml-[8px] text-[16px]">{profile.userName}</span>
         </div>
@@ -170,11 +173,11 @@ export default function AddProfileButton({
                 className="flex items-center w-[95px] h-[36px] bg-white rounded-[30px] shadow-[1px_1px_4px_rgba(0,0,0,0.25)] my-[6px] mx-[8px] cursor-pointer"
               >
                 <Image
-                  src="/icons/profile-image.svg"
+                  src={profile.imageUrl || '/icons/profile-image.svg'}
                   alt={profile.userName}
                   width={28}
                   height={28}
-                  className="w-[28px] h-[28px] rounded-full ml-[5px] my-[4px]"
+                  className="w-[28px] h-[28px] rounded-full ml-[5px] my-[4px] object-cover"
                 />
                 <span className="ml-[8px] text-[16px]">{profile.userName}</span>
               </button>

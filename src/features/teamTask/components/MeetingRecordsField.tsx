@@ -4,10 +4,11 @@ interface MeetingRecordsFieldProps {
   value: string;
   onChange: (value: string) => void;
   onBlur?: (value: string) => void;
-  availableProfiles: { userId: number; userName: string }[];
+  availableProfiles: { userId: number; userName: string; imageUrl?: string | null }[];
   selectedWriters: number[];
   onWritersChange: (selectedUserIds: number[]) => void;
   onPermissionCheck?: () => boolean;
+  readOnly?: boolean;
 }
 
 export default function MeetingRecordsField({
@@ -18,6 +19,7 @@ export default function MeetingRecordsField({
   selectedWriters,
   onWritersChange,
   onPermissionCheck,
+  readOnly = false,
 }: MeetingRecordsFieldProps) {
   return (
     <div
@@ -42,6 +44,7 @@ export default function MeetingRecordsField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onBlur={(e) => onBlur?.(e.target.value)}
+        readOnly={readOnly}
         className="w-[1415px] h-[428px] px-[20px] py-[16px] border-[2px] rounded-[6px] border-[#BBBBBB] mt-[15px]
       max-lg:w-[865px] max-lg:min-w-[369px] resize-noneㅣㄴ"
       />
