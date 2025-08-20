@@ -85,7 +85,7 @@ export default function StepHeader({
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditName(e.target.value)}
               onBlur={handleBlur}
               onKeyDown={handleKeyPress}
-              className="absolute inset-0 mx-auto text-center font-medium text-[1.125rem] bg-transparent border-none outline-none"
+              className="w-full h-full text-center font-medium text-[1.125rem] bg-transparent border-none outline-none"
               autoFocus
             />
           ) : (
