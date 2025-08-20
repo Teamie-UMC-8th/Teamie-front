@@ -11,9 +11,10 @@ const STATUS_OPTIONS = [
 interface TaskDropdownProps {
   status: 'ONGOING' | 'COMPLETED' | 'NOTSTART';
   onChange?: (status: 'ONGOING' | 'COMPLETED' | 'NOTSTART') => void;
+  readOnly?: boolean;
 }
 
-export default function TaskDropdown({ status, onChange }: TaskDropdownProps) {
+export default function TaskDropdown({ status, onChange, readOnly = false }: TaskDropdownProps) {
   const [selected, setSelected] = useState(
     () => STATUS_OPTIONS.find((s) => s.value === status) || STATUS_OPTIONS[0]
   );
@@ -28,7 +29,10 @@ export default function TaskDropdown({ status, onChange }: TaskDropdownProps) {
     }
   }, [status]);
 
-  const toggleDropdown = () => setIsOpen(!isOpen);
+  const toggleDropdown = () => {
+    if (readOnly) return;
+    setIsOpen(!isOpen);
+  };
 
   // 빈 곳 클릭 시 드롭다운 닫기
   useEffect(() => {
@@ -69,19 +73,19 @@ export default function TaskDropdown({ status, onChange }: TaskDropdownProps) {
         {/* 선택된 상태 표시 */}
         <button
           onClick={toggleDropdown}
-          className={`w-[80px] h-[34px] ${selected.color} grid place-items-center rounded-[4px] ml-[28px]`}
+          className={`w-[80px] h-[34px] ${selected.color} grid place-items-center rounded-[4px] ml-[28px] ${readOnly ? '' : ''}`}
         >
           {selected.label}
         </button>
         <img
           src="/icons/drop-down.svg"
           alt="드롭다운"
-          className=" ml-[4px] cursor-pointer"
+          className={` ml-[4px] ${readOnly ? '' : 'cursor-pointer'}`}
           onClick={toggleDropdown}
         />
       </div>
       {/* 옵션 목록 */}
-      {isOpen && (
+      {isOpen && !readOnly && (
         <div
           className="absolute mt-[10px] w-[96px] h-[134px] bg-white rounded-[4px] shadow- z-10 p-[8px] right-0"
           style={{ boxShadow: '0px 0px 15px rgba(0, 0, 0, 0.2)' }}

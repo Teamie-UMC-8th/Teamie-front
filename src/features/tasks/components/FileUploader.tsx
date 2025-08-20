@@ -6,10 +6,12 @@ import { useUploadTaskFile, useDeleteTaskFile } from '@/hooks/mutations/useFileU
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { checkTaskDetail } from '@/services/taskDetail/checkTaskDetail';
+import axiosInstance from '@/lib/axiosInstance';
 
 type UploadedFile = File & { serverId?: number | string; fileUrl?: string; name?: string };
+type Props = { readOnly?: boolean };
 
-export default function FileUploader() {
+export default function FileUploader({ readOnly = false }: Props) {
   // 업로드된 파일 목록을 상태로 관리
   const [files, setFiles] = useState<UploadedFile[]>([]);
   // 드래그 상태를 나타내는 플래그
@@ -510,7 +512,7 @@ export default function FileUploader() {
               />
             </div>
             <div className="border-t-[2px] border-[#BBBBBB] px-[12px] py-[5px] flex items-center gap-[8px]">
-              {hoveredIndex === index ? (
+              {hoveredIndex === index && !readOnly ? (
                 <Image
                   src="/icons/delete-file-icon.svg"
                   alt="삭제 아이콘"
@@ -525,7 +527,7 @@ export default function FileUploader() {
                   alt={`${ext?.toUpperCase() || 'File'} 아이콘`}
                   width={20}
                   height={20}
-                  className="w-[20px] h-[20px] cursor-pointer"
+                  className="w-[20px] h-[20px]"
                 />
               )}
               <p className="text-[16px] truncate">{fileName}</p>
@@ -534,20 +536,57 @@ export default function FileUploader() {
               <button
                 type="button"
                 className="absolute top-[8px] right-[8px] cursor-pointer"
-                onClick={() => {
-                  // 서버 URL이 있으면 그것을 사용, 없으면 로컬 URL 생성
-                  if (file.fileUrl) {
-                    const a = document.createElement('a');
-                    a.href = file.fileUrl;
-                    a.download = fileName;
-                    a.click();
-                  } else {
-                    const url = URL.createObjectURL(file);
+                onClick={async () => {
+                  const triggerDownload = (blobOrUrl: Blob | string) => {
+                    const url =
+                      typeof blobOrUrl === 'string' ? blobOrUrl : URL.createObjectURL(blobOrUrl);
                     const a = document.createElement('a');
                     a.href = url;
                     a.download = fileName;
+                    document.body.appendChild(a);
                     a.click();
-                    URL.revokeObjectURL(url);
+                    a.remove();
+                    if (typeof blobOrUrl !== 'string') URL.revokeObjectURL(url);
+                  };
+
+                  try {
+                    if (file.fileUrl) {
+                      // 1) 우선 CORS 없이 가능한 경우 (대부분의 presigned URL)
+                      try {
+                        const res = await fetch(file.fileUrl, { credentials: 'omit' });
+                        if (res.ok) {
+                          const blob = await res.blob();
+                          triggerDownload(blob);
+                          return;
+                        }
+                      } catch {}
+
+                      // 2) 인증이 필요한 경우 axios(쿠키 포함)로 Blob 다운로드
+                      try {
+                        const response = await axiosInstance.get(file.fileUrl, {
+                          responseType: 'blob',
+                        });
+                        triggerDownload(response.data as Blob);
+                        return;
+                      } catch {}
+
+                      // 3) 최후: 숨김 iframe으로 브라우저 기본 다운로드 트리거 (새 탭 없음)
+                      const iframe = document.createElement('iframe');
+                      iframe.style.display = 'none';
+                      iframe.src = file.fileUrl;
+                      document.body.appendChild(iframe);
+                      setTimeout(() => {
+                        try {
+                          document.body.removeChild(iframe);
+                        } catch {}
+                      }, 60000);
+                    } else {
+                      // 로컬 파일 객체 다운로드
+                      triggerDownload(file);
+                    }
+                  } catch (error) {
+                    console.error('다운로드 실패:', error);
+                    alert('파일 다운로드에 실패했습니다. 잠시 후 다시 시도해주세요.');
                   }
                 }}
               >
@@ -559,7 +598,7 @@ export default function FileUploader() {
       })}
 
       {/* 파일 업로드 버튼 (클릭 & 드래그 대응) - 최대 3개까지, 3개 이상이면 버튼 숨김 */}
-      {files.length < 3 && (
+      {!readOnly && files.length < 3 && (
         <>
           <label
             htmlFor="file-upload"
