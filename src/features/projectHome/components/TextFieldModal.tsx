@@ -24,7 +24,7 @@ export default function TextFieldModal({ type, content, onClose, onSave }: TextF
   return (
     <div className="fixed inset-0 bg-[#00000033] rounded-[12px] flex items-center justify-center z-50">
       <div
-        className="w-[816px] h-[448px] bg-white rounded-[12px] px-[40px] py-[32px] flex flex-col relative"
+        className="w-[776px] h-[484px] bg-white rounded-[12px] px-[40px] py-[32px] flex flex-col relative"
         style={{ boxShadow: '0px 0px 15px 0px #00000033' }}
       >
         <img
@@ -35,11 +35,16 @@ export default function TextFieldModal({ type, content, onClose, onSave }: TextF
         />
         <p className="text-[20px] font-semibold mb-[16px]">{getTitle()}</p>
         <textarea
-          className="w-[736px] h-[334px] border border-[#BBBBBB] rounded-[6px] px-[32px] py-[24px] resize-none text-[16px] focus:outline-none focus:border-black "
+          className="w-[688px] h-[362px] shrink-0 border border-[#BBBBBB] rounded-[6px] pl-[32px] pr-[24px] py-[20px] resize-none text-[18px] focus:outline-none focus:border-black leading-[32px] textFieldNoScrollbar"
           value={editedContent}
           onChange={(e) => setEditedContent(e.target.value)}
-          maxLength={300}
+          maxLength={400}
         />
+        <style jsx>{`
+          .textFieldNoScrollbar::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
       </div>
     </div>
   );
