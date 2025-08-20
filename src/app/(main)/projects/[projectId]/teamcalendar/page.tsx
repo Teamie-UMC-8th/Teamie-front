@@ -332,8 +332,8 @@ export default function TeamCalendar() {
 
   // 캘린더 높이 동적 계산 (기본 높이 208px 고정)
   const calendarHeight = useMemo(() => {
-    const weekHeight = 208; // 각 주의 높이 (208px 고정)
-    const headerHeight = 40; // 요일 헤더 높이
+    const weekHeight = 200; // 각 주의 높이 (208px 고정)
+    const headerHeight = 181; // 요일 헤더 높이
     const totalHeight = weeksInMonth * weekHeight + headerHeight;
 
     return totalHeight;
@@ -345,7 +345,7 @@ export default function TeamCalendar() {
       month: formattedTitle,
       weeksInMonth,
       calendarHeight: `${calendarHeight}px`,
-      weekHeight: '200px (고정)',
+      weekHeight: '200px',
       headerHeight: '181px',
       margin: '32px',
     });

@@ -46,17 +46,12 @@
   border-bottom: 2px solid #bbbbbb !important;
 }
 
-/* 날짜 숫자 왼쪽 정렬 */
-.rbc-month-view .rbc-date-cell {
-  text-align: left !important;
-  padding-left: 0.25rem; /* Tailwind 기준 pl-1 정도 */
-}
-
 /* 날짜 셀 내부의 숫자 위치 조정 및 여백 */
 .rbc-month-view .rbc-date-cell {
   text-align: left !important;
   padding-left: 13px !important;
   padding-top: 12px !important;
+  padding-bottom: 13px !important; /* 날짜 여백 추가 */
   font-weight: 500;
 }
 
@@ -99,12 +94,6 @@
   text-overflow: unset !important;
   display: block !important;
   word-break: break-all !important;
-}
-
-/* 드래그 라인 인디케이터 대비용: 캘린더 셀은 overflow visible */
-.rbc-day-bg,
-.rbc-date-cell {
-  overflow: visible !important;
 }
 
 /* 드래그 라인 인디케이터 대비용: 캘린더 셀은 overflow visible */
