@@ -142,7 +142,10 @@ export default function DashboardPage() {
       // 3. unsubscribe-forced 이벤트 수신 - 강제 구독 해제
       const handleForceUnsubscribe = () => {
         console.log('강제 구독 해제');
-        window.location.href = '/home/tasks';
+        // 쿼리 무효화
+        queryClient.invalidateQueries({
+          queryKey: ['dashboard', projectIdNum],
+        });
       };
 
       // 이벤트 리스너 등록
