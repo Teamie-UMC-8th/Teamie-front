@@ -12,9 +12,16 @@ interface MemoFieldProps {
     taskData: TaskDetailResponse | undefined,
     currentMemo: string
   ) => void;
+  readOnly?: boolean;
 }
 
-export default function MemoField({ taskId, taskData, initialMemo, onMemoBlur }: MemoFieldProps) {
+export default function MemoField({
+  taskId,
+  taskData,
+  initialMemo,
+  onMemoBlur,
+  readOnly = false,
+}: MemoFieldProps) {
   const [localMemo, setLocalMemo] = useState<string | null>(null);
 
   return (
@@ -27,8 +34,9 @@ export default function MemoField({ taskId, taskData, initialMemo, onMemoBlur }:
       </div>
       <textarea
         value={localMemo !== null ? localMemo : initialMemo || ''}
-        onChange={(e) => setLocalMemo(e.target.value)}
+        onChange={(e) => !readOnly && setLocalMemo(e.target.value)}
         onBlur={(e) => {
+          if (readOnly) return;
           const currentMemo = e.target.value;
           if (currentMemo !== initialMemo) {
             onMemoBlur(taskId, taskData, currentMemo);
@@ -36,6 +44,7 @@ export default function MemoField({ taskId, taskData, initialMemo, onMemoBlur }:
         }}
         className="min-w-[1288px] h-[84px] px-[20px] py-[16px] border-[2px] rounded-[6px] border-[#BBBBBB] ml-[28px] 
       max-lg:w-[735px] max-lg:min-w-[735px] resize-none"
+        readOnly={readOnly}
       />
     </div>
   );

@@ -24,6 +24,7 @@ import Portal from '@/components/Portal';
 import Link from 'next/link';
 import { useWebSocket } from '@/contexts/WebSocketContext';
 import { SubEventType } from '@/types/webSocket';
+import { useGetProjectIsCompleted } from '@/hooks/queries/projects/useGetProject';
 
 export default function TaskDetailPage() {
   const params = useParams();
@@ -45,6 +46,10 @@ export default function TaskDetailPage() {
   const updateTaskMutation = useUpdateTaskDetail();
   const deleteTaskMutation = useDeleteTask();
   const router = useRouter();
+  const { data: projectCompletedData } = useGetProjectIsCompleted(projectId);
+  const isProjectCompleted =
+    projectCompletedData?.result?.isCompleted === true ||
+    projectCompletedData?.result?.isCompleted === 1;
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['taskDetail', taskId],
@@ -145,27 +150,28 @@ export default function TaskDetailPage() {
     }
   }, [isConnected, socket, taskId, projectId, subscribe, unsubscribe, queryClient, router]);
 
-  // 삭제 성공 시 페이지 이동
+  // 삭제 성공 시 이전 페이지로 이동
   useEffect(() => {
     if (deleteTaskMutation.isSuccess && isTaskDeleted) {
-      // 삭제 성공 후 이전 페이지로 이동
       router.back();
     }
   }, [deleteTaskMutation.isSuccess, isTaskDeleted, router]);
 
   // 404 에러 처리 - 업무가 삭제되었거나 존재하지 않는 경우
   useEffect(() => {
-    if (error) {
+    if (error && !isTaskDeleted && !deleteTaskMutation.isPending) {
       console.error('🎯 TaskDetailPage - useQuery 실패:', error);
 
-      // 404 에러인 경우 업무가 삭제되었거나 존재하지 않음을 알림
-      if (error instanceof Error && error.message.includes('404')) {
+      // 삭제 또는 미존재 관련 메시지에 반응 (서버 메시지 포맷 고려)
+      if (
+        error instanceof Error &&
+        (error.message.includes('찾을 수 없') || error.message.includes('삭제'))
+      ) {
         alert('업무가 삭제되었거나 존재하지 않습니다.');
-        // 대시보드로 리다이렉트
-        window.location.href = `/projects/${projectId}/dashboard`;
+        router.back();
       }
     }
-  }, [error, projectId]);
+  }, [error, isTaskDeleted, deleteTaskMutation.isPending, router]);
 
   // 삭제 실패 시 isTaskDeleted 상태 되돌리기
   useEffect(() => {
@@ -436,6 +442,15 @@ export default function TaskDetailPage() {
     setEditingName('');
   };
 
+  // 삭제 진행/완료 상태 처리 (데이터 캐시 제거/비활성화 중 깜빡임 방지)
+  if (isTaskDeleted || deleteTaskMutation.isPending) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg">삭제 중...</div>
+      </div>
+    );
+  }
+
   // 로딩 상태 처리
   if (isLoading) {
     return (
@@ -509,14 +524,16 @@ export default function TaskDetailPage() {
             </h1>
           )}
         </div>
-        <div className="max-lg:mr-[74px]">
-          <DeleteButton
-            onDelete={handleDelete}
-            modalTitle="이 업무를 정말 삭제하시겠습니까?"
-            confirmText="삭제"
-            cancelText="취소"
-          />
-        </div>
+        {!isProjectCompleted && (
+          <div className="max-lg:mr-[74px]">
+            <DeleteButton
+              onDelete={handleDelete}
+              modalTitle="이 업무를 정말 삭제하시겠습니까?"
+              confirmText="삭제"
+              cancelText="취소"
+            />
+          </div>
+        )}
       </div>
 
       {/* 구분선 */}
@@ -533,7 +550,7 @@ export default function TaskDetailPage() {
         >
           {/* 마감 기한 */}
           <div className="flex items-center relative">
-            <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] mr-[28px]">
+            <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] mr-[20px]">
               마감 기한
             </div>
             <div
@@ -550,7 +567,10 @@ export default function TaskDetailPage() {
             >
               <div
                 className="text-[20px] cursor-pointer whitespace-nowrap"
-                onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
+                onClick={() => {
+                  if (isProjectCompleted) return;
+                  setIsDatePickerOpen(!isDatePickerOpen);
+                }}
               >
                 {(() => {
                   console.log('🔍 마감기한 표시 디버깅:', {
@@ -605,13 +625,19 @@ export default function TaskDetailPage() {
               width={32}
               height={32}
               className="ml-[10px] cursor-pointer"
-              onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
+              onClick={() => {
+                if (isProjectCompleted) return;
+                setIsDatePickerOpen(!isDatePickerOpen);
+              }}
             />
             <DatePicker
               selectedDate={selectedDate}
-              onDateChange={handleDateChange}
-              isOpen={isDatePickerOpen}
-              onToggle={() => setIsDatePickerOpen(!isDatePickerOpen)}
+              onDateChange={(d) => !isProjectCompleted && handleDateChange(d)}
+              isOpen={!isProjectCompleted && isDatePickerOpen}
+              onToggle={() => {
+                if (isProjectCompleted) return;
+                setIsDatePickerOpen(!isDatePickerOpen);
+              }}
               minDate={projectCreatedAtDate}
             />
           </div>
@@ -625,7 +651,12 @@ export default function TaskDetailPage() {
             </div>
             <TaskDropdown
               status={task.status}
+              readOnly={!!isProjectCompleted}
               onChange={async (newStatus) => {
+                if (isProjectCompleted) {
+                  console.log('프로젝트가 종료되어 수정할 수 없습니다.');
+                  return;
+                }
                 console.log('TaskDetailPage - 상태 변경 시도:', {
                   currentStatus: task.status,
                   newStatus,
@@ -677,7 +708,7 @@ export default function TaskDetailPage() {
           <AddProfileButton
             profiles={availableProfiles}
             onChange={handleManagersChange}
-            onPermissionCheck={isCurrentUserProjectMember}
+            onPermissionCheck={() => (isProjectCompleted ? false : isCurrentUserProjectMember())}
             initialSelectedIds={task.managers.map((m) => m.userId)}
           />
         </div>
@@ -690,7 +721,7 @@ export default function TaskDetailPage() {
           <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] min-w-[99px]">
             첨부파일
           </div>
-          <FileUploader />
+          <FileUploader readOnly={!!isProjectCompleted} />
         </div>
 
         {/* 비고 */}
@@ -699,9 +730,10 @@ export default function TaskDetailPage() {
           taskData={data}
           initialMemo={task.memo}
           onMemoBlur={handleMemoBlur}
+          readOnly={!!isProjectCompleted}
         />
 
-        <AddComment />
+        <AddComment readOnly={!!isProjectCompleted} />
       </div>
       {showCopyModal && completedTask && (
         <Portal>

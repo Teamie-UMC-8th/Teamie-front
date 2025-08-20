@@ -14,6 +14,12 @@ export default function EditComment({ value, onChange, onSubmit }: Props) {
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && value.trim()) {
+            e.preventDefault();
+            onSubmit();
+          }
+        }}
         className="p-[20px] w-full h-[50px] bg-white rounded-[8px] border-[2px] border-[#BBBBBB]"
         placeholder="댓글을 수정하세요"
       />

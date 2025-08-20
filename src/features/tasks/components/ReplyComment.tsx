@@ -22,6 +22,8 @@ type Props = {
   editCocommentContent?: string; // 수정 중인 대댓글 내용
   onCocommentEditChange?: (content: string) => void; // 대댓글 수정 내용 변경 핸들러
   onCocommentEditSubmit?: () => void; // 대댓글 수정 제출 핸들러
+  isEdited?: boolean; // 수정 여부
+  readOnly?: boolean; // 프로젝트 종료 시 읽기 전용
 };
 
 export default function ReplyComment({
@@ -44,12 +46,15 @@ export default function ReplyComment({
   editCocommentContent = '',
   onCocommentEditChange,
   onCocommentEditSubmit,
+  isEdited = false,
+  readOnly = false,
 }: Props) {
   // 현재 사용자 정보 가져오기
   const { data: currentUser } = useUser();
 
   // 현재 댓글이 대댓글 입력 중인 댓글이라면, 입력 필드를 렌더링
   if (replyToIndex === idx) {
+    if (readOnly) return null;
     return (
       <div className="flex items-center ml-[28px] w-[1340px]">
         <img
@@ -66,6 +71,12 @@ export default function ReplyComment({
           <input
             value={replyValue}
             onChange={(e) => onChange(idx, e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && replyValue.trim()) {
+                e.preventDefault();
+                onSubmit(idx);
+              }
+            }}
             disabled={isAddingCocomment}
             className="rounded-[8px] w-[1224px] min-h-[46px] pl-[12px] py-[10px] bg-white border-[2px] border-[#BBBBBB]
             max-lg:w-[671px] disabled:opacity-50"
@@ -140,35 +151,42 @@ export default function ReplyComment({
               </div>
             )}
             {/* 대댓글 드롭다운 메뉴 */}
-            {!editCocommentId && !isDeletingCocomment && onCocommentEdit && onCocommentDelete && (
-              <CommentMenuDropdown
-                type="cocomment"
-                onSelect={(action) => {
-                  console.log('📋 대댓글 드롭다운 메뉴 선택:', {
-                    action,
-                    cocommentId: cocommentIdx,
-                  });
+            {!readOnly &&
+              !editCocommentId &&
+              !isDeletingCocomment &&
+              onCocommentEdit &&
+              onCocommentDelete && (
+                <CommentMenuDropdown
+                  type="cocomment"
+                  onSelect={(action) => {
+                    console.log('📋 대댓글 드롭다운 메뉴 선택:', {
+                      action,
+                      cocommentId: cocommentIdx,
+                    });
 
-                  if (action === 'reply') {
-                    console.log('💬 대댓글에 대한 대댓글 입력 모드 시작:', {
-                      cocommentId: cocommentIdx,
-                    });
-                    onCocommentReply?.(cocommentIdx || 0);
-                  } else if (action === 'edit') {
-                    console.log('✏️ 대댓글 수정 모드 시작:', {
-                      cocommentId: cocommentIdx,
-                      content: submittedReply,
-                    });
-                    onCocommentEdit(cocommentIdx || 0, submittedReply || '');
-                  } else if (action === 'delete') {
-                    console.log('🗑️ 대댓글 삭제 요청:', { cocommentId: cocommentIdx });
-                    onCocommentDelete(cocommentIdx || 0);
-                  }
-                }}
-              />
-            )}
+                    if (action === 'reply') {
+                      console.log('💬 대댓글에 대한 대댓글 입력 모드 시작:', {
+                        cocommentId: cocommentIdx,
+                      });
+                      onCocommentReply?.(cocommentIdx || 0);
+                    } else if (action === 'edit') {
+                      console.log('✏️ 대댓글 수정 모드 시작:', {
+                        cocommentId: cocommentIdx,
+                        content: submittedReply,
+                      });
+                      onCocommentEdit(cocommentIdx || 0, submittedReply || '');
+                    } else if (action === 'delete') {
+                      console.log('🗑️ 대댓글 삭제 요청:', { cocommentId: cocommentIdx });
+                      onCocommentDelete(cocommentIdx || 0);
+                    }
+                  }}
+                />
+              )}
           </div>
-          <div className="text-[#898989] text-[12px] ml-[24px] mt-[4px]">{formatDate()}</div>
+          <div className="text-[#898989] text-[12px] ml-[24px] mt-[4px]">
+            {formatDate()}
+            {isEdited && ' (수정됨)'}
+          </div>
         </div>
       </div>
     );

@@ -15,7 +15,9 @@ import EditComment from './EditComment';
 import ReplyComment from './ReplyComment';
 import { Comment } from '@/types/api/comment';
 
-export default function AddComment() {
+type Props = { readOnly?: boolean };
+
+export default function AddComment({ readOnly = false }: Props) {
   // 댓글 입력 상태 관리
   const [newComment, setNewComment] = useState('');
   const [comments, setComments] = useState<Comment[]>([]);
@@ -349,19 +351,20 @@ export default function AddComment() {
         <div className="relative">
           <input
             value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
+            onChange={(e) => !readOnly && setNewComment(e.target.value)}
             onKeyPress={(e) => {
+              if (readOnly) return;
               if (e.key === 'Enter' && !isAddingComment) {
                 handleComment();
               }
             }}
-            disabled={isAddingComment}
+            disabled={isAddingComment || readOnly}
             className="p-[20px] w-[1288px] h-[50px] bg-white rounded-[8px] border-[2px] border-[#BBBBBB]
-            max-lg:w-[735px] disabled:opacity-50"
+            max-lg:w-[735px]"
             placeholder={isAddingComment ? '댓글을 추가하는 중...' : '댓글을 작성하세요'}
           />
 
-          {newComment.trim() !== '' && (
+          {!readOnly && newComment.trim() !== '' && (
             <button
               onClick={handleComment}
               disabled={isAddingComment}
@@ -426,7 +429,7 @@ export default function AddComment() {
                   </div>
                 )}
                 {/* 댓글 드롭다운 메뉴 */}
-                {editIndex !== idx && (
+                {editIndex !== idx && !readOnly && (
                   <CommentMenuDropdown
                     onSelect={(action) => {
                       if (action === 'reply') {
@@ -475,6 +478,7 @@ export default function AddComment() {
               </div>
               <div className="text-[#898989] text-[12px] ml-[16px] mt-[4px] ">
                 {formatDate(comment.createdAt)}
+                {comment.updatedAt && comment.updatedAt !== comment.createdAt && ' (수정됨)'}
               </div>
             </div>
           </div>
@@ -502,6 +506,8 @@ export default function AddComment() {
                     onChange={() => {}}
                     onSubmit={() => {}}
                     formatDate={() => formatDate(cocomment.createdAt)}
+                    readOnly={readOnly}
+                    isEdited={cocomment.updatedAt !== cocomment.createdAt}
                     isAddingCocomment={isAddingCocomment}
                     isDeletingCocomment={isDeletingCocomment}
                     onCocommentEdit={handleCocommentEdit}
@@ -516,7 +522,7 @@ export default function AddComment() {
               ))}
 
           {/* 대댓글 입력 필드 */}
-          {replyToIndex === idx && (
+          {!readOnly && replyToIndex === idx && (
             <ReplyComment
               idx={idx}
               replyToIndex={replyToIndex}
