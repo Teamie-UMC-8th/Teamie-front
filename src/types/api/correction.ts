@@ -64,8 +64,8 @@ export interface StartRagResponse {
 }
 
 // RAG 데이터 조회 응답 타입
-// Backend now returns links as { title, url }. Keep backward compatibility for legacy { name, url }.
-export type RagLink = string | { title: string; url: string } | { name: string; url: string };
+// Backend returns links as { title, url }
+export type RagLink = string | { title: string; url: string };
 
 export interface RagDataResponse {
   isSuccess: boolean;

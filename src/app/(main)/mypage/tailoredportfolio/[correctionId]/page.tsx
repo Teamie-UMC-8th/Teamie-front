@@ -1065,31 +1065,29 @@ function TailoredPortfolioContent() {
                 .map((raw: unknown) => {
                   try {
                     if (typeof raw === 'string') {
-                      const url = new URL(raw);
-                      const hostname = url.hostname.replace(/^www\./, '');
-                      return { name: hostname, url: raw };
+                      const parsed = new URL(raw);
+                      const hostname = parsed.hostname.replace(/^www\./, '');
+                      return { title: hostname, url: raw };
                     }
-                    if (
-                      raw &&
-                      typeof raw === 'object' &&
-                      'name' in (raw as { name?: unknown }) &&
-                      'url' in (raw as { url?: unknown })
-                    ) {
-                      const obj = raw as { name?: unknown; url?: unknown };
-                      return { name: String(obj.name), url: String(obj.url) };
+                    if (raw && typeof raw === 'object' && 'url' in (raw as { url?: unknown })) {
+                      const obj = raw as { title?: unknown; url?: unknown };
+                      return {
+                        title: String(obj.title || ''),
+                        url: String(obj.url || ''),
+                      };
                     }
                   } catch {
                     return typeof raw === 'string'
-                      ? { name: '', url: raw }
+                      ? { title: '', url: raw }
                       : {
-                          name: String((raw as Record<string, unknown>)?.name || ''),
+                          title: String((raw as Record<string, unknown>)?.title || ''),
                           url: String((raw as Record<string, unknown>)?.url || ''),
                         };
                   }
-                  return null as unknown as { name: string; url: string };
+                  return null as unknown as { title: string; url: string };
                 })
                 .filter(
-                  (v: { name: string; url: string } | null): v is { name: string; url: string } =>
+                  (v: { title: string; url: string } | null): v is { title: string; url: string } =>
                     !!v && !!v.url
                 )
             : []
