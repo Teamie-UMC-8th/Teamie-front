@@ -45,9 +45,9 @@ export default function CorrectionStartButtonModal({
             <Image
               src="/icons/CreditIcon.svg"
               alt="첨삭 모달 아이콘"
-              width={20}
-              height={20}
-              className="mt-[2px] mr-[12px]"
+              width={24}
+              height={24}
+              className="mt-[2px] mr-[6px]"
             />
             <h3 className="text-[20px] font-semibold text-center text-black">{title}</h3>
           </div>
