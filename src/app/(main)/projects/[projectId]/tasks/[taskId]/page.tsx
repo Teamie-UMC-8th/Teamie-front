@@ -319,7 +319,7 @@ export default function TaskDetailPage() {
 
     // 프로젝트 멤버 권한 체크
     if (!isCurrentUserProjectMember()) {
-      alert('프로젝트 멤버만 담당자를 수정할 수 있습니다.');
+      console.log('프로젝트 멤버만 담당자를 수정할 수 있습니다.');
       return;
     }
 
@@ -676,7 +676,6 @@ export default function TaskDetailPage() {
             onChange={handleManagersChange}
             onPermissionCheck={isCurrentUserProjectMember}
             initialSelectedIds={task.managers.map((m) => m.userId)}
-            alertMessage="프로젝트 멤버만 담당자를 수정할 수 있습니다."
           />
         </div>
 

@@ -21,7 +21,6 @@ export default function AddProfileButton({
   onChange,
   onPermissionCheck,
   initialSelectedIds = [],
-  alertMessage = '프로젝트 멤버만 수정할 수 있습니다.', // 기본값 설정
 }: AddProfileButtonProps) {
   const [selectedProfiles, setSelectedProfiles] = useState<Manager[]>([]);
   // const isInitialized = useRef(false);
@@ -42,7 +41,10 @@ export default function AddProfileButton({
     .filter((p) => !selectedProfiles.find((s) => s.userId === p.userId))
     .sort((a, b) => a.userName.localeCompare(b.userName, 'ko'));
 
-  const toggleDropdown = () => setDropdownOpen((prev) => !prev);
+  const toggleDropdown = () => {
+    if (onPermissionCheck && !onPermissionCheck()) return;
+    setDropdownOpen((prev) => !prev);
+  };
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -56,7 +58,7 @@ export default function AddProfileButton({
       console.log('AddProfileButton - 권한 점검 결과:', hasPermission);
 
       if (!hasPermission) {
-        alert(alertMessage);
+        console.log('프로젝트 멤버만 수정할 수 있습니다.');
         return;
       }
     }
@@ -99,7 +101,7 @@ export default function AddProfileButton({
       console.log('AddProfileButton - 권한 점검 결과:', hasPermission);
 
       if (!hasPermission) {
-        alert(alertMessage);
+        console.log('프로젝트 멤버만 수정할 수 있습니다.');
         return;
       }
     }
