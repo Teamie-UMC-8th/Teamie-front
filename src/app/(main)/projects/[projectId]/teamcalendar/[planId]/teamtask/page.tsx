@@ -505,11 +505,11 @@ export default function TeamTaskDetailPage() {
 
           {/* 시작 시간 */}
           <div className="flex items-center relative w-[390px]">
-            <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] mr-[28px] flex-shrink-0">
+            <div className="w-[99px] h-[37px] bg-[#DAF3F3] grid place-items-center gap-[10px] rounded-[4px] mr-[30px] flex-shrink-0">
               시작 시간
             </div>
             <div
-              className={`flex items-center ${selectedTime ? 'w-[60px]' : 'w-0'} overflow-hidden transition-all duration-200`}
+              className={`flex items-center ${selectedTime ? 'w-[80px] max-lg:w-[68px]' : 'w-0'} overflow-hidden transition-all duration-200`}
             >
               <div
                 className="text-[20px] cursor-pointer whitespace-nowrap"
@@ -523,7 +523,7 @@ export default function TeamTaskDetailPage() {
               alt="타임 피커"
               width={32}
               height={32}
-              className="ml-[16px] cursor-pointer"
+              className=" cursor-pointer"
               onClick={toggleTimePicker}
             />
             <TimePicker
