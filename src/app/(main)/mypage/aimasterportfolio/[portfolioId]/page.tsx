@@ -12,7 +12,6 @@ import { usePatchMasterPortfolio } from '@/hooks/mutations/usePatchMasterPortfol
 import { CATEGORY_MAP, CATEGORY_LIST, CategoryKey } from '@/constants/category';
 import ContributionSlider from '@/components/ContributionSlider';
 import { useProjectHome } from '@/hooks/mutations/useProjectHome';
-import { formatDate } from '@/utils/formatDate';
 import Image from 'next/image';
 import { useQueryClient } from '@tanstack/react-query';
 import MenuButton from '@/features/aiMasterPortfolio/components/MenuButton';
