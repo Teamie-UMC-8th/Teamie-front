@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { SidebarMenus } from '@/types/sidebar';
 import Dropdown from './Dropdown';
 import Image from 'next/image';
+import { getDropdownIcon, getProfileImageUrl, handleImageError } from '@/utils/imageUtils';
 
 export default function Navbar() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -175,7 +176,8 @@ export default function Navbar() {
             trigger={
               <button data-dropdown-trigger className="flex items-center">
                 <Image
-                  src={user?.imageUrl || '/icons/profile.svg'}
+                  src={getProfileImageUrl(user?.imageUrl)}
+                  onError={handleImageError}
                   alt="프로필"
                   className="cursor-pointer rounded-full object-cover w-[32px] h-[32px]"
                   width={32}
@@ -187,7 +189,7 @@ export default function Navbar() {
               {
                 label: '마이페이지',
                 href: '/myPage',
-                icon: user?.imageUrl ? user.imageUrl : '/icons/myPage-dropdown.svg',
+                icon: getDropdownIcon(user),
               },
               {
                 label: '로그아웃',

@@ -6,6 +6,7 @@ import { useUpdateTaskStatus } from '@/hooks/mutations/useUpdateTaskStatus';
 import Link from 'next/link';
 import AssigneeCard from './AssigneeCard';
 import { formatToKoreanDate } from '@/utils/formatDate';
+import { getProfileImageUrl } from '@/utils/imageUtils';
 
 // TaskItem 컴포넌트 Props에 onTaskComplete 콜백 추가
 interface TaskItemProps extends TaskItemComponentProps {
@@ -123,7 +124,7 @@ export default function TaskItem({
                 <AssigneeCard
                   key={index}
                   name={assignee.name}
-                  imageUrl={assignee.imageUrl}
+                  imageUrl={getProfileImageUrl(assignee.imageUrl)}
                   size="sm"
                 />
               ))}
