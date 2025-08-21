@@ -34,7 +34,7 @@ export default function MenuButton() {
   ];
 
   return (
-    <div className="absolute top-0 right-[20px] relative ml-auto justify-end max-lg:w-[32px] max-lg:h-[32px]">
+    <div className="top-0 right-[20px] relative ml-auto justify-end max-lg:w-[32px] max-lg:h-[32px]">
       <Dropdown
         isOpen={open}
         onToggle={() => setOpen((prev) => !prev)}
