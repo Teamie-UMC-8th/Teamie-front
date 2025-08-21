@@ -18,6 +18,15 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       console.error('401 Unauthorized - 인증이 필요합니다.');
+    } else if (error.response?.data?.error?.errorCode === 'PROJECT4031') {
+      console.error('PROJECT4031 - 프로젝트 접근 권한이 없습니다. 홈으로 이동합니다.');
+      // 홈으로 리다이렉트
+      if (typeof window !== 'undefined') {
+        // 임시로 알림창 띄우기
+        alert('잘못된 접근입니다.');
+        // 강제로 페이지 이동
+        window.location.replace('/home/tasks');
+      }
     }
     return Promise.reject(error);
   }
