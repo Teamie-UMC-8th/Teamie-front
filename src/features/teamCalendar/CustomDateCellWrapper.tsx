@@ -52,10 +52,23 @@ export default function CustomDateCellWrapper({
   const handleClick = () => {
     if (!projectId || !canShowPlusButton) return;
 
-    // 로컬 자정 고정: YYYY-MM-DDT00:00:00 (타임존 시프트 방지)
-    const formattedDate = moment(value).format('YYYY-MM-DD[T]00:00:00');
+    // 선택한 날짜 + 현재 시간으로 조합
+    const selectedDate = moment(value);
+    const currentTime = moment();
 
-    console.log('플러스 버튼 클릭!', { projectId, formattedDate });
+    const formattedDate = selectedDate
+      .hour(currentTime.hour())
+      .minute(currentTime.minute())
+      .second(currentTime.second())
+      .millisecond(currentTime.millisecond())
+      .format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
+
+    console.log('플러스 버튼 클릭!', {
+      projectId,
+      formattedDate,
+      selectedDate: selectedDate.format('YYYY-MM-DD'),
+      currentTime: currentTime.format('HH:mm:ss'),
+    });
 
     mutate(
       { projectId, date: formattedDate },
@@ -92,8 +105,18 @@ export default function CustomDateCellWrapper({
   const [indicatorY, setIndicatorY] = useState<number>(4);
   const indicatorVisible = isDragOver; // 호버 상태와 독립적으로 작동
 
-  // 드롭할 목표 날짜 문자열 (로컬 자정)
-  const dropTargetDate = useMemo(() => moment(value).format('YYYY-MM-DD[T]00:00:00'), [value]);
+  // 드롭할 목표 날짜 문자열 (선택한 날짜 + 현재 시간으로 조합)
+  const dropTargetDate = useMemo(() => {
+    const selectedDate = moment(value);
+    const currentTime = moment();
+
+    return selectedDate
+      .hour(currentTime.hour())
+      .minute(currentTime.minute())
+      .second(currentTime.second())
+      .millisecond(currentTime.millisecond())
+      .format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
+  }, [value]);
 
   return (
     <div
