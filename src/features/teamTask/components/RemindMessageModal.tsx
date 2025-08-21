@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Image from 'next/image';
 
 interface RemindMessageModalProps {
@@ -26,6 +26,17 @@ export default function RemindMessageModal({
 }: RemindMessageModalProps) {
   const [showCopyModal, setShowCopyModal] = useState(false);
 
+  const absoluteDetailUrl = useMemo(() => {
+    if (!detailUrl) return '';
+    try {
+      if (detailUrl.startsWith('http')) return detailUrl;
+      if (typeof window === 'undefined') return detailUrl;
+      return new URL(detailUrl, window.location.origin).toString();
+    } catch {
+      return detailUrl;
+    }
+  }, [detailUrl]);
+
   const generateMessage = () => {
     const relativeDate = getRelativeDate(date);
     const attendeeNames = attendees.length > 0 ? attendees.join(', ') : '미정';
@@ -39,7 +50,7 @@ export default function RemindMessageModal({
 ${scheduleName} - ${dateMonthDay} ${time} (${relativeDate})
 👤 참석자: ${attendeeNames}
 📍 장소: ${locationText}
-👉 상세 내용 확인하기: ${detailUrl}`;
+👉 상세 내용 확인하기: ${absoluteDetailUrl}`;
   };
 
   const getRelativeDate = (dateStr: string) => {
@@ -105,7 +116,7 @@ ${scheduleName} - ${dateMonthDay} ${time} (${relativeDate})
             👉 상세 내용 확인하기:{' '}
             <span
               className="text-[#81D7D4] underline font-bold cursor-pointer"
-              onClick={() => window.open(detailUrl, '_blank')}
+              onClick={() => window.open(absoluteDetailUrl, '_blank')}
             >
               {scheduleName}
             </span>
