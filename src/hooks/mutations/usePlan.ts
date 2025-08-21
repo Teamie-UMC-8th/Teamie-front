@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { getPlanDetail, deletePlan, updatePlan, updatePlanUsers } from '@/services/plans/plan';
 import { PatchPlanRequest, PatchPlanUsersRequest } from '@/types/api/plans';
@@ -15,13 +15,18 @@ export const useGetPlanDetail = (planId: string) =>
   });
 
 // Mutation Hooks
-export const usePatchPlan = () =>
-  useMutation({
+export const usePatchPlan = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
     mutationFn: ({ planId, planData }: { planId: string; planData: PatchPlanRequest }) =>
       updatePlan(planId, planData),
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       if (data.isSuccess) {
         console.log('✅ 일정 수정 성공:', data.result);
+        // 캐시 무효화로 즉시 반영
+        queryClient.invalidateQueries({ queryKey: ['calendarPlans'] });
+        queryClient.invalidateQueries({ queryKey: ['planDetail', variables.planId] });
       } else {
         console.error('❌ 일정 수정 실패:', data.error);
       }
@@ -35,6 +40,7 @@ export const usePatchPlan = () =>
       }
     },
   });
+};
 
 export const usePatchPlanUsers = () =>
   useMutation({
@@ -59,12 +65,18 @@ export const usePatchPlanUsers = () =>
 
 export const useDeletePlan = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: deletePlan,
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       if (data.isSuccess) {
         console.log('✅ 일정 삭제 성공:', data.result?.message);
+
+        // 캐시 무효화로 즉시 반영
+        queryClient.invalidateQueries({ queryKey: ['calendarPlans'] });
+        queryClient.invalidateQueries({ queryKey: ['planDetail'] });
+
         // 삭제 성공 후 팀 캘린더 페이지로 리다이렉션
         // 현재 URL에서 projectId를 추출하여 사용
         const currentPath = window.location.pathname;
@@ -72,9 +84,6 @@ export const useDeletePlan = () => {
         if (projectIdMatch) {
           const projectId = projectIdMatch[1];
           router.push(`/projects/${projectId}/teamcalendar`);
-        } else {
-          // fallback: 홈으로 이동
-          router.push('/home');
         }
       } else {
         console.error('❌ 일정 삭제 실패:', data.error);

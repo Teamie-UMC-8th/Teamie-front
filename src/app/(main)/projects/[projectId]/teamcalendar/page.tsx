@@ -32,10 +32,8 @@ type CalendarEventType = {
 };
 
 export default function TeamCalendar() {
-  // 현재 날짜를 split으로 생성 (YYYY-MM-DD 형식)
-  const now = new Date();
-  const [year, month, day] = [now.getFullYear(), now.getMonth(), now.getDate()];
-  const [currentDate, setCurrentDate] = useState(new Date(year, month, day));
+  // 프로젝트 생성일을 기준으로 설정
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [projectCreatedAtISO, setProjectCreatedAtISO] = useState<string | undefined>(undefined);
   const router = useRouter();
   const params = useParams();
@@ -139,7 +137,7 @@ export default function TeamCalendar() {
   //   };
   // }, [refetch]);
 
-  // 프로젝트 생성일을 조회해 해당 일 이전 날짜 차단
+  // 프로젝트 생성일을 조회하고 현재 날짜를 프로젝트 생성일로 설정
   useEffect(() => {
     const fetchProjectMeta = async () => {
       try {
@@ -147,12 +145,17 @@ export default function TeamCalendar() {
         const { data } = await axiosInstance.get(`/api/v1/projects/${projectId}`);
         const createdAt = data?.result?.project?.createdAt || data?.result?.createdAt;
         if (createdAt) {
+          // 프로젝트 생성일을 기준으로 currentDate 설정
+          const creationDate = moment(createdAt).toDate();
+          setCurrentDate(creationDate);
+
           // 날짜 비교 오차 방지를 위해 'YYYY-MM-DD'로 전달 (타임존 영향 제거)
           const creationDay = moment(createdAt).format('YYYY-MM-DD');
           setProjectCreatedAtISO(creationDay);
         }
       } catch {
-        // 생성일을 못 가져오면 제한 없이 동작
+        // 생성일을 못 가져오면 현재 날짜로 설정
+        setCurrentDate(new Date());
         setProjectCreatedAtISO(undefined);
       }
     };
@@ -332,8 +335,8 @@ export default function TeamCalendar() {
 
   // 캘린더 높이 동적 계산 (기본 높이 208px 고정)
   const calendarHeight = useMemo(() => {
-    const weekHeight = 208; // 각 주의 높이 (208px 고정)
-    const headerHeight = 40; // 요일 헤더 높이
+    const weekHeight = 200; // 각 주의 높이 (208px 고정)
+    const headerHeight = 181; // 요일 헤더 높이
     const totalHeight = weeksInMonth * weekHeight + headerHeight;
 
     return totalHeight;
@@ -345,8 +348,9 @@ export default function TeamCalendar() {
       month: formattedTitle,
       weeksInMonth,
       calendarHeight: `${calendarHeight}px`,
-      weekHeight: '208px (고정)',
-      headerHeight: '40px',
+      weekHeight: '200px',
+      headerHeight: '181px',
+      margin: '32px',
     });
   }, [formattedTitle, weeksInMonth, calendarHeight]);
 
@@ -417,7 +421,6 @@ export default function TeamCalendar() {
           width: '1400px',
           height: `${calendarHeight}px`,
           backgroundColor: 'white',
-          margin: '32px',
         }}
         components={{
           dateCellWrapper: (props) => (
