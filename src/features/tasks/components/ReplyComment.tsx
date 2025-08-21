@@ -72,8 +72,9 @@ export default function ReplyComment({
             value={replyValue}
             onChange={(e) => onChange(idx, e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && replyValue.trim()) {
+              if (e.key === 'Enter' && !e.nativeEvent.isComposing && replyValue.trim()) {
                 e.preventDefault();
+                e.stopPropagation();
                 onSubmit(idx);
               }
             }}
