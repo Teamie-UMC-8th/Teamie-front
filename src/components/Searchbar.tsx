@@ -30,7 +30,7 @@ export function Searchbar({
       {/*     className="w-[1.5rem] h-[1.75rem] lg:w-[1.75rem] lg:h-[1.75rem]" */}
       {/*   /> */}
       {/* </div> */}
-      <button onClick={handleFilterClick}>
+      <button onClick={handleFilterClick} data-filter-button>
         <Image
           src="/icons/filter.svg"
           alt="filter"
