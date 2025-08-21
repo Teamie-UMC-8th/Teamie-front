@@ -3,7 +3,7 @@
 import Portal from '@/components/Portal';
 import Image from 'next/image';
 
-type LinkItem = { name: string; url: string };
+type LinkItem = { title: string; url: string };
 
 type CompanyInsightProcessModalProps = {
   isOpen: boolean;
@@ -23,15 +23,18 @@ export default function CompanyInsightProcessModal({
   if (!isOpen) return null;
 
   const displayKeywords = keywords && keywords.length > 0 ? keywords : ['검색어'];
-  const displayLinks =
-    links && links.length > 0 ? links : [{ name: '사이트명', url: '사이트 주소주소주소' }];
+  const displayLinks = links && links.length > 0 ? links : [{ title: '사이트명', url: '주소' }];
 
   return (
     <Portal>
-      <div className="fixed inset-0 z-[1000] bg-black/30 flex items-center justify-center">
+      <div
+        className="fixed inset-0 z-[1000] bg-black/30 flex items-center justify-center"
+        onClick={onClose}
+      >
         <div
           className="w-[960px] h-[589px] bg-white rounded-[16px] overflow-hidden"
           style={{ boxShadow: '0px 0px 15px 0px #00000033' }}
+          onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <div className="flex justify-end px-[12px] py-[12px]">
@@ -127,7 +130,7 @@ export default function CompanyInsightProcessModal({
                         height={18}
                         className="mr-[8px]"
                       />
-                      <p className="break-all">{`${item.name ? item.name + ' ' : ''}${item.url}`}</p>
+                      <p className="break-all">{`${item.title ? item.title + ' ' : ''}${item.url}`}</p>
                     </a>
                   ))}
                 </div>

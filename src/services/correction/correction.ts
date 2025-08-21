@@ -13,6 +13,7 @@ import {
   PostGenerateCorrectionResponse,
   GetGeneratedCorrectionResponse,
   GetGeneratedCorrectionByProjectResponse,
+  AiCorrectionMasterPortfolioResponse,
 } from '@/types/api/correction';
 import axiosInstance from '@/lib/axiosInstance';
 
@@ -224,6 +225,23 @@ export async function fetchCompanyInsight(
     throw new Error('기업 분석 정보 조회에 실패했습니다.');
   }
 
+  return data.result;
+}
+
+// AI 첨삭의 특정 마스터 포트폴리오 원문 정보 조회
+// GET /api/v1/portfolio-corrections/{projectId}/master-portfolios
+export async function fetchAiCorrectionMasterPortfolio(
+  projectId: number
+): Promise<AiCorrectionMasterPortfolioResponse['result']> {
+  console.log('[API] GET /api/v1/portfolio-corrections/{projectId}/master-portfolios', {
+    projectId,
+  });
+  const { data } = await axiosInstance.get<AiCorrectionMasterPortfolioResponse>(
+    `/api/v1/portfolio-corrections/${projectId}/master-portfolios`
+  );
+  if (!data?.result) {
+    throw new Error('마스터 포트폴리오 원문 정보를 가져올 수 없습니다.');
+  }
   return data.result;
 }
 
