@@ -69,7 +69,7 @@ export const useDeletePlan = () => {
 
   return useMutation({
     mutationFn: deletePlan,
-    onSuccess: (data, _variables) => {
+    onSuccess: (data) => {
       if (data.isSuccess) {
         console.log('✅ 일정 삭제 성공:', data.result?.message);
 
