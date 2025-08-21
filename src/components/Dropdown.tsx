@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { ReactNode, Fragment } from 'react';
+import { ReactNode, Fragment, useEffect, useRef } from 'react';
 
 interface DropdownItem {
   label: string;
@@ -31,8 +31,27 @@ export default function Dropdown({
   dropdownClassName = '',
   width = 'w-[16rem]', // 요청하신 대로 원상 복구
 }: DropdownProps) {
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // 외부 클릭 시 드롭다운 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        onToggle();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isOpen, onToggle]);
+
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative ${className}`} ref={dropdownRef}>
       {/* 트리거 버튼 */}
       <div onClick={onToggle}>{trigger}</div>
 
