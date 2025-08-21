@@ -23,6 +23,7 @@ import { useMasterPortfolioList } from '@/hooks/queries/useGetMasterPortfolio';
 import type { MasterPortfolio } from '@/types/api/masterportfolio';
 import { CATEGORY_MAP } from '@/constants/category';
 import { fetchAiCorrectionMasterPortfolio } from '@/services/correction/correction';
+import { formatDate } from '@/utils/formatDate';
 
 function TailoredPortfolioContent() {
   const params = useParams();
@@ -234,6 +235,13 @@ function TailoredPortfolioContent() {
   if (error) return <div>AI 첨삭 정보를 불러오는데 실패했습니다.</div>;
   if (!data) return <div>AI 첨삭 정보를 찾을 수 없습니다.</div>;
 
+  const displayTitle = (() => {
+    const raw = String(data?.title || '').trim();
+    if (!raw) return '새로운 첨삭';
+    if (/^새로운\s*첨삭/i.test(raw)) return '새로운 첨삭';
+    return raw;
+  })();
+
   const saveTitleIfChanged = async () => {
     const newTitle = (titleRef.current?.textContent || titleInput || '').trim();
     const currentTitle = (data?.title || '').trim();
@@ -316,7 +324,7 @@ function TailoredPortfolioContent() {
               }
             }}
           >
-            {data.title || '새로운 첨삭'}
+            {displayTitle}
           </h1>
         </div>
         <div className="translate-y-[26px]">
@@ -358,7 +366,7 @@ function TailoredPortfolioContent() {
               생성 일자
             </div>
             <p className="text-black text-[20px] grid place-items-center ml-[28px]">
-              {new Date(data.createdAt).toLocaleDateString('ko-KR')}
+              {formatDate(data.createdAt)}
             </p>
           </div>
 
