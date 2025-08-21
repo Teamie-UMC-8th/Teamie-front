@@ -158,6 +158,7 @@ export default function ReplyComment({
               onCocommentDelete && (
                 <CommentMenuDropdown
                   type="cocomment"
+                  canModify={submittedReplyUser?.name === currentUser?.name}
                   onSelect={(action) => {
                     console.log('📋 대댓글 드롭다운 메뉴 선택:', {
                       action,

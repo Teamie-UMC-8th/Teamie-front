@@ -431,6 +431,7 @@ export default function AddComment({ readOnly = false }: Props) {
                 {/* 댓글 드롭다운 메뉴 */}
                 {editIndex !== idx && !readOnly && (
                   <CommentMenuDropdown
+                    canModify={comment.users.name === currentUser?.name}
                     onSelect={(action) => {
                       if (action === 'reply') {
                         setReplyToIndex(idx);
