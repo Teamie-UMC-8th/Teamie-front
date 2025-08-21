@@ -41,6 +41,7 @@ export default function TaskDetailPage() {
   const [completedTask, setCompletedTask] = useState<{ title: string; taskId: number } | null>(
     null
   );
+  const [selectedManagers, setSelectedManagers] = useState<number[]>([]);
 
   const { handleMemoBlur } = useTaskMemoHandler();
   const updateTaskMutation = useUpdateTaskDetail();
@@ -68,7 +69,7 @@ export default function TaskDetailPage() {
       try {
         const res = await axiosInstance.get(`/api/v1/projects/${projectId}`);
         return res.data;
-      } catch (e) {
+      } catch {
         return null;
       }
     },
@@ -213,6 +214,12 @@ export default function TaskDetailPage() {
     }
   }, [data]);
 
+  // 서버 데이터 변경 시 로컬 선택 상태 동기화
+  useEffect(() => {
+    const ids = data?.result?.managers?.map((m: { userId: number }) => m.userId) || [];
+    setSelectedManagers(ids);
+  }, [data?.result?.managers]);
+
   // 프로젝트 홈 데이터 가져오기 (담당자 검증을 위해)
   const { data: projectHomeData } = useQuery({
     queryKey: ['projectHome', projectId],
@@ -337,6 +344,9 @@ export default function TaskDetailPage() {
       selectedUserIds,
     });
 
+    // UI 즉시 반영하여 깜빡임 방지
+    setSelectedManagers(selectedUserIds);
+
     if (data?.result) {
       const updateData = {
         ...data.result,
@@ -352,10 +362,12 @@ export default function TaskDetailPage() {
         originalManagers: data.result.managers,
       });
 
-      updateTaskMutation.mutate({
-        taskId,
-        data: updateData,
-      });
+      setTimeout(() => {
+        updateTaskMutation.mutate({
+          taskId,
+          data: updateData,
+        });
+      }, 0);
     }
   };
 
@@ -709,7 +721,7 @@ export default function TaskDetailPage() {
             profiles={availableProfiles}
             onChange={handleManagersChange}
             onPermissionCheck={() => (isProjectCompleted ? false : isCurrentUserProjectMember())}
-            initialSelectedIds={task.managers.map((m) => m.userId)}
+            initialSelectedIds={selectedManagers}
           />
         </div>
 
