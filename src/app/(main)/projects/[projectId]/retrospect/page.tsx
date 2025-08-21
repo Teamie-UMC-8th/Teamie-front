@@ -72,16 +72,16 @@ export default function PersonalRetroPage() {
       <div className="w-full">
         <div className="w-full flex flex-col">
           <h2
-            className="mb-[16px] font-[Pretendard] font-bold text-[24px] leading-[29px] tracking-[0.04em] whitespace-nowrap text-[#000000] ml-[28px]
+            className="mb-[16px] font-[Pretendard] font-bold text-[24px] leading-[29px] tracking-[0.04em] whitespace-nowrap text-[#000000]
           max-lg:text-[22px] max-lg:leading-[28px] max-lg:font-[600] max-lg:tracking-[0] max-lg:ml-[32px] mb-[16px] whitespace-nowrap"
           >
             개인 회고
           </h2>
         </div>
-        <div className="ml-[20px] max-lg:ml-[24px]">
+        <div className="ml-[-12px] max-lg:ml-[24px]">
           <hr className="w-[1550px] max-lg:w-[862px] border-t-[2px] border-[#E7E7E7] rotate-180 mb-[102px]" />
         </div>
-        <div className="ml-[80px] max-lg:ml-[48px]">
+        <div className="ml-[25px] max-lg:ml-[48px]">
           <PersonalSection />
         </div>
       </div>
