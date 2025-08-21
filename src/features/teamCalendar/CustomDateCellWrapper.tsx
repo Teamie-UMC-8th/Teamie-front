@@ -38,36 +38,32 @@ export default function CustomDateCellWrapper({
   const { mutate } = usePostPlan();
   const { mutate: patchPlan } = usePatchPlan();
 
-  // 오늘 날짜 이후인지 확인 (오늘 포함)
-  const isTodayOrAfter = moment(value).isSameOrAfter(moment(), 'day');
-
-  // 프로젝트 생성일 이전인지 확인
+  // 프로젝트 생성일 이전인지 확인 (전체 날짜 비교)
   const isBeforeProjectCreation = projectCreatedAtISO
-    ? moment(value).isBefore(moment(projectCreatedAtISO), 'day')
+    ? moment(value).isBefore(moment(projectCreatedAtISO))
     : false;
 
-  // 플러스 버튼 표시 조건: 오늘 이후이면서, 프로젝트 생성일 이후만, 그리고 프로젝트가 종료되지 않았을 때
-  const canShowPlusButton = isTodayOrAfter && !isBeforeProjectCreation && !isProjectCompleted;
+  // 플러스 버튼 표시 조건: 프로젝트 생성일 이후만, 그리고 프로젝트가 종료되지 않았을 때
+  const canShowPlusButton = !isBeforeProjectCreation && !isProjectCompleted;
 
   const handleClick = () => {
     if (!projectId || !canShowPlusButton) return;
 
-    // 선택한 날짜 + 현재 시간으로 조합
+    // 선택한 날짜의 현재 시간으로 설정
     const selectedDate = moment(value);
     const currentTime = moment();
-
     const formattedDate = selectedDate
       .hour(currentTime.hour())
       .minute(currentTime.minute())
       .second(currentTime.second())
       .millisecond(currentTime.millisecond())
-      .format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
+      .toISOString();
 
     console.log('플러스 버튼 클릭!', {
       projectId,
       formattedDate,
-      selectedDate: selectedDate.format('YYYY-MM-DD'),
-      currentTime: currentTime.format('HH:mm:ss'),
+      selectedDate: moment(value).format('YYYY-MM-DD'),
+      currentTime: moment().format('HH:mm:ss'),
     });
 
     mutate(
@@ -105,7 +101,7 @@ export default function CustomDateCellWrapper({
   const [indicatorY, setIndicatorY] = useState<number>(4);
   const indicatorVisible = isDragOver; // 호버 상태와 독립적으로 작동
 
-  // 드롭할 목표 날짜 문자열 (선택한 날짜 + 현재 시간으로 조합)
+  // 드롭할 목표 날짜 문자열 (선택한 날짜의 현재 시간)
   const dropTargetDate = useMemo(() => {
     const selectedDate = moment(value);
     const currentTime = moment();
@@ -115,7 +111,7 @@ export default function CustomDateCellWrapper({
       .minute(currentTime.minute())
       .second(currentTime.second())
       .millisecond(currentTime.millisecond())
-      .format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
+      .toISOString();
   }, [value]);
 
   return (

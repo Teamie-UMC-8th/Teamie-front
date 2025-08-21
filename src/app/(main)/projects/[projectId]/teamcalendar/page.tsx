@@ -145,8 +145,8 @@ export default function TeamCalendar() {
         const { data } = await axiosInstance.get(`/api/v1/projects/${projectId}`);
         const createdAt = data?.result?.project?.createdAt || data?.result?.createdAt;
         if (createdAt) {
-          // 프로젝트 생성일을 기준으로 currentDate 설정
-          const creationDate = moment(createdAt).toDate();
+          // 프로젝트 생성일을 기준으로 currentDate 설정 (UTC 시간 그대로 사용)
+          const creationDate = moment.utc(createdAt).toDate();
           setCurrentDate(creationDate);
 
           // 날짜 비교 오차 방지를 위해 'YYYY-MM-DD'로 전달 (타임존 영향 제거)
