@@ -175,8 +175,15 @@ export default function DashboardPage() {
 
   // 필터 패널 열기/닫기
   const handleFilterClick = (buttonRect: DOMRect) => {
-    setFilterButtonRect(buttonRect);
-    setIsFilterOpen(true);
+    if (isFilterOpen) {
+      // 이미 열려있으면 닫기
+      setIsFilterOpen(false);
+      setFilterButtonRect(null);
+    } else {
+      // 닫혀있으면 열기
+      setFilterButtonRect(buttonRect);
+      setIsFilterOpen(true);
+    }
   };
 
   const handleFilterClose = async (filters: TaskFilters) => {

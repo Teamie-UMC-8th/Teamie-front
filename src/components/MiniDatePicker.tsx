@@ -25,8 +25,12 @@ export default function MiniDatePicker({
     if (initialRangeStart && initialRangeEnd) {
       setRangeStart(initialRangeStart);
       setRangeEnd(initialRangeEnd);
+    } else if (!initialRangeStart && !initialRangeEnd) {
+      // 초기화 시 범위 상태도 초기화
+      setRangeStart(undefined);
+      setRangeEnd(undefined);
     }
-  }, [initialRangeStart, initialRangeEnd]);
+  }, [initialRangeStart, initialRangeEnd, selectedDate]); // selectedDate 의존성 추가
 
   // selectedDate가 없으면 오늘 날짜를 기본값으로 설정
   const effectiveSelectedDate = selectedDate || new Date();
@@ -193,7 +197,7 @@ export default function MiniDatePicker({
       </div>
 
       {/* 날짜 그리드 */}
-      <div className="grid grid-cols-7 gap-x-4 gap-y-1">
+      <div className="grid grid-cols-7 gap-x-2 gap-y-1">
         {days.map((day, index) => (
           <button
             key={index}
