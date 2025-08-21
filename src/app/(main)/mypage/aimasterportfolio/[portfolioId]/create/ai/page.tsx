@@ -152,8 +152,7 @@ function AIMasterPortfolioCreatePageContent() {
 
   const handleSubButtonClick = () => {
     if (currentStep === 0) {
-      if (portfolio?.projectId)
-        router.replace(`/projects/${portfolio.projectId}/retrospect/create`);
+      if (portfolio?.projectId) router.replace(`/projects/${portfolio.projectId}/retrospect`);
     } else if (currentStep === 2) {
       const payload = step3Ref.current?.buildDraftPayload() ?? [];
       if (Array.isArray(payload) && payload.length === 0) {
