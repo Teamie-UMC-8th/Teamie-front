@@ -384,7 +384,7 @@ function AiLoadingPageContent() {
   };
   return (
     <div
-      className="ml-[240px] fixed
+      className="ml-[320px]
     max-lg:ml-[24px]"
     >
       <div className="flex flex-col items-center">

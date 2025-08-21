@@ -14,7 +14,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <CorrectionSidebar />
       </div>
       <div
-        className="flex-1 mt-[20px]
+        className="flex-1 mt-[48px]
       max-lg:mt-[116px]"
       >
         {children}

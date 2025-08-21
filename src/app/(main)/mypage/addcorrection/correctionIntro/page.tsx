@@ -67,7 +67,7 @@ export default function CorrectionIntro() {
   /* TODO: Sidebar 제거 후 간격 재조정 */
   return (
     <div
-      className="ml-[240px] fixed
+      className="ml-[320px]
     max-lg:ml-[24px]"
     >
       <div className="flex flex-col items-center">
