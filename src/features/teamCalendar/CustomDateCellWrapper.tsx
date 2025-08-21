@@ -38,16 +38,13 @@ export default function CustomDateCellWrapper({
   const { mutate } = usePostPlan();
   const { mutate: patchPlan } = usePatchPlan();
 
-  // 오늘 날짜 이후인지 확인 (오늘 포함)
-  const isTodayOrAfter = moment(value).isSameOrAfter(moment(), 'day');
-
   // 프로젝트 생성일 이전인지 확인
   const isBeforeProjectCreation = projectCreatedAtISO
     ? moment(value).isBefore(moment(projectCreatedAtISO), 'day')
     : false;
 
-  // 플러스 버튼 표시 조건: 오늘 이후이면서, 프로젝트 생성일 이후만, 그리고 프로젝트가 종료되지 않았을 때
-  const canShowPlusButton = isTodayOrAfter && !isBeforeProjectCreation && !isProjectCompleted;
+  // 플러스 버튼 표시 조건: 프로젝트 생성일 이후만, 그리고 프로젝트가 종료되지 않았을 때
+  const canShowPlusButton = !isBeforeProjectCreation && !isProjectCompleted;
 
   const handleClick = () => {
     if (!projectId || !canShowPlusButton) return;
