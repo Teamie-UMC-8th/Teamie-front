@@ -6,7 +6,7 @@ import { ReactNode, Fragment, useEffect, useRef } from 'react';
 
 interface DropdownItem {
   label: string;
-  href: string;
+  href?: string;
   icon?: string;
   divider?: boolean;
   onClick?: () => void;
@@ -87,7 +87,7 @@ export default function Dropdown({
                   </button>
                 ) : (
                   <Link
-                    href={item.href}
+                    href={item.href ?? ''}
                     onClick={() => {
                       onToggle();
                       item.onClick?.();
