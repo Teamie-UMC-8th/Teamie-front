@@ -551,9 +551,14 @@ function TailoredPortfolioContent() {
                           }
                         : { borderLeft: '4px solid transparent', borderRadius: '4px' };
                     return (
-                      <p key={`detail-${idx}`} style={style}>
-                        {text}
-                      </p>
+                      <div key={`detail-${idx}`} className="relative my-[4px]">
+                        <div
+                          aria-hidden
+                          className="absolute left-[-16px] right-0 top-0 bottom-0 rounded-[4px] pointer-events-none"
+                          style={style}
+                        />
+                        <p className="relative z-[1]">{text}</p>
+                      </div>
                     );
                   })
                 : (
@@ -578,9 +583,14 @@ function TailoredPortfolioContent() {
                           }
                         : { borderLeft: '4px solid transparent', borderRadius: '4px' };
                     return (
-                      <p key={`detail-${idx}`} style={style}>
-                        {text}
-                      </p>
+                      <div key={`detail-${idx}`} className="relative my-[4px]">
+                        <div
+                          aria-hidden
+                          className="absolute left-[-16px] right-0 top-0 bottom-0 rounded-[4px] pointer-events-none"
+                          style={style}
+                        />
+                        <p className="relative z-[1]">{text}</p>
+                      </div>
                     );
                   })}
             </div>
@@ -737,9 +747,14 @@ function TailoredPortfolioContent() {
                           }
                         : { borderLeft: '4px solid transparent', borderRadius: '4px' };
                     return (
-                      <p key={`tasks-${idx}`} style={style}>
-                        {text}
-                      </p>
+                      <div key={`tasks-${idx}`} className="relative my-[4px]">
+                        <div
+                          aria-hidden
+                          className="absolute left-[-16px] right-0 top-0 bottom-0 rounded-[4px] pointer-events-none"
+                          style={style}
+                        />
+                        <p className="relative z-[1]">{text}</p>
+                      </div>
                     );
                   })
                 : (
@@ -764,9 +779,14 @@ function TailoredPortfolioContent() {
                           }
                         : { borderLeft: '4px solid transparent', borderRadius: '4px' };
                     return (
-                      <p key={`tasks-${idx}`} style={style}>
-                        {text}
-                      </p>
+                      <div key={`tasks-${idx}`} className="relative my-[4px]">
+                        <div
+                          aria-hidden
+                          className="absolute left-[-16px] right-0 top-0 bottom-0 rounded-[4px] pointer-events-none"
+                          style={style}
+                        />
+                        <p className="relative z-[1]">{text}</p>
+                      </div>
                     );
                   })}
             </div>
@@ -913,9 +933,14 @@ function TailoredPortfolioContent() {
                           }
                         : { borderLeft: '4px solid transparent', borderRadius: '4px' };
                     return (
-                      <p key={`ach-${idx}`} style={style}>
-                        {text}
-                      </p>
+                      <div key={`ach-${idx}`} className="relative my-[4px]">
+                        <div
+                          aria-hidden
+                          className="absolute left-[-16px] right-0 top-0 bottom-0 rounded-[4px] pointer-events-none"
+                          style={style}
+                        />
+                        <p className="relative z-[1]">{text}</p>
+                      </div>
                     );
                   })
                 : (
@@ -940,9 +965,14 @@ function TailoredPortfolioContent() {
                           }
                         : { borderLeft: '4px solid transparent', borderRadius: '4px' };
                     return (
-                      <p key={`ach-${idx}`} style={style}>
-                        {text}
-                      </p>
+                      <div key={`ach-${idx}`} className="relative my-[4px]">
+                        <div
+                          aria-hidden
+                          className="absolute left-[-16px] right-0 top-0 bottom-0 rounded-[4px] pointer-events-none"
+                          style={style}
+                        />
+                        <p className="relative z-[1]">{text}</p>
+                      </div>
                     );
                   })}
             </div>
@@ -1089,9 +1119,14 @@ function TailoredPortfolioContent() {
                           }
                         : { borderLeft: '4px solid transparent', borderRadius: '4px' };
                     return (
-                      <p key={`ins-${idx}`} style={style}>
-                        {text}
-                      </p>
+                      <div key={`ins-${idx}`} className="relative my-[4px]">
+                        <div
+                          aria-hidden
+                          className="absolute left-[-16px] right-0 top-0 bottom-0 rounded-[4px] pointer-events-none"
+                          style={style}
+                        />
+                        <p className="relative z-[1]">{text}</p>
+                      </div>
                     );
                   })
                 : (
@@ -1116,9 +1151,14 @@ function TailoredPortfolioContent() {
                           }
                         : { borderLeft: '4px solid transparent', borderRadius: '4px' };
                     return (
-                      <p key={`ins-${idx}`} style={style}>
-                        {text}
-                      </p>
+                      <div key={`ins-${idx}`} className="relative my-[4px]">
+                        <div
+                          aria-hidden
+                          className="absolute left-[-16px] right-0 top-0 bottom-0 rounded-[4px] pointer-events-none"
+                          style={style}
+                        />
+                        <p className="relative z-[1]">{text}</p>
+                      </div>
                     );
                   })}
             </div>
