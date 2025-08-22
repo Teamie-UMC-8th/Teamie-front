@@ -11,6 +11,7 @@ import DeleteButton from '@/components/DeleteButton';
 import DatePicker from '@/components/DatePicker';
 import TimePicker from '@/components/TimePicker';
 import RemindMessageModal from '@/features/teamTask/components/RemindMessageModal';
+import { getTeamTaskUrl } from '@/utils/url';
 import RemindMessageButton from '@/features/teamTask/components/RemindMessageButton';
 import MemoField from '@/features/teamTask/components/MemoField';
 import MeetingRecordsField from '@/features/teamTask/components/MeetingRecordsField';
@@ -703,7 +704,7 @@ export default function TeamTaskDetailPage() {
           )
           .filter((name) => name !== '')}
         location={location}
-        detailUrl={`/projects/${projectId}/teamcalendar/${planId}/${scheduleName}`}
+        detailUrl={getTeamTaskUrl(projectId as string, planId as string)}
       />
     </div>
   );
