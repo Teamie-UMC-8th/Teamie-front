@@ -101,7 +101,7 @@ interface SectionBoxProps {
 
 function SectionBox({ title, bullets, initialValue, onSave }: SectionBoxProps) {
   return (
-    <div className="w-[1415px] max-lg:w-[862px] h-[588px] max-lg:h-[542px] bg-[#F8F8F8] shadow-[0_0_4px_rgba(0,0,0,0.2)] rounded-[16px] pr-[32px] pl-[32px] pt-[32px] pb-[52px] max-lg:pr-[20px] max-lg:pl-[20px] max-lg:pt-[24px] max-lg:pb-[28px]">
+    <div className="w-[1415px] max-lg:w-[862px] min-h-[588px] max-lg:min-h-[542px] bg-[#F8F8F8] shadow-[0_0_4px_rgba(0,0,0,0.2)] rounded-[16px] pr-[32px] pl-[32px] pt-[32px] pb-[52px] max-lg:pr-[20px] max-lg:pl-[20px] max-lg:pt-[24px] max-lg:pb-[28px]">
       <h2 className="font-[Pretendard] text-[#000000] font-bold text-[20px] leading-[28px] mb-[8px] max-lg:text-[18px] max-lg:leading-[26px]">
         {title}
       </h2>
