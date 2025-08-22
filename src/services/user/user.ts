@@ -11,11 +11,16 @@ import axiosInstance from '@/lib/axiosInstance';
 
 // 사용자 프로필 정보를 가져오는 함수
 export default async function fetchUserProfile(): Promise<UserProfile> {
-  const { data } = await axiosInstance.get<UserResponse>('/api/v1/users/me');
-  if (!data.result) {
-    throw new Error('사용자 정보를 가져올 수 없습니다.');
+  try {
+    const { data } = await axiosInstance.get<UserResponse>('/api/v1/users/me');
+    if (!data.result) {
+      throw new Error('사용자 정보를 가져올 수 없습니다.');
+    }
+    return data.result;
+  } catch (error) {
+    console.error('fetchUserProfile 에러:', error);
+    throw error; // 에러를 다시 throw하여 react-query가 인지하도록 함
   }
-  return data.result;
 }
 
 // 주요 업무를 수정하는 함수

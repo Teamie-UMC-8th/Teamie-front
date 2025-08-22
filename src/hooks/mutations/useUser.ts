@@ -1,3 +1,5 @@
+'use client';
+
 import { UserProfile, UserProject } from '@/types/api/user';
 import fetchUserProfile, {
   fetchUserProjects,
@@ -5,14 +7,27 @@ import fetchUserProfile, {
   updateMainTask,
 } from '@/services/user/user';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { usePathname } from 'next/navigation';
+import { checkAuthRoute } from '@/utils/authRoute';
 
 // 기본 사용자 정보만 가져오는 훅
 export const useUser = () => {
+  const pathname = usePathname();
+  const { isPublicPath } = checkAuthRoute(pathname);
+
   return useQuery<UserProfile>({
     queryKey: ['user'],
     queryFn: fetchUserProfile,
-    staleTime: 1000 * 60 * 5,
-    retry: false,
+    staleTime: 1000 * 60 * 5, // 5분 동안 데이터를 fresh 상태로 유지합니다.
+    refetchOnWindowFocus: !isPublicPath, // 공개 경로에서는 브라우저 창이 포커스되어도 데이터를 다시 가져오지 않습니다.
+    retry: (failureCount, error: any) => {
+      // 401 에러는 인터셉터가 처리하므로 재시도하지 않습니다.
+      if (error.response?.status === 401) {
+        return false;
+      }
+      // 그 외 에러는 2번까지 재시도합니다.
+      return failureCount < 2;
+    },
   });
 };
 
