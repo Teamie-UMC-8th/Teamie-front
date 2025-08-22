@@ -10,10 +10,12 @@ import { SidebarMenus } from '@/types/sidebar';
 import Dropdown from './Dropdown';
 import Image from 'next/image';
 import { getDropdownIcon, getProfileImageUrl, handleImageError } from '@/utils/imageUtils';
+import DeleteButtonModal from './DeleteButtonModal';
 
 export default function Navbar() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<string>('나의 프로젝트');
   const navbarRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -44,7 +46,14 @@ export default function Navbar() {
       setIsProfileDropdownOpen(false);
     } catch (error) {
       console.error('로그아웃 처리 중 오류 발생:', error);
+    } finally {
+      setIsLogoutModalOpen(false);
     }
+  };
+
+  const openLogoutModal = () => {
+    setIsLogoutModalOpen(true);
+    setIsProfileDropdownOpen(false);
   };
 
   // 경로 변경 시 프로젝트 페이지가 아니면 selectedProject 리셋
@@ -193,9 +202,8 @@ export default function Navbar() {
               },
               {
                 label: '로그아웃',
-                href: '/login',
                 icon: '/icons/logout.svg',
-                onClick: handleLogout,
+                onClick: openLogoutModal,
               },
             ]}
             className="mr-[1rem]"
@@ -204,6 +212,13 @@ export default function Navbar() {
           />
         </div>
       </div>
+      {isLogoutModalOpen && (
+        <DeleteButtonModal
+          title="정말 로그아웃 하시겠습니까?"
+          onConfirm={handleLogout}
+          onCancel={() => setIsLogoutModalOpen(false)}
+        />
+      )}
     </nav>
   );
 }
