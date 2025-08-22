@@ -47,13 +47,13 @@ export default function DeleteButtonModal({
         <div className="flex justify-center gap-[28px]">
           <button
             onClick={onCancel}
-            className="w-[103px] h-[34px] border border-black rounded-[4px] text-[18px] cursor-pointer"
+            className="w-[103px] h-[34px] border bg-[#FFFFFF] border-black rounded-[4px] text-[18px] cursor-pointer"
           >
             {cancelText}
           </button>
           <button
             onClick={onConfirm}
-            className="w-[103px] h-[34px] border border-black rounded-[4px] text-[18px] cursor-pointer"
+            className="w-[103px] h-[34px] border border-black bg-[#FFFFFF] rounded-[4px] text-[18px] cursor-pointer"
           >
             {confirmText}
           </button>
