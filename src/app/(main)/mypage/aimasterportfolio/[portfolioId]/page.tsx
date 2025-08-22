@@ -26,18 +26,19 @@ const STYLES = {
 function ProjectHeader({ title }: { title: string }) {
   const router = useRouter();
   return (
-    <div className="flex flex-col gap-[12px] px-[30px]">
+    <div className="flex flex-col gap-[12px]">
       <div className="flex items-center gap-[20px] max-lg:gap-[8px]">
         <button
           onClick={() => router.push('/myPage')}
           aria-label="뒤로가기"
-          className="cursor-pointer"
+          className="cursor-pointer -ml-[35px]"
         >
           <Image src="/icons/arrow-left.svg" alt="뒤로가기" width={24} height={24} />
         </button>
         <h1 className="font-[Pretendard] font-bold text-[24px] leading-[29px] tracking-[0.04em] text-[#000000] whitespace-nowrap gap-[1437px]">
           {title}
         </h1>
+        <div className="ml-auto"></div>
         <MenuButton />
       </div>
     </div>
@@ -378,7 +379,11 @@ export default function MasterPortfolioDetail() {
       </div>
 
       {/* 생성 진행 중 재진입 시 마지막 단계부터 표시되는 로딩 모달 */}
-      {status?.result.status === 'GENERATING' && <LoadingModal isOpen startFromLast />}
+      {status?.result.status === 'GENERATING' && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <LoadingModal isOpen startFromLast />
+        </div>
+      )}
 
       {/* 토스트 메시지 */}
       {showToast && (
