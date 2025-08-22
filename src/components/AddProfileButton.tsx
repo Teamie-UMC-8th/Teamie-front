@@ -26,15 +26,17 @@ export default function AddProfileButton({
   const [selectedProfiles, setSelectedProfiles] = useState<Manager[]>([]);
   // const isInitialized = useRef(false);
 
-  // initialSelectedIds prop이 변경될 때마다 내부 상태를 업데이트합니다.
+  // initialSelectedIds 순서를 그대로 반영하여 내부 상태를 업데이트
   useEffect(() => {
-    if (profiles.length > 0) {
-      const newSelectedProfiles = profiles.filter((profile) =>
-        initialSelectedIds.includes(profile.userId)
-      );
-      setSelectedProfiles(newSelectedProfiles);
-    } else {
-      setSelectedProfiles([]); // profiles가 비어있으면 선택 목록도 비웁니다.
+    if (profiles.length > 0 && initialSelectedIds.length > 0) {
+      const idToProfile = new Map<number, Manager>();
+      profiles.forEach((p) => idToProfile.set(p.userId, p));
+      const ordered = initialSelectedIds
+        .map((id) => idToProfile.get(id))
+        .filter((p): p is Manager => Boolean(p));
+      setSelectedProfiles(ordered);
+    } else if (profiles.length === 0 || initialSelectedIds.length === 0) {
+      setSelectedProfiles([]);
     }
   }, [initialSelectedIds, profiles]);
 
