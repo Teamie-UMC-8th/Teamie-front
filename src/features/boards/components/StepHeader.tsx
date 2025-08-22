@@ -7,6 +7,7 @@ interface StepHeaderProps {
     stepName: string;
     stepId: number;
     tasks: Task[];
+    totalTaskCount: number; // 필터링되지 않은 실제 업무 개수
   };
   isOpen: boolean;
   onToggle: () => void;
@@ -67,8 +68,8 @@ export default function StepHeader({
     }
   };
 
-  // 삭제 가능 여부 (업무가 없고 프로젝트가 종료되지 않은 경우)
-  const showDelete = step.tasks.length === 0 && !isCompleted;
+  // 삭제 가능 여부 (실제 업무 개수를 기준으로 판단)
+  const showDelete = step.totalTaskCount === 0 && !isCompleted;
 
   return (
     <div
