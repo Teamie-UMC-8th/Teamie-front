@@ -181,7 +181,7 @@ const Step3 = forwardRef<Step3Handle>(function Step3(_, ref) {
                   <div className="flex gap-3 ml-4 ">
                     <button
                       onClick={() => handleYesNo(q.questionId!, 'YES')}
-                      className={`w-[77px] h-[30px] rounded-md font-medium transition-colors cursor-pointer items-center justify-center whitespace-nowrap ${
+                      className={`w-[77px] h-[30px] rounded-md font-regular transition-colors cursor-pointer items-center justify-center whitespace-nowrap ${
                         state.answer === 'YES'
                           ? 'border-[1px] border-[#81D7D4] bg-[#DAF3F3]'
                           : 'border-[0.6px] border-[#898989] bg-[#FFF]'
@@ -191,7 +191,7 @@ const Step3 = forwardRef<Step3Handle>(function Step3(_, ref) {
                     </button>
                     <button
                       onClick={() => handleYesNo(q.questionId!, 'NO')}
-                      className={`w-[77px] h-[30px] rounded-md font-medium transition-colors cursor-pointer items-center justify-center whitespace-nowrap ${
+                      className={`w-[77px] h-[30px] rounded-md font-regular transition-colors cursor-pointer items-center justify-center whitespace-nowrap ${
                         state.answer === 'NO'
                           ? 'border-[1px] border-[#81D7D4] bg-[#DAF3F3]'
                           : 'border-[0.6px] border-[#898989] bg-[#FFF]'
