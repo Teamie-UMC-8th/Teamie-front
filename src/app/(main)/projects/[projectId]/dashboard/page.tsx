@@ -20,6 +20,7 @@ import FilterPanel from '@/components/FilterPanel';
 import { TaskFilters } from '@/types/api/tasks';
 import { searchTasks } from '@/services/tasks/searchTasks';
 import { DashboardResponse } from '@/types/api/dashboard';
+import { useMemo } from 'react';
 
 export default function DashboardPage() {
   // 상태 관리: STEP 별로 보기 / 진행 상태별로 보기
@@ -285,6 +286,29 @@ export default function DashboardPage() {
   // 현재 표시할 데이터 결정 (필터링된 데이터 또는 원본 데이터)
   const displayData = isFiltered ? filteredData : dashboardData;
 
+  // 업무 개수 계산
+  const totalTaskCountMap = useMemo(() => {
+    // 데이터 아직 안 넘어왔으면 빈 맵 반환
+    if (!dashboardData || !('steps' in dashboardData)) return new Map<number, number>();
+
+    const map = new Map<number, number>();
+    dashboardData.steps.forEach((step) => {
+      // 실제 서버에서 넘어온 데이터 기반 업무 개수 계산
+      map.set(step.stepId, step.tasks.length);
+    });
+    return map;
+  }, [dashboardData]);
+
+  // 필터 적용 여부에 따른 업무 개수 반환
+  const stepsWithTotalCount = useMemo(() => {
+    if (!displayData || !('steps' in displayData)) return [];
+
+    return displayData.steps.map((step) => ({
+      ...step,
+      totalTaskCount: totalTaskCountMap.get(step.stepId) || 0,
+    }));
+  }, [displayData, totalTaskCountMap]);
+
   // 필터링된 데이터 재페칭 함수
   const handleRefetchFilteredData = async () => {
     if (!isFiltered) return;
@@ -381,7 +405,7 @@ export default function DashboardPage() {
         >
           {isStepView ? (
             <StepsBoard
-              steps={displayData && 'steps' in displayData ? displayData.steps : []}
+              steps={stepsWithTotalCount} // totalTaskCount가 포함된 데이터 전달
               projectId={projectId}
               isCompleted={Boolean(isCompleted?.result?.isCompleted)}
               onRefetchFilteredData={handleRefetchFilteredData}
