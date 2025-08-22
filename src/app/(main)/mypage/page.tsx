@@ -35,6 +35,13 @@ function MyPageContent() {
   const updateUserProfile = useUpdateUserProfile();
   const { isUpgraded, setIsUpgraded } = useAuth(); // AuthContext에서 pro 업그레이드 상태와 설정 함수 가져오기
 
+  // 업그레이드 상태가 아닐 때는 토글을 강제로 'project'로 고정
+  useEffect(() => {
+    if (!isUpgraded && selected !== 'project') {
+      setSelected('project');
+    }
+  }, [isUpgraded, selected, setSelected]);
+
   const handleProfileImageChange = (file: File) => {
     updateUserProfile.mutate(
       { file },
