@@ -1,6 +1,6 @@
 'use client';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import localFont from 'next/font/local';
 import { AuthProvider } from '../contexts/AuthContext';
 import { usePathname, useRouter } from 'next/navigation';
@@ -8,6 +8,8 @@ import { useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/globals.css';
 import { WebSocketProvider } from '@/contexts/WebSocketContext';
+import { queryClient } from '@/lib/queryClient';
+import { checkAuthRoute } from '@/utils/authRoute';
 
 const pretendard = localFont({
   src: './fonts/PretendardVariable.woff2',
@@ -16,10 +18,10 @@ const pretendard = localFont({
   variable: '--font-pretendard',
 });
 
-const queryClient = new QueryClient();
+// const queryClient = new QueryClient();
 
 // 인증이 필요한 페이지들
-const PROTECTED_ROUTES = ['/home', '/projects', '/myPage', '/new'];
+// const PROTECTED_ROUTES = ['/home', '/projects', '/myPage', '/new'];
 
 function AuthWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -31,7 +33,7 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const isProtectedRoute = PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
+    const { isProtectedRoute } = checkAuthRoute(pathname);
     const isLoginPage = pathname === '/login';
 
     // 현재 전체 경로(쿼리 포함)

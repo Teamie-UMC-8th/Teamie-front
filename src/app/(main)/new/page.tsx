@@ -5,7 +5,7 @@ import { useCreateProject } from '@/hooks/mutations/useCreateProject';
 import { formatToKoreanDate } from '@/utils/formatDate';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useThrottle } from '@/hooks/useThrottle';
+import useThrottle from '@/hooks/useThrottle';
 import { useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
 
@@ -20,9 +20,6 @@ export default function New() {
   const [expiresAt, setExpiresAt] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [hasAttemptedCreation, setHasAttemptedCreation] = useState(false);
-
-  // 1초 throttle 적용
-  const throttledCreateProject = useThrottle(1000);
 
   const createProjectMutation = useCreateProject(
     (response) => {
@@ -57,6 +54,12 @@ export default function New() {
     }
   );
 
+  // 스로틀링 적용 방식 변경
+  const throttledCreateProject = useThrottle(() => {
+    if (!projectName.trim()) return;
+    createProjectMutation.mutate({ name: projectName });
+  }, 1000); // 1초에 한 번만 실행
+
   // 프로젝트명 입력 제한 함수
   const handleProjectNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -85,9 +88,7 @@ export default function New() {
     setHasAttemptedCreation(true);
 
     // throttle 적용하여 중복 요청 방지
-    throttledCreateProject(() => {
-      createProjectMutation.mutate({ name: projectName });
-    });
+    throttledCreateProject();
   };
 
   const handleRedirect = () => {
