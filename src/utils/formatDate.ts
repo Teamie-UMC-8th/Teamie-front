@@ -4,7 +4,7 @@ export function formatDate(date: Date | string | undefined): string {
   const d = typeof date === 'string' ? new Date(date) : date;
   if (isNaN(d.getTime())) return '날짜 없음';
 
-  const year = d.getFullYear().toString().slice(-2); // 2025 -> 25
+  const year = d.getFullYear().toString();
   const month = (d.getMonth() + 1).toString().padStart(2, '0'); // 4 -> 04
   const day = d.getDate().toString().padStart(2, '0');
 
