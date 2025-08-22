@@ -379,11 +379,7 @@ export default function MasterPortfolioDetail() {
       </div>
 
       {/* 생성 진행 중 재진입 시 마지막 단계부터 표시되는 로딩 모달 */}
-      {status?.result.status === 'GENERATING' && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <LoadingModal isOpen startFromLast />
-        </div>
-      )}
+      {status?.result.status === 'GENERATING' && <LoadingModal isOpen startFromLast />}
 
       {/* 토스트 메시지 */}
       {showToast && (
