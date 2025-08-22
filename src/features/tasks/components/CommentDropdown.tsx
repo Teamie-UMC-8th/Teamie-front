@@ -17,13 +17,16 @@ const COCOMMENT_OPTIONS = [
 export default function CommentMenuDropdown({
   onSelect,
   type = 'comment',
+  canModify = true,
 }: {
   onSelect: (action: string) => void;
   type?: 'comment' | 'cocomment';
+  canModify?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const options = type === 'cocomment' ? COCOMMENT_OPTIONS : COMMENT_OPTIONS;
+  const visibleOptions = canModify ? options : options.filter((opt) => opt.action === 'reply');
 
   const toggleDropdown = () => setIsOpen((prev) => !prev);
 
@@ -61,10 +64,10 @@ export default function CommentMenuDropdown({
       {/* 드롭다운 메뉴 */}
       {isOpen && (
         <div
-          className="absolute right-0 mt-[10px] w-[222px] h-[150px] bg-white rounded-[8px] z-10 px-[12px] py-[10px]"
+          className="absolute right-0 mt-[10px] w-[222px] bg-white rounded-[8px] z-10 px-[12px] py-[10px]"
           style={{ boxShadow: '0px 0px 15px rgba(0, 0, 0, 0.2)' }}
         >
-          {options.map((option, idx) => (
+          {visibleOptions.map((option, idx) => (
             <div className="relative" key={option.label}>
               <button
                 onClick={() => handleSelect(option.action)}
@@ -73,7 +76,7 @@ export default function CommentMenuDropdown({
                 <img src={option.icon} alt={option.label} className="w-[32px] h-[32px]" />
                 <span className="text-[18px] text-[#505050]">{option.label}</span>
               </button>
-              {idx < options.length - 1 && (
+              {idx < visibleOptions.length - 1 && (
                 <hr className=" border-[1px] border-[#BBBBBB] my-[8px] w-[202px] " />
               )}
             </div>

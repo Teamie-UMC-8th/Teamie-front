@@ -68,7 +68,7 @@ export default function TaskDetailPage() {
       try {
         const res = await axiosInstance.get(`/api/v1/projects/${projectId}`);
         return res.data;
-      } catch (e) {
+      } catch {
         return null;
       }
     },

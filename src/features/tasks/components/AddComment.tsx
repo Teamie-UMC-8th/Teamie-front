@@ -36,6 +36,9 @@ export default function AddComment({ readOnly = false }: Props) {
   // 삭제된 대댓글 ID 추적
   const [deletedCocommentIds, setDeletedCocommentIds] = useState<Set<number>>(new Set());
 
+  // 대댓글 중복 제출 방지용 인덱스 상태
+  const [submittingReplyIndex, setSubmittingReplyIndex] = useState<number | null>(null);
+
   // 현재 사용자 정보 가져오기
   const { data: currentUser } = useUser();
 
@@ -153,6 +156,8 @@ export default function AddComment({ readOnly = false }: Props) {
   // 대댓글 제출 처리
   const handleReplySubmit = (idx: number) => {
     if (!replyComments[idx] || replyComments[idx].trim() === '') return;
+    if (submittingReplyIndex === idx || isAddingCocomment) return; // 중복 제출 방지
+    setSubmittingReplyIndex(idx);
 
     const commentId = comments[idx].commentId;
     const content = replyComments[idx].trim();
@@ -178,6 +183,7 @@ export default function AddComment({ readOnly = false }: Props) {
           });
           setReplyToIndex(null);
           setReplyToCocommentId(null); // 대댓글에 대한 대댓글 모드도 초기화
+          setSubmittingReplyIndex(null);
 
           // 로컬 상태에 새 대댓글 추가
           const newCocommentData = {
@@ -204,6 +210,7 @@ export default function AddComment({ readOnly = false }: Props) {
         onError: (error: Error) => {
           console.error('대댓글 추가 실패:', error);
           alert(error.message || '대댓글 추가에 실패했습니다.');
+          setSubmittingReplyIndex(null);
         },
       }
     );
@@ -431,6 +438,7 @@ export default function AddComment({ readOnly = false }: Props) {
                 {/* 댓글 드롭다운 메뉴 */}
                 {editIndex !== idx && !readOnly && (
                   <CommentMenuDropdown
+                    canModify={comment.users.name === currentUser?.name}
                     onSelect={(action) => {
                       if (action === 'reply') {
                         setReplyToIndex(idx);

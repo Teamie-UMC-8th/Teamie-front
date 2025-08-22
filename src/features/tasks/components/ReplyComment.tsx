@@ -72,8 +72,9 @@ export default function ReplyComment({
             value={replyValue}
             onChange={(e) => onChange(idx, e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && replyValue.trim()) {
+              if (e.key === 'Enter' && !e.nativeEvent.isComposing && replyValue.trim()) {
                 e.preventDefault();
+                e.stopPropagation();
                 onSubmit(idx);
               }
             }}
@@ -130,6 +131,17 @@ export default function ReplyComment({
                 <input
                   value={editCocommentContent}
                   onChange={(e) => onCocommentEditChange?.(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === 'Enter' &&
+                      !e.nativeEvent.isComposing &&
+                      editCocommentContent.trim()
+                    ) {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onCocommentEditSubmit?.();
+                    }
+                  }}
                   className="rounded-[8px] w-[1224px] min-h-[46px] pl-[12px] py-[10px] bg-white border-[2px] border-[#BBBBBB] ml-[16px]
                   max-lg:w-[671px]"
                   placeholder="대댓글을 수정하세요"
@@ -158,6 +170,7 @@ export default function ReplyComment({
               onCocommentDelete && (
                 <CommentMenuDropdown
                   type="cocomment"
+                  canModify={submittedReplyUser?.name === currentUser?.name}
                   onSelect={(action) => {
                     console.log('📋 대댓글 드롭다운 메뉴 선택:', {
                       action,
